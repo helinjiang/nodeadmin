@@ -1,17 +1,52 @@
 var Vue = require('lib/vue');
+var validator = require('common/validator');
 
 var TipAlert = require('widget/tipalert/main');
+var InputText = require('widget/inputtext/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
-        TipAlert
+        TipAlert,
+        InputText
     },
     ready: function() {
-        handleLogin(this);
+
+        handleValidator(this);
+
         handleUniform();
     }
 });
+
+function handleValidator(vm) {
+    validator.check($('.login-form'), {
+        username: {
+            required: {
+                rule: true,
+                message: '用户名不能为空！'
+            },
+            minlength: {
+                rule: 2,
+                message: '最小长度为2'
+            },
+            maxlength: {
+                rule: 6,
+                message: '最大长度为6'
+            }
+        },
+        password: {
+            minlength: {
+                rule: 2,
+                message: '最小长度为2'
+            }
+        }
+    }, {
+        invalidHandler: function(event, validator) {
+            vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
+        }
+    });
+}
+
 
 var handleLogin = function(vm) {
     $('.login-form').validate({

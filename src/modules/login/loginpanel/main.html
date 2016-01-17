@@ -3,6 +3,7 @@
     
     <tip-alert v-ref:alert></tip-alert>
 
+    <input-text title="用户名" name="username2" icon="user"></input-text>
     <div class="form-group">
         <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
         <label class="control-label visible-ie8 visible-ie9">用户名</label>
@@ -15,7 +16,7 @@
         <label class="control-label visible-ie8 visible-ie9">密码</label>
         <div class="input-icon">
             <i class="fa fa-lock"></i>
-            <input class="form-control placeholder-no-fix" type="password" autocomplete="off" placeholder="密码" name="password" />
+            <input class="form-control placeholder-no-fix" type="password" autocomplete="off" placeholder="密码" name="password" required />
         </div>
     </div>
     <div class="form-actions">
