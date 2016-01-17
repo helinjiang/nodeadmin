@@ -18,6 +18,9 @@ fis.hook('commonjs', {
     }, {
         name: 'lib',
         location: '/modules/lib'
+    }, {
+        name: 'widget',
+        location: '/modules/widget'
     }]
 });
 
