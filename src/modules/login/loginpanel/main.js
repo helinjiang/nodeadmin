@@ -2,13 +2,13 @@ var Vue = require('lib/vue');
 var validator = require('common/validator');
 
 var TipAlert = require('widget/tipalert/main');
-var InputText = require('widget/inputtext/main');
+var HeInput = require('widget/heinput/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
         TipAlert,
-        InputText
+        HeInput
     },
     ready: function() {
 
@@ -35,9 +35,13 @@ function handleValidator(vm) {
             }
         },
         password: {
+            required: {
+                rule: true,
+                message: '密码不能为空！'
+            },
             minlength: {
-                rule: 2,
-                message: '最小长度为2'
+                rule: 6,
+                message: '最小长度为6'
             }
         }
     }, {

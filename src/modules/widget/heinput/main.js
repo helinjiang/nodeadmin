@@ -2,14 +2,8 @@ var Vue = require('lib/vue');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
-    data: function() {
-        return {
-            isShow: false,
-            type: 'danger', //danger,info,success,warning
-            msg: '' //必填
-        }
-    },
     props: [
+    'type',
         /**
          *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
          * user: 用户名
