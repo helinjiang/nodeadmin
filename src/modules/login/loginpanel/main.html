@@ -3,11 +3,11 @@
     
     <tip-alert v-ref:alert></tip-alert>
 
-    <he-input type="text" title="用户名" name="username" icon="user"></he-input>
-    <he-input type="password" title="密码" name="password" icon="lock"></he-input>
+    <form-input type="text" name="username" title="用户名" icon="user"></form-input>
+    <form-input type="password" name="password" title="密码" icon="lock"></form-input>
 
     <div class="form-actions">
-        <label class="checkbox"><input type="checkbox" name="remember" value="1" /> 记住密码 </label>
+        <he-checkbox name="remember" title="记住密码" value="1"></he-checkbox>
         <button type="submit" class="btn btn-info pull-right"> 登录 </button>
     </div>
 </form>

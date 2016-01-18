@@ -2,13 +2,15 @@ var Vue = require('lib/vue');
 var validator = require('common/validator');
 
 var TipAlert = require('widget/tipalert/main');
-var HeInput = require('widget/heinput/main');
+var FormInput = require('widget/forminput/main');
+var HeCheckbox = require('widget/hecheckbox/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
         TipAlert,
-        HeInput
+        FormInput,
+        HeCheckbox
     },
     ready: function() {
 
