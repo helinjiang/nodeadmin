@@ -16,21 +16,30 @@ module.exports = Vue.extend({
          * input 的name 值，必须
          */
         'name'
-    ]
+    ],
+    methods: {
+        isChecked: function() {
+            return this.checkboxElem.attr('checked') === 'checked';
+        },
+        getVal: function() {
+            if (this.isChecked()) {
+                return this.checkboxElem.val();
+            }
+        }
+    },
+    ready: function() {
+        // 缓存该值，避免重复获取
+        this.$set('checkboxElem', $('input', $(this.$el)));
+
+        handleUniform(this);
+    }
 });
 
 
-var handleUniform = function() {
+var handleUniform = function(vm) {
     if (!jQuery().uniform) {
         return;
     }
-    var test = $("input[type=checkbox]:not(.toggle, .make-switch), input[type=radio]:not(.toggle, .star, .make-switch)");
-    if (test.size() > 0) {
-        test.each(function() {
-            if ($(this).parents(".checker").size() == 0) {
-                $(this).show();
-                $(this).uniform();
-            }
-        });
-    }
+
+    vm.checkboxElem.uniform();
 }
