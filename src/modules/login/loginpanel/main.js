@@ -3,6 +3,7 @@ var validator = require('common/validator');
 
 var TipAlert = require('widget/tipalert/main');
 var FormInput = require('widget/forminput/main');
+var FormActions = require('widget/formactions/main');
 var HeCheckbox = require('widget/hecheckbox/main');
 
 module.exports = Vue.extend({
@@ -10,13 +11,12 @@ module.exports = Vue.extend({
     components: {
         TipAlert,
         FormInput,
+        FormActions,
         HeCheckbox
     },
     ready: function() {
 
         handleValidator(this);
-
-        handleUniform();
     }
 });
 
@@ -112,17 +112,3 @@ var handleLogin = function(vm) {
     });
 }
 
-var handleUniform = function() {
-    if (!jQuery().uniform) {
-        return;
-    }
-    var test = $("input[type=checkbox]:not(.toggle, .make-switch), input[type=radio]:not(.toggle, .star, .make-switch)");
-    if (test.size() > 0) {
-        test.each(function() {
-            if ($(this).parents(".checker").size() == 0) {
-                $(this).show();
-                $(this).uniform();
-            }
-        });
-    }
-}
