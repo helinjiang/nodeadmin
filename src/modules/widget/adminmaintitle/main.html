@@ -1,19 +1,12 @@
 <div class="admin-title">
     <h3 class="page-title">{{ name }} <small>{{ desc }}</small></h3>
-    
+
     <div class="page-bar">
         <ul class="page-breadcrumb">
-            <li>
-                <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
-                <i class="fa fa-angle-right"></i>
-            </li>
-            <li>
-                <a href="#">Page Layouts</a>
-                <i class="fa fa-angle-right"></i>
-            </li>
-            <li>
-                <a href="#">Blank Page</a>
+            <li v-for="item in data">
+                <i class="fa fa-{{item.icon}}" v-if="item.icon"></i>
+                <a href="{{item.url?item.url:'#'}}">{{item.name}}{{$index}}</a>
+                <i class="fa fa-angle-right" v-if="$index | ifLast"></i>                
             </li>
         </ul>
     </div> 

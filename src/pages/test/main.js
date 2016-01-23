@@ -15,7 +15,7 @@ window.app = new Vue({
         TestMain
     },
     ready: function() {
-        console.log('--',App);
+        // console.log('--',App);
         setTimeout(function() {
             App.init();
         }, 1000);
