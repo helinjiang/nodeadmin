@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="/static/plugins/uniform/css/uniform.default.min.css" /><!--ignore-->
     <!-- END GLOBAL MANDATORY STYLES -->
     <!-- BEGIN PAGE LEVEL STYLES -->
-    <link rel="stylesheet" href="/static/plugins/select2/select2.css" /><!--ignore-->
+
     <!-- END PAGE LEVEL SCRIPTS -->
     <!-- BEGIN THEME STYLES -->
     <link rel="stylesheet" href="/static/css/style-conquer.css" /><!--ignore-->
@@ -34,26 +34,25 @@
     <link rel="shortcut icon" href="favicon.ico" />
 </head>
 
-<body class="login">
-    <!-- BEGIN LOGO -->
-    <div class="logo">
-        <a href="index.html">
-            <img src="/static/img/logo.png" alt="" />
-        </a>
+
+<body class="page-header-fixed page-test">
+    <div id="app">
+        <admin-header></admin-header>
+
+        <div class="clearfix"></div>
+
+        <admin-main>
+            <admin-side-menu></admin-side-menu>
+            <test-main slot="content"></test-main>
+        </admin-main>
+
+        <div class="clearfix"></div>
+
+        <admin-footer></admin-footer>
     </div>
-    <!-- END LOGO -->
-    <!-- BEGIN LOGIN -->
-    <div class="content">
-        <div id="loginwrapper">
-            <login-panel></login-panel>
-        </div>
-    </div>
-    <!-- END LOGIN -->
-    <!-- BEGIN COPYRIGHT -->
-    <div class="copyright">
-        2013 &copy; Conquer. Admin Dashboard Template.
-    </div>
-    <!-- END COPYRIGHT -->
+
+
+
     <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
     <!-- BEGIN CORE PLUGINS -->
     <script src="/static/plugins/jquery-1.11.0.min.js"></script><!--ignore-->
