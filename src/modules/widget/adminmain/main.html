@@ -1,8 +1,13 @@
 <div class="page-container">
-    <slot></slot>
+    <slot name="menu"></slot>
     <div class="page-content-wrapper">
-        <div class="page-content">
-            <slot name="content"></slot>
+        <div class="page-content">           
+            <slot name="title"></slot>
+            <div class="row">
+                <div class="col-md-12">
+                    <slot name="main"></slot>
+                </div>
+            </div>
         </div>
     </div>
 </div>
