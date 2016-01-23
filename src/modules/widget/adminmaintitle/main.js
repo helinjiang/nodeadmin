@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 
-module.exports = Vue.extend({
+var MyComponent = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
@@ -12,3 +12,5 @@ module.exports = Vue.extend({
 
     }
 });
+
+Vue.component('admin-main-title', MyComponent);

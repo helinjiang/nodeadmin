@@ -1,8 +1,10 @@
 var Vue = require('lib/vue');
 
-module.exports = Vue.extend({
+var MyComponent = Vue.extend({
     template: __inline('main.html'),
-    ready:function(){
-        
+    ready: function() {
+
     }
 });
+
+Vue.component('admin-main', MyComponent);
