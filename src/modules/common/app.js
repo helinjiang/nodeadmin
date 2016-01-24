@@ -14,30 +14,6 @@ var App = function () {
 
     var responsiveHandlers = [];
 
-    // theme layout color set
-    var layoutColorCodes = {
-        'blue': '#4b8df8',
-        'red': '#e02222',
-        'green': '#35aa47',
-        'purple': '#852b99',
-        'grey': '#555555',
-        'light-grey': '#fafafa',
-        'yellow': '#ffb848'
-    };
-
-    // To get the correct viewport width based on  http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-    var _getViewPort = function () {
-        var e = window, a = 'inner';
-        if (!('innerWidth' in window)) {
-            a = 'client';
-            e = document.documentElement || document.body;
-        }
-        return {
-            width: e[a + 'Width'],
-            height: e[a + 'Height']
-        }
-    }
-
     // initializes main settings
     var handleInit = function () {
 
@@ -70,7 +46,7 @@ var App = function () {
     // reinitialize the laypot on window resize
     var handleResponsive = function () {
         handleSidebarAndContentHeight();
-        handleFixedSidebar();
+        // handleFixedSidebar();
         runResponsiveHandlers();
     }
 
@@ -146,117 +122,7 @@ var App = function () {
             }
             content.attr('style', 'min-height:' + height + 'px');
         }
-    }
-
-    // Handle sidebar menu
-    var handleSidebarMenu = function () {
-        jQuery('.page-sidebar').on('click', 'li > a', function (e) {
-            var menu = $('.page-sidebar-menu');
-
-            if ($(this).next().hasClass('sub-menu') == false) {
-                if ($('.btn-navbar').hasClass('collapsed') == false) {
-                    $('.btn-navbar').click();
-                }
-                return;
-            }
-
-            if ($(this).next().hasClass('sub-menu.always-open')) {
-                return;
-            }
-
-            var parent = $(this).parent().parent();
-            var the = $(this);
-
-            parent.children('li.open, li.active').children('a').children('.arrow').removeClass('open');
-            parent.children('li.open, li.active').children('.sub-menu').slideUp(200);
-            parent.children('li.open').removeClass('open');
-
-            var sub = jQuery(this).next();
-            var slideOffeset = -200;
-            var slideSpeed = 200;
-
-            if (sub.is(":visible")) {
-                jQuery('.arrow', jQuery(this)).removeClass("open");
-                jQuery(this).parent().removeClass("open");
-                sub.slideUp(slideSpeed, function () {
-                    if ($('body').hasClass('page-sidebar-closed') == false) {
-                        if ($('body').hasClass('page-sidebar-fixed')) {
-                            menu.slimScroll({
-                                'scrollTo': (the.position()).top
-                            });
-                        } else {
-                            App.scrollTo(the, slideOffeset);
-                        }
-                    }
-                    handleSidebarAndContentHeight();
-                });
-            } else {
-                jQuery('.arrow', jQuery(this)).addClass("open");
-                jQuery(this).parent().addClass("open");
-                sub.slideDown(slideSpeed, function () {
-                    if ($('body').hasClass('page-sidebar-closed') == false) {
-                        if ($('body').hasClass('page-sidebar-fixed')) {
-                            menu.slimScroll({
-                                'scrollTo': (the.position()).top
-                            });
-                        } else {
-                            App.scrollTo(the, slideOffeset);
-                        }
-                    }
-                    handleSidebarAndContentHeight();
-                });
-            }
-            e.preventDefault();
-        });
-
-       // handle ajax links
-        jQuery('.page-sidebar').on('click', ' li > a.ajaxify', function (e) {
-            e.preventDefault();
-            App.scrollTop();
-
-            var url = $(this).attr("href");
-            var menuContainer = jQuery('.page-sidebar ul');
-            var pageContent = $('.page-content');
-            var pageContentBody = $('.page-content .page-content-body');
-
-            menuContainer.children('li.active').removeClass('active');
-            menuContainer.children('arrow.open').removeClass('open');
-
-            $(this).parents('li').each(function () {
-                $(this).addClass('active');
-                $(this).children('a > span.arrow').addClass('open');
-            });
-            $(this).parents('li').addClass('active');
-
-            App.blockUI({target: pageContent});
-
-            if (App.getViewPort().width < 992 && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
-                $('.header .navbar-toggle').click();
-            }
-
-            var the = $(this);
-            $.ajax({
-                type: "GET",
-                cache: false,
-                url: url,
-                dataType: "html",
-                success: function (res) {
-                    if (the.parents('li.open').size() === 0) {
-                        $('.page-sidebar-menu > li.open > a').click();
-                    }
-                    App.unblockUI(pageContent);
-                    pageContentBody.html(res);
-                    App.fixContentHeight(); // fix content height
-                    App.initAjax(); // initialize core stuff
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
-                    App.unblockUI(pageContent);
-                },
-                async: false
-            });
-        });
-    }
+    }    
 
     // Helper function to calculate sidebar height for fixed sidebar layout.
     var _calculateFixedSidebarViewportHeight = function () {
@@ -266,161 +132,7 @@ var App = function () {
         }
 
         return sidebarHeight;
-    }
-
-    // Handles fixed sidebar
-    var handleFixedSidebar = function () {
-        var menu = $('.page-sidebar-menu');
-
-        if (menu.parent('.slimScrollDiv').size() === 1) { // destroy existing instance before updating the height
-            menu.slimScroll({
-                destroy: true
-            });
-            menu.removeAttr('style');
-            $('.page-sidebar').removeAttr('style');
-        }
-
-        if ($('.page-sidebar-fixed').size() === 0) {
-            handleSidebarAndContentHeight();
-            return;
-        }
-
-        var viewport = _getViewPort();
-        if (viewport.width >= 992) {
-            var sidebarHeight = _calculateFixedSidebarViewportHeight();
-
-            menu.slimScroll({
-                size: '7px',
-                color: '#a1b2bd',
-                opacity: .3,
-                position: isRTL ? 'left' : 'right',
-                height: sidebarHeight,
-                allowPageScroll: false,
-                disableFadeOut: false
-            });
-            handleSidebarAndContentHeight();
-        }
-    }
-
-    // Handles the sidebar menu hover effect for fixed sidebar.
-    var handleFixedSidebarHoverable = function () {
-        if ($('body').hasClass('page-sidebar-fixed') === false) {
-            return;
-        }
-
-        $('.page-sidebar').off('mouseenter').on('mouseenter', function () {
-            var body = $('body');
-
-            if ((body.hasClass('page-sidebar-closed') === false || body.hasClass('page-sidebar-fixed') === false) || $(this).hasClass('page-sidebar-hovering')) {
-                return;
-            }
-
-            body.removeClass('page-sidebar-closed').addClass('page-sidebar-hover-on');
-
-            if (body.hasClass("page-sidebar-reversed")) {
-                $(this).width(sidebarWidth);
-            } else {
-                $(this).addClass('page-sidebar-hovering');
-                $(this).animate({
-                    width: sidebarWidth
-                }, 400, '', function () {
-                    $(this).removeClass('page-sidebar-hovering');
-                });
-            }
-        });
-
-        $('.page-sidebar').off('mouseleave').on('mouseleave', function () {
-            var body = $('body');
-
-            if ((body.hasClass('page-sidebar-hover-on') === false || body.hasClass('page-sidebar-fixed') === false) || $(this).hasClass('page-sidebar-hovering')) {
-                return;
-            }
-
-            if (body.hasClass("page-sidebar-reversed")) {
-                $('body').addClass('page-sidebar-closed').removeClass('page-sidebar-hover-on');
-                $(this).width(sidebarCollapsedWidth);
-            } else {
-                $(this).addClass('page-sidebar-hovering');
-                $(this).animate({
-                    width: sidebarCollapsedWidth
-                }, 400, '', function () {
-                    $('body').addClass('page-sidebar-closed').removeClass('page-sidebar-hover-on');
-                    $(this).removeClass('page-sidebar-hovering');
-                });
-            }
-        });
-    }
-
-    // Handles sidebar toggler to close/hide the sidebar.
-    var handleSidebarToggler = function () {
-        var viewport = _getViewPort();
-        
-        // handle sidebar show/hide
-        $('.page-sidebar').on('click', '.sidebar-toggler', function (e) {
-            var body = $('body');
-            var sidebar = $('.page-sidebar');
-
-            if ((body.hasClass("page-sidebar-hover-on") && body.hasClass('page-sidebar-fixed')) || sidebar.hasClass('page-sidebar-hovering')) {
-                body.removeClass('page-sidebar-hover-on');
-                sidebar.css('width', '').hide().show();
-                handleSidebarAndContentHeight(); //fix content & sidebar height
-                e.stopPropagation();
-                runResponsiveHandlers();
-                return;
-            }
-
-            if (body.hasClass("page-sidebar-closed")) {
-                body.removeClass("page-sidebar-closed");
-                if (body.hasClass('page-sidebar-fixed')) {
-                    sidebar.css('width', '');
-                }
-            } else {
-                body.addClass("page-sidebar-closed");
-            }
-            handleSidebarAndContentHeight(); //fix content & sidebar height
-            runResponsiveHandlers();
-        });
-    }
-
-    var handleQuickSearch = function() {
-
-        // handle search for header search input on enter press
-        $('.search-form-header').on('keypress', 'input.form-control', function (e) {
-            if (e.which == 13) {
-                $('.search-form-header').submit();
-                return false;
-            }
-        });
-
-        // handle search for header search input on icon click
-        $('.search-form-header').on('click', '.icon-search', function (e) {
-            $('.search-form-header').submit();
-            return false;
-        });
-
-        // handle search for sidebar search input on enter press
-        $('.search-form-sidebar').on('keypress', 'input.form-control', function (e) {
-            if (e.which == 13) {
-                $('.search-form-sidebar').submit();
-                return false;
-            }
-        });
-
-        // handle search for sidebar search input on icon click
-        $('.search-form-sidebar').on('click', '.icon-search', function (e) {
-            $('.search-form-sidebar').submit();
-            return false;
-        });
-    }
-
-    // Handles the go to top button at the footer
-    var handleGoTop = function () {
-        /* set variables locally for increased performance */
-        jQuery('.footer').on('click', '.go-top', function (e) {
-            App.scrollTo();
-            e.preventDefault();
-        });
-    }
+    }    
 
     // Handles portlet tools & actions
     var handlePortletTools = function () {
@@ -559,14 +271,6 @@ var App = function () {
         $('[data-hover="dropdown"]').dropdownHover();
     }
 
-    // Handle Closable Alerts
-    var handleAlerts = function () {
-        $('body').on('click', '[data-close="alert"]', function(e){
-            $(this).parent('.alert').hide();
-            e.preventDefault();
-        });
-    }
-
     // Handles Bootstrap Popovers
 
     // last popep popover
@@ -665,154 +369,6 @@ var App = function () {
         }
     }
 
-    // Handle Theme Settings
-    var handleTheme = function () {
-
-        var panel = $('.theme-panel');
-
-        if ($('body').hasClass('page-boxed') == false) {
-            $('.layout-option', panel).val("fluid");
-        }
-
-        $('.sidebar-option', panel).val("default");
-        $('.header-option', panel).val("fixed");
-        $('.footer-option', panel).val("default");
-        if ( $('.sidebar-pos-option').attr("disabled") === false) {
-            $('.sidebar-pos-option', panel).val(App.isRTL() ? 'right' : 'left');
-        }
-        
-        //handle theme layout
-        var resetLayout = function () {
-            $("body").
-            removeClass("page-boxed").
-            removeClass("page-footer-fixed").
-            removeClass("page-sidebar-fixed").
-            removeClass("page-header-fixed").
-            removeClass("page-sidebar-reversed");
-
-            $('.header > .header-inner').removeClass("container");
-
-            if ($('.page-container').parent(".container").size() === 1) {
-                $('.page-container').insertAfter('body > .clearfix');
-            }
-
-            if ($('.footer > .container').size() === 1) {
-                $('.footer').html($('.footer > .container').html());
-            } else if ($('.footer').parent(".container").size() === 1) {
-                $('.footer').insertAfter('.page-container');
-            }
-
-            $('body > .container').remove();
-        }
-
-        var lastSelectedLayout = '';
-
-        var setLayout = function () {
-
-            var layoutOption = $('.layout-option', panel).val();
-            var sidebarOption = $('.sidebar-option', panel).val();
-            var headerOption = $('.header-option', panel).val();
-            var footerOption = $('.footer-option', panel).val();
-            var sidebarPosOption = $('.sidebar-pos-option', panel).val();
-
-
-            if (sidebarOption == "fixed" && headerOption == "default") {
-                alert('Default Header with Fixed Sidebar option is not supported. Proceed with Fixed Header with Fixed Sidebar.');
-                $('.header-option', panel).val("fixed");
-                $('.sidebar-option', panel).val("fixed");
-                sidebarOption = 'fixed';
-                headerOption = 'fixed';
-            }
-
-            resetLayout(); // reset layout to default state
-
-            if (layoutOption === "boxed") {
-                $("body").addClass("page-boxed");
-
-                // set header
-                $('.header > .header-inner').addClass("container");
-                var cont = $('body > .clearfix').after('<div class="container"></div>');
-
-                // set content
-                $('.page-container').appendTo('body > .container');
-
-                // set footer
-                if (footerOption === 'fixed') {
-                    $('.footer').html('<div class="container">' + $('.footer').html() + '</div>');
-                } else {
-                    $('.footer').appendTo('body > .container');
-                }
-            }
-
-            if (lastSelectedLayout != layoutOption) {
-                //layout changed, run responsive handler:
-                runResponsiveHandlers();
-            }
-            lastSelectedLayout = layoutOption;
-
-            //header
-            if (headerOption === 'fixed') {
-                $("body").addClass("page-header-fixed");
-                $(".header").removeClass("navbar-static-top").addClass("navbar-fixed-top");
-            } else {
-                $("body").removeClass("page-header-fixed");
-                $(".header").removeClass("navbar-fixed-top").addClass("navbar-static-top");
-            }
-
-            //sidebar
-            if (sidebarOption === 'fixed') {
-                $("body").addClass("page-sidebar-fixed");
-            } else {
-                $("body").removeClass("page-sidebar-fixed");
-            }
-
-            //footer 
-            if (footerOption === 'fixed') {
-                $("body").addClass("page-footer-fixed");
-            } else {
-                $("body").removeClass("page-footer-fixed");
-            }
-
-            //sidebar position
-            if (App.isRTL()) {
-                if (sidebarPosOption === 'left') {
-                    $("body").addClass("page-sidebar-reversed");
-                } else {
-                    $("body").removeClass("page-sidebar-reversed");
-                }
-            } else {
-                if (sidebarPosOption === 'right') {
-                    $("body").addClass("page-sidebar-reversed");
-                } else {
-                    $("body").removeClass("page-sidebar-reversed");
-                }
-            }
-
-            handleSidebarAndContentHeight(); // fix content height            
-            handleFixedSidebar(); // reinitialize fixed sidebar
-            handleFixedSidebarHoverable(); // reinitialize fixed sidebar hover effect
-        }
-
-        // handle theme colors
-        var setColor = function (color) {
-            var color_ = (App.isRTL() ? color + '-rtl' : color);
-            $('#style_color').attr("href", "assets/css/themes/" + color_ + ".css");
-        }
-
-        $('.toggler', panel).click(function () {
-            $(this).toggleClass("open");
-            $('.theme-panel > .theme-options').toggle();            
-        });
-
-        $('.theme-colors > ul > li', panel).click(function () {
-            var color = $(this).attr("data-style");
-            setColor(color);
-            $('ul > li', panel).removeClass("current");
-            $(this).addClass("current");
-        });
-
-        $('.layout-option, .header-option, .sidebar-option, .footer-option, .sidebar-pos-option', panel).change(setLayout);
-    }
     //* END:CORE HANDLERS *//
 
     return {
@@ -830,21 +386,21 @@ var App = function () {
             handleResponsiveOnInit(); // handler responsive elements on page load
 
             //layout handlers
-            handleFixedSidebar(); // handles fixed sidebar menu
-            handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect 
-            handleSidebarMenu(); // handles main menu
-            handleQuickSearch(); // handles quick search
-            handleSidebarToggler(); // handles sidebar hide/show            
+            // handleFixedSidebar(); // handles fixed sidebar menu
+            // handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect 
+            // handleSidebarMenu(); // handles main menu
+            // handleQuickSearch(); // handles quick search
+            // handleSidebarToggler(); // handles sidebar hide/show            
             handleFixInputPlaceholderForIE(); // fixes/enables html5 placeholder attribute for IE9, IE8
-            handleGoTop(); //handles scroll to top functionality in the footer
-            handleTheme(); // handles style customer tool
+            // handleGoTop(); //handles scroll to top functionality in the footer
+            // handleTheme(); // handles style customer tool
 
             //ui component handlers
             handleFancybox() // handle fancy box
             handleSelect2(); // handle custom Select2 dropdowns
             handlePortletTools(); // handles portlet action bar functionality(refresh, configure, toggle, remove)
             handleDropdowns(); // handle dropdowns
-            handleAlerts() // handle alerts
+            // handleAlerts() // handle alerts
             handleTabs(); // handle tabs
             handleTooltips(); // handle bootstrap tooltips
             handlePopovers(); // handles bootstrap popovers
@@ -895,7 +451,7 @@ var App = function () {
 
         // wrapper function to scroll(focus) to an element
         scrollTo: function (el, offeset) {
-            pos = (el && el.size() > 0) ? el.offset().top : 0;
+            var pos = (el && el.size() > 0) ? el.offset().top : 0;
             jQuery('html,body').animate({
                 scrollTop: pos + (offeset ? offeset : 0)
             }, 'slow');
@@ -1115,14 +671,11 @@ var App = function () {
             }
         },
 
-        // get layout color code by color name
-        getLayoutColorCode: function (name) {
-            if (layoutColorCodes[name]) {
-                return layoutColorCodes[name];
-            } else {
-                return '';
-            }
+        getFixedSidebarViewportHeight: function() {
+            return _calculateFixedSidebarViewportHeight();
         }
+
+  
 
     };
 

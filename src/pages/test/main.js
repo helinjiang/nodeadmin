@@ -15,10 +15,17 @@ window.app = new Vue({
         TestMain
     },
     ready: function() {
-        // console.log('--',App);
-        setTimeout(function() {
-            App.init();
-        }, 1000);
+        _init();
         // App.init();
     }
 });
+
+
+function _init() {
+    $(function() {
+        // App.init();
+        setTimeout(function() {
+            App.init();
+        }, 1000);
+    });
+}
