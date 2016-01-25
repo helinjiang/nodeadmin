@@ -23,6 +23,9 @@ function _init() {
     });
 }
 
+var sidebarWidth = 215;
+var sidebarCollapsedWidth = 40;
+
 
 // To get the correct viewport width based on  http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
 var _getViewPort = function() {
@@ -40,9 +43,7 @@ var _getViewPort = function() {
 
 // reinitialize the laypot on window resize
 var handleResponsive = function() {
-    // App.fixContentHeight();
     handleFixedSidebar();
-    // runResponsiveHandlers();
 }
 
 // handle the layout reinitialization on window resize
@@ -234,9 +235,9 @@ var handleSidebarToggler = function() {
         if ((body.hasClass("page-sidebar-hover-on") && body.hasClass('page-sidebar-fixed')) || sidebar.hasClass('page-sidebar-hovering')) {
             body.removeClass('page-sidebar-hover-on');
             sidebar.css('width', '').hide().show();
-            handleSidebarAndContentHeight(); //fix content & sidebar height
+            App.fixContentHeight(); //fix content & sidebar height
             e.stopPropagation();
-            runResponsiveHandlers();
+            App.runResponsiveHandlers();
             return;
         }
 
@@ -248,8 +249,8 @@ var handleSidebarToggler = function() {
         } else {
             body.addClass("page-sidebar-closed");
         }
-        handleSidebarAndContentHeight(); //fix content & sidebar height
-        runResponsiveHandlers();
+        App.fixContentHeight(); //fix content & sidebar height
+        App.runResponsiveHandlers();
     });
 }
 

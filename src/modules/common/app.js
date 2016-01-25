@@ -9,9 +9,6 @@ var App = function () {
     var isIE9 = false;
     var isIE10 = false;
 
-    var sidebarWidth = 215;
-    var sidebarCollapsedWidth = 40;
-
     var responsiveHandlers = [];
 
     // initializes main settings
@@ -676,7 +673,9 @@ var App = function () {
 
         getFixedSidebarViewportHeight: function() {
             return _calculateFixedSidebarViewportHeight();
-        }
+        },
+
+        runResponsiveHandlers:runResponsiveHandlers
 
   
 
