@@ -164,7 +164,7 @@ var handleFixedSidebar = function() {
             size: '7px',
             color: '#a1b2bd',
             opacity: .3,
-            position: App.isRTL ? 'left' : 'right',
+            position: App.isRTL() ? 'left' : 'right',
             height: sidebarHeight,
             allowPageScroll: false,
             disableFadeOut: false

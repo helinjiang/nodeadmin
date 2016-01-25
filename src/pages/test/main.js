@@ -23,9 +23,6 @@ window.app = new Vue({
 
 function _init() {
     $(function() {
-        // App.init();
-        setTimeout(function() {
-            App.init();
-        }, 1000);
+        App.init();
     });
 }

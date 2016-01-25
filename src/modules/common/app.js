@@ -407,6 +407,9 @@ var App = function () {
             handleAccordions(); //handles accordions 
             handleModals(); // handle modals
             handleBootstrapSwitch(); // handles bootstrap switch plugin  
+
+            handleDropdownHover(); // handles dropdown hover     
+
         },
 
         //main function to initiate core javascript after ajax complete
