@@ -4,6 +4,84 @@ var App = require('common/app');
 
 var MyComponent = Vue.extend({
     template: __inline('main.html'),
+    data: function() {
+        return {
+            treeData: {
+                name: 'My Tree',
+                children: [{
+                    name: 'Dashboard',
+                    url: 'index.html',
+                    icon: 'home'
+                }, {
+                    name: 'Page Layouts',
+                    icon: 'home',
+                    children: [{
+                        name: 'Sidebar Fixed Page',
+                        url: 'layout_sidebar_fixed.html',
+                        icon: 'anchor'
+                    }, {
+                        name: 'Sidebar Closed Page',
+                        url: 'layout_sidebar_closed.html',
+                        icon: 'anchor'
+                    }, {
+                        name: 'Boxed Page',
+                        url: 'layout_sidebar_fixed.html',
+                        icon: 'pin'
+                    }, {
+                        name: 'Session Timeout',
+                        url: 'layout_sidebar_fixed.html',
+                        icon: 'vector',
+                        tagType: 'warning',
+                        tagName: 'new'
+                    }]
+                }, {
+                    name: '4 Level Menu',
+                    icon: 'share',
+                    children: [{
+                        name: 'Item 1',
+                        icon: 'anchor',
+                        children: [{
+                            name: ' Sample Link 1',
+                            url: 'layout_sidebar_fixed.html',
+                            icon: 'anchor',
+                            children: [{
+                                name: 'sub-4',
+                                url: 'layout_sidebar_fixed.html',
+                                icon: 'anchor'
+                            }, {
+                                name: 'sub-4',
+                                url: 'layout_sidebar_closed.html',
+                                icon: 'anchor'
+                            }, {
+                                name: 'sub-4',
+                                url: 'layout_sidebar_closed.html',
+                                icon: 'anchor'
+                            }]
+                        }, {
+                            name: ' Sample Link 2',
+                            url: 'layout_sidebar_closed.html',
+                            icon: 'anchor'
+                        }, {
+                            name: ' Sample Link 2',
+                            url: 'layout_sidebar_closed.html',
+                            icon: 'anchor'
+                        }]
+                    }, {
+                        name: 'Item 2',
+                        icon: 'anchor'
+                    }, {
+                        name: 'Item 3',
+                        url: 'layout_sidebar_fixed.html',
+                        icon: 'pin'
+                    }]
+                }, {
+                    name: 'Login',
+                    url: 'login.html',
+                    icon: 'user'
+                }]
+            }
+        }
+    },
     ready: function() {
         _init();
     }
