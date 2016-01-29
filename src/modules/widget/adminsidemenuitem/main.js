@@ -9,29 +9,27 @@ var MyComponent = Vue.extend({
         mindex: Number,
         mtotal: Number
     },
-    data: function() {
-        return {
-            open: false
-        }
-    },
     computed: {
         isFolder: function() {
-            return this.model.children && this.model.children.length
+            return this.model.children && this.model.children.length;
         },
         licss: function() {
+            var arr = [];
             if (typeof this.mindex !== 'number' || typeof this.mtotal !== 'number') {
-                return '';
+                arr.push('');
+            } else if (this.mindex == 0) {
+                arr.push('start');
+            } else if (this.mindex + 1 >= this.mtotal) {
+                arr.push('last');
+            } else {
+                arr.push('');
             }
 
-            if (this.mindex == 0) {
-                return 'start';
+            if(this.model.active){
+                arr.push('active');
             }
 
-            if (this.mindex + 1 >= this.mtotal) {
-                return 'last';
-            }
-
-            return '';
+            return arr.join(' ');
         }
     }
 });

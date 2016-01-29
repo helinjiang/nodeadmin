@@ -8,83 +8,125 @@ var MyComponent = Vue.extend({
         return {
             treeData: {
                 name: 'MENUS',
+                active: false,
                 children: [{
                     name: 'Dashboard',
                     url: 'index.html',
-                    icon: 'home'
+                    icon: 'home',
+                    active: false
                 }, {
                     name: 'Page Layouts',
                     icon: 'home',
+                    active: false,
                     children: [{
                         name: 'Sidebar Fixed Page',
                         url: 'layout_sidebar_fixed.html',
                         icon: 'anchor',
-                        badge:{
-                            type:'warning',
-                            value:'new'
+                        active: false,
+                        badge: {
+                            type: 'warning',
+                            value: 'new'
                         }
                     }, {
                         name: 'Sidebar Closed Page',
-                        url: 'layout_sidebar_closed.html',
+                        url: 'test.html',
                         icon: 'anchor',
+                        active: false,
                         badge: 'new'
                     }, {
                         name: 'Boxed Page',
                         url: 'layout_sidebar_fixed.html',
-                        icon: 'pin'
+                        icon: 'pin',
+                        active: false
                     }, {
                         name: 'Session Timeout',
                         url: 'layout_sidebar_fixed.html',
                         icon: 'vector',
-                        tagType: 'warning',
-                        tagName: 'new'
+                        active: false
                     }]
                 }, {
                     name: '4 Level Menu',
                     icon: 'share',
+                    active: false,
                     children: [{
                         name: 'Item 1',
                         icon: 'anchor',
+                        active: false,
                         children: [{
                             name: ' Sample Link 1',
                             url: 'layout_sidebar_fixed.html',
                             icon: 'anchor',
+                            active: false,
                             children: [{
                                 name: 'sub-4',
                                 url: 'layout_sidebar_fixed.html',
-                                icon: 'anchor'
+                                icon: 'anchor',
+                                active: false
                             }, {
                                 name: 'sub-4',
                                 url: 'layout_sidebar_closed.html',
-                                icon: 'anchor'
+                                icon: 'anchor',
+                                active: false
                             }, {
                                 name: 'sub-4',
                                 url: 'layout_sidebar_closed.html',
-                                icon: 'anchor'
+                                icon: 'anchor',
+                                active: false
                             }]
                         }, {
                             name: ' Sample Link 2',
                             url: 'layout_sidebar_closed.html',
-                            icon: 'anchor'
+                            icon: 'anchor',
+                            active: false
                         }, {
                             name: ' Sample Link 2',
                             url: 'layout_sidebar_closed.html',
-                            icon: 'anchor'
+                            icon: 'anchor',
+                            active: false
                         }]
                     }, {
                         name: 'Item 2',
-                        icon: 'anchor'
+                        icon: 'anchor',
+                        active: false
                     }, {
                         name: 'Item 3',
                         url: 'layout_sidebar_fixed.html',
-                        icon: 'pin'
+                        icon: 'pin',
+                        active: false
                     }]
                 }, {
                     name: 'Login',
                     url: 'login.html',
-                    icon: 'user'
+                    icon: 'user',
+                    active: false
                 }]
             }
+        }
+    },
+    methods: {
+        show: function(url) {
+            var data = this.treeData,
+                tArr = [];
+
+            var check = function(data, deep) {
+                tArr[++deep] = data;
+                if (!data.children || !data.children.length) {
+                    return;
+                }
+
+                for (var i = 0; i < data.children.length; i++) {
+                    if (data.children[i].url && data.children[i].url.indexOf(url) > -1) {
+                        data.children[i].active = true;
+                        for (var j = 0; j <= deep; j++) {
+                            tArr[j].active = true;
+                        }
+                    }
+
+                    check(data.children[i], deep);
+                }
+            }
+
+            check(data, -1);
         }
     },
     ready: function() {

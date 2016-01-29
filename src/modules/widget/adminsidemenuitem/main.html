@@ -5,7 +5,7 @@
         <span class="badge badge-{{typeof model.badge=='object'?(model.badge.type||'info'):'info'}}" v-if="model.badge">{{typeof model.badge=='object'?model.badge.value:model.badge}}</span>
         <span class="arrow " v-if="isFolder"></span>
     </a>
-    <ul class="sub-menu" v-show="open" v-if="isFolder">
-        <admin-side-menu-item class="item" v-for="submenu in model.children" :model="submenu"> </admin-side-menu-item>
+    <ul class="sub-menu" v-if="isFolder">
+        <admin-side-menu-item v-for="submenu in model.children" :model="submenu"> </admin-side-menu-item>
     </ul>
 </li>

@@ -16,7 +16,9 @@ window.app = new Vue({
     },
     ready: function() {
         _init();
-        // App.init();
+
+        // 设置菜单
+        this.$refs['main'].$refs['sidemenu'].show('test.html');
     }
 });
 
