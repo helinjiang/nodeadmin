@@ -1,5 +1,7 @@
 var Vue = require('lib/vue');
 
+var menuData = require('common/menudata');
+
 var MyComponent = Vue.extend({
     template: __inline('main.html'),
     filters: {
@@ -9,8 +11,8 @@ var MyComponent = Vue.extend({
     },
     data: function() {
         return {
-            name: 'Blank Page',
-            desc: 'This is blank page desc!',
+            name: '功能',
+            desc: '',
             items: [{
                 name: 'Home',
                 url: 'index.html',

@@ -21,6 +21,7 @@ window.app = new Vue({
 
         // 设置菜单，这里也可以设置为自动获取当前的url，然后匹配导航
         this.$refs['main'].setMenu('test.html');
+        this.$refs['main'].setTitle();
     }
 });
 
