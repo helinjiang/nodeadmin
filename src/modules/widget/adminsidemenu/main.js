@@ -18,11 +18,16 @@ var MyComponent = Vue.extend({
                     children: [{
                         name: 'Sidebar Fixed Page',
                         url: 'layout_sidebar_fixed.html',
-                        icon: 'anchor'
+                        icon: 'anchor',
+                        badge:{
+                            type:'warning',
+                            value:'new'
+                        }
                     }, {
                         name: 'Sidebar Closed Page',
                         url: 'layout_sidebar_closed.html',
-                        icon: 'anchor'
+                        icon: 'anchor',
+                        badge: 'new'
                     }, {
                         name: 'Boxed Page',
                         url: 'layout_sidebar_fixed.html',
