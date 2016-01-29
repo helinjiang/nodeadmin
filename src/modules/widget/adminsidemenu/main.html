@@ -18,7 +18,9 @@
                     </div>
                 </form>
             </li>
-            <admin-side-menu-item class="item" :model="treeData"> </admin-side-menu-item>
+            <!-- <admin-side-menu-item class="item" :model="treeData"> </admin-side-menu-item> -->
+            <admin-side-menu-item class="item" v-for="submenu in treeData.children" :model="submenu"> </admin-side-menu-item>
+   
             <li class="start ">
                 <a href="index.html">
                     <i class="icon-home"></i>

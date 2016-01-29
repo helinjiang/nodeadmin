@@ -7,7 +7,7 @@ var MyComponent = Vue.extend({
     data: function() {
         return {
             treeData: {
-                name: 'My Tree',
+                name: 'MENUS',
                 children: [{
                     name: 'Dashboard',
                     url: 'index.html',

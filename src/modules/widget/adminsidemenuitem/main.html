@@ -5,6 +5,6 @@
         <span class="arrow " v-if="isFolder"></span>
     </a>
     <ul class="sub-menu" v-show="open" v-if="isFolder">
-        <admin-side-menu-item class="item" v-for="model in model.children" :model="model"> </admin-side-menu-item>
+        <admin-side-menu-item class="item" v-for="submenu in model.children" :model="submenu"> </admin-side-menu-item>
     </ul>
 </li>
