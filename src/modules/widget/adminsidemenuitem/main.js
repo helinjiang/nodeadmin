@@ -5,7 +5,9 @@ var Vue = require('lib/vue');
 var MyComponent = Vue.extend({
     template: __inline('main.html'),
     props: {
-        model: Object
+        model: Object,
+        mindex: Number,
+        mtotal: Number
     },
     data: function() {
         return {
@@ -15,6 +17,21 @@ var MyComponent = Vue.extend({
     computed: {
         isFolder: function() {
             return this.model.children && this.model.children.length
+        },
+        licss: function() {
+            if (typeof this.mindex !== 'number' || typeof this.mtotal !== 'number') {
+                return '';
+            }
+
+            if (this.mindex == 0) {
+                return 'start';
+            }
+
+            if (this.mindex + 1 >= this.mtotal) {
+                return 'last';
+            }
+
+            return '';
         }
     }
 });
