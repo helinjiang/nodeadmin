@@ -17,8 +17,10 @@ window.app = new Vue({
     ready: function() {
         _init();
 
-        // 设置菜单
-        this.$refs['main'].$refs['sidemenu'].show('test.html');
+        // console.log('==',location.href);
+
+        // 设置菜单，这里也可以设置为自动获取当前的url，然后匹配导航
+        this.$refs['main'].setMenu('test.html');
     }
 });
 
