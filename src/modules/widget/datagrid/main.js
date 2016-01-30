@@ -148,13 +148,30 @@ var initTable = function(vm) {
         }, {
             "data": "salary",
             "title": "salary",
-            "render": function(data, type, row, meta ) {
-                return data.replace(/\$/g,"￥");
+            "render": function(data, type, row, meta) {
+                return data.replace(/\$/g, "￥");
             }
+        }],
+
+        /**
+         * https://datatables.net/reference/option/columnDefs
+         * Set column definition initialisation properties.
+         *
+         * 非常像 columns，用于定义如何初始化属性，但它不要求每一列都要定义。因为下面的冲突规则，因此建议如果需要动态改变的，则使用 columnDefs 来定义，例如 visible 属性，这样便于控制。而且也方便集中批量配置。
+         *
+         * 定义冲突规则：
+         * 1. columns 中的优先级要高
+         * 2. columnDefs 中使用数组来定义的属性要比其他的定义的高，比如下例中第一列和第二列将显示，其他列隐藏
+         * 
+         */
+        "columnDefs": [{
+            targets: [0, 1],
+            visible: true
+        }, {
+            targets: '_all',
+            visible: false
         }]
 
-        // "columnDefs": aoColumnDefs,
-        // "columns": aoColumns
     });
 
     // 获取并缓存table的id
