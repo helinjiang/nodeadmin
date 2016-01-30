@@ -1,8 +1,6 @@
 var Vue = require('lib/vue');
 
-
-// define the item component
-var MyComponent = Vue.extend({
+Vue.component('admin-side-menu-item', {
     template: __inline('main.html'),
     props: {
         model: Object,
@@ -33,5 +31,3 @@ var MyComponent = Vue.extend({
         }
     }
 });
-
-Vue.component('admin-side-menu-item', MyComponent);

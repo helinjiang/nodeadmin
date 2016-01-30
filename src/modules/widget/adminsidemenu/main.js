@@ -3,7 +3,7 @@ var Vue = require('lib/vue');
 var App = require('common/app');
 var menuData = require('common/menudata');
 
-var MyComponent = Vue.extend({
+Vue.component('admin-side-menu', {
     template: __inline('main.html'),
     props: {
         'menuId': {
@@ -49,8 +49,6 @@ var MyComponent = Vue.extend({
         this.render();
     }
 });
-
-Vue.component('admin-side-menu', MyComponent);
 
 function _init() {
     $(function() {

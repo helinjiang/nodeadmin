@@ -1,14 +1,12 @@
 var Vue = require('lib/vue');
 var App = require('common/app');
 
-var MyComponent = Vue.extend({
+Vue.component('admin-header', {
     template: __inline('main.html'),
     ready: function() {
         _init();
     }
 });
-
-Vue.component('admin-header', MyComponent);
 
 function _init() {
     $(function() {

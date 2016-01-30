@@ -2,7 +2,7 @@ var Vue = require('lib/vue');
 
 var menuData = require('common/menudata');
 
-var MyComponent = Vue.extend({
+Vue.component('admin-main-title', {
     template: __inline('main.html'),
     props: {
         'title': {
@@ -49,5 +49,3 @@ var MyComponent = Vue.extend({
 
     }
 });
-
-Vue.component('admin-main-title', MyComponent);

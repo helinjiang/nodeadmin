@@ -1,7 +1,7 @@
 var Vue = require('lib/vue');
 var App = require('common/app');
 
-var MyComponent = Vue.extend({
+Vue.component('portlet', {
     template: __inline('main.html'),
     props: {
         'title': String,
@@ -11,6 +11,3 @@ var MyComponent = Vue.extend({
 
     }
 });
-
-
-Vue.component('portlet', MyComponent);
