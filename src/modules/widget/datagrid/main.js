@@ -68,9 +68,10 @@ var initTable = function(vm) {
         "pageLength": 10,
 
         "language": {
-            "info": "当前展现第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
+            "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
             "processing": "加载中，请稍后...",
-            "search": "搜索: "
+            "search": "搜索: ",
+            "infoFiltered": "从 _MAX_ 条记录过滤后的结果"
         },
 
         "dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
@@ -120,7 +121,7 @@ var initTable = function(vm) {
         // "destroy": true,
         "ajax": {
             // "url": "/static/mock/datagrid.json",           
-            "url": "https://www.datatables.net/examples/server_side/scripts/post.php",            
+            "url": "https://www.datatables.net/examples/server_side/scripts/post.php",
             "type": "POST",
             "data": function(d) {
                 d.myKey = "myValue";
@@ -130,17 +131,26 @@ var initTable = function(vm) {
             }
         },
         "columns": [{
-            "data": "first_name"
+            "data": "first_name",
+            "title": "first_name"
         }, {
-            "data": "last_name"
+            "data": "last_name",
+            "title": "last_name"
         }, {
-            "data": "position"
+            "data": "position",
+            "title": "position"
         }, {
-            "data": "office"
+            "data": "office",
+            "title": "office"
         }, {
-            "data": "start_date"
+            "data": "start_date",
+            "title": "start_date"
         }, {
-            "data": "salary"
+            "data": "salary",
+            "title": "salary",
+            "render": function(data, type, row, meta ) {
+                return data.replace(/\$/g,"￥");
+            }
         }]
 
         // "columnDefs": aoColumnDefs,
