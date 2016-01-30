@@ -2,6 +2,9 @@
  * 需要支持：
  * 1. 大数据，后台分页
  * 2. 少量数据全加载，前端分页
+ *
+ * 1. 原生table
+ * 2. ajax动态加载生成
  */
 
 var Vue = require('lib/vue');
@@ -15,6 +18,17 @@ Vue.component('datagrid', {
             tableId: undefined // table的Id
         };
     },
+    props: {
+        /**
+         * 列表的类型
+         * 前台分页：front; 后台分页：server
+         */
+        'type': {
+            type: String,
+            'default': 'front'
+        },
+        'url': String,
+    },
     ready: function() {
         // 缓存该值，避免重复获取
         this.$set('tableElem', $(this.$el));
@@ -26,16 +40,32 @@ Vue.component('datagrid', {
 
 function _init(vm) {
     $(function() {
-        initTable(vm);
+
+        initDataGrid(vm);
+
     });
 }
 
-var initTable = function(vm) {
+function initDataGrid(vm) {
+    switch (vm.type) {
+        case 'server':
+            initAjaxServer(vm);
+            break;
+        default:
+            break;
+    }
+}
+
+
+// TODO reload
+var initAjaxServer = function(vm) {
     var tableElem = vm.tableElem;
 
-    /* Table tools samples: https://www.datatables.net/release-datatables/extras/TableTools/ */
-
-    /* Set tabletools buttons and button container */
+    var url = vm.url;
+    if (!url) {
+        console.error('Unknown url', url, vm);
+        return;
+    }
 
     $.extend(true, $.fn.DataTable.TableTools.classes, {
         "container": "btn-group tabletools-dropdown-on-portlet",
@@ -119,9 +149,8 @@ var initTable = function(vm) {
          * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
          */
         // "destroy": true,
-        "ajax": {
-            // "url": "/static/mock/datagrid.json",           
-            "url": "https://www.datatables.net/examples/server_side/scripts/post.php",
+        "ajax": {         
+            "url": url,
             "type": "POST",
             "data": function(d) {
                 d.myKey = "myValue";
