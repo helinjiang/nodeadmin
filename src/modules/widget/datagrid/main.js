@@ -1,25 +1,31 @@
 var Vue = require('lib/vue');
 var App = require('common/app');
 
-var MyComponent = Vue.extend({
+Vue.component('datagrid', {
     template: __inline('main.html'),
+    data: function() {
+        return {
+            tableElem: undefined, //table的jQuery对象
+            tableId: undefined // table的Id
+        };
+    },
     ready: function() {
-        _init();
+        // 缓存该值，避免重复获取
+        this.$set('tableElem', $(this.$el));
+
+        _init(this);
     }
 });
 
 
-Vue.component('datagrid', MyComponent);
-
-
-function _init() {
+function _init(vm) {
     $(function() {
-        initTable1();
+        initTable(vm);
     });
 }
 
-var initTable1 = function() {
-    var table = $('#sample_1');
+var initTable = function(vm) {
+    var tableElem = vm.tableElem;
 
     /* Table tools samples: https://www.datatables.net/release-datatables/extras/TableTools/ */
 
@@ -36,7 +42,7 @@ var initTable1 = function() {
         }
     });
 
-    var oTable = table.dataTable({
+    var oTable = tableElem.dataTable({
         "order": [
             [0, 'asc']
         ],
@@ -70,7 +76,12 @@ var initTable1 = function() {
         }
     });
 
-    var tableWrapper = $('#sample_1_wrapper'); // datatable creates the table wrapper by adding with id {your_table_jd}_wrapper
+    // 获取并缓存table的id
+    vm.$set('tableId', tableElem.attr('id'));
 
-    tableWrapper.find('.dataTables_length select').select2(); // initialize select2 dropdown
-}
+    // datatable creates the table wrapper by adding with id {your_table_jd}_wrapper
+    var tableWrapper = $('#' + vm.tableId + '_wrapper');
+
+    // initialize select2 dropdown
+    tableWrapper.find('.dataTables_length select').select2();
+};
