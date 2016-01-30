@@ -5,14 +5,18 @@ var menuData = require('common/menudata');
 
 var MyComponent = Vue.extend({
     template: __inline('main.html'),
+    props: {
+        'menuId': String,
+    },
     data: function() {
         return {
             treeData: menuData
-        }
+        };
     },
     methods: {
-        show: function(url) {
+        render: function() {
             var data = this.treeData,
+                menuId = this.menuId,
                 tArr = [];
 
             var check = function(data, deep) {
@@ -22,7 +26,7 @@ var MyComponent = Vue.extend({
                 }
 
                 for (var i = 0; i < data.children.length; i++) {
-                    if (data.children[i].url && data.children[i].url.indexOf(url) > -1) {
+                    if (data.children[i].id && data.children[i].id == menuId) {
                         data.children[i].active = true;
                         for (var j = 0; j <= deep; j++) {
                             tArr[j].active = true;
@@ -31,13 +35,15 @@ var MyComponent = Vue.extend({
 
                     check(data.children[i], deep);
                 }
-            }
+            };
 
             check(data, -1);
         }
     },
     ready: function() {
         _init();
+
+        this.render();
     }
 });
 

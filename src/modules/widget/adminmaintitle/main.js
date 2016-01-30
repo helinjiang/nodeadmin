@@ -9,10 +9,15 @@ var MyComponent = Vue.extend({
             return v < this.items.length - 1;
         }
     },
+    props: {
+        'title': {
+            type: String,
+            required: true
+        },
+        'desc': String,
+    },
     data: function() {
         return {
-            name: '功能',
-            desc: '',
             items: [{
                 name: 'Home',
                 url: 'index.html',
@@ -22,7 +27,7 @@ var MyComponent = Vue.extend({
             }, {
                 name: 'Blank Page'
             }]
-        }
+        };
     },
     ready: function() {
 

@@ -1,8 +1,8 @@
 <div class="page-container">
-    <admin-side-menu v-ref:menu></admin-side-menu>
+    <admin-side-menu :menu-id="menuId"></admin-side-menu>
     <div class="page-content-wrapper">
         <div class="page-content">           
-            <admin-main-title v-ref:title></admin-main-title>
+            <admin-main-title :title="title" :desc="desc"></admin-main-title>
             <div class="row">
                 <div class="col-md-12">
                     <slot></slot>
