@@ -54,11 +54,19 @@ var initTable = function(vm) {
         ],
 
         "lengthMenu": [
-            [5, 15, 20, -1],
-            [5, 15, 20, "All"] // change per page values here
+            [10, 20, 50, -1],
+            [10, 20, 50, "All"] // change per page values here
         ],
-        // set the initial value
+
+        /**
+         * https://datatables.net/reference/option/pageLength
+         * Change the initial page length (number of rows per page).
+         * Default value: 10.
+         *
+         * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
+         */
         "pageLength": 10,
+
         "language": {
             "info": "当前展现第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
             "processing": "加载中，请稍后...",
@@ -86,6 +94,7 @@ var initTable = function(vm) {
             }]
         },
         "ordering": false, //关闭列排序
+
         "processing": true,
 
         /**
@@ -99,7 +108,7 @@ var initTable = function(vm) {
          * 默认是 false 。即默认情况下，DataTables会将获得的数据全部渲染成 HTML 元素，但这种处理在大数据时会影响性能，尤其在 IE6-IE8。
          * 推荐在后台分页处理时，将其设置为 true，即延迟渲染，按需渲染。
          */
-        "deferRender": true,
+        // "deferRender": true,
 
         /**
          * https://datatables.net/reference/option/destroy
@@ -108,10 +117,11 @@ var initTable = function(vm) {
          *
          * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
          */
-        "destroy": true,
+        // "destroy": true,
         "ajax": {
-            "url": "/static/mock/datagrid.json",
-            // "type": "POST",
+            // "url": "/static/mock/datagrid.json",           
+            "url": "https://www.datatables.net/examples/server_side/scripts/post.php",            
+            "type": "POST",
             "data": function(d) {
                 d.myKey = "myValue";
                 // d.custom = $('#myInput').val();
@@ -133,8 +143,8 @@ var initTable = function(vm) {
             "data": "salary"
         }]
 
-        // "aoColumnDefs": aoColumnDefs,
-        // "aoColumns": aoColumns
+        // "columnDefs": aoColumnDefs,
+        // "columns": aoColumns
     });
 
     // 获取并缓存table的id
