@@ -1,8 +1,8 @@
 <div class="page-container">
-    <admin-side-menu :menu-id="menuId"></admin-side-menu>
+    <slot name="menu"></slot>
     <div class="page-content-wrapper">
-        <div class="page-content">           
-            <admin-main-title :title="title" :desc="desc"></admin-main-title>
+        <div class="page-content">              
+            <slot name="title"></slot>
             <div class="row">
                 <div class="col-md-12">
                     <slot></slot>

@@ -41,7 +41,9 @@
 
         <div class="clearfix"></div>
 
-        <admin-main menu-id="test" title="New Test Page" desc="hellllo!"> 
+        <admin-main> 
+            <admin-side-menu slot="menu" menu-id="test"></admin-side-menu>
+            <admin-main-title slot="title" title="New Test Page" desc="hello, world!"></admin-main-title>
             <test-main></test-main>
         </admin-main>
 

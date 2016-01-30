@@ -6,7 +6,10 @@ var menuData = require('common/menudata');
 var MyComponent = Vue.extend({
     template: __inline('main.html'),
     props: {
-        'menuId': String,
+        'menuId': {
+            type: String,
+            required: true
+        }
     },
     data: function() {
         return {
