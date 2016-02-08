@@ -26,6 +26,19 @@ Vue.component('link-item', {
         },
 
         /**
+         * 尾部icon名字
+         */
+        'iconend': String,
+
+        /**
+         * 一共有三种图标，分别是fa\icon\glyphicons
+         */
+        'iconendtype': {
+            type: String,
+            'default': 'fa'
+        },
+
+        /**
          * badge name
          */
         'bname': String,
@@ -41,24 +54,32 @@ Vue.component('link-item', {
     },
     computed: {
         iconClass: function() {
-            if (!this.icon) {
+            return this._getIconClass(this.icon, this.icontype);
+        },
+        iconEndClass: function() {
+            return this._getIconClass(this.iconend, this.iconendtype);
+        }
+    },
+    methods: {
+        _getIconClass: function(icon, icontype) {
+            if (!icon) {
                 return false;
             }
 
             var result;
 
-            switch (this.icontype) {
+            switch (icontype) {
                 case 'icon':
-                    result = this.icon;
+                    result = icon;
                     break;
                 case 'glyph':
-                    result = 'glyphicon glyphicon-' + this.icon;
+                    result = 'glyphicon glyphicon-' + icon;
                     break;
                 case 'fa':
-                    result = 'fa fa-' + this.icon;
+                    result = 'fa fa-' + icon;
                     break;
                 default:
-                    result = this.icon;
+                    result = icon;
                     break;
             }
 
