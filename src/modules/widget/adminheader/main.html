@@ -365,12 +365,12 @@
 
             <!-- BEGIN USER LOGIN DROPDOWN -->      
             <dropdown css="user">
-                <template slot="toggle">
+                <dropdown-toggle>
                     <img alt="" src="/static/img/avatar3_small.jpg"/>
                     <span class="username"> Nick </span>
                     <i class="fa fa-angle-down"></i>
-                </template>
-                <template slot="menu">
+                </dropdown-toggle>
+                <dropdown-menu>
                     <li>
                         <link-item href="extra_profile.html" icon="user"> My Profile </link-item>
                     </li>
@@ -387,7 +387,7 @@
                     <li>
                         <link-item href="login.html" icon="key"> Log Out </link-item>
                     </li>
-                </template>
+                </dropdown-menu>
             </dropdown>
             <!-- END USER LOGIN DROPDOWN -->
         </ul>

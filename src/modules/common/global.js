@@ -7,4 +7,6 @@ require('/modules/widget/adminsidemenu/main');
 require('/modules/widget/portlet/main');
 require('/modules/widget/datagrid/main');
 require('/modules/widget/dropdown/main');
+require('/modules/widget/dropdowntoggle/main');
+require('/modules/widget/dropdownmenu/main');
 require('/modules/widget/linkitem/main');
