@@ -225,12 +225,8 @@
             </li>
             <!-- END INBOX DROPDOWN -->
             <!-- BEGIN TODO DROPDOWN -->
-            <li class="dropdown" id="header_task_bar">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                <i class="icon-calendar"></i>
-                <span class="badge badge-warning">
-                5 </span>
-                </a>
+            <dropdown id="header_task_bar">
+                <dropdown-toggle icon="calendar" icontype="icon" bname="5" btype="warning"></dropdown-toggle>
                 <ul class="dropdown-menu extended tasks">
                     <li>
                         <p>
@@ -357,7 +353,7 @@
                         <link-item iconend="angle-right"> See all tasks </link-item>
                     </li>
                 </ul>
-            </li>
+            </dropdown>
             <!-- END TODO DROPDOWN -->
             <li class="devider">
                  &nbsp;
@@ -365,10 +361,8 @@
 
             <!-- BEGIN USER LOGIN DROPDOWN -->      
             <dropdown css="user">
-                <dropdown-toggle>
-                    <img alt="" src="/static/img/avatar3_small.jpg"/>
+                <dropdown-toggle imgsrc="/static/img/avatar3_small.jpg" iconend="angle-down">
                     <span class="username"> Nick </span>
-                    <i class="fa fa-angle-down"></i>
                 </dropdown-toggle>
                 <dropdown-menu>
                     <li>
