@@ -10,3 +10,5 @@ require('/modules/widget/dropdown/main');
 require('/modules/widget/dropdowntoggle/main');
 require('/modules/widget/dropdownmenu/main');
 require('/modules/widget/linkitem/main');
+require('/modules/widget/dropdownmenulist/main');
+require('/modules/widget/notificationitem/main');
