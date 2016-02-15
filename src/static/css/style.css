@@ -1558,7 +1558,7 @@ Custom icon buttons
 }
 
 .dropdown-menu.notification li > a > .label-icon {
-  padding: 4px 2px 4px 5px; 
+  padding: 4px 5px 4px 5px; 
 }
 
 .dropdown-menu.notification li > a > .label-icon > i {

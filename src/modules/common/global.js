@@ -1,5 +1,6 @@
 require('/modules/widget/adminfooter/main');
 require('/modules/widget/adminheader/main');
+require('/modules/widget/adminheadersearch/main');
 require('/modules/widget/adminmain/main');
 require('/modules/widget/adminmaintitle/main');
 require('/modules/widget/adminsidemenuitem/main');
@@ -10,3 +11,5 @@ require('/modules/widget/dropdown/main');
 require('/modules/widget/dropdowntoggle/main');
 require('/modules/widget/dropdownmenu/main');
 require('/modules/widget/linkitem/main');
+require('/modules/widget/dropdownmenulist/main');
+require('/modules/widget/notificationitem/main');

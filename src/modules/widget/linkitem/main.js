@@ -70,7 +70,7 @@ Vue.component('link-item', {
 
             switch (icontype) {
                 case 'icon':
-                    result = icon;
+                    result = 'icon-' + icon;
                     break;
                 case 'glyph':
                     result = 'glyphicon glyphicon-' + icon;
