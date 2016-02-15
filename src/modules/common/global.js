@@ -1,3 +1,5 @@
+require('/modules/widget/forminput/main');
+
 require('/modules/widget/adminfooter/main');
 require('/modules/widget/adminheader/main');
 require('/modules/widget/adminheadersearch/main');
@@ -15,3 +17,4 @@ require('/modules/widget/dropdownmenu/main');
 require('/modules/widget/linkitem/main');
 require('/modules/widget/dropdownmenulist/main');
 require('/modules/widget/notificationitem/main');
+

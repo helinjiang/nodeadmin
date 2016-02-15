@@ -1,17 +1,12 @@
 <div class="addpage">
+
     <button class="btn btn-success" v-on:click="showModal">
         新增 <i class="fa fa-plus"></i>    
     </button>
+
     <modal title="testtitle">
-        <p>
-             One fine body…
-        </p>
-        <p>
-             One fine body…
-        </p>
-        <p>
-             One fine body…
-        </p>
+        <form-input type="text" name="username" title="用户名" icon="user"></form-input>
+        <form-input type="password" name="password" title="密码" icon="lock"></form-input>
         <div class="form-group">
             <input class="form-control" type="text" data-tabindex="1">
         </div>
@@ -20,4 +15,5 @@
         </div>
         <button class="btn blue" data-toggle="modal" href="#stack2">Launch modal</button>
     </modal>
+
 </div>
