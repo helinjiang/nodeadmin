@@ -1,5 +1,4 @@
 var Vue = require('lib/vue');
-var App = require('common/app');
 
 Vue.component('link-item', {
     template: __inline('main.html'),

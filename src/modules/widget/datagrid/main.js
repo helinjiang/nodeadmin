@@ -8,7 +8,6 @@
  */
 
 var Vue = require('lib/vue');
-var App = require('common/app');
 
 Vue.component('datagrid', {
     template: __inline('main.html'),
@@ -149,7 +148,7 @@ var initAjaxServer = function(vm) {
          * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
          */
         // "destroy": true,
-        "ajax": {         
+        "ajax": {
             "url": url,
             "type": "POST",
             "data": function(d) {

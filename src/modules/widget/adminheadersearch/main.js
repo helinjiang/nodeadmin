@@ -1,5 +1,4 @@
 var Vue = require('lib/vue');
-var App = require('common/app');
 
 Vue.component('admin-header-search', {
     template: __inline('main.html'),
