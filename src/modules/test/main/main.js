@@ -1,8 +1,13 @@
 var Vue = require('lib/vue');
 
+var toolbar = require('/modules/test/toolbar/main');
+
 module.exports = Vue.extend({
     template: __inline('main.html'),
-    ready:function(){
-        
+    components: {
+        'toolbar': toolbar
+    },
+    ready: function() {
+
     }
 });
