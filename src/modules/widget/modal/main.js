@@ -17,6 +17,11 @@ Vue.component('modal', {
         },
         'title': String,
     },
+    methods:{
+        show:function(){
+            $(this.$el).modal();
+        }
+    },
     ready: function() {
         _init();
     }
@@ -43,31 +48,6 @@ function _initGeneral() {
 
     $.fn.modalmanager.defaults.resize = true;
 }
-
-function _dynamicDialog() {
-    //dynamic demo:
-    $('.dynamic .demo').click(function() {
-        var tmpl = [
-            // tabindex is required for focus
-            '<div class="modal hide fade" tabindex="-1">',
-            '<div class="modal-header">',
-            '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>',
-            '<h4 class="modal-title">Modal header</h4>',
-            '</div>',
-            '<div class="modal-body">',
-            '<p>Test</p>',
-            '</div>',
-            '<div class="modal-footer">',
-            '<a href="#" data-dismiss="modal" class="btn btn-default">Close</a>',
-            '<a href="#" class="btn btn-primary">Save changes</a>',
-            '</div>',
-            '</div>'
-        ].join('');
-
-        $(tmpl).modal();
-    });
-}
-
 
 function _ajaxDialog() {
     //ajax demo:
