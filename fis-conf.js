@@ -51,13 +51,13 @@ fis.match('/{pages,modules}/**.js', {
 });
 
 // 如果使用了.tpl后缀，则将其编译为模版
-fis.match(/\/(.+)\.tpl$/, {
-    isMod: true,
-    rExt: 'js',
-    id: '$1_tpl',
-    release: '$0.tpl',
-    parser: fis.plugin('imweb-tpl')
-});
+// fis.match(/\/(.+)\.tpl$/, {
+//     isMod: true,
+//     rExt: 'js',
+//     id: '$1_tpl',
+//     release: '$0.tpl',
+//     parser: fis.plugin('imweb-tpl')
+// });
 
 // sass的编译
 fis.match('*.scss', {
@@ -132,7 +132,7 @@ fis.match('::packager', {
     })
 
 }).match('{modules,pages}/**.{css,scss}', {
-    packTo: '/dist/all.css' //css打成一个包
+    packTo: '/static/all.css' //css打成一个包
 }).match('static/**.{css,scss}', {
     packTo: '' 
 }).match('{modules,pages}/{index,article}/**.{css,scss}', {
@@ -155,3 +155,34 @@ fis.match('::packager', {
 //     .match('**.css', {
 //         optimizer: fis.plugin('clean-css')
 //     });
+
+// 将所有的静态资源都放入到/static文件夹下，因为thinkjs的静态资源文件夹就是这个
+
+
+fis.project.currentMedia() === 'dev' && fis.util.del(fis.project.getProjectPath('../dev'));
+
+fis.media('dev')
+    .match('**', {
+        deploy: fis.plugin('local-deliver', {
+            to: '../dev'
+        })
+    })
+    .match("/static/**", {
+        deploy: fis.plugin('local-deliver', {
+            to: '../www'
+        })
+    }).match("/pages/**", {
+        deploy: fis.plugin('local-deliver', {
+            to: '../www/static'
+        })
+    }).match("/modules/**", {
+        deploy: fis.plugin('local-deliver', {
+            to: '../www/static'
+        })
+    }).match("/pages/(*_*)/*(.html)", {
+        deploy: fis.plugin('local-deliver', {
+            to: '../view/admin'
+        })
+    }).match('{modules,pages}/**/*.js', {
+        packTo: '/static/all.js'
+    })

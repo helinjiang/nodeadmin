@@ -1,0 +1,79 @@
+<!-- BEGIN HEADER -->
+<div class="header navbar  navbar-fixed-top">
+    <!-- BEGIN TOP NAVIGATION BAR -->
+    <div class="header-inner">
+        <!-- BEGIN LOGO -->
+        <div class="page-logo">
+            <a href="index.html">
+                <img src="/static/img/logo.png" alt="logo"/>
+            </a>
+        </div>
+
+        <!-- END LOGO -->
+        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+        <a href="javascript:;" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <img src="/static/img/menu-toggler.png" alt=""/>
+        </a>
+        <!-- END RESPONSIVE MENU TOGGLER -->
+        <!-- BEGIN TOP NAVIGATION MENU -->
+        <ul class="nav navbar-nav pull-right">
+            <!-- BEGIN NOTIFICATION DROPDOWN -->
+            <dropdown id="header_notification_bar">
+                <dropdown-toggle icon="bell" icontype="icon" bname="6" btype="success"></dropdown-toggle>
+                <dropdown-menu css="extended notification">
+                    <li><p>You have 14 new notifications</p></li>
+                    <li>
+                        <dropdown-menu-list>
+                            <notification-item href="#" icon="plus" type="success" time="Just now">New user registered.</notification-item>
+                            <notification-item href="#" icon="bell" type="danger" time="15 mins">Server #12 overloaded. </notification-item>
+                            <notification-item href="#" icon="plus" type="warning" time="22 mins">Server #2 not responding. </notification-item>
+                            <notification-item href="#" icon="bullhorn" type="info" time="40 mins">Application error. </notification-item>
+                            <notification-item href="#" icon="bolt" type="danger" time="2 hrs">Database overloaded 68%. </notification-item>
+                            <notification-item href="#" icon="bolt" type="danger" time="5 hrs">2 user IP blocked. </notification-item>
+                            <notification-item href="#" icon="bell" type="warning" time="45 mins">Storage Server #4 not responding. </notification-item>
+                            <notification-item href="#" icon="bullhorn" type="info" time="55 mins">System Error.</notification-item>
+                            <notification-item href="#" icon="bolt" type="danger" time="2 hrs">Database overloaded 68%.</notification-item>
+                        </dropdown-menu-list>
+                    </li>
+                    <li class="external">
+                        <link-item iconend="angle-right"> See all notifications </link-item>        
+                    </li>
+                </dropdown-menu>            
+             </dropdown>
+            <!-- END NOTIFICATION DROPDOWN -->
+
+            <li class="devider">
+                 &nbsp;
+            </li>
+
+            <!-- BEGIN USER LOGIN DROPDOWN -->      
+            <dropdown css="user">
+                <dropdown-toggle imgsrc="/static/img/avatar3_small.jpg" iconend="angle-down">
+                    <span class="username"> Nick </span>
+                </dropdown-toggle>
+                <dropdown-menu>
+                    <li>
+                        <link-item href="extra_profile.html" icon="user"> My Profile </link-item>
+                    </li>
+                    <li>
+                        <link-item href="page_calendar.html" icon="calendar"> My Calendar </link-item>
+                    </li>
+                    <li>
+                        <link-item href="page_inbox.html" icon="envelope" bname="3" btype="danger"> My Inbox </link-item>                       
+                    </li>
+                    <li>
+                        <link-item icon="tasks" bname="7" btype="success"> My Tasks </link-item>
+                    </li>
+                    <li class="divider"> </li>
+                    <li>
+                        <link-item href="login.html" icon="key"> Log Out </link-item>
+                    </li>
+                </dropdown-menu>
+            </dropdown>
+            <!-- END USER LOGIN DROPDOWN -->
+        </ul>
+        <!-- END TOP NAVIGATION MENU -->
+    </div>
+    <!-- END TOP NAVIGATION BAR -->
+</div>
+<!-- END HEADER -->

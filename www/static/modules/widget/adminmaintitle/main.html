@@ -1,0 +1,15 @@
+<div class="admin-title">
+    <h3 class="page-title">{{ title }} <small>{{ desc }}</small></h3>
+
+    <div class="page-bar">
+        <ul class="page-breadcrumb">
+            <li v-for="item in items">
+                <i class="fa fa-{{item.icon}}" v-if="item.icon"></i>
+                <a href="{{item.url}}">{{item.name}}</a>
+                <i class="fa fa-angle-right" v-if="!item.last"></i>                
+            </li>
+        </ul>
+    </div> 
+</div>
+
+     
