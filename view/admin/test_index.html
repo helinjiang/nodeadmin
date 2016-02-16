@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>New ThinkJS Application</title>
+<style>
+*{padding: 0;margin: 0;font-size: 16px;line-height: 20px;font-family: arial;}
+a, a:visited{color:#337ab7;text-decoration: none;}
+header{padding: 70px 0 70px 0;background-color: #4A6495}
+h1{font-size: 36px;color:#fff;font-weight: normal;}
+code{  padding: 2px 4px;font-size: 90%;color: #c7254e;background-color: #f9f2f4;border-radius: 4px;}
+.content{width: 1000px;margin: auto}
+.wrap{width: 1000px;margin: auto}
+.content{margin-top: 80px;}
+.list{width: 800px;}
+.list .item{position: relative;padding-left: 70px;margin-top: 50px;}
+.list .item .step{position: absolute;width: 36px;height: 36px;top:-3px;left:0;border: 5px solid #4A6495;border-radius: 23px;text-align: center;line-height: 36px;}
+.list .item h2{font-size: 24px;font-weight: normal;}
+.list .item p{line-height: 30px;margin-top: 10px}
+</style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>I am test index </h1>
+    </div>
+  </header>  
+  <div class="content">
+    <ul>
+      <li><a href="./showme">调用模版进行渲染</a></li>
+      <li><a href="./param/key/value">返回表示成功的JSON格式数据</a></li>
+    </ul>
+    <p>以下的路径都是绝对路径：</p>
+    <ul>
+      <li>think.ROOT_PATH: <%= think.ROOT_PATH %></li>
+      <li>think.RESOURCE_PATH: <%= think.RESOURCE_PATH %></li>
+      <li>think.APP_PATH: <%= think.APP_PATH %></li>
+      <li>showme: <%= think.getPath("admin", "model") %></li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -3,7 +3,7 @@
  ];
 
 // 设置工程的根目录为src文件夹
-fis.project.setProjectRoot('src');
+fis.project.setProjectRoot('clientsrc');
 fis.processCWD = fis.project.getProjectPath();
 
 // 如果是dist命令则先删除旧的输出文件夹里面的内容
