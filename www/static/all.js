@@ -11935,6 +11935,18 @@ define('modules/common/menudata', function(require, exports, module) {
           icon: 'home',
           active: false
       }, {
+          id: 'menuSystem',
+          name: '系统管理',
+          icon: 'home',
+          active: false,
+          children: [{
+              id: 'menuUser',
+              name: '用户管理',
+              url: '/admin/user',
+              icon: 'pin',
+              active: false
+          }]
+      }, {
           id: '2',
           name: 'Page Layouts',
           icon: 'home',
@@ -13736,6 +13748,44 @@ define('modules/test/main/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/user_index/add/main.js*/
+define('modules/user_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"testtitle\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"username\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      methods: {
+          showModal: function showModal() {
+              this.$children[0].show();
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/user_index/main/main.js*/
+define('modules/user_index/main/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var add = require('modules/test/add/main');
+  
+  module.exports = Vue.extend({
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"datagrid\" icon=\"globe\">    \r\n    <datagrid type=\"server\" url=\"https://www.datatables.net/examples/server_side/scripts/post.php\"></datagrid>\r\n</portlet>",
+      components: {
+          'add': add
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/widget/inputtext/main.js*/
 define('modules/widget/inputtext/main', function(require, exports, module) {
 
@@ -13880,6 +13930,40 @@ define('pages/test/main', function(require, exports, module) {
       el: '#app',
       components: {
           TestMain: TestMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/user_index/main.js*/
+define('pages/user_index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var UserMain = require('modules/user_index/main/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          UserMain: UserMain
       },
       ready: function ready() {
           _init();

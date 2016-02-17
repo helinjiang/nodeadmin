@@ -14,6 +14,18 @@ define('modules/common/menudata', function(require, exports, module) {
           icon: 'home',
           active: false
       }, {
+          id: 'menuSystem',
+          name: '系统管理',
+          icon: 'home',
+          active: false,
+          children: [{
+              id: 'menuUser',
+              name: '用户管理',
+              url: '/admin/user',
+              icon: 'pin',
+              active: false
+          }]
+      }, {
           id: '2',
           name: 'Page Layouts',
           icon: 'home',

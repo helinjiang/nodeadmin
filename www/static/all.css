@@ -2,6 +2,10 @@
 .addpage{
     display: inline-block;
 }
+/*!/modules/user_index/add/main.css*/
+.addpage{
+    display: inline-block;
+}
 /*!/pages/login_index/main.scss*/
 /***
 Login page
