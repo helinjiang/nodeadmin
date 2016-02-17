@@ -3,6 +3,10 @@
 import Base from './base.js';
 
 export default class extends Base {
+    async __before() {
+        // 注意这里要重写，因为在Base中我们限定了如果没登录则跳转到登录页面的代码。
+    }
+
     /**
      * index action
      * @return {Promise} []
