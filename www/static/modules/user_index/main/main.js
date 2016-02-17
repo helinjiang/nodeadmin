@@ -7,7 +7,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var add = require('modules/test/add/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"datagrid\" icon=\"globe\">    \r\n    <datagrid type=\"server\" url=\"https://www.datatables.net/examples/server_side/scripts/post.php\"></datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"datagrid\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\"></datagrid>\r\n</portlet>",
       components: {
           'add': add
       },
