@@ -11,8 +11,8 @@ export default {
     mysql: {
       host: '127.0.0.1',
       port: '',
-      database: '',
-      user: '',
+      database: 'nodeadmin',
+      user: 'root',
       password: '',
       prefix: 'think_',
       encoding: 'utf8'

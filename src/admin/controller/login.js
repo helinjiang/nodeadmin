@@ -21,6 +21,8 @@ export default class extends Base {
             return this.fail("not post");
         }
 
-        return this.success();
+        let result = await this.model('user').where('1=1').find();
+
+        return this.success(result);
     }
 }
