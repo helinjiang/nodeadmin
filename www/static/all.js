@@ -12600,7 +12600,27 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       }
   }
   
-  function getDataGridOptions() {
+  function initAjaxFront(vm) {
+      // 配置
+      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray);
+  
+      var jqTable = vm.jqTable;
+  
+      // 开始生成datatables
+      var oTable = jqTable.dataTable(dataTableOptions);
+  
+      // 获取并缓存table的id
+      vm.$set('tableId', jqTable.attr('id'));
+  
+      // 渲染其他的控件
+      renderOther(vm.tableId);
+  }
+  
+  /**
+   * 默认的配置
+   * @return {[type]} [description]
+   */
+  function getDefaultOptions() {
       $.extend(true, $.fn.DataTable.TableTools.classes, {
           "container": "btn-group tabletools-dropdown-on-portlet",
           "buttons": {
@@ -12661,23 +12681,24 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       return options;
   }
   
-  var initAjaxFront = function initAjaxFront(vm) {
-      var jqTable = vm.jqTable;
-  
+  /**
+   * 获得Ajax类型的 datagrid 配置
+   * @return {[type]} [description]
+   */
+  function getAjaxOptions(url, itemArray) {
       // url
-      var url = vm.url;
       if (!url) {
-          console.error('Unknown url', url, vm);
+          console.error('Unknown url', url);
           return;
       }
   
       // columns and columnDefs
-      var itemArray = vm.itemArray,
-          columns = [],
+      var columns = [],
           columnDefs = [];
   
       if (!itemArray.length) {
-          console.error('Unknown itemArray', itemArray, vm);
+          console.error('Unknown itemArray', itemArray);
+  
           return;
       }
   
@@ -12689,7 +12710,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       });
   
       // 配置
-      var dataTableOptions = getDataGridOptions();
+      var dataTableOptions = getDefaultOptions();
   
       // 请求
       dataTableOptions.ajax = {
@@ -12704,18 +12725,21 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           dataTableOptions.columnDefs = columnDefs;
       }
   
-      // 开始生成datatables
-      var oTable = jqTable.dataTable(dataTableOptions);
+      return dataTableOptions;
+  }
   
-      // 获取并缓存table的id
-      vm.$set('tableId', jqTable.attr('id'));
-  
+  /**
+   * 渲染其他的控件
+   * @param  {[type]} tableId [description]
+   * @return {[type]}         [description]
+   */
+  function renderOther(tableId) {
       // datatable creates the table wrapper by adding with id {your_table_id}_wrapper
-      var tableWrapper = $('#' + vm.tableId + '_wrapper');
+      var tableWrapper = $('#' + tableId + '_wrapper');
   
       // initialize select2 dropdown
       tableWrapper.find('.dataTables_length select').select2();
-  };
+  }
   
   // TODO reload
   var initAjaxServer = function initAjaxServer(vm) {
