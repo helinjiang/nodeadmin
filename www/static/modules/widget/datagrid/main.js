@@ -14,7 +14,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('datagrid', {
-      template: "<table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n    <thead>\r\n        <tr>\r\n            <th>First name</th>\r\n            <th>Last name</th>\r\n            <th>Position</th>\r\n        </tr>\r\n    </thead>\r\n</table>",
+      template: "<table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n    <thead>\r\n        <tr></tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr><td colspan=\"20\" class=\"dataTables_empty\">正在加载数据……</td></tr>\r\n    </tbody>\r\n</table>",
       data: function data() {
           return {
               tableElem: undefined, //table的jQuery对象
