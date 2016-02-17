@@ -17,10 +17,12 @@ export default class extends Base {
      * @return {Promise} []
      */
     async loginAction() {
-        if (this.isGet()) {
-            return this.fail("not post");
-        }
+        // 实际上如果此处不是单独为了展现页面，则使用logic来校验会更加合适
+        // if (this.isGet()) {
+        //     return this.fail("not post");
+        // }
 
+        //data is validated in logic
         let data = this.post();
         let md5 = think.md5('think_' + data.password);
 
@@ -33,6 +35,6 @@ export default class extends Base {
         //set userInfo to session
         await this.session('userInfo', result);
 
-        return this.success();
+        return this.success(result.name);
     }
 }
