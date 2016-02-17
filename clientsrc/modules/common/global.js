@@ -10,6 +10,7 @@ require('/modules/widget/adminmaintoolbar/main');
 require('/modules/widget/adminsidemenuitem/main');
 require('/modules/widget/adminsidemenu/main');
 require('/modules/widget/portlet/main');
+require('/modules/widget/datagriditem/main');
 require('/modules/widget/datagrid/main');
 require('/modules/widget/modal/main');
 require('/modules/widget/dropdown/main');
