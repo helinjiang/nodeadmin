@@ -18,7 +18,11 @@ define('modules/widget/datagriditem/main', function(require, exports, module) {
               type: String,
               required: true
           },
-          'title': String
+          'title': String,
+          /**
+           * 渲染方法名
+           */
+          'render': String
       },
       ready: function ready() {}
   });

@@ -12517,10 +12517,29 @@ define('modules/widget/datagriditem/main', function(require, exports, module) {
               type: String,
               required: true
           },
-          'title': String
+          'title': String,
+          /**
+           * 渲染方法名
+           */
+          'render': String
       },
       ready: function ready() {}
   });
+
+});
+
+;/*!/modules/common/render.js*/
+define('modules/common/render', function(require, exports, module) {
+
+  "use strict";
+  
+  function operate(data, type, full) {
+    return JSON.stringify(data);
+  }
+  
+  module.exports = {
+    operate: operate
+  };
 
 });
 
@@ -12539,9 +12558,10 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   'use strict';
   
   var Vue = require('modules/lib/vue');
+  var Render = require('modules/common/render');
   
   Vue.component('datagrid', {
-      template: "<div class=\"datagrid\">\r\n    <table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n        <thead>\r\n            <tr></tr>\r\n        </thead>\r\n        <tbody>\r\n            <tr><td colspan=\"20\" class=\"dataTables_empty\">正在加载数据……</td></tr>\r\n        </tbody>\r\n    </table>  \r\n    <slot></slot> \r\n</div>\r\n\r\n",
+      template: "<div class=\"datagrid\">\r\n    <table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n        <thead>\r\n            <tr></tr>\r\n        </thead>\r\n        <tbody>\r\n            <tr><td class=\"dataTables_empty\">正在加载数据……</td></tr>\r\n        </tbody>\r\n    </table>  \r\n    <slot></slot> \r\n</div>\r\n\r\n",
       data: function data() {
           return {
               jqTable: undefined, //table的jQuery对象
@@ -12571,7 +12591,8 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           items.forEach(function (item) {
               itemArray.push({
                   'name': item.name,
-                  'title': item.title
+                  'title': item.title,
+                  'render': item.render
               });
           });
   
@@ -12703,10 +12724,19 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       }
   
       itemArray.forEach(function (item) {
-          columns.push({
+          var obj = {
               'data': item.name,
               'title': item.title ? item.title : item.name
-          });
+          };
+  
+          // 如果有自定义的render方法，则需要进行处理
+          if (item.render && Render[item.render]) {
+              obj.render = function (data, type, full) {
+                  return Render[item.render](data, type, full);
+              };
+          }
+  
+          columns.push(obj);
       });
   
       // 配置
@@ -13963,7 +13993,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var add = require('modules/test/add/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\"></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" title=\"操作\" render=\"operate\"></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add
       },

@@ -8,6 +8,7 @@
  */
 
 var Vue = require('lib/vue');
+var Render = require('common/render');
 
 Vue.component('datagrid', {
     template: __inline('main.html'),
@@ -40,7 +41,8 @@ Vue.component('datagrid', {
         items.forEach(function(item) {
             itemArray.push({
                 'name': item.name,
-                'title': item.title
+                'title': item.title,
+                'render': item.render
             });
         });
 
@@ -176,10 +178,19 @@ function getAjaxOptions(url, itemArray) {
     }
 
     itemArray.forEach(function(item) {
-        columns.push({
+        var obj = {
             'data': item.name,
             'title': item.title ? item.title : item.name
-        });
+        };
+
+        // 如果有自定义的render方法，则需要进行处理
+        if (item.render && Render[item.render]) {
+            obj.render = function(data, type, full) {
+                return Render[item.render](data, type, full);
+            };
+        }
+        
+        columns.push(obj);
     });
 
     // 配置

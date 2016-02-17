@@ -16,8 +16,12 @@ Vue.component('datagrid-item', {
             required: true
         },
         'title': String,
+        /**
+         * 渲染方法名
+         */
+        'render': String,
     },
     ready: function() {
-        
+
     }
 });
