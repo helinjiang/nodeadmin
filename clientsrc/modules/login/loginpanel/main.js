@@ -9,8 +9,8 @@ module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
-            formElem: undefined
-        }
+            jqForm: undefined
+        };
     },
     components: {
         TipAlert,
@@ -19,16 +19,24 @@ module.exports = Vue.extend({
     },
     ready: function() {
         // 缓存该值，避免重复获取
-        this.$set('formElem', $(this.$el));
+        this.$set('jqForm', $(this.$el));
 
-        handleValidator(this);
-
-        handleEnter(this);
+        _init(this);
     }
 });
 
+function _init(vm) {
+    $(function() {
+
+        handleValidator(vm);
+
+        handleEnter(vm);
+
+    });
+}
+
 function handleValidator(vm) {
-    validator.check(vm.formElem, {
+    validator.check(vm.jqForm, {
         username: {
             required: {
                 rule: true,
@@ -56,15 +64,29 @@ function handleValidator(vm) {
     }, {
         invalidHandler: function(event, validator) {
             vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
+        },
+        submitHandler: function(form) {
+            $(form).ajaxSubmit({
+                success: function(responseText, statusText) {
+                    console.log(responseText, statusText);
+                    if (statusText !== 'success' || responseText.errno !== 0) {
+                        vm.$refs.alert.show('内部错误！');
+                    } else {
+                        console.log('success,ready to index');
+                        // 加载中...
+                        // 跳转到主页面
+                    }
+                }
+            });
         }
     });
 }
 
 function handleEnter(vm) {
-    $('input', vm.formElem).keypress(function(e) {
+    $('input', vm.jqForm).keypress(function(e) {
         if (e.which == 13) {
-            if (vm.formElem.validate().form()) {
-                vm.formElem.submit();
+            if (vm.jqForm.validate().form()) {
+                vm.jqForm.submit();
             }
             return false;
         }
