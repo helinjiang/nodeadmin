@@ -6,7 +6,7 @@ require('common/global');
 
 var Vue = require('lib/vue');
 
-var LoginPanel = require('/modules/login/loginpanel/main');
+var LoginPanel = require('/modules/login_index/loginpanel/main');
 
 window.app = new Vue({
   el: '#loginwrapper',

@@ -1,0 +1,14 @@
+<form class="login-form" action="./login/login" method="post">
+    <h3 class="form-title">欢迎登录</h3>
+    
+    <tip-alert v-ref:alert></tip-alert>
+
+    <form-input name="username" title="用户名" icon="user"></form-input>
+    <form-input type="password" name="password" title="密码" icon="lock"></form-input>
+
+    <form-actions>
+        <he-checkbox name="remember" title="记住密码" value="1"></he-checkbox>
+        <button type="submit" class="btn btn-info pull-right"> 登录 </button>
+    </form-actions>
+
+</form>

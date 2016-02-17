@@ -10,7 +10,7 @@ define('pages/login_index/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  var LoginPanel = require('modules/login/loginpanel/main');
+  var LoginPanel = require('modules/login_index/loginpanel/main');
   
   window.app = new Vue({
     el: '#loginwrapper',

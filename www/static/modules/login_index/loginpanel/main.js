@@ -1,4 +1,4 @@
-define('modules/login/loginpanel/main', function(require, exports, module) {
+define('modules/login_index/loginpanel/main', function(require, exports, module) {
 
   'use strict';
   
@@ -74,7 +74,7 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
                           vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
                       } else {
                           vm.$refs.alert.hide();
-                          // TODO 加载中...
+                          // 加载中...
                           // 跳转到主页面
                           window.location.href = '/admin/';
                       }
