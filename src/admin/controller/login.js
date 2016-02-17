@@ -41,4 +41,10 @@ export default class extends Base {
 
         return this.success(result.name);
     }
+
+
+    async logoutAction() {
+        await this.session('userInfo', '');
+        return this.redirect('/admin/login');
+    }
 }
