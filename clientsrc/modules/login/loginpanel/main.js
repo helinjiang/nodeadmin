@@ -55,7 +55,7 @@ function handleValidator(vm) {
                 message: '密码不能为空！'
             },
             minlength: {
-                rule: 6,
+                rule: 2,
                 message: '最小长度为6'
             }
         }
@@ -68,7 +68,7 @@ function handleValidator(vm) {
                 success: function(responseText, statusText) {
                     console.log(responseText, statusText);
                     if (statusText !== 'success' || responseText.errno !== 0) {
-                        vm.$refs.alert.show('内部错误！');
+                        vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
                     } else {
                         vm.$refs.alert.hide();
                         console.log('success,ready to index');
