@@ -5,7 +5,6 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   var validator = require('modules/common/validator');
   
-  var TipAlert = require('modules/widget/tipalert/main');
   var FormActions = require('modules/widget/formactions/main');
   var HeCheckbox = require('modules/widget/hecheckbox/main');
   
@@ -17,7 +16,6 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
           };
       },
       components: {
-          TipAlert: TipAlert,
           FormActions: FormActions,
           HeCheckbox: HeCheckbox
       },
@@ -75,6 +73,7 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
                       if (statusText !== 'success' || responseText.errno !== 0) {
                           vm.$refs.alert.show('内部错误！');
                       } else {
+                          vm.$refs.alert.hide();
                           console.log('success,ready to index');
                           // 加载中...
                           // 跳转到主页面

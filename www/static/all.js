@@ -11774,6 +11774,51 @@ define('modules/widget/forminput/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/tipalert/main.js*/
+define('modules/widget/tipalert/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('tip-alert', {
+      template: "<div class=\"alert alert-{{type}}\" v-show=\"isShow\">\r\n    <button class=\"close\" v-on:click=\"hide\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              isShow: false,
+              type: 'danger', //danger,info,success,warning
+              msg: '' //必填
+          };
+      },
+      methods: {
+          show: function show(msg, type) {
+              // msg 字段必填
+              if (typeof msg !== "string" || !msg.length) {
+                  return;
+              }
+              this.msg = msg;
+  
+              // type 默认为 danger
+              if (type) {
+                  this.type = type;
+              }
+  
+              this.isShow = true;
+          },
+          hide: function hide(event) {
+              this.isShow = false;
+  
+              // 这里非常重要，因为如果在表单里面，它会触发submit提交，必须要阻止
+              // 且由于该方法可能也会被手工调用，因此event不一定存在
+              if (event) {
+                  event.preventDefault();
+              }
+          }
+      }
+  });
+
+});
+
 ;/*!/modules/widget/adminfooter/main.js*/
 define('modules/widget/adminfooter/main', function(require, exports, module) {
 
@@ -13029,6 +13074,7 @@ define('modules/common/global', function(require, exports, module) {
   'use strict';
   
   require('modules/widget/forminput/main');
+  require('modules/widget/tipalert/main');
   
   require('modules/widget/adminfooter/main');
   require('modules/widget/adminheader/main');
@@ -13486,48 +13532,6 @@ var require, define;
     require.timeout = 5000;
 
 })(this);
-;/*!/modules/widget/tipalert/main.js*/
-define('modules/widget/tipalert/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"alert alert-{{type}}\" v-show=\"isShow\">\r\n    <button class=\"close\" v-on:click=\"hide\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              isShow: false,
-              type: 'danger', //danger,info,success,warning
-              msg: '' //必填
-          };
-      },
-      methods: {
-          show: function show(msg, type) {
-              // msg 字段必填
-              if (typeof msg !== "string" || !msg.length) {
-                  return;
-              }
-              this.msg = msg;
-  
-              // type 默认为 danger
-              if (type) {
-                  this.type = type;
-              }
-  
-              this.isShow = true;
-          },
-          hide: function hide(event) {
-              this.isShow = false;
-  
-              // 这里非常重要，因为如果在表单里面，它会触发submit提交，必须要阻止
-              event.preventDefault();
-          }
-      }
-  });
-
-});
-
 ;/*!/modules/widget/formactions/main.js*/
 define('modules/widget/formactions/main', function(require, exports, module) {
 
@@ -13602,7 +13606,6 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   var validator = require('modules/common/validator');
   
-  var TipAlert = require('modules/widget/tipalert/main');
   var FormActions = require('modules/widget/formactions/main');
   var HeCheckbox = require('modules/widget/hecheckbox/main');
   
@@ -13614,7 +13617,6 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
           };
       },
       components: {
-          TipAlert: TipAlert,
           FormActions: FormActions,
           HeCheckbox: HeCheckbox
       },
@@ -13672,6 +13674,7 @@ define('modules/login/loginpanel/main', function(require, exports, module) {
                       if (statusText !== 'success' || responseText.errno !== 0) {
                           vm.$refs.alert.show('内部错误！');
                       } else {
+                          vm.$refs.alert.hide();
                           console.log('success,ready to index');
                           // 加载中...
                           // 跳转到主页面

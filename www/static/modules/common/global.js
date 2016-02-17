@@ -3,6 +3,7 @@ define('modules/common/global', function(require, exports, module) {
   'use strict';
   
   require('modules/widget/forminput/main');
+  require('modules/widget/tipalert/main');
   
   require('modules/widget/adminfooter/main');
   require('modules/widget/adminheader/main');

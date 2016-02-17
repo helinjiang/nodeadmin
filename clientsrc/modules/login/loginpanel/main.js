@@ -1,7 +1,6 @@
 var Vue = require('lib/vue');
 var validator = require('common/validator');
 
-var TipAlert = require('widget/tipalert/main');
 var FormActions = require('widget/formactions/main');
 var HeCheckbox = require('widget/hecheckbox/main');
 
@@ -13,7 +12,6 @@ module.exports = Vue.extend({
         };
     },
     components: {
-        TipAlert,
         FormActions,
         HeCheckbox
     },
@@ -72,6 +70,7 @@ function handleValidator(vm) {
                     if (statusText !== 'success' || responseText.errno !== 0) {
                         vm.$refs.alert.show('内部错误！');
                     } else {
+                        vm.$refs.alert.hide();
                         console.log('success,ready to index');
                         // 加载中...
                         // 跳转到主页面
