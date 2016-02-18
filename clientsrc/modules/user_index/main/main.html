@@ -6,7 +6,7 @@
     <datagrid url="/admin/user/getdata" v-on:click="operate">
         <datagrid-item name="id" title="ID"></datagrid-item>
         <datagrid-item name="name" title="用户名"></datagrid-item>
-        <datagrid-item name="pwd"></datagrid-item>
-        <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete"></datagrid-item>
+        <datagrid-item name="pwd" hide></datagrid-item>
+        <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
     </datagrid>
 </portlet>

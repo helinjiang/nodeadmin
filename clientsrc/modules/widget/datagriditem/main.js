@@ -17,9 +17,25 @@ Vue.component('datagrid-item', {
         },
         'title': String,
         /**
-         * 渲染方法名
+         * 渲染方法名，方法在/common/render.js中定义
          */
         'render': String,
+
+        /**
+         * 使该列不能够排序
+         */
+        'disableorder': {
+            type: Boolean,
+            default: false
+        },
+
+        /**
+         * 使该列不显示
+         */
+        'hide': {
+            type: Boolean,
+            default: false
+        },
     },
     ready: function() {
 

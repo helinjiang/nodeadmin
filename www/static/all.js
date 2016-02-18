@@ -12508,7 +12508,7 @@ define('modules/widget/datagriditem/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('datagrid-item', {
-      template: "<div style=\"display:none\" data-name=\"{{name}}\" data-title=\"{{title}}\"></div>",
+      template: "<div style=\"display:none\" data-name=\"{{name}}\" data-title=\"{{title}}\" data-disableorder=\"{{disableorder}}\" data-hide=\"{{hide}}\"></div>",
       props: {
           /**
            * 数据的字段名
@@ -12519,9 +12519,25 @@ define('modules/widget/datagriditem/main', function(require, exports, module) {
           },
           'title': String,
           /**
-           * 渲染方法名
+           * 渲染方法名，方法在/common/render.js中定义
            */
-          'render': String
+          'render': String,
+  
+          /**
+           * 使该列不能够排序
+           */
+          'disableorder': {
+              type: Boolean,
+              'default': false
+          },
+  
+          /**
+           * 使该列不显示
+           */
+          'hide': {
+              type: Boolean,
+              'default': false
+          }
       },
       ready: function ready() {}
   });
@@ -12545,6 +12561,16 @@ define('modules/common/render', function(require, exports, module) {
       return '<button class="btn btn-info action" data-type="detail" data-id="' + id + '"> 详情 </button>';
   }
   
+  /**
+   * 用在datagriditem组件中的render属性，用法例如：render="commonOperate | detail modify delete"
+   * 其中的detail、modify、delete是按钮的名称，整个含义就是返回这三个按钮
+   * 
+   * @param  {string} renderParam 渲染的额外参数
+   * @param  {string} data        datatables的data字段，该列对象其中的一个key值
+   * @param  {string} type        datatables的type字段
+   * @param  {object} full        datatables中该列对象的所有数据
+   * @return {string}             包含了按钮的html代码
+   */
   function commonOperate(renderParam, data, type, full) {
       var result = [],
           paramArr;
@@ -12629,7 +12655,9 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               itemArray.push({
                   'name': item.name,
                   'title': item.title,
-                  'render': item.render
+                  'render': item.render,
+                  'disableorder': item.disableorder,
+                  'hide': item.hide
               });
           });
   
@@ -12760,8 +12788,12 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           return;
       }
   
-      itemArray.forEach(function (item) {
-          var obj = {
+      var orderableArr = [],
+          visibleArr = [];
+  
+      for (var i = 0; i < itemArray.length; i++) {
+          var item = itemArray[i],
+              columnOption = {
               'data': item.name,
               'title': item.title ? item.title : item.name
           };
@@ -12773,14 +12805,38 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
                   renderParam = arr[1];
   
               if (renderFn && Render[renderFn]) {
-                  obj.render = function (data, type, full) {
+                  columnOption.render = function (data, type, full) {
                       return Render[renderFn](renderParam, data, type, full);
                   };
               }
           }
   
-          columns.push(obj);
-      });
+          // 如果需要阻止排序，则需要进行处理orderable
+          if (item.disableorder) {
+              orderableArr.push(i);
+          }
+  
+          // 如果需要隐藏它，则需要进行处理visible
+          if (item.hide) {
+              visibleArr.push(i);
+          }
+  
+          columns.push(columnOption);
+      }
+  
+      if (orderableArr.length) {
+          columnDefs.push({
+              'orderable': false,
+              'targets': orderableArr
+          });
+      }
+  
+      if (visibleArr.length) {
+          columnDefs.push({
+              'visible': false,
+              'targets': visibleArr
+          });
+      }
   
       // 配置
       var dataTableOptions = getDefaultOptions();
@@ -14036,7 +14092,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var add = require('modules/test/add/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" v-on:click=\"operate\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\"></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" v-on:click=\"operate\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
       components: {
           'add': add
       },

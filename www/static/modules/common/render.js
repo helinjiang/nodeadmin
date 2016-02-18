@@ -14,6 +14,16 @@ define('modules/common/render', function(require, exports, module) {
       return '<button class="btn btn-info action" data-type="detail" data-id="' + id + '"> 详情 </button>';
   }
   
+  /**
+   * 用在datagriditem组件中的render属性，用法例如：render="commonOperate | detail modify delete"
+   * 其中的detail、modify、delete是按钮的名称，整个含义就是返回这三个按钮
+   * 
+   * @param  {string} renderParam 渲染的额外参数
+   * @param  {string} data        datatables的data字段，该列对象其中的一个key值
+   * @param  {string} type        datatables的type字段
+   * @param  {object} full        datatables中该列对象的所有数据
+   * @return {string}             包含了按钮的html代码
+   */
   function commonOperate(renderParam, data, type, full) {
       var result = [],
           paramArr;

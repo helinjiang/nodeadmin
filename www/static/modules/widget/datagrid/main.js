@@ -46,7 +46,9 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               itemArray.push({
                   'name': item.name,
                   'title': item.title,
-                  'render': item.render
+                  'render': item.render,
+                  'disableorder': item.disableorder,
+                  'hide': item.hide
               });
           });
   
@@ -177,8 +179,12 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           return;
       }
   
-      itemArray.forEach(function (item) {
-          var obj = {
+      var orderableArr = [],
+          visibleArr = [];
+  
+      for (var i = 0; i < itemArray.length; i++) {
+          var item = itemArray[i],
+              columnOption = {
               'data': item.name,
               'title': item.title ? item.title : item.name
           };
@@ -190,14 +196,38 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
                   renderParam = arr[1];
   
               if (renderFn && Render[renderFn]) {
-                  obj.render = function (data, type, full) {
+                  columnOption.render = function (data, type, full) {
                       return Render[renderFn](renderParam, data, type, full);
                   };
               }
           }
   
-          columns.push(obj);
-      });
+          // 如果需要阻止排序，则需要进行处理orderable
+          if (item.disableorder) {
+              orderableArr.push(i);
+          }
+  
+          // 如果需要隐藏它，则需要进行处理visible
+          if (item.hide) {
+              visibleArr.push(i);
+          }
+  
+          columns.push(columnOption);
+      }
+  
+      if (orderableArr.length) {
+          columnDefs.push({
+              'orderable': false,
+              'targets': orderableArr
+          });
+      }
+  
+      if (visibleArr.length) {
+          columnDefs.push({
+              'visible': false,
+              'targets': visibleArr
+          });
+      }
   
       // 配置
       var dataTableOptions = getDefaultOptions();
