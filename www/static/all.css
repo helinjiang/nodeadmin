@@ -173,3 +173,8 @@ Login page
 .datagrid .datagrid-table .action {
   margin-right: 10px;
 }
+
+/*!/modules/user_index/modify/main.css*/
+.addpage{
+    display: inline-block;
+}
