@@ -5,7 +5,7 @@ define('modules/widget/modal/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('modal', {
-      template: "<div id=\"{{id}}\" class=\"modal container {{css}} fade\" tabindex=\"{{tabindex}}\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\"> 确认 </button>\r\n    </div>\r\n</div>",
+      template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\"> 确认 </button>\r\n    </div>\r\n</div>",
       props: {
           'id': {
               type: String,
@@ -19,7 +19,26 @@ define('modules/widget/modal/main', function(require, exports, module) {
               type: Number,
               'default': -1
           },
-          'title': String
+          'title': String,
+          'fullwidth': {
+              type: Boolean,
+              'default': false
+          }
+      },
+      computed: {
+          'className': function className() {
+              var arr = [];
+  
+              if (this.fullwidth) {
+                  arr.push('container');
+              }
+  
+              if (this.css) {
+                  arr.push(this.css);
+              }
+  
+              return arr.join(' ');
+          }
       },
       methods: {
           show: function show() {

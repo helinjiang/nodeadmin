@@ -16,9 +16,28 @@ Vue.component('modal', {
             'default': -1
         },
         'title': String,
+        'fullwidth': {
+            type: Boolean,
+            'default': false
+        },
     },
-    methods:{
-        show:function(){
+    computed: {
+        'className': function() {
+            var arr = [];
+
+            if (this.fullwidth) {
+                arr.push('container');
+            }
+            
+            if (this.css) {
+                arr.push(this.css);
+            }
+
+            return arr.join(' ');
+        }
+    },
+    methods: {
+        show: function() {
             $(this.$el).modal();
         }
     },
@@ -27,7 +46,7 @@ Vue.component('modal', {
     }
 });
 
-function _init(){
+function _init() {
     $(function() {
         _initGeneral();
     });
