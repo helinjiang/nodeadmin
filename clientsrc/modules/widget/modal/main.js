@@ -28,7 +28,7 @@ Vue.component('modal', {
             if (this.fullwidth) {
                 arr.push('container');
             }
-            
+
             if (this.css) {
                 arr.push(this.css);
             }
@@ -39,6 +39,13 @@ Vue.component('modal', {
     methods: {
         show: function() {
             $(this.$el).modal();
+        },
+        confirm: function() {
+
+            console.log('confirm');
+            // 自定义事件，使用方式为v-on:confirm="save"
+            this.$dispatch('confirm', 'hellotestttt');
+
         }
     },
     ready: function() {
