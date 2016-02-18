@@ -35,6 +35,15 @@ module.exports = Vue.extend({
 });
 
 function showDlgModify(vm, jqTarget) {
-    
-    vm.$refs.modify.showModal();
+    var id = jqTarget.data('id');
+    if (!id) {
+        console.error('No ID!');
+        return;
+    }
+
+    console.log(vm.$refs.datagrid);
+
+    vm.$refs.modify.showModal({
+        id: id
+    });
 }

@@ -16,10 +16,11 @@ Vue.component('datagrid', {
         return {
             jqTable: undefined, //table的jQuery对象
             tableId: undefined, // table的Id
+            oTable: undefined, // datatables对象
             itemArray: [], // 项列表
         };
     },
-    props: {
+    props: { 
         /**
          * 列表的类型
          * 前台分页：front; 后台分页：server
@@ -29,6 +30,16 @@ Vue.component('datagrid', {
             'default': 'front'
         },
         'url': String,
+    },
+    methods: {
+        /**
+         * 获得所有的数据，这些数据是在Ajax查询时返回的
+         * @return {[type]} [description]
+         */
+        getAllData: function() {
+            //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
+            return this.oTable.fnGetData();
+        }
     },
     ready: function() {
         // 缓存该值，避免重复获取
@@ -84,6 +95,7 @@ function initAjaxFront(vm) {
 
     // 开始生成datatables
     var oTable = jqTable.dataTable(dataTableOptions);
+    vm.$set('oTable', oTable);
 
     // 获取并缓存table的id
     vm.$set('tableId', jqTable.attr('id'));

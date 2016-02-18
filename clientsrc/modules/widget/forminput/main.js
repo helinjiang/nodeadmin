@@ -38,6 +38,11 @@ Vue.component('form-input', {
             required: true
         },
 
+        /**
+         * input 的 value 值，必须
+         */
+        'value': 'null',
+
         'autocomplete': {
             type: String,
             'default': 'on'

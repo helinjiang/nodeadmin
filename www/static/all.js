@@ -11679,7 +11679,7 @@ define('modules/widget/forminput/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('form-input', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}}\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" />\r\n    </div>\r\n</div> \r\n",
+      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}}\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" />\r\n    </div>\r\n</div> \r\n",
       props: {
           /**
            * text/password
@@ -11715,6 +11715,11 @@ define('modules/widget/forminput/main', function(require, exports, module) {
               type: String,
               required: true
           },
+  
+          /**
+           * input 的 value 值，必须
+           */
+          'value': 'null',
   
           'autocomplete': {
               type: String,
@@ -12639,6 +12644,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           return {
               jqTable: undefined, //table的jQuery对象
               tableId: undefined, // table的Id
+              oTable: undefined, // datatables对象
               itemArray: [] };
       },
       // 项列表
@@ -12652,6 +12658,16 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               'default': 'front'
           },
           'url': String
+      },
+      methods: {
+          /**
+           * 获得所有的数据，这些数据是在Ajax查询时返回的
+           * @return {[type]} [description]
+           */
+          getAllData: function getAllData() {
+              //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
+              return this.oTable.fnGetData();
+          }
       },
       ready: function ready() {
           // 缓存该值，避免重复获取
@@ -12705,6 +12721,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   
       // 开始生成datatables
       var oTable = jqTable.dataTable(dataTableOptions);
+      vm.$set('oTable', oTable);
   
       // 获取并缓存table的id
       vm.$set('tableId', jqTable.attr('id'));
@@ -14122,9 +14139,17 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"username\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              id: '',
+              name: 'test'
+          };
+      },
       methods: {
-          showModal: function showModal() {
+          showModal: function showModal(data) {
+              this.$set('id', data.id);
+  
               this.$children[0].show();
           }
       },
@@ -14144,7 +14169,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" v-on:click=\"operate\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
       components: {
           'add': add,
           'modify': modify
@@ -14173,8 +14198,17 @@ define('modules/user_index/main/main', function(require, exports, module) {
   });
   
   function showDlgModify(vm, jqTarget) {
+      var id = jqTarget.data('id');
+      if (!id) {
+          console.error('No ID!');
+          return;
+      }
   
-      vm.$refs.modify.showModal();
+      console.log(vm.$refs.datagrid);
+  
+      vm.$refs.modify.showModal({
+          id: id
+      });
   }
 
 });

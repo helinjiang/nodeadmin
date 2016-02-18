@@ -20,6 +20,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           return {
               jqTable: undefined, //table的jQuery对象
               tableId: undefined, // table的Id
+              oTable: undefined, // datatables对象
               itemArray: [] };
       },
       // 项列表
@@ -33,6 +34,16 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               'default': 'front'
           },
           'url': String
+      },
+      methods: {
+          /**
+           * 获得所有的数据，这些数据是在Ajax查询时返回的
+           * @return {[type]} [description]
+           */
+          getAllData: function getAllData() {
+              //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
+              return this.oTable.fnGetData();
+          }
       },
       ready: function ready() {
           // 缓存该值，避免重复获取
@@ -86,6 +97,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   
       // 开始生成datatables
       var oTable = jqTable.dataTable(dataTableOptions);
+      vm.$set('oTable', oTable);
   
       // 获取并缓存table的id
       vm.$set('tableId', jqTable.attr('id'));
