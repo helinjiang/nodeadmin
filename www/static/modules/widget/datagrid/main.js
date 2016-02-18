@@ -46,6 +46,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               itemArray.push({
                   'name': item.name,
                   'title': item.title,
+                  'css': item.css,
                   'render': item.render,
                   'disableorder': item.disableorder,
                   'hide': item.hide
@@ -180,7 +181,8 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       }
   
       var orderableArr = [],
-          visibleArr = [];
+          visibleArr = [],
+          classNameMap = {};
   
       for (var i = 0; i < itemArray.length; i++) {
           var item = itemArray[i],
@@ -202,6 +204,16 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               }
           }
   
+          // 如果需要增加样式类，则需要进行处理className
+          if (item.css) {
+              var existClassNameArr = classNameMap[item.css];
+              if (!existClassNameArr) {
+                  existClassNameArr = [];
+              }
+              existClassNameArr.push(i);
+              classNameMap[item.css] = existClassNameArr;
+          }
+  
           // 如果需要阻止排序，则需要进行处理orderable
           if (item.disableorder) {
               orderableArr.push(i);
@@ -213,6 +225,16 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           }
   
           columns.push(columnOption);
+      }
+  
+      var classNameArr = Object.keys(classNameMap);
+      if (classNameArr.length) {
+          classNameArr.forEach(function (className) {
+              columnDefs.push({
+                  'className': className,
+                  'targets': classNameMap[className]
+              });
+          });
       }
   
       if (orderableArr.length) {
