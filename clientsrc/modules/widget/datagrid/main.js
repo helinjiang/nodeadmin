@@ -184,12 +184,18 @@ function getAjaxOptions(url, itemArray) {
         };
 
         // 如果有自定义的render方法，则需要进行处理
-        if (item.render && Render[item.render]) {
-            obj.render = function(data, type, full) {
-                return Render[item.render](data, type, full);
-            };
+        if (item.render) {
+            var arr = item.render.split('|'),
+                renderFn = arr[0].trim(),
+                renderParam = arr[1];
+
+            if (renderFn && Render[renderFn]) {
+                obj.render = function(data, type, full) {
+                    return Render[renderFn](renderParam, data, type, full);
+                };
+            }
         }
-        
+
         columns.push(obj);
     });
 

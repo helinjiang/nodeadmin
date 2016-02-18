@@ -7,6 +7,11 @@ module.exports = Vue.extend({
     components: {
         'add': add
     },
+    methods:{
+        operate:function(event){
+            console.log('operate',event.target);
+        }
+    },
     ready: function() {
 
     }

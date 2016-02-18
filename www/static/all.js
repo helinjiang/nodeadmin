@@ -12531,14 +12531,51 @@ define('modules/widget/datagriditem/main', function(require, exports, module) {
 ;/*!/modules/common/render.js*/
 define('modules/common/render', function(require, exports, module) {
 
-  "use strict";
+  'use strict';
   
-  function operate(data, type, full) {
-    return JSON.stringify(data);
+  function _getRenderModify(id) {
+      return '<button class="btn btn-info action" data-type="modify" data-id="' + id + '"> 修改 </button>';
+  }
+  
+  function _getRenderDelete(id) {
+      return '<button class="btn btn-danger action" data-type="delete" data-id="' + id + '"> 删除 </button>';
+  }
+  
+  function _getRenderDetail(id) {
+      return '<button class="btn btn-info action" data-type="detail" data-id="' + id + '"> 详情 </button>';
+  }
+  
+  function commonOperate(renderParam, data, type, full) {
+      var result = [],
+          paramArr;
+  
+      if (!renderParam) {
+          return data;
+      }
+  
+      paramArr = renderParam.trim().replace(/\s+/g, ' ').split(' ');
+  
+      paramArr.forEach(function (item) {
+          switch (item) {
+              case 'modify':
+                  result.push(_getRenderModify(data));
+                  break;
+              case 'delete':
+                  result.push(_getRenderDelete(data));
+                  break;
+              case 'detail':
+                  result.push(_getRenderDetail(data));
+                  break;
+              default:
+                  break;
+          }
+      });
+  
+      return result.join('');
   }
   
   module.exports = {
-    operate: operate
+      commonOperate: commonOperate
   };
 
 });
@@ -12730,10 +12767,16 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           };
   
           // 如果有自定义的render方法，则需要进行处理
-          if (item.render && Render[item.render]) {
-              obj.render = function (data, type, full) {
-                  return Render[item.render](data, type, full);
-              };
+          if (item.render) {
+              var arr = item.render.split('|'),
+                  renderFn = arr[0].trim(),
+                  renderParam = arr[1];
+  
+              if (renderFn && Render[renderFn]) {
+                  obj.render = function (data, type, full) {
+                      return Render[renderFn](renderParam, data, type, full);
+                  };
+              }
           }
   
           columns.push(obj);
@@ -13993,9 +14036,14 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var add = require('modules/test/add/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" title=\"操作\" render=\"operate\"></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" v-on:click=\"operate\">\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\"></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
       components: {
           'add': add
+      },
+      methods: {
+          operate: function operate(event) {
+              console.log('operate', event.target);
+          }
       },
       ready: function ready() {}
   });

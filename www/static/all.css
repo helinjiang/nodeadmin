@@ -168,3 +168,8 @@ Login page
     font-size: 13px;
   }
 }
+
+/*!/modules/widget/datagrid/main.scss*/
+.datagrid .datagrid-table .action {
+  margin-right: 10px;
+}
