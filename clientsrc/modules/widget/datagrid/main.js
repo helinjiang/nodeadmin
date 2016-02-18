@@ -20,7 +20,7 @@ Vue.component('datagrid', {
             itemArray: [], // 项列表
         };
     },
-    props: { 
+    props: {
         /**
          * 列表的类型
          * 前台分页：front; 后台分页：server
@@ -39,6 +39,24 @@ Vue.component('datagrid', {
         getAllData: function() {
             //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
             return this.oTable.fnGetData();
+        },
+        getDataById: function(key, value) {
+            if (!key || !value) {
+                return;
+            }
+
+            var allData = this.getAllData(),
+                length = allData.length,
+                result;
+
+            for (var i = 0; i < length; i++) {
+                if (allData[i][key] === value) {
+                    result = allData[i];
+                    break;
+                }
+            }
+
+            return result;
         }
     },
     ready: function() {

@@ -5,12 +5,13 @@ module.exports = Vue.extend({
     data: function() {
         return {
             id: '',
-            name: 'test'
+            name: ''
         };
     },
     methods: {
         showModal: function(data) {
             this.$set('id', data.id);
+            this.$set('name', data.name);
 
             this.$children[0].show();
         }

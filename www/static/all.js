@@ -11717,7 +11717,7 @@ define('modules/widget/forminput/main', function(require, exports, module) {
           },
   
           /**
-           * input 的 value 值，必须
+           * input 的 value 值，不限定什么类型
            */
           'value': 'null',
   
@@ -12667,6 +12667,24 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           getAllData: function getAllData() {
               //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
               return this.oTable.fnGetData();
+          },
+          getDataById: function getDataById(key, value) {
+              if (!key || !value) {
+                  return;
+              }
+  
+              var allData = this.getAllData(),
+                  length = allData.length,
+                  result;
+  
+              for (var i = 0; i < length; i++) {
+                  if (allData[i][key] === value) {
+                      result = allData[i];
+                      break;
+                  }
+              }
+  
+              return result;
           }
       },
       ready: function ready() {
@@ -14139,16 +14157,17 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"新密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
       data: function data() {
           return {
               id: '',
-              name: 'test'
+              name: ''
           };
       },
       methods: {
           showModal: function showModal(data) {
               this.$set('id', data.id);
+              this.$set('name', data.name);
   
               this.$children[0].show();
           }
@@ -14198,16 +14217,25 @@ define('modules/user_index/main/main', function(require, exports, module) {
   });
   
   function showDlgModify(vm, jqTarget) {
-      var id = jqTarget.data('id');
+      var id = jqTarget.data('id'),
+          data;
+  
       if (!id) {
           console.error('No ID!');
           return;
       }
   
-      console.log(vm.$refs.datagrid);
+      data = vm.$refs.datagrid.getDataById('id', id);
+      if (!data) {
+          console.error('No data of id=' + id);
+          return;
+      }
+  
+      console.log(data);
   
       vm.$refs.modify.showModal({
-          id: id
+          id: data.id,
+          name: data.name
       });
   }
 

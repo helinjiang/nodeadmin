@@ -43,6 +43,24 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           getAllData: function getAllData() {
               //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
               return this.oTable.fnGetData();
+          },
+          getDataById: function getDataById(key, value) {
+              if (!key || !value) {
+                  return;
+              }
+  
+              var allData = this.getAllData(),
+                  length = allData.length,
+                  result;
+  
+              for (var i = 0; i < length; i++) {
+                  if (allData[i][key] === value) {
+                      result = allData[i];
+                      break;
+                  }
+              }
+  
+              return result;
           }
       },
       ready: function ready() {

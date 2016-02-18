@@ -43,7 +43,7 @@ define('modules/widget/forminput/main', function(require, exports, module) {
           },
   
           /**
-           * input 的 value 值，必须
+           * input 的 value 值，不限定什么类型
            */
           'value': 'null',
   
