@@ -49,7 +49,7 @@ function showDlgModify(vm, jqTarget) {
         return;
     }
 
-    console.log(data);
+    // console.log(data);
 
     vm.$refs.modify.showModal({
         id: data.id,

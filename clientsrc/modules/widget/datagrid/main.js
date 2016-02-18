@@ -30,6 +30,13 @@ Vue.component('datagrid', {
             'default': 'front'
         },
         'url': String,
+        'pagelength': {
+            type: Number,
+            'default': '10',
+            coerce: function(val) {
+                return parseInt(val, 10);
+            }
+        }
     },
     methods: {
         /**
@@ -107,7 +114,7 @@ function initDataGrid(vm) {
 
 function initAjaxFront(vm) {
     // 配置
-    var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray);
+    var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
 
     var jqTable = vm.jqTable;
 
@@ -144,8 +151,8 @@ function getDefaultOptions() {
         // ],
 
         "lengthMenu": [
-            [5, 10, 50, -1],
-            [5, 10, 50, "All"] // change per page values here
+            [10, 20, 50, -1],
+            [10, 20, 50, "All"] // change per page values here
         ],
 
         /**
@@ -155,7 +162,7 @@ function getDefaultOptions() {
          *
          * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
          */
-        "pageLength": 5,
+        "pageLength": 10,
 
         "language": {
             "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
@@ -193,7 +200,7 @@ function getDefaultOptions() {
  * 获得Ajax类型的 datagrid 配置
  * @return {[type]} [description]
  */
-function getAjaxOptions(url, itemArray) {
+function getAjaxOptions(url, itemArray, pagelength) {
     // url
     if (!url) {
         console.error('Unknown url', url);
@@ -297,6 +304,28 @@ function getAjaxOptions(url, itemArray) {
     // columnDefs
     if (columnDefs.length) {
         dataTableOptions.columnDefs = columnDefs;
+    }
+
+    // pagelength
+    if (pagelength != 10) {
+        dataTableOptions.pageLength = pagelength;
+
+        // 如果指定的每页数量不在下拉框内，还要手动加入
+        if (dataTableOptions.lengthMenu[0].indexOf(pagelength) < 0) {
+            for (var i = 0; i < dataTableOptions.lengthMenu[0].length; i++) {
+                if (dataTableOptions.lengthMenu[0][i] > pagelength || dataTableOptions.lengthMenu[0][i] === -1) {
+                    dataTableOptions.lengthMenu[0].splice(i, 0, pagelength);
+                    dataTableOptions.lengthMenu[1].splice(i, 0, pagelength);
+                    break;
+                }
+            }
+        }
+
+        // "lengthMenu": [
+        //     [10, 20, 50, -1],
+        //     [10, 20, 50, "All"] // change per page values here
+        // ],
+
     }
 
     return dataTableOptions;

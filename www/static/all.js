@@ -12662,7 +12662,14 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
               type: String,
               'default': 'front'
           },
-          'url': String
+          'url': String,
+          'pagelength': {
+              type: Number,
+              'default': '10',
+              coerce: function coerce(val) {
+                  return parseInt(val, 10);
+              }
+          }
       },
       methods: {
           /**
@@ -12738,7 +12745,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   
   function initAjaxFront(vm) {
       // 配置
-      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray);
+      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
   
       var jqTable = vm.jqTable;
   
@@ -12774,7 +12781,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           //     [0, 'asc']
           // ],
   
-          "lengthMenu": [[5, 10, 50, -1], [5, 10, 50, "All"] // change per page values here
+          "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"] // change per page values here
           ],
   
           /**
@@ -12784,7 +12791,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
            *
            * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
            */
-          "pageLength": 5,
+          "pageLength": 10,
   
           "language": {
               "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
@@ -12822,7 +12829,7 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
    * 获得Ajax类型的 datagrid 配置
    * @return {[type]} [description]
    */
-  function getAjaxOptions(url, itemArray) {
+  function getAjaxOptions(url, itemArray, pagelength) {
       // url
       if (!url) {
           console.error('Unknown url', url);
@@ -12924,6 +12931,27 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       // columnDefs
       if (columnDefs.length) {
           dataTableOptions.columnDefs = columnDefs;
+      }
+  
+      // pagelength
+      if (pagelength != 10) {
+          dataTableOptions.pageLength = pagelength;
+  
+          // 如果指定的每页数量不在下拉框内，还要手动加入
+          if (dataTableOptions.lengthMenu[0].indexOf(pagelength) < 0) {
+              for (var i = 0; i < dataTableOptions.lengthMenu[0].length; i++) {
+                  if (dataTableOptions.lengthMenu[0][i] > pagelength || dataTableOptions.lengthMenu[0][i] === -1) {
+                      dataTableOptions.lengthMenu[0].splice(i, 0, pagelength);
+                      dataTableOptions.lengthMenu[1].splice(i, 0, pagelength);
+                      break;
+                  }
+              }
+          }
+  
+          // "lengthMenu": [
+          //     [10, 20, 50, -1],
+          //     [10, 20, 50, "All"] // change per page values here
+          // ],
       }
   
       return dataTableOptions;
@@ -14212,7 +14240,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
+      template: "<admin-main-toolbar>\r\n    <add></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
       components: {
           'add': add,
           'modify': modify
@@ -14255,7 +14283,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
           return;
       }
   
-      console.log(data);
+      // console.log(data);
   
       vm.$refs.modify.showModal({
           id: data.id,
