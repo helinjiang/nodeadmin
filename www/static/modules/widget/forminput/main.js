@@ -5,7 +5,7 @@ define('modules/widget/forminput/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('form-input', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}}\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" />\r\n    </div>\r\n</div> \r\n",
+      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}}\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
       props: {
           /**
            * text/password
@@ -50,6 +50,11 @@ define('modules/widget/forminput/main', function(require, exports, module) {
           'autocomplete': {
               type: String,
               'default': 'on'
+          },
+  
+          'readonly': {
+              type: Boolean,
+              'default': false
           },
   
           'horizontal': {

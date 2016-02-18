@@ -1,7 +1,7 @@
 <div class="form-group" v-if="horizontal">
     <label class="col-md-{{colLeft}} control-label" v-if="!hidetitle">{{ title }}</label>
     <div class="col-md-{{colRight}}">
-        <input name="{{ name }}" type="{{ type }}" class="form-control" autocomplete="{{autocomplete}}" value="{{value}}">
+        <input name="{{ name }}" type="{{ type }}" class="form-control" autocomplete="{{autocomplete}}" value="{{value}}" readonly="{{readonly}}">
     </div>
 </div>
 
@@ -10,6 +10,6 @@
     <label class="control-label visible-ie8 visible-ie9" v-if="!hidetitle">{{ title }}</label>
     <div class="input-icon">
         <i class="fa fa-{{ icon }}" v-if="icon"></i>
-        <input name="{{ name }}" type="{{ type }}" class="form-control placeholder-no-fix" autocomplete="{{autocomplete}}" placeholder="{{ title }}" />
+        <input name="{{ name }}" type="{{ type }}" class="form-control placeholder-no-fix" autocomplete="{{autocomplete}}" placeholder="{{ title }}" readonly="{{readonly}}" />
     </div>
 </div> 

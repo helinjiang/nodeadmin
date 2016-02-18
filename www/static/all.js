@@ -11679,7 +11679,7 @@ define('modules/widget/forminput/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('form-input', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}}\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" />\r\n    </div>\r\n</div> \r\n",
+      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}}\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
       props: {
           /**
            * text/password
@@ -11724,6 +11724,11 @@ define('modules/widget/forminput/main', function(require, exports, module) {
           'autocomplete': {
               type: String,
               'default': 'on'
+          },
+  
+          'readonly': {
+              type: Boolean,
+              'default': false
           },
   
           'horizontal': {
@@ -13099,7 +13104,7 @@ define('modules/widget/modal/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('modal', {
-      template: "<div id=\"{{id}}\" class=\"modal container {{css}} fade\" tabindex=\"{{tabindex}}\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\">Close</button>\r\n        <button type=\"button\" class=\"btn btn-primary\">Ok</button>\r\n    </div>\r\n</div>",
+      template: "<div id=\"{{id}}\" class=\"modal container {{css}} fade\" tabindex=\"{{tabindex}}\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\"> 确认 </button>\r\n    </div>\r\n</div>",
       props: {
           'id': {
               type: String,
@@ -14157,7 +14162,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"新密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal readonly></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal readonly></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"新密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
       data: function data() {
           return {
               id: '',

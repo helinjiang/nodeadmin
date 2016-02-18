@@ -48,6 +48,11 @@ Vue.component('form-input', {
             'default': 'on'
         },
 
+        'readonly': {
+            type: Boolean,
+            'default': false
+        },
+
         'horizontal': {
             type: Boolean,
             'default': false
