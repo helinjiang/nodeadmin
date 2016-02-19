@@ -12,6 +12,10 @@ export default class extends Base {
         return this.display();
     }
 
+    /**
+     * 获得列表中的数据
+     * @return {object} JSON 格式数据
+     */
     async getdataAction() {
         let data = await this.model('user').getAllUser();
 
@@ -20,8 +24,13 @@ export default class extends Base {
             item.createTime = this.getCurTimeStr(item.createTime);
             item.updateTime = this.getCurTimeStr(item.updateTime);
 
-            // 为表格中的每一行增加id：DT_RowId，增加样式：DT_RowClass
+            // 为表格中的每一行增加id：DT_RowId，以便后续方便操作
             item.DT_RowId = 'row_' + item.id;
+
+            if (item.status < 0){
+                // 为表格中的无效数据增加样式：DT_RowClass，默认值有'active', 'success', 'warning', 'danger'，也可以自定义
+                item.DT_RowClass = 'warning';
+            }
 
             return item;
         });        
