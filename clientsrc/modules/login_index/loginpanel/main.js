@@ -4,6 +4,8 @@ var validator = require('common/validator');
 var FormActions = require('widget/formactions/main');
 var HeCheckbox = require('widget/hecheckbox/main');
 
+var Msg =  require('/modules/widget/msg/main');
+
 module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
@@ -60,9 +62,6 @@ function handleValidator(vm) {
             }
         }
     }, {
-        invalidHandler: function(event, validator) {
-            vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
-        },
         submitHandler: function(form) {
             $(form).ajaxSubmit({
                 success: function(responseText, statusText) {
@@ -71,6 +70,7 @@ function handleValidator(vm) {
                         vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
                     } else {
                         vm.$refs.alert.hide();
+                        Msg.success('登录成功，正在跳转...');
                         // 加载中...
                         // 跳转到主页面
                         window.location.href = '/admin/';

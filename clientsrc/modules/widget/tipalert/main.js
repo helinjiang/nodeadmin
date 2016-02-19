@@ -7,7 +7,7 @@ Vue.component('tip-alert', {
             isShow: false,
             type: 'danger', //danger,info,success,warning
             msg: '' //必填
-        }
+        };
     },
     methods: {
         show: function(msg, type) {

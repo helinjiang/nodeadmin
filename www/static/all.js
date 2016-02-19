@@ -14050,6 +14050,51 @@ define('modules/widget/hecheckbox/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/msg/main.js*/
+define('modules/widget/msg/main', function(require, exports, module) {
+
+  'use strict';
+  
+  toastr.options = {
+      "closeButton": true,
+      // "debug": true,
+      "positionClass": "toast-top-center",
+      "onclick": null,
+      "showDuration": "1000",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+  };
+  
+  function info(content) {
+      toastr.info(content, '信息');
+  }
+  
+  function success(content) {
+      toastr.success(content, '成功');
+  }
+  
+  function error(content) {
+      toastr.error(content, '错误');
+  }
+  
+  function warning(content) {
+      toastr.warning(content, '警告');
+  }
+  
+  module.exports = {
+      info: info,
+      success: success,
+      error: error,
+      warning: warning
+  };
+
+});
+
 ;/*!/modules/login_index/loginpanel/main.js*/
 define('modules/login_index/loginpanel/main', function(require, exports, module) {
 
@@ -14060,6 +14105,8 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   
   var FormActions = require('modules/widget/formactions/main');
   var HeCheckbox = require('modules/widget/hecheckbox/main');
+  
+  var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
       template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <form-input name=\"username\" title=\"用户名\" icon=\"user\"></form-input>\r\n    <form-input type=\"password\" name=\"password\" title=\"密码\" icon=\"lock\"></form-input>\r\n\r\n    <form-actions>\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </form-actions>\r\n\r\n</form>",
@@ -14116,9 +14163,6 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
               }
           }
       }, {
-          invalidHandler: function invalidHandler(event, validator) {
-              vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
-          },
           submitHandler: function submitHandler(form) {
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
@@ -14127,6 +14171,7 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
                           vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
                       } else {
                           vm.$refs.alert.hide();
+                          Msg.success('登录成功，正在跳转...');
                           // 加载中...
                           // 跳转到主页面
                           window.location.href = '/admin/';
