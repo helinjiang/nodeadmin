@@ -6,6 +6,11 @@
 .addpage{
     display: inline-block;
 }
+/*!/modules/widget/datagrid/main.scss*/
+.datagrid .datagrid-table .action {
+  margin-right: 10px;
+}
+
 /*!/pages/login_index/main.scss*/
 /***
 Login page
@@ -167,14 +172,4 @@ Login page
   .login .checkbox {
     font-size: 13px;
   }
-}
-
-/*!/modules/widget/datagrid/main.scss*/
-.datagrid .datagrid-table .action {
-  margin-right: 10px;
-}
-
-/*!/modules/user_index/modify/main.css*/
-.addpage{
-    display: inline-block;
 }

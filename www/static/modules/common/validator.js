@@ -53,7 +53,7 @@ define('modules/common/validator', function(require, exports, module) {
           },
   
           errorPlacement: function errorPlacement(error, element) {
-              error.insertAfter(element.closest('.input-icon'));
+              error.appendTo(element.closest('.errwrap'));
           },
   
           submitHandler: function submitHandler(form) {
