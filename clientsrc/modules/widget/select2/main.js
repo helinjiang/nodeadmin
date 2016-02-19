@@ -1,3 +1,7 @@
+/**
+ * 有两种，一种是ajax请求的，一种是现成的
+ */
+
 var Vue = require('lib/vue');
 
 Vue.directive('select', {
@@ -29,7 +33,7 @@ Vue.component('select2', {
     template: __inline('main.html'),
     data: function() {
         return {
-            selected: 0,
+            selected: 1,
             options: [{
                 id: 1,
                 text: 'hello'

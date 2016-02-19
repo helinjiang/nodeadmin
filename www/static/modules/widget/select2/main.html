@@ -1,6 +1,4 @@
 <div>
-  <p>Selected: {{selected}}</p>
-  <select v-select="selected" :options="options" style="width: 100%">
-    <option value="0">default</option>
-  </select>
+    <p>Selected: {{selected}}</p>
+    <input type="hidden" v-select="selected" :options="options" style="width: 100%" />
 </div>

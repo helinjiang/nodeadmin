@@ -11837,6 +11837,10 @@ define('modules/widget/tipalert/main', function(require, exports, module) {
 ;/*!/modules/widget/select2/main.js*/
 define('modules/widget/select2/main', function(require, exports, module) {
 
+  /**
+   * 有两种，一种是ajax请求的，一种是现成的
+   */
+  
   'use strict';
   
   var Vue = require('modules/lib/vue');
@@ -11864,10 +11868,10 @@ define('modules/widget/select2/main', function(require, exports, module) {
   });
   
   Vue.component('select2', {
-      template: "<div>\r\n  <p>Selected: {{selected}}</p>\r\n  <select v-select=\"selected\" :options=\"options\" style=\"width: 100%\">\r\n    <option value=\"0\">default</option>\r\n  </select>\r\n</div>",
+      template: "<div>\r\n    <p>Selected: {{selected}}</p>\r\n    <input type=\"hidden\" v-select=\"selected\" :options=\"options\" style=\"width: 100%\" />\r\n</div>\r\n",
       data: function data() {
           return {
-              selected: 0,
+              selected: 1,
               options: [{
                   id: 1,
                   text: 'hello'
@@ -14466,7 +14470,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2></select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2></select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify

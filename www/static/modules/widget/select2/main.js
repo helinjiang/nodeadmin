@@ -1,5 +1,9 @@
 define('modules/widget/select2/main', function(require, exports, module) {
 
+  /**
+   * 有两种，一种是ajax请求的，一种是现成的
+   */
+  
   'use strict';
   
   var Vue = require('modules/lib/vue');
@@ -27,10 +31,10 @@ define('modules/widget/select2/main', function(require, exports, module) {
   });
   
   Vue.component('select2', {
-      template: "<div>\r\n  <p>Selected: {{selected}}</p>\r\n  <select v-select=\"selected\" :options=\"options\" style=\"width: 100%\">\r\n    <option value=\"0\">default</option>\r\n  </select>\r\n</div>",
+      template: "<div>\r\n    <p>Selected: {{selected}}</p>\r\n    <input type=\"hidden\" v-select=\"selected\" :options=\"options\" style=\"width: 100%\" />\r\n</div>\r\n",
       data: function data() {
           return {
-              selected: 0,
+              selected: 1,
               options: [{
                   id: 1,
                   text: 'hello'
