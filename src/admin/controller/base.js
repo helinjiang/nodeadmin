@@ -1,4 +1,5 @@
 'use strict';
+import moment from 'moment';
 
 export default class extends think.controller.base {
     /**
@@ -8,12 +9,34 @@ export default class extends think.controller.base {
     async __before() {
         let userInfo = await this.session('userInfo');
 
-        // 如果没登录，则跳转到登录页面
+        // 濡傛灉娌＄櫥褰曪紝鍒欒烦杞埌鐧诲綍椤甸潰
         if (think.isEmpty(userInfo)) {
 
             return this.redirect('/admin/login');
         }
 
         this.assign('user', userInfo);
+    }
+
+    getCurTimeStr(dateObj) {
+        var formatStr = 'YYYY-MM-DD HH:mm:ss',
+            result;
+
+        switch (typeof dateObj) {
+            case 'object':
+                result = moment(dateObj).format(formatStr);
+                break;
+            case 'undefined':
+                result = moment().format(formatStr);
+                break;
+            case 'string':
+                result = dateObj;
+                break;
+            default:
+                result = 'unknown' + dateObj;
+                break;
+        }
+
+        return result;
     }
 }
