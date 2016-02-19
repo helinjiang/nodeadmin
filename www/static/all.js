@@ -11449,11 +11449,11 @@ define('modules/common/app', function(require, exports, module) {
               var options = $.extend(true, {}, options);
               var html = '';
               if (options.iconOnly) {
-                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="assets/img/loading-spinner-grey.gif" align=""></div>';
+                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="/static/img/loading-spinner-grey.gif" align=""></div>';
               } else if (options.textOnly) {
                   html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><span>&nbsp;&nbsp;' + (options.message ? options.message : 'LOADING...') + '</span></div>';
               } else {
-                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="assets/img/loading-spinner-grey.gif" align=""><span>&nbsp;&nbsp;' + (options.message ? options.message : 'LOADING...') + '</span></div>';
+                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="/static/img/loading-spinner-grey.gif" align=""><span>&nbsp;&nbsp;' + (options.message ? options.message : 'LOADING...') + '</span></div>';
               }
   
               if (options.target) {
@@ -11513,7 +11513,7 @@ define('modules/common/app', function(require, exports, module) {
   
           startPageLoading: function startPageLoading(message) {
               $('.page-loading').remove();
-              $('body').append('<div class="page-loading"><img src="assets/img/loading-spinner-grey.gif"/>&nbsp;&nbsp;<span>' + (message ? message : 'Loading...') + '</span></div>');
+              $('body').append('<div class="page-loading"><img src="/static/img/loading-spinner-grey.gif"/>&nbsp;&nbsp;<span>' + (message ? message : 'Loading...') + '</span></div>');
           },
   
           stopPageLoading: function stopPageLoading() {
@@ -14095,6 +14095,31 @@ define('modules/widget/msg/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/loading/main.js*/
+define('modules/widget/loading/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var App = require('modules/common/app');
+  
+  function show(msg) {
+      msg = msg || '加载中...';
+      App.blockUI({
+          message: msg
+      });
+  }
+  
+  function hide() {
+      App.unblockUI();
+  }
+  
+  module.exports = {
+      show: show,
+      hide: hide
+  };
+
+});
+
 ;/*!/modules/login_index/loginpanel/main.js*/
 define('modules/login_index/loginpanel/main', function(require, exports, module) {
 
@@ -14107,6 +14132,7 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   var HeCheckbox = require('modules/widget/hecheckbox/main');
   
   var Msg = require('modules/widget/msg/main');
+  var Loading = require('modules/widget/loading/main');
   
   module.exports = Vue.extend({
       template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <form-input name=\"username\" title=\"用户名\" icon=\"user\"></form-input>\r\n    <form-input type=\"password\" name=\"password\" title=\"密码\" icon=\"lock\"></form-input>\r\n\r\n    <form-actions>\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </form-actions>\r\n\r\n</form>",
@@ -14172,6 +14198,7 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
                       } else {
                           vm.$refs.alert.hide();
                           Msg.success('登录成功，正在跳转...');
+                          Loading.show('登录成功，正在跳转...');
                           // 加载中...
                           // 跳转到主页面
                           window.location.href = '/admin/';

@@ -471,11 +471,11 @@ define('modules/common/app', function(require, exports, module) {
               var options = $.extend(true, {}, options);
               var html = '';
               if (options.iconOnly) {
-                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="assets/img/loading-spinner-grey.gif" align=""></div>';
+                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="/static/img/loading-spinner-grey.gif" align=""></div>';
               } else if (options.textOnly) {
                   html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><span>&nbsp;&nbsp;' + (options.message ? options.message : 'LOADING...') + '</span></div>';
               } else {
-                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="assets/img/loading-spinner-grey.gif" align=""><span>&nbsp;&nbsp;' + (options.message ? options.message : 'LOADING...') + '</span></div>';
+                  html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="/static/img/loading-spinner-grey.gif" align=""><span>&nbsp;&nbsp;' + (options.message ? options.message : 'LOADING...') + '</span></div>';
               }
   
               if (options.target) {
@@ -535,7 +535,7 @@ define('modules/common/app', function(require, exports, module) {
   
           startPageLoading: function startPageLoading(message) {
               $('.page-loading').remove();
-              $('body').append('<div class="page-loading"><img src="assets/img/loading-spinner-grey.gif"/>&nbsp;&nbsp;<span>' + (message ? message : 'Loading...') + '</span></div>');
+              $('body').append('<div class="page-loading"><img src="/static/img/loading-spinner-grey.gif"/>&nbsp;&nbsp;<span>' + (message ? message : 'Loading...') + '</span></div>');
           },
   
           stopPageLoading: function stopPageLoading() {
