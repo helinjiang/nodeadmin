@@ -11679,8 +11679,13 @@ define('modules/widget/forminput/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('form-input', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
+      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" id=\"{{id}}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
       props: {
+          /**
+           * 
+           */
+          'id': String,
+  
           /**
            * text/password
            */
@@ -13143,7 +13148,7 @@ define('modules/widget/modal/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('modal', {
-      template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
+      template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
       props: {
           'id': {
               type: String,
@@ -13180,6 +13185,8 @@ define('modules/widget/modal/main', function(require, exports, module) {
       },
       methods: {
           show: function show() {
+              // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
+  
               $(this.$el).modal();
           },
           hide: function hide() {
@@ -14291,6 +14298,8 @@ define('modules/user_index/add/main', function(require, exports, module) {
       },
       methods: {
           showModal: function showModal() {
+              $('input', this.jqForm).val('');
+  
               this.$children[0].show();
           },
           hideModal: function hideModal() {

@@ -12,12 +12,14 @@ module.exports = Vue.extend({
     },
     methods: {
         showModal: function() {
+            $('input', this.jqForm).val('');
+
             this.$children[0].show();
         },
         hideModal: function() {
             this.$children[0].hide();
         },
-        reportSuccess: function(data){
+        reportSuccess: function(data) {
             this.$dispatch('savesuccess', data);
         },
         saveSubmit: function(msg) {

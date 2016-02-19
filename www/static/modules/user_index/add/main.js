@@ -16,6 +16,8 @@ define('modules/user_index/add/main', function(require, exports, module) {
       },
       methods: {
           showModal: function showModal() {
+              $('input', this.jqForm).val('');
+  
               this.$children[0].show();
           },
           hideModal: function hideModal() {

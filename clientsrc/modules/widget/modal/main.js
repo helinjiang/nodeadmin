@@ -38,6 +38,8 @@ Vue.component('modal', {
     },
     methods: {
         show: function() {
+            // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
+            
             $(this.$el).modal();
         },
         hide: function() {

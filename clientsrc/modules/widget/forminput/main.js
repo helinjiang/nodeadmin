@@ -4,6 +4,11 @@ Vue.component('form-input', {
     template: __inline('main.html'),
     props: {
         /**
+         * 
+         */
+        'id': String,
+	
+        /**
          * text/password
          */
         'type': {
