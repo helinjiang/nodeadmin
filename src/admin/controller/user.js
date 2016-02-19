@@ -36,8 +36,7 @@ export default class extends Base {
 
         //console.log(title, theme, slide_content); 
         let model = this.model("user");
-        let moment = require('moment');
-        let datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        let datetime = this.getCurTimeStr();
 
         pwd = think.md5('think_' + pwd);
 
