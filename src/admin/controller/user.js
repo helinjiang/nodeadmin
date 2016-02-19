@@ -27,13 +27,13 @@ export default class extends Base {
             // 为表格中的每一行增加id：DT_RowId，以便后续方便操作
             item.DT_RowId = 'row_' + item.id;
 
-            if (item.status < 0){
+            if (item.state < 0) {
                 // 为表格中的无效数据增加样式：DT_RowClass，默认值有'active', 'success', 'warning', 'danger'，也可以自定义
                 item.DT_RowClass = 'warning';
             }
 
             return item;
-        });        
+        });
 
         return this.success(data);
     }
@@ -52,8 +52,9 @@ export default class extends Base {
         let record = {
             name: name,
             pwd: pwd,
+            createTime: datetime,
             updateTime: datetime,
-            createTime: datetime
+            state: 1
         };
         console.log(record);
         // return this.success('test');
