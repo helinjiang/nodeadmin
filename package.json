@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "babel-runtime": "6.x.x",
+    "moment": "^2.11.2",
     "think-debug-toolbar": "^1.0.12",
     "thinkjs": "2.1.x"
   },

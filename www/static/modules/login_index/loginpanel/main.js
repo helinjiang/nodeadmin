@@ -9,7 +9,7 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   var HeCheckbox = require('modules/widget/hecheckbox/main');
   
   module.exports = Vue.extend({
-      template: "<form class=\"login-form\" action=\"./login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <form-input name=\"username\" title=\"用户名\" icon=\"user\"></form-input>\r\n    <form-input type=\"password\" name=\"password\" title=\"密码\" icon=\"lock\"></form-input>\r\n\r\n    <form-actions>\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </form-actions>\r\n\r\n</form>",
+      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <form-input name=\"username\" title=\"用户名\" icon=\"user\"></form-input>\r\n    <form-input type=\"password\" name=\"password\" title=\"密码\" icon=\"lock\"></form-input>\r\n\r\n    <form-actions>\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </form-actions>\r\n\r\n</form>",
       data: function data() {
           return {
               jqForm: undefined
