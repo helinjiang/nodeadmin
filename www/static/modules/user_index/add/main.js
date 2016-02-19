@@ -5,9 +5,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"save\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -17,9 +18,13 @@ define('modules/user_index/add/main', function(require, exports, module) {
           showModal: function showModal() {
               this.$children[0].show();
           },
-          save: function save(msg) {
-              console.log('next to save add', msg);
-  
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
           }
@@ -69,14 +74,17 @@ define('modules/user_index/add/main', function(require, exports, module) {
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
                       if (statusText !== 'success' || responseText.errno !== 0) {
-                          // vm.$refs.alert.show('保存用户信息时出错');
-                          alert('保存用户信息时出错');
+                          // 提示失败
+                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
                       } else {
-                          // vm.$refs.alert.hide();
-                          alert('保存成功！');
-                          // 加载中...
-                          // 跳转到主页面
-                          // window.location.href = '/admin/';
+                          // 提示成功
+                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+  
+                          // 关闭对话框
+                          vm.hideModal();
+  
+                          // 刷新列表
+                          vm.reportSuccess(responseText.data);
                       }
                   }
               });

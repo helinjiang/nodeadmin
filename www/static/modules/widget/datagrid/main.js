@@ -7,6 +7,11 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
    *
    * 1. 原生table
    * 2. ajax动态加载生成
+   *
+   *
+   * $( selector ).DataTable();
+   * $( selector ).dataTable().api();
+   * new $.fn.dataTable.Api( selector );
    */
   
   'use strict';
@@ -43,6 +48,12 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           }
       },
       methods: {
+          reload: function reload() {
+              // https://datatables.net/reference/api/ajax.reload()
+              this.oTable.api().ajax.reload(function (json) {
+                  // console.log('---', json);
+              });
+          },
           /**
            * 获得所有的数据，这些数据是在Ajax查询时返回的
            * @return {[type]} [description]

@@ -48,7 +48,11 @@ export default class extends Base {
                 .catch(err => this.fail(err.message || 'error'));
 
             if (id) {
-                return this.success(id);
+                return this.success({
+                    _type: 'add',
+                    id: id,
+                    name: name
+                });
             }
         } else {
             // 修改

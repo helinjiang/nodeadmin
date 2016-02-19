@@ -12636,6 +12636,11 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
    *
    * 1. 原生table
    * 2. ajax动态加载生成
+   *
+   *
+   * $( selector ).DataTable();
+   * $( selector ).dataTable().api();
+   * new $.fn.dataTable.Api( selector );
    */
   
   'use strict';
@@ -12672,6 +12677,12 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
           }
       },
       methods: {
+          reload: function reload() {
+              // https://datatables.net/reference/api/ajax.reload()
+              this.oTable.api().ajax.reload(function (json) {
+                  // console.log('---', json);
+              });
+          },
           /**
            * 获得所有的数据，这些数据是在Ajax查询时返回的
            * @return {[type]} [description]
@@ -13171,11 +13182,12 @@ define('modules/widget/modal/main', function(require, exports, module) {
           show: function show() {
               $(this.$el).modal();
           },
+          hide: function hide() {
+              $(this.$el).modal('hide');
+          },
           confirm: function confirm() {
-  
-              console.log('confirm');
               // 自定义事件，使用方式为v-on:confirm="save"
-              this.$dispatch('confirm', 'hellotestttt');
+              this.$dispatch('confirm', this.id);
           }
       },
       ready: function ready() {
@@ -14268,9 +14280,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"save\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -14280,9 +14293,13 @@ define('modules/user_index/add/main', function(require, exports, module) {
           showModal: function showModal() {
               this.$children[0].show();
           },
-          save: function save(msg) {
-              console.log('next to save add', msg);
-  
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
           }
@@ -14332,14 +14349,17 @@ define('modules/user_index/add/main', function(require, exports, module) {
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
                       if (statusText !== 'success' || responseText.errno !== 0) {
-                          // vm.$refs.alert.show('保存用户信息时出错');
-                          alert('保存用户信息时出错');
+                          // 提示失败
+                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
                       } else {
-                          // vm.$refs.alert.hide();
-                          alert('保存成功！');
-                          // 加载中...
-                          // 跳转到主页面
-                          // window.location.href = '/admin/';
+                          // 提示成功
+                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+  
+                          // 关闭对话框
+                          vm.hideModal();
+  
+                          // 刷新列表
+                          vm.reportSuccess(responseText.data);
                       }
                   }
               });
@@ -14388,7 +14408,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>\r\n",
       components: {
           'add': add,
           'modify': modify
@@ -14411,6 +14431,9 @@ define('modules/user_index/main/main', function(require, exports, module) {
                   default:
                       break;
               }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
           }
       },
       ready: function ready() {}

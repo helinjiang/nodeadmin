@@ -1,6 +1,7 @@
 var Vue = require('lib/vue');
 
 var validator = require('common/validator');
+var Msg = require('/modules/widget/msg/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
@@ -13,9 +14,13 @@ module.exports = Vue.extend({
         showModal: function() {
             this.$children[0].show();
         },
-        save: function(msg) {
-            console.log('next to save add', msg);
-
+        hideModal: function() {
+            this.$children[0].hide();
+        },
+        reportSuccess: function(data){
+            this.$dispatch('savesuccess', data);
+        },
+        saveSubmit: function(msg) {
             // 提交表单
             this.jqForm.submit();
         }
@@ -66,14 +71,17 @@ function handleValidator(vm) {
             $(form).ajaxSubmit({
                 success: function(responseText, statusText) {
                     if (statusText !== 'success' || responseText.errno !== 0) {
-                        // vm.$refs.alert.show('保存用户信息时出错');
-                        alert('保存用户信息时出错');
+                        // 提示失败
+                        Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
                     } else {
-                        // vm.$refs.alert.hide();
-                        alert('保存成功！');
-                        // 加载中...
-                        // 跳转到主页面
-                        // window.location.href = '/admin/';
+                        // 提示成功
+                        Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+
+                        // 关闭对话框
+                        vm.hideModal();
+
+                        // 刷新列表
+                        vm.reportSuccess(responseText.data);
                     }
                 }
             });

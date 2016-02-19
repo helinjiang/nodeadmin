@@ -44,11 +44,12 @@ define('modules/widget/modal/main', function(require, exports, module) {
           show: function show() {
               $(this.$el).modal();
           },
+          hide: function hide() {
+              $(this.$el).modal('hide');
+          },
           confirm: function confirm() {
-  
-              console.log('confirm');
               // 自定义事件，使用方式为v-on:confirm="save"
-              this.$dispatch('confirm', 'hellotestttt');
+              this.$dispatch('confirm', this.id);
           }
       },
       ready: function ready() {

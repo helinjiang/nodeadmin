@@ -40,12 +40,12 @@ Vue.component('modal', {
         show: function() {
             $(this.$el).modal();
         },
+        hide: function() {
+            $(this.$el).modal('hide');
+        },
         confirm: function() {
-
-            console.log('confirm');
             // 自定义事件，使用方式为v-on:confirm="save"
-            this.$dispatch('confirm', 'hellotestttt');
-
+            this.$dispatch('confirm', this.id);
         }
     },
     ready: function() {

@@ -5,6 +5,11 @@
  *
  * 1. 原生table
  * 2. ajax动态加载生成
+ *
+ *
+ * $( selector ).DataTable();
+ * $( selector ).dataTable().api();
+ * new $.fn.dataTable.Api( selector );
  */
 
 var Vue = require('lib/vue');
@@ -39,6 +44,12 @@ Vue.component('datagrid', {
         }
     },
     methods: {
+        reload: function() {
+            // https://datatables.net/reference/api/ajax.reload()
+            this.oTable.api().ajax.reload(function(json) {
+                // console.log('---', json);
+            });
+        },
         /**
          * 获得所有的数据，这些数据是在Ajax查询时返回的
          * @return {[type]} [description]

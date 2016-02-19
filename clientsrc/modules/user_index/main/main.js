@@ -27,6 +27,9 @@ module.exports = Vue.extend({
                 default:
                     break;
             }
+        },
+        reloadDataGrid: function() {
+            this.$refs.datagrid.reload();
         }
     },
     ready: function() {
