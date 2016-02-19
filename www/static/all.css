@@ -11,6 +11,10 @@
   margin-right: 10px;
 }
 
+/*!/modules/widget/select2/main.css*/
+select {
+  min-width: 300px;
+}
 /*!/pages/login_index/main.scss*/
 /***
 Login page

@@ -1,5 +1,6 @@
 require('/modules/widget/forminput/main');
 require('/modules/widget/tipalert/main');
+require('/modules/widget/select2/main');
 
 require('/modules/widget/adminfooter/main');
 require('/modules/widget/adminheader/main');
