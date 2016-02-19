@@ -8,6 +8,8 @@ export default class extends think.model.base {
     }
 
     getAllUser() {
-        return this.select();
+        return this.order({
+            id: "DESC",
+        }).select();
     }
 }

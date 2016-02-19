@@ -6,7 +6,7 @@
  * 1. 原生table
  * 2. ajax动态加载生成
  *
- *
+ * TODO 支持desc和asc排序
  * $( selector ).DataTable();
  * $( selector ).dataTable().api();
  * new $.fn.dataTable.Api( selector );
@@ -157,9 +157,9 @@ function getDefaultOptions() {
     });
 
     var options = {
-        // "order": [
-        //     [0, 'asc']
-        // ],
+        "order": [
+            // [0, 'asc']
+        ],
 
         "lengthMenu": [
             [10, 20, 50, -1],
