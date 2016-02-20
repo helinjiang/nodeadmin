@@ -13,9 +13,7 @@ Vue.directive('select', {
     bind: function() {
         var self = this;
         $(this.el)
-            .select2({
-                data: this.params.options
-            })
+            .select2(this.params.options)
             .on('change', function() {
                 self.set(this.value);
             });
@@ -31,17 +29,47 @@ Vue.directive('select', {
 
 Vue.component('select2', {
     template: __inline('main.html'),
-    data: function() {
-        return {
-            selected: 1,
-            options: [{
+    props: {
+        /**
+         * 初始值
+         */
+        value: null,
+        placeholder: {
+            type: String,
+            'default': '请选择'
+        },
+        allowClear: {
+            type: Boolean,
+            'default': false
+        }
+    },
+    computed: {
+        options: function() {
+            var result = {};
+
+            result.data = [{
                 id: 1,
                 text: 'hello'
             }, {
                 id: 2,
+                text: 'world'
+            }, {
+                id: 3,
                 text: 'what'
-            }]
-        };
+            }];
+
+            console.log('-allowClear', this.allowClear);
+
+            if (this.allowClear) {
+                result.allowClear = true;
+            }
+
+            result.placeholder = this.placeholder;
+            console.log(result);
+
+            return result;
+
+        }
     },
     ready: function() {
 
