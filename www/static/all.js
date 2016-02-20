@@ -11896,7 +11896,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('select2', {
-      template: "<div>\r\n    <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p>\r\n    <input type=\"hidden\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p>\r\n    <input type=\"hidden\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
       data: function data() {
           return {
               /**
@@ -11965,6 +11965,9 @@ define('modules/widget/select2/main', function(require, exports, module) {
               }
           },
           init: function init() {
+              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
+              this.lazy = false;
+  
               // 初始化前要先销毁原来的那个
               this.destroy();
   
@@ -12032,7 +12035,10 @@ define('modules/widget/select2/main', function(require, exports, module) {
           }
       },
       ready: function ready() {
-          this.init();
+          // 如果不是lazy模式，则立即渲染
+          if (!this.lazy) {
+              this.init();
+          }
       }
   });
   
@@ -14634,7 +14640,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" lazy>\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       data: function data() {
           return {
               select2data: [{

@@ -27,7 +27,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('select2', {
-      template: "<div>\r\n    <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p>\r\n    <input type=\"hidden\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p>\r\n    <input type=\"hidden\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
       data: function data() {
           return {
               /**
@@ -96,6 +96,9 @@ define('modules/widget/select2/main', function(require, exports, module) {
               }
           },
           init: function init() {
+              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
+              this.lazy = false;
+  
               // 初始化前要先销毁原来的那个
               this.destroy();
   
@@ -163,7 +166,10 @@ define('modules/widget/select2/main', function(require, exports, module) {
           }
       },
       ready: function ready() {
-          this.init();
+          // 如果不是lazy模式，则立即渲染
+          if (!this.lazy) {
+              this.init();
+          }
       }
   });
   

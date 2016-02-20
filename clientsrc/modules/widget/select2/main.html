@@ -1,4 +1,4 @@
-<div>
+<div v-show="!lazy">
     <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p>
     <input type="hidden" style="width: 100%" />
     <slot></slot>
