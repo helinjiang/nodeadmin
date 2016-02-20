@@ -1,15 +1,15 @@
 <div class="modifypage">
-
     <modal title="修改用户信息">
-
-        <form action="#" class="form-horizontal" role="form">
-            <div class="form-body">
-                <form-input name="id" title="ID" :value="id" horizontal readonly></form-input>
-                <form-input name="username" title="用户名" :value="name" horizontal readonly></form-input>
-                <form-input type="password" name="password" title="新密码" horizontal></form-input>
-            </div>
-        </form>
-        
+        <he-form action="/admin/user/save" noactions>
+            <he-form-item title="ID">
+                <input type="text" name="id" :value="id" readonly>
+            </he-form-item>
+            <he-form-item title="用户名">
+                <input type="text" name="name" :value="name" readonly>
+            </he-form-item>
+            <he-form-item title="密码">
+                <input type="password" name="pwd">
+            </he-form-item>
+        </he-form>
     </modal>
-
 </div>

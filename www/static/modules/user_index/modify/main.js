@@ -5,7 +5,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal readonly></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal readonly></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"新密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/save\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\">\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               id: '',

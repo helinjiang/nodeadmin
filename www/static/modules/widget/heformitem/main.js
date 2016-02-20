@@ -5,7 +5,7 @@ define('modules/widget/heformitem/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form-item', {
-      template: "<div class=\"form-group\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n</div>\r\n",
+      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>\r\n",
       props: {
           /**
            * 

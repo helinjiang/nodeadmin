@@ -11671,6 +11671,761 @@ define('modules/common/app', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/forminput/main.js*/
+define('modules/widget/forminput/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('form-input', {
+      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" id=\"{{id}}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
+      props: {
+          /**
+           * 
+           */
+          'id': String,
+  
+          /**
+           * text/password
+           */
+          'type': {
+              type: String,
+              'default': 'text'
+          },
+  
+          /**
+           *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
+           * user: 用户名
+           */
+          'icon': String,
+  
+          /**
+           * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
+           */
+          'title': String,
+  
+          /**
+           * 是否显示title，非必须，默认显示，即显示<lable>
+           */
+          'hidetitle': {
+              type: Number,
+              'default': 0
+          },
+  
+          /**
+           * input 的name 值，必须
+           */
+          'name': {
+              type: String,
+              required: true
+          },
+  
+          /**
+           * input 的 value 值，不限定什么类型
+           */
+          'value': 'null',
+  
+          'autocomplete': {
+              type: String,
+              'default': 'on'
+          },
+  
+          'readonly': {
+              type: Boolean,
+              'default': false
+          },
+  
+          'horizontal': {
+              type: Boolean,
+              'default': false
+          },
+  
+          /**
+           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
+           */
+          'col': {
+              type: String,
+              'default': '3-9'
+          }
+  
+      },
+      computed: {
+          colLeft: function colLeft() {
+              var defaultVal = 3,
+                  val;
+  
+              if (!this.col) {
+                  return defaultVal;
+              }
+  
+              val = parseInt(this.col.split('-')[0], 10);
+  
+              if (isNaN(val) || val < 1 || val > 12) {
+                  return defaultVal;
+              } else {
+                  return val;
+              }
+          },
+          colRight: function colRight() {
+              var defaultVal = 9,
+                  val;
+  
+              if (!this.col) {
+                  return defaultVal;
+              }
+  
+              val = parseInt(this.col.split('-')[1], 10);
+  
+              if (isNaN(val) || val < 1 || val > 12) {
+                  return defaultVal;
+              } else {
+                  return val;
+              }
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/tipalert/main.js*/
+define('modules/widget/tipalert/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('tip-alert', {
+      template: "<div class=\"alert alert-{{type}}\" v-show=\"isShow\">\r\n    <button class=\"close\" v-on:click=\"hide\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              isShow: false,
+              type: 'danger', //danger,info,success,warning
+              msg: '' //必填
+          };
+      },
+      methods: {
+          show: function show(msg, type) {
+              // msg 字段必填
+              if (typeof msg !== "string" || !msg.length) {
+                  return;
+              }
+              this.msg = msg;
+  
+              // type 默认为 danger
+              if (type) {
+                  this.type = type;
+              }
+  
+              this.isShow = true;
+          },
+          hide: function hide(event) {
+              this.isShow = false;
+  
+              // 这里非常重要，因为如果在表单里面，它会触发submit提交，必须要阻止
+              // 且由于该方法可能也会被手工调用，因此event不一定存在
+              if (event) {
+                  event.preventDefault();
+              }
+          }
+      }
+  });
+
+});
+
+;/*!/modules/widget/select2option/main.js*/
+define('modules/widget/select2option/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('select2-option', {
+      template: "<div style=\"display:none\" data-value=\"{{value}}\">{{title}}</div>",
+      props: {
+          /**
+           * 选项名字
+           */
+          'title': {
+              type: String,
+              required: true
+          },
+  
+          /**
+           * 选项值
+           */
+          'value': {
+              type: String,
+              'default': ''
+          }
+  
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/common/select2render.js*/
+define('modules/common/select2render', function(require, exports, module) {
+
+  'use strict';
+  
+  function getgroup(res) {
+      if (res.errno !== 0) {
+          return [];
+      }
+  
+      return res.data;
+  }
+  
+  function searchuser(res) {
+      if (res.errno !== 0) {
+          return [];
+      }
+  
+      return _convert(res.data, 'id', 'name');
+  }
+  
+  function _convert(arr, idName, textName) {
+      if (!Array.isArray(arr)) {
+          return [];
+      }
+  
+      return arr.map(function (item) {
+          return {
+              id: item[idName],
+              text: item[textName]
+          };
+      });
+  }
+  
+  module.exports = {
+      getgroup: getgroup,
+      searchuser: searchuser
+  };
+
+});
+
+;/*!/modules/widget/select2/main.js*/
+define('modules/widget/select2/main', function(require, exports, module) {
+
+  /**
+   * 有两种，一种是ajax请求的，一种是现成的
+   * 
+   * 数据优先级依次是 select2-option > init-data > url
+   *
+   // 直接设置select2-option
+   <select2 value="1">
+      <select2-option title="hello1" value="1"></select2-option>
+      <select2-option title="word2" value="2"></select2-option>
+      <select2-option title="test3" value="3"></select2-option>
+  </select2>
+  
+  // 增加一个数据源init-data，它是数据，相对于设置了一个初始的data，同时也支持select2-option（优先级高）
+  <select2 :init-data="select2data" value="2">
+      <select2-option title="test4" value="4"></select2-option>
+  </select2>
+  
+  // 数据源
+  <select2 url="/admin/user/getgroup">
+      <select2-option title="test4" value="4"></select2-option>
+  </select2>
+  
+  // ajax远程请求
+  <select2 url="/admin/user/searchuser" convert="searchuser" ajax></select2>
+  
+  TODO 自定义format展示，可以考虑render.js中处理
+   转换id和text的函数，因为每个接口返回都有可能不一样，在select2render.js中定义；如果不定义，则默认返回格式符合{errno:0,data:[{id:1,text:'1'}]}
+   */
+  
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var Select2Render = require('modules/common/select2render');
+  
+  Vue.component('select2', {
+      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" name=\"{{name}}\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              /**
+               * 当前select2的options范围，包括select2-option中数据和init-data或者url或者ajax数据的集合
+               */
+              data: [],
+              jqSelect: undefined
+          };
+      },
+      props: {
+          /**
+           * input 的name 值，必须
+           */
+          'name': {
+              type: String,
+              required: true
+          },
+          /**
+           * 初始值
+           */
+          value: null,
+          /**
+           * 初始data
+           */
+          initData: Array,
+          /**
+           * 数据来源地址
+           */
+          url: String,
+          /**
+           * 数据转换函数名，在select2render.js中定义。
+           * 不同的接口返回的数据不一定相同，可以接口返回之前转换，也可以前台定义此字段来转换
+           */
+          convert: String,
+          placeholder: {
+              type: String,
+              'default': '请选择'
+          },
+          allowClear: {
+              type: Boolean,
+              'default': false
+          },
+          /**
+           * 是否懒渲染
+           */
+          lazy: {
+              type: Boolean,
+              'default': false
+          },
+          /**
+           * 是否为ajax请求远程数据？
+           */
+          ajax: {
+              type: Boolean,
+              'default': false
+          }
+      },
+      computed: {
+          options: function options() {
+              var result = {};
+  
+              result.data = this.data;
+  
+              if (this.allowClear) {
+                  result.allowClear = true;
+              }
+  
+              result.placeholder = this.placeholder;
+  
+              return result;
+          }
+      },
+      methods: {
+          /**
+           * 销毁select2
+           */
+          destroy: function destroy() {
+              if (this.jqSelect) {
+                  this.jqSelect.off().select2('destroy');
+                  this.jqSelect = undefined;
+              }
+          },
+          init: function init() {
+              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
+              this.lazy = false;
+  
+              // 初始化前要先销毁原来的那个
+              this.destroy();
+  
+              // 获得data，如果有select2-option，则追加到data字段中，并且具有较高优先级
+              var select2options = this.$children,
+                  data = select2options.map(function (item) {
+                  return {
+                      id: item.value,
+                      text: item.title
+                  };
+              });
+  
+              // 来自init-data的数据
+              if (this.initData && Array.isArray(this.initData)) {
+                  data = data.concat(this.initData);
+              }
+  
+              // 来自url的请求数据
+              var self = this;
+  
+              if (this.url) {
+                  $.post(this.url, function (res, status) {
+                      // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
+                      if (self.convert && typeof Select2Render[self.convert] === "function") {
+                          data = data.concat(Select2Render[self.convert](res));
+                      } else if (res.errno === 0) {
+                          data = data.concat(res.data);
+                      }
+  
+                      self.data = data;
+                      self._renderSelect2();
+                  });
+              } else {
+                  this.data = data;
+                  this._renderSelect2();
+              }
+          },
+          initAjax: function initAjax() {
+              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
+              this.lazy = false;
+  
+              // 初始化前要先销毁原来的那个
+              this.destroy();
+  
+              if (!this.url) {
+                  console.error('ajax bug url is undefined');
+                  return;
+              }
+  
+              var self = this;
+  
+              // 最少得一个字符
+              this.options.minimumInputLength = 1;
+  
+              this.options.ajax = {
+                  url: this.url,
+                  dataType: 'json',
+                  quietMillis: 250, //过多久才去搜索，避免请求过快
+                  data: function data(term, page) {
+                      return {
+                          q: term };
+                  },
+                  // search term
+                  results: function results(data, page) {
+                      // parse the results into the format expected by Select2.
+                      // since we are using custom formatting functions we do not need to alter the remote JSON data
+  
+                      var resultsData = [];
+  
+                      // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
+                      if (self.convert && typeof Select2Render[self.convert] === "function") {
+                          resultsData = Select2Render[self.convert](data);
+                      } else if (data.errno === 0) {
+                          resultsData = data.data;
+                      }
+  
+                      return {
+                          results: resultsData
+                      };
+                  },
+                  cache: true
+              };
+  
+              this._renderSelect2();
+          },
+          _renderSelect2: function _renderSelect2() {
+              // select2
+              var self = this,
+                  options = this.options,
+                  jqSelect = $('input', this.$el).select2(options).on('change', function () {
+                  self.value = this.value;
+              });
+  
+              this.jqSelect = jqSelect;
+  
+              // 设置默认值
+              if (this.value) {
+                  this.jqSelect.val(this.value).trigger('change');
+              }
+          }
+      },
+      watch: {
+          /**
+           * 当初始data值变化了时，重新渲染select2
+           */
+          'initData': {
+              handler: function handler(val, oldVal) {
+                  this.init();
+              },
+              deep: true
+          },
+          'value': function value(val, oldVal) {
+              this.jqSelect.val(this.value).trigger('change');
+          }
+      },
+      ready: function ready() {
+          // 如果不是lazy模式，则立即渲染
+          if (!this.lazy) {
+              if (!this.ajax) {
+                  this.init();
+              } else {
+                  this.initAjax();
+              }
+          }
+      }
+  });
+  
+  // newData = [{
+  //     id: 1,
+  //     text: 'hello'
+  // }, {
+  //     id: 2,
+  //     text: 'world'
+  // }, {
+  //     id: 3,
+  //     text: 'what'
+  // }];
+
+});
+
+;/*!/modules/widget/heformitem/main.js*/
+define('modules/widget/heformitem/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('he-form-item', {
+      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>\r\n",
+      props: {
+          /**
+           * 
+           */
+          'title': String,
+  
+          'horizontal': {
+              type: Boolean,
+              'default': false
+          },
+  
+          /**
+           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
+           */
+          'col': {
+              type: String,
+              'default': '3-9'
+          }
+  
+      },
+      computed: {
+          colLeft: function colLeft() {
+              var defaultVal = 3,
+                  val;
+  
+              if (!this.col) {
+                  return defaultVal;
+              }
+  
+              val = parseInt(this.col.split('-')[0], 10);
+  
+              if (isNaN(val) || val < 1 || val > 12) {
+                  return defaultVal;
+              } else {
+                  return val;
+              }
+          },
+          colRight: function colRight() {
+              var defaultVal = 9,
+                  val;
+  
+              if (!this.col) {
+                  return defaultVal;
+              }
+  
+              val = parseInt(this.col.split('-')[1], 10);
+  
+              if (isNaN(val) || val < 1 || val > 12) {
+                  return defaultVal;
+              } else {
+                  return val;
+              }
+          }
+      },
+      ready: function ready() {
+          $('input', this.$el).addClass('form-control');
+      }
+  });
+
+});
+
+;/*!/modules/widget/heform/main.js*/
+define('modules/widget/heform/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('he-form', {
+      template: "<form :action=\"action\" :class=\"horizontal?'form-horizontal':''\" role=\"form\" :method=\"method\">\r\n    <div class=\"form-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"form-actions\" v-if=\"!noactions\">\r\n        <slot name=\"actions\"></slot>\r\n    </div>\r\n</form>\r\n",
+      props: {
+          /**
+           * 
+           */
+          'action': String,
+  
+          /**
+           * 默认为post请求
+           */
+          'method': {
+              type: String,
+              'default': 'post'
+          },
+  
+          'horizontal': {
+              type: Boolean,
+              'default': false
+          },
+  
+          /**
+           * 默认是有actions
+           */
+          'noactions': {
+              type: Boolean,
+              'default': false
+          },
+  
+          /**
+           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
+           */
+          'col': {
+              type: String,
+              'default': '3-9'
+          }
+  
+      },
+      computed: {
+          colLeft: function colLeft() {
+              var defaultVal = 3,
+                  val;
+  
+              if (!this.col) {
+                  return defaultVal;
+              }
+  
+              val = parseInt(this.col.split('-')[0], 10);
+  
+              if (isNaN(val) || val < 1 || val > 12) {
+                  return defaultVal;
+              } else {
+                  return val;
+              }
+          },
+          colRight: function colRight() {
+              var defaultVal = 9,
+                  val;
+  
+              if (!this.col) {
+                  return defaultVal;
+              }
+  
+              val = parseInt(this.col.split('-')[1], 10);
+  
+              if (isNaN(val) || val < 1 || val > 12) {
+                  return defaultVal;
+              } else {
+                  return val;
+              }
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/adminfooter/main.js*/
+define('modules/widget/adminfooter/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  var App = require('modules/common/app');
+  
+  Vue.component('admin-footer', {
+      template: "<div class=\"footer\">\r\n\r\n    <div class=\"footer-inner\">\r\n         2016 &copy; Hello, world!\r\n    </div>\r\n    <div class=\"footer-tools\">\r\n        <span class=\"go-top\">\r\n        <i class=\"fa fa-angle-up\"></i>\r\n        </span>\r\n    </div>\r\n\r\n</div>",
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          handleGoTop(); //handles scroll to top functionality in the footer
+      });
+  }
+  
+  // Handles the go to top button at the footer
+  var handleGoTop = function handleGoTop() {
+      /* set variables locally for increased performance */
+      jQuery('.footer').on('click', '.go-top', function (e) {
+          App.scrollTo();
+          e.preventDefault();
+      });
+  };
+
+});
+
+;/*!/modules/widget/adminheader/main.js*/
+define('modules/widget/adminheader/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('admin-header', {
+      template: "<!-- BEGIN HEADER -->\r\n<div class=\"header navbar  navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> Nick </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>\r\n<!-- END HEADER -->",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/adminheadersearch/main.js*/
+define('modules/widget/adminheadersearch/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('admin-header-search', {
+      template: "<form class=\"search-form search-form-header\" role=\"form\" action=\"index.html\">\r\n    <div class=\"input-icon right\">\r\n        <i class=\"icon-magnifier\"></i>\r\n        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n    </div>\r\n</form>\r\n",
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          handleQuickSearch(); // handles quick search
+      });
+  }
+  
+  var handleQuickSearch = function handleQuickSearch() {
+  
+      // handle search for header search input on enter press
+      $('.search-form-header').on('keypress', 'input.form-control', function (e) {
+          if (e.which == 13) {
+              $('.search-form-header').submit();
+              return false;
+          }
+      });
+  
+      // handle search for header search input on icon click
+      $('.search-form-header').on('click', '.icon-search', function (e) {
+          $('.search-form-header').submit();
+          return false;
+      });
+  };
+
+});
+
+;/*!/modules/widget/adminmain/main.js*/
+define('modules/widget/adminmain/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('admin-main', {
+      template: "<div class=\"page-container\">\r\n    <slot name=\"menu\"></slot>\r\n    <div class=\"page-content-wrapper\">\r\n        <div class=\"page-content\">              \r\n            <slot name=\"title\"></slot>\r\n            <div class=\"row\">\r\n                <div class=\"col-md-12\">\r\n                    <slot></slot>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/common/menudata.js*/
 define('modules/common/menudata', function(require, exports, module) {
 
@@ -11801,6 +12556,512 @@ define('modules/common/menudata', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/adminmaintitle/main.js*/
+define('modules/widget/adminmaintitle/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var menuData = require('modules/common/menudata');
+  
+  Vue.component('admin-main-title', {
+      template: "<div class=\"admin-title\">\r\n    <h3 class=\"page-title\">{{ title }} <small>{{ desc }}</small></h3>\r\n\r\n    <div class=\"page-bar\">\r\n        <ul class=\"page-breadcrumb\">\r\n            <li v-for=\"item in items\">\r\n                <i class=\"fa fa-{{item.icon}}\" v-if=\"item.icon\"></i>\r\n                <a href=\"{{item.url}}\">{{item.name}}</a>\r\n                <i class=\"fa fa-angle-right\" v-if=\"!item.last\"></i>                \r\n            </li>\r\n        </ul>\r\n    </div> \r\n</div>\r\n\r\n     ",
+      props: {
+          'title': {
+              type: String,
+              required: true
+          },
+          'desc': String,
+          'items': {
+              coerce: function coerce(val) {
+                  // name|url|icon;name|url|icon
+  
+                  if (!val) {
+                      return [{
+                          name: 'Home',
+                          url: 'index.html',
+                          icon: 'home'
+                      }];
+                  }
+  
+                  var itemArr = val.split(';'),
+                      length = itemArr.length,
+                      result = [];
+  
+                  for (var i = 0; i < length; i++) {
+                      var item = itemArr[i],
+                          arr = item.split('|'),
+                          obj = {};
+  
+                      obj.name = arr[0];
+                      obj.url = arr[1] || 'javascript:;';
+                      obj.icon = arr[2] || '';
+  
+                      result.push(obj);
+                  }
+  
+                  // 最后一个元素不加>
+                  result[length - 1].last = true;
+  
+                  return result;
+              }
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/adminmaintoolbar/main.js*/
+define('modules/widget/adminmaintoolbar/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('admin-main-toolbar', {
+      template: "<div class=\"table-toolbar\">\r\n    <div class=\"row\">\r\n        <div class=\"col-md-6\">  \r\n            <slot></slot>\r\n        </div>      \r\n    </div>\r\n</div>",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/adminsidemenuitem/main.js*/
+define('modules/widget/adminsidemenuitem/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('admin-side-menu-item', {
+      template: "<li :class=\"licss\">\r\n    <a href=\"{{model.url}}\">\r\n        <i class=\"icon-{{model.icon}}\" v-if=\"model.icon\"></i>\r\n        <span class=\"title\">{{model.name}}</span>\r\n        <span class=\"badge badge-{{typeof model.badge=='object'?(model.badge.type||'info'):'info'}}\" v-if=\"model.badge\">{{typeof model.badge=='object'?model.badge.value:model.badge}}</span>\r\n        <span class=\"arrow \" v-if=\"isFolder\"></span>\r\n    </a>\r\n    <ul class=\"sub-menu\" v-if=\"isFolder\">\r\n        <admin-side-menu-item v-for=\"submenu in model.children\" :model=\"submenu\"> </admin-side-menu-item>\r\n    </ul>\r\n</li>\r\n",
+      props: {
+          model: Object,
+          mindex: Number,
+          mtotal: Number
+      },
+      computed: {
+          isFolder: function isFolder() {
+              return this.model.children && this.model.children.length;
+          },
+          licss: function licss() {
+              var arr = [];
+              if (typeof this.mindex !== 'number' || typeof this.mtotal !== 'number') {
+                  arr.push('');
+              } else if (this.mindex == 0) {
+                  arr.push('start');
+              } else if (this.mindex + 1 >= this.mtotal) {
+                  arr.push('last');
+              } else {
+                  arr.push('');
+              }
+  
+              if (this.model.active) {
+                  arr.push('active');
+              }
+  
+              return arr.join(' ');
+          }
+      }
+  });
+
+});
+
+;/*!/modules/widget/adminsidemenu/main.js*/
+define('modules/widget/adminsidemenu/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var menuData = require('modules/common/menudata');
+  
+  Vue.component('admin-side-menu', {
+      template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n            <li class=\"sidebar-search-wrapper\">\r\n                <form class=\"search-form\" role=\"form\" action=\"index.html\" method=\"get\">\r\n                    <div class=\"input-icon right\">\r\n                        <i class=\"fa fa-search\"></i>\r\n                        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n                    </div>\r\n                </form>\r\n            </li>\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
+      props: {
+          'menuId': {
+              type: String,
+              required: true
+          }
+      },
+      data: function data() {
+          return {
+              treeData: menuData
+          };
+      },
+      methods: {
+          render: function render() {
+              var data = this.treeData,
+                  menuId = this.menuId,
+                  tArr = [];
+  
+              var check = function check(data, deep) {
+                  tArr[++deep] = data;
+                  if (!data.children || !data.children.length) {
+                      return;
+                  }
+  
+                  for (var i = 0; i < data.children.length; i++) {
+                      if (data.children[i].id && data.children[i].id == menuId) {
+                          data.children[i].active = true;
+                          for (var j = 0; j <= deep; j++) {
+                              tArr[j].active = true;
+                          }
+                      }
+  
+                      check(data.children[i], deep);
+                  }
+              };
+  
+              check(data, -1);
+          }
+      },
+      ready: function ready() {
+          _init();
+  
+          this.render();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          handleResponsiveOnResize(); // set and handle responsive   
+  
+          handleFixedSidebar(); // handles fixed sidebar menu
+          handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect
+          handleSidebarMenu(); // handles main menu
+          handleQuickSearch(); // handles quick search
+          handleSidebarToggler(); // handles sidebar hide/show   
+      });
+  }
+  
+  var sidebarWidth = 215;
+  var sidebarCollapsedWidth = 40;
+  
+  // To get the correct viewport width based on  http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
+  var _getViewPort = function _getViewPort() {
+      var e = window,
+          a = 'inner';
+      if (!('innerWidth' in window)) {
+          a = 'client';
+          e = document.documentElement || document.body;
+      }
+      return {
+          width: e[a + 'Width'],
+          height: e[a + 'Height']
+      };
+  };
+  
+  // reinitialize the laypot on window resize
+  var handleResponsive = function handleResponsive() {
+      handleFixedSidebar();
+  };
+  
+  // handle the layout reinitialization on window resize
+  var handleResponsiveOnResize = function handleResponsiveOnResize() {
+      var resize;
+      if (App.isIE8) {
+          var currheight;
+          $(window).resize(function () {
+              if (currheight == document.documentElement.clientHeight) {
+                  return; //quite event since only body resized not window.
+              }
+              if (resize) {
+                  clearTimeout(resize);
+              }
+              resize = setTimeout(function () {
+                  handleResponsive();
+              }, 50); // wait 50ms until window resize finishes.               
+              currheight = document.documentElement.clientHeight; // store last body client height
+          });
+      } else {
+              $(window).resize(function () {
+                  if (resize) {
+                      clearTimeout(resize);
+                  }
+                  resize = setTimeout(function () {
+                      handleResponsive();
+                  }, 50); // wait 50ms until window resize finishes.
+              });
+          }
+  };
+  
+  // Handle sidebar menu
+  var handleSidebarMenu = function handleSidebarMenu() {
+      jQuery('.page-sidebar').on('click', 'li > a', function (e) {
+          var menu = $('.page-sidebar-menu');
+  
+          // 如果没有子菜单
+          if (!$(this).next().hasClass('sub-menu')) {
+              // 如果当前不是收起来的，则跳转之，否则返回
+              if (!$('.btn-navbar').hasClass('collapsed')) {
+                  $('.btn-navbar').click();
+              }
+              return;
+          }
+  
+          // 如果有子菜单，而且是保持开启的，则返回
+          if ($(this).next().hasClass('sub-menu.always-open')) {
+              return;
+          }
+  
+          var parent = $(this).parent().parent();
+          var the = $(this);
+  
+          parent.children('li.open, li.active').children('a').children('.arrow').removeClass('open');
+          parent.children('li.open, li.active').children('.sub-menu').slideUp(200);
+          parent.children('li.open').removeClass('open');
+  
+          var sub = jQuery(this).next();
+          var slideOffeset = -200;
+          var slideSpeed = 200;
+  
+          if (sub.is(":visible")) {
+              jQuery('.arrow', jQuery(this)).removeClass("open");
+              jQuery(this).parent().removeClass("open");
+              sub.slideUp(slideSpeed, function () {
+                  if ($('body').hasClass('page-sidebar-closed') == false) {
+                      if ($('body').hasClass('page-sidebar-fixed')) {
+                          menu.slimScroll({
+                              'scrollTo': the.position().top
+                          });
+                      } else {
+                          App.scrollTo(the, slideOffeset);
+                      }
+                  }
+                  App.fixContentHeight();
+              });
+          } else {
+              jQuery('.arrow', jQuery(this)).addClass("open");
+              jQuery(this).parent().addClass("open");
+              sub.slideDown(slideSpeed, function () {
+                  if ($('body').hasClass('page-sidebar-closed') == false) {
+                      if ($('body').hasClass('page-sidebar-fixed')) {
+                          menu.slimScroll({
+                              'scrollTo': the.position().top
+                          });
+                      } else {
+                          App.scrollTo(the, slideOffeset);
+                      }
+                  }
+                  App.fixContentHeight();
+              });
+          }
+          e.preventDefault();
+      });
+  };
+  
+  // Handles fixed sidebar
+  var handleFixedSidebar = function handleFixedSidebar() {
+      var menu = $('.page-sidebar-menu');
+  
+      if (menu.parent('.slimScrollDiv').size() === 1) {
+          // destroy existing instance before updating the height
+          menu.slimScroll({
+              destroy: true
+          });
+          menu.removeAttr('style');
+          $('.page-sidebar').removeAttr('style');
+      }
+  
+      if ($('.page-sidebar-fixed').size() === 0) {
+          App.fixContentHeight();
+          return;
+      }
+  
+      var viewport = _getViewPort();
+      if (viewport.width >= 992) {
+          var sidebarHeight = App.getFixedSidebarViewportHeight();
+  
+          menu.slimScroll({
+              size: '7px',
+              color: '#a1b2bd',
+              opacity: .3,
+              position: App.isRTL() ? 'left' : 'right',
+              height: sidebarHeight,
+              allowPageScroll: false,
+              disableFadeOut: false
+          });
+          App.fixContentHeight();
+      }
+  };
+  
+  // Handles the sidebar menu hover effect for fixed sidebar.
+  var handleFixedSidebarHoverable = function handleFixedSidebarHoverable() {
+      if ($('body').hasClass('page-sidebar-fixed') === false) {
+          return;
+      }
+  
+      $('.page-sidebar').off('mouseenter').on('mouseenter', function () {
+          var body = $('body');
+  
+          if (body.hasClass('page-sidebar-closed') === false || body.hasClass('page-sidebar-fixed') === false || $(this).hasClass('page-sidebar-hovering')) {
+              return;
+          }
+  
+          body.removeClass('page-sidebar-closed').addClass('page-sidebar-hover-on');
+  
+          if (body.hasClass("page-sidebar-reversed")) {
+              $(this).width(sidebarWidth);
+          } else {
+              $(this).addClass('page-sidebar-hovering');
+              $(this).animate({
+                  width: sidebarWidth
+              }, 400, '', function () {
+                  $(this).removeClass('page-sidebar-hovering');
+              });
+          }
+      });
+  
+      $('.page-sidebar').off('mouseleave').on('mouseleave', function () {
+          var body = $('body');
+  
+          if (body.hasClass('page-sidebar-hover-on') === false || body.hasClass('page-sidebar-fixed') === false || $(this).hasClass('page-sidebar-hovering')) {
+              return;
+          }
+  
+          if (body.hasClass("page-sidebar-reversed")) {
+              $('body').addClass('page-sidebar-closed').removeClass('page-sidebar-hover-on');
+              $(this).width(sidebarCollapsedWidth);
+          } else {
+              $(this).addClass('page-sidebar-hovering');
+              $(this).animate({
+                  width: sidebarCollapsedWidth
+              }, 400, '', function () {
+                  $('body').addClass('page-sidebar-closed').removeClass('page-sidebar-hover-on');
+                  $(this).removeClass('page-sidebar-hovering');
+              });
+          }
+      });
+  };
+  
+  // Handles sidebar toggler to close/hide the sidebar.
+  var handleSidebarToggler = function handleSidebarToggler() {
+      var viewport = _getViewPort();
+  
+      // handle sidebar show/hide
+      $('.page-sidebar').on('click', '.sidebar-toggler', function (e) {
+          var body = $('body');
+          var sidebar = $('.page-sidebar');
+  
+          if (body.hasClass("page-sidebar-hover-on") && body.hasClass('page-sidebar-fixed') || sidebar.hasClass('page-sidebar-hovering')) {
+              body.removeClass('page-sidebar-hover-on');
+              sidebar.css('width', '').hide().show();
+              App.fixContentHeight(); //fix content & sidebar height
+              e.stopPropagation();
+              App.runResponsiveHandlers();
+              return;
+          }
+  
+          if (body.hasClass("page-sidebar-closed")) {
+              body.removeClass("page-sidebar-closed");
+              if (body.hasClass('page-sidebar-fixed')) {
+                  sidebar.css('width', '');
+              }
+          } else {
+              body.addClass("page-sidebar-closed");
+          }
+          App.fixContentHeight(); //fix content & sidebar height
+          App.runResponsiveHandlers();
+      });
+  };
+  
+  var handleQuickSearch = function handleQuickSearch() {
+      // handle search for sidebar search input on enter press
+      $('.search-form-sidebar').on('keypress', 'input.form-control', function (e) {
+          if (e.which == 13) {
+              $('.search-form-sidebar').submit();
+              return false;
+          }
+      });
+  
+      // handle search for sidebar search input on icon click
+      $('.search-form-sidebar').on('click', '.icon-search', function (e) {
+          $('.search-form-sidebar').submit();
+          return false;
+      });
+  };
+
+});
+
+;/*!/modules/widget/portlet/main.js*/
+define('modules/widget/portlet/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('portlet', {
+      template: "<div class=\"portlet\">\r\n    <div class=\"portlet-title\">\r\n        <div class=\"caption\">\r\n            <i class=\"fa fa-{{icon}}\" v-if=\"icon\"></i>{{ title }}\r\n        </div>\r\n        <div class=\"tools\"></div>\r\n    </div>\r\n    <div class=\"portlet-body\">\r\n        <slot></slot>\r\n    </div>\r\n</div>                  \r\n",
+      props: {
+          'title': String,
+          'icon': String
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/datagriditem/main.js*/
+define('modules/widget/datagriditem/main', function(require, exports, module) {
+
+  /**
+   * 
+   */
+  
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('datagrid-item', {
+    template: "<div style=\"display:none\" data-name=\"{{name}}\" data-title=\"{{title}}\" data-disableorder=\"{{disableorder}}\" data-hide=\"{{hide}}\" data-css=\"{{css}}\"></div>",
+    props: {
+      /**
+       * 该列数据的字段名
+       */
+      'name': {
+        type: String,
+        required: true
+      },
+  
+      /**
+       * 该列在表格中的展示说明，如果为空则取值 name 值
+       */
+      'title': String,
+  
+      /**
+       * 为该列增加的样式类className
+       */
+      'css': String,
+  
+      /**
+       * 该列渲染方法名，方法在/common/render.js中定义
+       */
+      'render': String,
+  
+      /**
+       * 使该列不能够排序
+       */
+      'disableorder': {
+        type: Boolean,
+        'default': false
+      },
+  
+      /**
+       * 使该列不显示
+       */
+      'hide': {
+        type: Boolean,
+        'default': false
+      }
+    },
+    ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/common/render.js*/
 define('modules/common/render', function(require, exports, module) {
 
@@ -11860,6 +13121,947 @@ define('modules/common/render', function(require, exports, module) {
   module.exports = {
       commonOperate: commonOperate
   };
+
+});
+
+;/*!/modules/widget/datagrid/main.js*/
+define('modules/widget/datagrid/main', function(require, exports, module) {
+
+  /**
+   * 需要支持：
+   * 1. 大数据，后台分页
+   * 2. 少量数据全加载，前端分页
+   *
+   * 1. 原生table
+   * 2. ajax动态加载生成
+   *
+   * TODO 支持desc和asc排序
+   * $( selector ).DataTable();
+   * $( selector ).dataTable().api();
+   * new $.fn.dataTable.Api( selector );
+   */
+  
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  var Render = require('modules/common/render');
+  
+  Vue.component('datagrid', {
+      template: "<div class=\"datagrid\">\r\n    <table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n        <thead>\r\n            <tr></tr>\r\n        </thead>\r\n        <tbody>\r\n            <tr><td class=\"dataTables_empty\">正在加载数据……</td></tr>\r\n        </tbody>\r\n    </table>  \r\n    <slot></slot> \r\n</div>\r\n\r\n",
+      data: function data() {
+          return {
+              jqTable: undefined, //table的jQuery对象
+              tableId: undefined, // table的Id
+              oTable: undefined, // datatables对象
+              itemArray: [] };
+      },
+      // 项列表
+      props: {
+          /**
+           * 列表的类型
+           * 前台分页：front; 后台分页：server
+           */
+          'type': {
+              type: String,
+              'default': 'front'
+          },
+          'url': String,
+          'pagelength': {
+              type: Number,
+              'default': '10',
+              coerce: function coerce(val) {
+                  return parseInt(val, 10);
+              }
+          }
+      },
+      methods: {
+          reload: function reload() {
+              // https://datatables.net/reference/api/ajax.reload()
+              this.oTable.api().ajax.reload(function (json) {
+                  // console.log('---', json);
+              });
+          },
+          /**
+           * 获得所有的数据，这些数据是在Ajax查询时返回的
+           * @return {[type]} [description]
+           */
+          getAllData: function getAllData() {
+              //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
+              return this.oTable.fnGetData();
+          },
+          getDataById: function getDataById(key, value) {
+              if (!key || !value) {
+                  return;
+              }
+  
+              var allData = this.getAllData(),
+                  length = allData.length,
+                  result;
+  
+              for (var i = 0; i < length; i++) {
+                  if (allData[i][key] === value) {
+                      result = allData[i];
+                      break;
+                  }
+              }
+  
+              return result;
+          }
+      },
+      ready: function ready() {
+          // 缓存该值，避免重复获取
+          this.$set('jqTable', $('.datagrid-table', $(this.$el)));
+  
+          // 循环遍历 $vm.$children，从中获得每一项数据，并存入到itemArray字段中
+          var items = this.$children,
+              itemArray = [];
+  
+          items.forEach(function (item) {
+              itemArray.push({
+                  'name': item.name,
+                  'title': item.title,
+                  'css': item.css,
+                  'render': item.render,
+                  'disableorder': item.disableorder,
+                  'hide': item.hide
+              });
+          });
+  
+          this.$set('itemArray', itemArray);
+  
+          // 初始化
+          _init(this);
+      }
+  });
+  
+  function _init(vm) {
+      $(function () {
+  
+          initDataGrid(vm);
+      });
+  }
+  
+  function initDataGrid(vm) {
+      switch (vm.type) {
+          case 'server':
+              initAjaxServer(vm);
+              break;
+          default:
+              initAjaxFront(vm);
+              break;
+      }
+  }
+  
+  function initAjaxFront(vm) {
+      // 配置
+      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+  
+      var jqTable = vm.jqTable;
+  
+      // 开始生成datatables
+      var oTable = jqTable.dataTable(dataTableOptions);
+      vm.$set('oTable', oTable);
+  
+      // 获取并缓存table的id
+      vm.$set('tableId', jqTable.attr('id'));
+  
+      // 渲染其他的控件
+      renderOther(vm.tableId);
+  }
+  
+  /**
+   * 默认的配置
+   * @return {[type]} [description]
+   */
+  function getDefaultOptions() {
+      $.extend(true, $.fn.DataTable.TableTools.classes, {
+          "container": "btn-group tabletools-dropdown-on-portlet",
+          "buttons": {
+              "normal": "btn btn-sm btn-default",
+              "disabled": "btn btn-sm btn-default disabled"
+          },
+          "collection": {
+              "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
+          }
+      });
+  
+      var options = {
+          "order": [
+              // [0, 'asc']
+          ],
+  
+          "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"] // change per page values here
+          ],
+  
+          /**
+           * https://datatables.net/reference/option/pageLength
+           * Change the initial page length (number of rows per page).
+           * Default value: 10.
+           *
+           * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
+           */
+          "pageLength": 10,
+  
+          "language": {
+              "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
+              "processing": "加载中，请稍后...",
+              "search": "搜索: ",
+              "infoFiltered": "从 _MAX_ 条记录过滤后的结果"
+          },
+  
+          "dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+  
+          "tableTools": {
+              "sSwfPath": "/static/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+              "aButtons": [{
+                  "sExtends": "pdf",
+                  "sButtonText": "PDF"
+              }, {
+                  "sExtends": "csv",
+                  "sButtonText": "CSV"
+              }, {
+                  "sExtends": "xls",
+                  "sButtonText": "Excel"
+              }, {
+                  "sExtends": "print",
+                  "sButtonText": "Print",
+                  "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
+                  "sMessage": "Generated by DataTables"
+              }]
+          }
+      };
+  
+      return options;
+  }
+  
+  /**
+   * 获得Ajax类型的 datagrid 配置
+   * @return {[type]} [description]
+   */
+  function getAjaxOptions(url, itemArray, pagelength) {
+      // url
+      if (!url) {
+          console.error('Unknown url', url);
+          return;
+      }
+  
+      // columns and columnDefs
+      var columns = [],
+          columnDefs = [];
+  
+      if (!itemArray.length) {
+          console.error('Unknown itemArray', itemArray);
+  
+          return;
+      }
+  
+      var orderableArr = [],
+          visibleArr = [],
+          classNameMap = {};
+  
+      for (var i = 0; i < itemArray.length; i++) {
+          var item = itemArray[i],
+              columnOption = {
+              'data': item.name,
+              'title': item.title ? item.title : item.name
+          };
+  
+          // 如果有自定义的render方法，则需要进行处理
+          if (item.render) {
+              var arr = item.render.split('|'),
+                  renderFn = arr[0].trim(),
+                  renderParam = arr[1];
+  
+              if (renderFn && Render[renderFn]) {
+                  columnOption.render = function (data, type, full) {
+                      return Render[renderFn](renderParam, data, type, full);
+                  };
+              }
+          }
+  
+          // 如果需要增加样式类，则需要进行处理className
+          if (item.css) {
+              var existClassNameArr = classNameMap[item.css];
+              if (!existClassNameArr) {
+                  existClassNameArr = [];
+              }
+              existClassNameArr.push(i);
+              classNameMap[item.css] = existClassNameArr;
+          }
+  
+          // 如果需要阻止排序，则需要进行处理orderable
+          if (item.disableorder) {
+              orderableArr.push(i);
+          }
+  
+          // 如果需要隐藏它，则需要进行处理visible
+          if (item.hide) {
+              visibleArr.push(i);
+          }
+  
+          columns.push(columnOption);
+      }
+  
+      var classNameArr = Object.keys(classNameMap);
+      if (classNameArr.length) {
+          classNameArr.forEach(function (className) {
+              columnDefs.push({
+                  'className': className,
+                  'targets': classNameMap[className]
+              });
+          });
+      }
+  
+      if (orderableArr.length) {
+          columnDefs.push({
+              'orderable': false,
+              'targets': orderableArr
+          });
+      }
+  
+      if (visibleArr.length) {
+          columnDefs.push({
+              'visible': false,
+              'targets': visibleArr
+          });
+      }
+  
+      // 配置
+      var dataTableOptions = getDefaultOptions();
+  
+      // 请求
+      dataTableOptions.ajax = {
+          "url": url
+      };
+  
+      // columns
+      dataTableOptions.columns = columns;
+  
+      // columnDefs
+      if (columnDefs.length) {
+          dataTableOptions.columnDefs = columnDefs;
+      }
+  
+      // pagelength
+      if (pagelength != 10) {
+          dataTableOptions.pageLength = pagelength;
+  
+          // 如果指定的每页数量不在下拉框内，还要手动加入
+          if (dataTableOptions.lengthMenu[0].indexOf(pagelength) < 0) {
+              for (var i = 0; i < dataTableOptions.lengthMenu[0].length; i++) {
+                  if (dataTableOptions.lengthMenu[0][i] > pagelength || dataTableOptions.lengthMenu[0][i] === -1) {
+                      dataTableOptions.lengthMenu[0].splice(i, 0, pagelength);
+                      dataTableOptions.lengthMenu[1].splice(i, 0, pagelength);
+                      break;
+                  }
+              }
+          }
+  
+          // "lengthMenu": [
+          //     [10, 20, 50, -1],
+          //     [10, 20, 50, "All"] // change per page values here
+          // ],
+      }
+  
+      return dataTableOptions;
+  }
+  
+  /**
+   * 渲染其他的控件
+   * @param  {[type]} tableId [description]
+   * @return {[type]}         [description]
+   */
+  function renderOther(tableId) {
+      // datatable creates the table wrapper by adding with id {your_table_id}_wrapper
+      var tableWrapper = $('#' + tableId + '_wrapper');
+  
+      // initialize select2 dropdown
+      tableWrapper.find('.dataTables_length select').select2();
+  }
+  
+  // TODO reload
+  var initAjaxServer = function initAjaxServer(vm) {
+      var jqTable = vm.jqTable;
+  
+      var url = vm.url;
+      if (!url) {
+          console.error('Unknown url', url, vm);
+          return;
+      }
+  
+      $.extend(true, $.fn.DataTable.TableTools.classes, {
+          "container": "btn-group tabletools-dropdown-on-portlet",
+          "buttons": {
+              "normal": "btn btn-sm btn-default",
+              "disabled": "btn btn-sm btn-default disabled"
+          },
+          "collection": {
+              "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
+          }
+      });
+  
+      var oTable = jqTable.dataTable({
+          "order": [[0, 'asc']],
+  
+          "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"] // change per page values here
+          ],
+  
+          /**
+           * https://datatables.net/reference/option/pageLength
+           * Change the initial page length (number of rows per page).
+           * Default value: 10.
+           *
+           * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
+           */
+          "pageLength": 10,
+  
+          "language": {
+              "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
+              "processing": "加载中，请稍后...",
+              "search": "搜索: ",
+              "infoFiltered": "从 _MAX_ 条记录过滤后的结果"
+          },
+  
+          "dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+  
+          "tableTools": {
+              "sSwfPath": "/static/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+              "aButtons": [{
+                  "sExtends": "pdf",
+                  "sButtonText": "PDF"
+              }, {
+                  "sExtends": "csv",
+                  "sButtonText": "CSV"
+              }, {
+                  "sExtends": "xls",
+                  "sButtonText": "Excel"
+              }, {
+                  "sExtends": "print",
+                  "sButtonText": "Print",
+                  "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
+                  "sMessage": "Generated by DataTables"
+              }]
+          },
+          "ordering": false, //关闭列排序
+  
+          "processing": true,
+  
+          /**
+           * https://datatables.net/reference/option/serverSide
+           * 服务器模式，在分页和查找时会重新去请求数据
+           */
+          "serverSide": true,
+  
+          /**
+           * https://datatables.net/reference/option/deferRender
+           * 默认是 false 。即默认情况下，DataTables会将获得的数据全部渲染成 HTML 元素，但这种处理在大数据时会影响性能，尤其在 IE6-IE8。
+           * 推荐在后台分页处理时，将其设置为 true，即延迟渲染，按需渲染。
+           */
+          // "deferRender": true,
+  
+          /**
+           * https://datatables.net/reference/option/destroy
+           * Destroy any existing table matching the selector and replace with the new options. 
+           * Default value: false.
+           *
+           * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
+           */
+          // "destroy": true,
+          "ajax": {
+              "url": url,
+              "type": "POST",
+              "data": function data(d) {
+                  d.myKey = "myValue";
+                  // d.custom = $('#myInput').val();
+                  // etc
+                  // 此处可以追加一些请求参数
+              }
+          },
+          "columns": [{
+              "data": "first_name",
+              "title": "first_name"
+          }, {
+              "data": "last_name",
+              "title": "last_name"
+          }, {
+              "data": "position",
+              "title": "position"
+          }, {
+              "data": "office",
+              "title": "office"
+          }, {
+              "data": "start_date",
+              "title": "start_date"
+          }, {
+              "data": "salary",
+              "title": "salary",
+              "render": function render(data, type, row, meta) {
+                  return data.replace(/\$/g, "￥");
+              }
+          }],
+  
+          /**
+           * https://datatables.net/reference/option/columnDefs
+           * Set column definition initialisation properties.
+           *
+           * 非常像 columns，用于定义如何初始化属性，但它不要求每一列都要定义。因为下面的冲突规则，因此建议如果需要动态改变的，则使用 columnDefs 来定义，例如 visible 属性，这样便于控制。而且也方便集中批量配置。
+           *
+           * 定义冲突规则：
+           * 1. columns 中的优先级要高
+           * 2. columnDefs 中使用数组来定义的属性要比其他的定义的高，比如下例中第一列和第二列将显示，其他列隐藏
+           * 
+           */
+          "columnDefs": [{
+              targets: [0, 1],
+              visible: true
+          }, {
+              targets: '_all',
+              visible: false
+          }]
+  
+      });
+  
+      // 获取并缓存table的id
+      vm.$set('tableId', jqTable.attr('id'));
+  
+      // datatable creates the table wrapper by adding with id {your_table_id}_wrapper
+      var tableWrapper = $('#' + vm.tableId + '_wrapper');
+  
+      // initialize select2 dropdown
+      tableWrapper.find('.dataTables_length select').select2();
+  };
+
+});
+
+;/*!/modules/widget/modal/main.js*/
+define('modules/widget/modal/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('modal', {
+      template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
+      props: {
+          'id': {
+              type: String,
+              'default': ''
+          },
+          'css': {
+              type: String,
+              'default': ''
+          },
+          'tabindex': {
+              type: Number,
+              'default': -1
+          },
+          'title': String,
+          'fullwidth': {
+              type: Boolean,
+              'default': false
+          }
+      },
+      computed: {
+          'className': function className() {
+              var arr = [];
+  
+              if (this.fullwidth) {
+                  arr.push('container');
+              }
+  
+              if (this.css) {
+                  arr.push(this.css);
+              }
+  
+              return arr.join(' ');
+          }
+      },
+      methods: {
+          show: function show() {
+              // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
+  
+              $(this.$el).modal();
+          },
+          hide: function hide() {
+              $(this.$el).modal('hide');
+          },
+          confirm: function confirm() {
+              // 自定义事件，使用方式为v-on:confirm="save"
+              this.$dispatch('confirm', this.id);
+          }
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          _initGeneral();
+      });
+  }
+  /**
+   * data-focus-on="input:first"
+   */
+  
+  function _initGeneral() {
+      // general settings
+      $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner = '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' + '<div class="progress progress-striped active">' + '<div class="progress-bar" style="width: 100%;"></div>' + '</div>' + '</div>';
+  
+      $.fn.modalmanager.defaults.resize = true;
+  }
+  
+  function _ajaxDialog() {
+      //ajax demo:
+      var $modal = $('#ajax-modal');
+  
+      $('#ajax-demo').on('click', function () {
+          // create the backdrop and wait for next modal to be triggered
+          $('body').modalmanager('loading');
+  
+          setTimeout(function () {
+              $modal.load('ui_extended_modals_ajax_sample.html', '', function () {
+                  $modal.modal();
+              });
+          }, 1000);
+      });
+  
+      $modal.on('click', '.update', function () {
+          $modal.modal('loading');
+          setTimeout(function () {
+              $modal.modal('loading').find('.modal-body').prepend('<div class="alert alert-info fade in">' + 'Updated!<button type="button" class="close" data-dismiss="alert">&times;</button>' + '</div>');
+          }, 1000);
+      });
+  }
+
+});
+
+;/*!/modules/widget/dropdown/main.js*/
+define('modules/widget/dropdown/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('dropdown', {
+      template: "<li class=\"dropdown {{css}}\" id=\"{{id}}\">    \r\n    <slot></slot>   \r\n</li>\r\n",
+      props: {
+          'id': {
+              type: String,
+              'default': ''
+          },
+          'css': {
+              type: String,
+              'default': ''
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/dropdowntoggle/main.js*/
+define('modules/widget/dropdowntoggle/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('dropdown-toggle', {
+      template: "<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" data-hover=\"dropdown\" data-close-others=\"true\">\r\n    <img alt=\"\" :src=\"imgsrc\" v-if=\"imgsrc\"/>\r\n    <i class=\"{{iconClass}}\" v-if=\"iconClass\"></i> \r\n    <slot></slot>\r\n    <span class=\"badge badge-{{btype}}\" v-if=\"bname\"> {{bname}} </span> \r\n   <i class=\"{{iconEndClass}}\" v-if=\"iconEndClass\"></i>  \r\n</a>",
+      props: {
+          /**
+           * 链接地址
+           */
+          'imgsrc': String,
+  
+          /**
+           * icon名字
+           */
+          'icon': String,
+  
+          /**
+           * 一共有三种图标，分别是fa\icon\glyphicons
+           */
+          'icontype': {
+              type: String,
+              'default': 'fa'
+          },
+  
+          /**
+           * 尾部icon名字
+           */
+          'iconend': String,
+  
+          /**
+           * 一共有三种图标，分别是fa\icon\glyphicons
+           */
+          'iconendtype': {
+              type: String,
+              'default': 'fa'
+          },
+  
+          /**
+           * badge name
+           */
+          'bname': String,
+  
+          /**
+           * badge type
+           * Default Primary Info Success Danger Warning
+           */
+          'btype': {
+              type: String,
+              'default': 'default'
+          }
+      },
+      computed: {
+          iconClass: function iconClass() {
+              return this._getIconClass(this.icon, this.icontype);
+          },
+          iconEndClass: function iconEndClass() {
+              return this._getIconClass(this.iconend, this.iconendtype);
+          }
+      },
+      methods: {
+          _getIconClass: function _getIconClass(icon, icontype) {
+              if (!icon) {
+                  return false;
+              }
+  
+              var result;
+  
+              switch (icontype) {
+                  case 'icon':
+                      result = 'icon-' + icon;
+                      break;
+                  case 'glyph':
+                      result = 'glyphicon glyphicon-' + icon;
+                      break;
+                  case 'fa':
+                      result = 'fa fa-' + icon;
+                      break;
+                  default:
+                      result = icon;
+                      break;
+              }
+  
+              return result;
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/dropdownmenu/main.js*/
+define('modules/widget/dropdownmenu/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('dropdown-menu', {
+      template: "<ul class=\"dropdown-menu {{css}}\">\r\n    <slot></slot>\r\n</ul>\r\n",
+      props: {
+          'id': {
+              type: String,
+              'default': ''
+          },
+          'css': {
+              type: String,
+              'default': ''
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/linkitem/main.js*/
+define('modules/widget/linkitem/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('link-item', {
+      template: "<a href=\"{{href}}\">\r\n    <i class=\"{{iconClass}}\" v-if=\"iconClass\"></i> \r\n    <span><slot></slot></span> \r\n    <span class=\"badge badge-{{btype}}\" v-if=\"bname\"> {{bname}} </span> \r\n    <i class=\"{{iconEndClass}}\" v-if=\"iconEndClass\"></i>     \r\n</a>",
+      props: {
+          /**
+           * 链接地址
+           */
+          'href': {
+              type: String,
+              'default': '#'
+          },
+  
+          /**
+           * icon名字
+           */
+          'icon': String,
+  
+          /**
+           * 一共有三种图标，分别是fa\icon\glyphicons
+           */
+          'icontype': {
+              type: String,
+              'default': 'fa'
+          },
+  
+          /**
+           * 尾部icon名字
+           */
+          'iconend': String,
+  
+          /**
+           * 一共有三种图标，分别是fa\icon\glyphicons
+           */
+          'iconendtype': {
+              type: String,
+              'default': 'fa'
+          },
+  
+          /**
+           * badge name
+           */
+          'bname': String,
+  
+          /**
+           * badge type
+           * Default Primary Info Success Danger Warning
+           */
+          'btype': {
+              type: String,
+              'default': 'default'
+          }
+      },
+      computed: {
+          iconClass: function iconClass() {
+              return this._getIconClass(this.icon, this.icontype);
+          },
+          iconEndClass: function iconEndClass() {
+              return this._getIconClass(this.iconend, this.iconendtype);
+          }
+      },
+      methods: {
+          _getIconClass: function _getIconClass(icon, icontype) {
+              if (!icon) {
+                  return false;
+              }
+  
+              var result;
+  
+              switch (icontype) {
+                  case 'icon':
+                      result = 'icon-' + icon;
+                      break;
+                  case 'glyph':
+                      result = 'glyphicon glyphicon-' + icon;
+                      break;
+                  case 'fa':
+                      result = 'fa fa-' + icon;
+                      break;
+                  default:
+                      result = icon;
+                      break;
+              }
+  
+              return result;
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/dropdownmenulist/main.js*/
+define('modules/widget/dropdownmenulist/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('dropdown-menu-list', {
+      template: "<ul class=\"dropdown-menu-list scroller\" style=\"height: 250px;\">\r\n    <slot></slot>\r\n</ul>\r\n",
+      props: {
+          'id': {
+              type: String,
+              'default': ''
+          },
+          'css': {
+              type: String,
+              'default': ''
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/widget/notificationitem/main.js*/
+define('modules/widget/notificationitem/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('notification-item', {
+      template: "<li>\r\n    <a href=\"{{href}}\">\r\n        <span class=\"label label-sm label-icon label-{{type}}\"><i class=\"fa fa-{{icon}}\"></i></span> \r\n        <slot></slot><span class=\"time\"> {{time}} </span>\r\n    </a>\r\n</li>\r\n",
+      props: {
+          'href': {
+              type: String,
+              'default': '#'
+          },
+          'type': {
+              type: String,
+              'default': 'default'
+          },
+          'icon': {
+              type: String,
+              'default': 'plus'
+          },
+          'time': {
+              type: String,
+              'default': ''
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/common/global.js*/
+define('modules/common/global', function(require, exports, module) {
+
+  'use strict';
+  
+  require('modules/widget/forminput/main');
+  require('modules/widget/tipalert/main');
+  require('modules/widget/select2option/main');
+  require('modules/widget/select2/main');
+  
+  require('modules/widget/heformitem/main');
+  require('modules/widget/heform/main');
+  
+  require('modules/widget/adminfooter/main');
+  require('modules/widget/adminheader/main');
+  require('modules/widget/adminheadersearch/main');
+  require('modules/widget/adminmain/main');
+  require('modules/widget/adminmaintitle/main');
+  require('modules/widget/adminmaintoolbar/main');
+  require('modules/widget/adminsidemenuitem/main');
+  require('modules/widget/adminsidemenu/main');
+  require('modules/widget/portlet/main');
+  require('modules/widget/datagriditem/main');
+  require('modules/widget/datagrid/main');
+  require('modules/widget/modal/main');
+  require('modules/widget/dropdown/main');
+  require('modules/widget/dropdowntoggle/main');
+  require('modules/widget/dropdownmenu/main');
+  require('modules/widget/linkitem/main');
+  require('modules/widget/dropdownmenulist/main');
+  require('modules/widget/notificationitem/main');
 
 });
 
@@ -12586,7 +14788,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n        <!-- <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n                <form-select2 name=\"state\" title=\"状态\" horizontal></form-select2>\r\n            </div>\r\n        </form> -->\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -12677,34 +14879,6 @@ define('modules/user_index/add/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/modify/main.js*/
-define('modules/user_index/modify/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n\r\n    <modal title=\"修改用户信息\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"id\" title=\"ID\" :value=\"id\" horizontal readonly></form-input>\r\n                <form-input name=\"username\" title=\"用户名\" :value=\"name\" horizontal readonly></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"新密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
-      data: function data() {
-          return {
-              id: '',
-              name: ''
-          };
-      },
-      methods: {
-          showModal: function showModal(data) {
-              this.$set('id', data.id);
-              this.$set('name', data.name);
-  
-              this.$children[0].show();
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/modules/user_index/justtest/main.js*/
 define('modules/user_index/justtest/main', function(require, exports, module) {
 
@@ -12731,6 +14905,34 @@ define('modules/user_index/justtest/main', function(require, exports, module) {
       props: {
           debug: {
               type: Boolean
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/user_index/modify/main.js*/
+define('modules/user_index/modify/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/save\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\">\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              id: '',
+              name: ''
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.$set('id', data.id);
+              this.$set('name', data.name);
+  
+              this.$children[0].show();
           }
       },
       ready: function ready() {}
@@ -12807,1386 +15009,6 @@ define('modules/user_index/main/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminfooter/main.js*/
-define('modules/widget/adminfooter/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  var App = require('modules/common/app');
-  
-  Vue.component('admin-footer', {
-      template: "<div class=\"footer\">\r\n\r\n    <div class=\"footer-inner\">\r\n         2016 &copy; Hello, world!\r\n    </div>\r\n    <div class=\"footer-tools\">\r\n        <span class=\"go-top\">\r\n        <i class=\"fa fa-angle-up\"></i>\r\n        </span>\r\n    </div>\r\n\r\n</div>",
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          handleGoTop(); //handles scroll to top functionality in the footer
-      });
-  }
-  
-  // Handles the go to top button at the footer
-  var handleGoTop = function handleGoTop() {
-      /* set variables locally for increased performance */
-      jQuery('.footer').on('click', '.go-top', function (e) {
-          App.scrollTo();
-          e.preventDefault();
-      });
-  };
-
-});
-
-;/*!/modules/widget/adminheader/main.js*/
-define('modules/widget/adminheader/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-header', {
-      template: "<!-- BEGIN HEADER -->\r\n<div class=\"header navbar  navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> Nick </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>\r\n<!-- END HEADER -->",
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/adminheadersearch/main.js*/
-define('modules/widget/adminheadersearch/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-header-search', {
-      template: "<form class=\"search-form search-form-header\" role=\"form\" action=\"index.html\">\r\n    <div class=\"input-icon right\">\r\n        <i class=\"icon-magnifier\"></i>\r\n        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n    </div>\r\n</form>\r\n",
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          handleQuickSearch(); // handles quick search
-      });
-  }
-  
-  var handleQuickSearch = function handleQuickSearch() {
-  
-      // handle search for header search input on enter press
-      $('.search-form-header').on('keypress', 'input.form-control', function (e) {
-          if (e.which == 13) {
-              $('.search-form-header').submit();
-              return false;
-          }
-      });
-  
-      // handle search for header search input on icon click
-      $('.search-form-header').on('click', '.icon-search', function (e) {
-          $('.search-form-header').submit();
-          return false;
-      });
-  };
-
-});
-
-;/*!/modules/widget/adminmain/main.js*/
-define('modules/widget/adminmain/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-main', {
-      template: "<div class=\"page-container\">\r\n    <slot name=\"menu\"></slot>\r\n    <div class=\"page-content-wrapper\">\r\n        <div class=\"page-content\">              \r\n            <slot name=\"title\"></slot>\r\n            <div class=\"row\">\r\n                <div class=\"col-md-12\">\r\n                    <slot></slot>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/adminmaintitle/main.js*/
-define('modules/widget/adminmaintitle/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var menuData = require('modules/common/menudata');
-  
-  Vue.component('admin-main-title', {
-      template: "<div class=\"admin-title\">\r\n    <h3 class=\"page-title\">{{ title }} <small>{{ desc }}</small></h3>\r\n\r\n    <div class=\"page-bar\">\r\n        <ul class=\"page-breadcrumb\">\r\n            <li v-for=\"item in items\">\r\n                <i class=\"fa fa-{{item.icon}}\" v-if=\"item.icon\"></i>\r\n                <a href=\"{{item.url}}\">{{item.name}}</a>\r\n                <i class=\"fa fa-angle-right\" v-if=\"!item.last\"></i>                \r\n            </li>\r\n        </ul>\r\n    </div> \r\n</div>\r\n\r\n     ",
-      props: {
-          'title': {
-              type: String,
-              required: true
-          },
-          'desc': String,
-          'items': {
-              coerce: function coerce(val) {
-                  // name|url|icon;name|url|icon
-  
-                  if (!val) {
-                      return [{
-                          name: 'Home',
-                          url: 'index.html',
-                          icon: 'home'
-                      }];
-                  }
-  
-                  var itemArr = val.split(';'),
-                      length = itemArr.length,
-                      result = [];
-  
-                  for (var i = 0; i < length; i++) {
-                      var item = itemArr[i],
-                          arr = item.split('|'),
-                          obj = {};
-  
-                      obj.name = arr[0];
-                      obj.url = arr[1] || 'javascript:;';
-                      obj.icon = arr[2] || '';
-  
-                      result.push(obj);
-                  }
-  
-                  // 最后一个元素不加>
-                  result[length - 1].last = true;
-  
-                  return result;
-              }
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/adminmaintoolbar/main.js*/
-define('modules/widget/adminmaintoolbar/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-main-toolbar', {
-      template: "<div class=\"table-toolbar\">\r\n    <div class=\"row\">\r\n        <div class=\"col-md-6\">  \r\n            <slot></slot>\r\n        </div>      \r\n    </div>\r\n</div>",
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/adminsidemenu/main.js*/
-define('modules/widget/adminsidemenu/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var menuData = require('modules/common/menudata');
-  
-  Vue.component('admin-side-menu', {
-      template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n            <li class=\"sidebar-search-wrapper\">\r\n                <form class=\"search-form\" role=\"form\" action=\"index.html\" method=\"get\">\r\n                    <div class=\"input-icon right\">\r\n                        <i class=\"fa fa-search\"></i>\r\n                        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n                    </div>\r\n                </form>\r\n            </li>\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
-      props: {
-          'menuId': {
-              type: String,
-              required: true
-          }
-      },
-      data: function data() {
-          return {
-              treeData: menuData
-          };
-      },
-      methods: {
-          render: function render() {
-              var data = this.treeData,
-                  menuId = this.menuId,
-                  tArr = [];
-  
-              var check = function check(data, deep) {
-                  tArr[++deep] = data;
-                  if (!data.children || !data.children.length) {
-                      return;
-                  }
-  
-                  for (var i = 0; i < data.children.length; i++) {
-                      if (data.children[i].id && data.children[i].id == menuId) {
-                          data.children[i].active = true;
-                          for (var j = 0; j <= deep; j++) {
-                              tArr[j].active = true;
-                          }
-                      }
-  
-                      check(data.children[i], deep);
-                  }
-              };
-  
-              check(data, -1);
-          }
-      },
-      ready: function ready() {
-          _init();
-  
-          this.render();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          handleResponsiveOnResize(); // set and handle responsive   
-  
-          handleFixedSidebar(); // handles fixed sidebar menu
-          handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect
-          handleSidebarMenu(); // handles main menu
-          handleQuickSearch(); // handles quick search
-          handleSidebarToggler(); // handles sidebar hide/show   
-      });
-  }
-  
-  var sidebarWidth = 215;
-  var sidebarCollapsedWidth = 40;
-  
-  // To get the correct viewport width based on  http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-  var _getViewPort = function _getViewPort() {
-      var e = window,
-          a = 'inner';
-      if (!('innerWidth' in window)) {
-          a = 'client';
-          e = document.documentElement || document.body;
-      }
-      return {
-          width: e[a + 'Width'],
-          height: e[a + 'Height']
-      };
-  };
-  
-  // reinitialize the laypot on window resize
-  var handleResponsive = function handleResponsive() {
-      handleFixedSidebar();
-  };
-  
-  // handle the layout reinitialization on window resize
-  var handleResponsiveOnResize = function handleResponsiveOnResize() {
-      var resize;
-      if (App.isIE8) {
-          var currheight;
-          $(window).resize(function () {
-              if (currheight == document.documentElement.clientHeight) {
-                  return; //quite event since only body resized not window.
-              }
-              if (resize) {
-                  clearTimeout(resize);
-              }
-              resize = setTimeout(function () {
-                  handleResponsive();
-              }, 50); // wait 50ms until window resize finishes.               
-              currheight = document.documentElement.clientHeight; // store last body client height
-          });
-      } else {
-              $(window).resize(function () {
-                  if (resize) {
-                      clearTimeout(resize);
-                  }
-                  resize = setTimeout(function () {
-                      handleResponsive();
-                  }, 50); // wait 50ms until window resize finishes.
-              });
-          }
-  };
-  
-  // Handle sidebar menu
-  var handleSidebarMenu = function handleSidebarMenu() {
-      jQuery('.page-sidebar').on('click', 'li > a', function (e) {
-          var menu = $('.page-sidebar-menu');
-  
-          // 如果没有子菜单
-          if (!$(this).next().hasClass('sub-menu')) {
-              // 如果当前不是收起来的，则跳转之，否则返回
-              if (!$('.btn-navbar').hasClass('collapsed')) {
-                  $('.btn-navbar').click();
-              }
-              return;
-          }
-  
-          // 如果有子菜单，而且是保持开启的，则返回
-          if ($(this).next().hasClass('sub-menu.always-open')) {
-              return;
-          }
-  
-          var parent = $(this).parent().parent();
-          var the = $(this);
-  
-          parent.children('li.open, li.active').children('a').children('.arrow').removeClass('open');
-          parent.children('li.open, li.active').children('.sub-menu').slideUp(200);
-          parent.children('li.open').removeClass('open');
-  
-          var sub = jQuery(this).next();
-          var slideOffeset = -200;
-          var slideSpeed = 200;
-  
-          if (sub.is(":visible")) {
-              jQuery('.arrow', jQuery(this)).removeClass("open");
-              jQuery(this).parent().removeClass("open");
-              sub.slideUp(slideSpeed, function () {
-                  if ($('body').hasClass('page-sidebar-closed') == false) {
-                      if ($('body').hasClass('page-sidebar-fixed')) {
-                          menu.slimScroll({
-                              'scrollTo': the.position().top
-                          });
-                      } else {
-                          App.scrollTo(the, slideOffeset);
-                      }
-                  }
-                  App.fixContentHeight();
-              });
-          } else {
-              jQuery('.arrow', jQuery(this)).addClass("open");
-              jQuery(this).parent().addClass("open");
-              sub.slideDown(slideSpeed, function () {
-                  if ($('body').hasClass('page-sidebar-closed') == false) {
-                      if ($('body').hasClass('page-sidebar-fixed')) {
-                          menu.slimScroll({
-                              'scrollTo': the.position().top
-                          });
-                      } else {
-                          App.scrollTo(the, slideOffeset);
-                      }
-                  }
-                  App.fixContentHeight();
-              });
-          }
-          e.preventDefault();
-      });
-  };
-  
-  // Handles fixed sidebar
-  var handleFixedSidebar = function handleFixedSidebar() {
-      var menu = $('.page-sidebar-menu');
-  
-      if (menu.parent('.slimScrollDiv').size() === 1) {
-          // destroy existing instance before updating the height
-          menu.slimScroll({
-              destroy: true
-          });
-          menu.removeAttr('style');
-          $('.page-sidebar').removeAttr('style');
-      }
-  
-      if ($('.page-sidebar-fixed').size() === 0) {
-          App.fixContentHeight();
-          return;
-      }
-  
-      var viewport = _getViewPort();
-      if (viewport.width >= 992) {
-          var sidebarHeight = App.getFixedSidebarViewportHeight();
-  
-          menu.slimScroll({
-              size: '7px',
-              color: '#a1b2bd',
-              opacity: .3,
-              position: App.isRTL() ? 'left' : 'right',
-              height: sidebarHeight,
-              allowPageScroll: false,
-              disableFadeOut: false
-          });
-          App.fixContentHeight();
-      }
-  };
-  
-  // Handles the sidebar menu hover effect for fixed sidebar.
-  var handleFixedSidebarHoverable = function handleFixedSidebarHoverable() {
-      if ($('body').hasClass('page-sidebar-fixed') === false) {
-          return;
-      }
-  
-      $('.page-sidebar').off('mouseenter').on('mouseenter', function () {
-          var body = $('body');
-  
-          if (body.hasClass('page-sidebar-closed') === false || body.hasClass('page-sidebar-fixed') === false || $(this).hasClass('page-sidebar-hovering')) {
-              return;
-          }
-  
-          body.removeClass('page-sidebar-closed').addClass('page-sidebar-hover-on');
-  
-          if (body.hasClass("page-sidebar-reversed")) {
-              $(this).width(sidebarWidth);
-          } else {
-              $(this).addClass('page-sidebar-hovering');
-              $(this).animate({
-                  width: sidebarWidth
-              }, 400, '', function () {
-                  $(this).removeClass('page-sidebar-hovering');
-              });
-          }
-      });
-  
-      $('.page-sidebar').off('mouseleave').on('mouseleave', function () {
-          var body = $('body');
-  
-          if (body.hasClass('page-sidebar-hover-on') === false || body.hasClass('page-sidebar-fixed') === false || $(this).hasClass('page-sidebar-hovering')) {
-              return;
-          }
-  
-          if (body.hasClass("page-sidebar-reversed")) {
-              $('body').addClass('page-sidebar-closed').removeClass('page-sidebar-hover-on');
-              $(this).width(sidebarCollapsedWidth);
-          } else {
-              $(this).addClass('page-sidebar-hovering');
-              $(this).animate({
-                  width: sidebarCollapsedWidth
-              }, 400, '', function () {
-                  $('body').addClass('page-sidebar-closed').removeClass('page-sidebar-hover-on');
-                  $(this).removeClass('page-sidebar-hovering');
-              });
-          }
-      });
-  };
-  
-  // Handles sidebar toggler to close/hide the sidebar.
-  var handleSidebarToggler = function handleSidebarToggler() {
-      var viewport = _getViewPort();
-  
-      // handle sidebar show/hide
-      $('.page-sidebar').on('click', '.sidebar-toggler', function (e) {
-          var body = $('body');
-          var sidebar = $('.page-sidebar');
-  
-          if (body.hasClass("page-sidebar-hover-on") && body.hasClass('page-sidebar-fixed') || sidebar.hasClass('page-sidebar-hovering')) {
-              body.removeClass('page-sidebar-hover-on');
-              sidebar.css('width', '').hide().show();
-              App.fixContentHeight(); //fix content & sidebar height
-              e.stopPropagation();
-              App.runResponsiveHandlers();
-              return;
-          }
-  
-          if (body.hasClass("page-sidebar-closed")) {
-              body.removeClass("page-sidebar-closed");
-              if (body.hasClass('page-sidebar-fixed')) {
-                  sidebar.css('width', '');
-              }
-          } else {
-              body.addClass("page-sidebar-closed");
-          }
-          App.fixContentHeight(); //fix content & sidebar height
-          App.runResponsiveHandlers();
-      });
-  };
-  
-  var handleQuickSearch = function handleQuickSearch() {
-      // handle search for sidebar search input on enter press
-      $('.search-form-sidebar').on('keypress', 'input.form-control', function (e) {
-          if (e.which == 13) {
-              $('.search-form-sidebar').submit();
-              return false;
-          }
-      });
-  
-      // handle search for sidebar search input on icon click
-      $('.search-form-sidebar').on('click', '.icon-search', function (e) {
-          $('.search-form-sidebar').submit();
-          return false;
-      });
-  };
-
-});
-
-;/*!/modules/widget/adminsidemenuitem/main.js*/
-define('modules/widget/adminsidemenuitem/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-side-menu-item', {
-      template: "<li :class=\"licss\">\r\n    <a href=\"{{model.url}}\">\r\n        <i class=\"icon-{{model.icon}}\" v-if=\"model.icon\"></i>\r\n        <span class=\"title\">{{model.name}}</span>\r\n        <span class=\"badge badge-{{typeof model.badge=='object'?(model.badge.type||'info'):'info'}}\" v-if=\"model.badge\">{{typeof model.badge=='object'?model.badge.value:model.badge}}</span>\r\n        <span class=\"arrow \" v-if=\"isFolder\"></span>\r\n    </a>\r\n    <ul class=\"sub-menu\" v-if=\"isFolder\">\r\n        <admin-side-menu-item v-for=\"submenu in model.children\" :model=\"submenu\"> </admin-side-menu-item>\r\n    </ul>\r\n</li>\r\n",
-      props: {
-          model: Object,
-          mindex: Number,
-          mtotal: Number
-      },
-      computed: {
-          isFolder: function isFolder() {
-              return this.model.children && this.model.children.length;
-          },
-          licss: function licss() {
-              var arr = [];
-              if (typeof this.mindex !== 'number' || typeof this.mtotal !== 'number') {
-                  arr.push('');
-              } else if (this.mindex == 0) {
-                  arr.push('start');
-              } else if (this.mindex + 1 >= this.mtotal) {
-                  arr.push('last');
-              } else {
-                  arr.push('');
-              }
-  
-              if (this.model.active) {
-                  arr.push('active');
-              }
-  
-              return arr.join(' ');
-          }
-      }
-  });
-
-});
-
-;/*!/modules/widget/datagrid/main.js*/
-define('modules/widget/datagrid/main', function(require, exports, module) {
-
-  /**
-   * 需要支持：
-   * 1. 大数据，后台分页
-   * 2. 少量数据全加载，前端分页
-   *
-   * 1. 原生table
-   * 2. ajax动态加载生成
-   *
-   * TODO 支持desc和asc排序
-   * $( selector ).DataTable();
-   * $( selector ).dataTable().api();
-   * new $.fn.dataTable.Api( selector );
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  var Render = require('modules/common/render');
-  
-  Vue.component('datagrid', {
-      template: "<div class=\"datagrid\">\r\n    <table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n        <thead>\r\n            <tr></tr>\r\n        </thead>\r\n        <tbody>\r\n            <tr><td class=\"dataTables_empty\">正在加载数据……</td></tr>\r\n        </tbody>\r\n    </table>  \r\n    <slot></slot> \r\n</div>\r\n\r\n",
-      data: function data() {
-          return {
-              jqTable: undefined, //table的jQuery对象
-              tableId: undefined, // table的Id
-              oTable: undefined, // datatables对象
-              itemArray: [] };
-      },
-      // 项列表
-      props: {
-          /**
-           * 列表的类型
-           * 前台分页：front; 后台分页：server
-           */
-          'type': {
-              type: String,
-              'default': 'front'
-          },
-          'url': String,
-          'pagelength': {
-              type: Number,
-              'default': '10',
-              coerce: function coerce(val) {
-                  return parseInt(val, 10);
-              }
-          }
-      },
-      methods: {
-          reload: function reload() {
-              // https://datatables.net/reference/api/ajax.reload()
-              this.oTable.api().ajax.reload(function (json) {
-                  // console.log('---', json);
-              });
-          },
-          /**
-           * 获得所有的数据，这些数据是在Ajax查询时返回的
-           * @return {[type]} [description]
-           */
-          getAllData: function getAllData() {
-              //var data = oTable.fnGetData(oTable.$('#row_'+obj)[0]);
-              return this.oTable.fnGetData();
-          },
-          getDataById: function getDataById(key, value) {
-              if (!key || !value) {
-                  return;
-              }
-  
-              var allData = this.getAllData(),
-                  length = allData.length,
-                  result;
-  
-              for (var i = 0; i < length; i++) {
-                  if (allData[i][key] === value) {
-                      result = allData[i];
-                      break;
-                  }
-              }
-  
-              return result;
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('jqTable', $('.datagrid-table', $(this.$el)));
-  
-          // 循环遍历 $vm.$children，从中获得每一项数据，并存入到itemArray字段中
-          var items = this.$children,
-              itemArray = [];
-  
-          items.forEach(function (item) {
-              itemArray.push({
-                  'name': item.name,
-                  'title': item.title,
-                  'css': item.css,
-                  'render': item.render,
-                  'disableorder': item.disableorder,
-                  'hide': item.hide
-              });
-          });
-  
-          this.$set('itemArray', itemArray);
-  
-          // 初始化
-          _init(this);
-      }
-  });
-  
-  function _init(vm) {
-      $(function () {
-  
-          initDataGrid(vm);
-      });
-  }
-  
-  function initDataGrid(vm) {
-      switch (vm.type) {
-          case 'server':
-              initAjaxServer(vm);
-              break;
-          default:
-              initAjaxFront(vm);
-              break;
-      }
-  }
-  
-  function initAjaxFront(vm) {
-      // 配置
-      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
-  
-      var jqTable = vm.jqTable;
-  
-      // 开始生成datatables
-      var oTable = jqTable.dataTable(dataTableOptions);
-      vm.$set('oTable', oTable);
-  
-      // 获取并缓存table的id
-      vm.$set('tableId', jqTable.attr('id'));
-  
-      // 渲染其他的控件
-      renderOther(vm.tableId);
-  }
-  
-  /**
-   * 默认的配置
-   * @return {[type]} [description]
-   */
-  function getDefaultOptions() {
-      $.extend(true, $.fn.DataTable.TableTools.classes, {
-          "container": "btn-group tabletools-dropdown-on-portlet",
-          "buttons": {
-              "normal": "btn btn-sm btn-default",
-              "disabled": "btn btn-sm btn-default disabled"
-          },
-          "collection": {
-              "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
-          }
-      });
-  
-      var options = {
-          "order": [
-              // [0, 'asc']
-          ],
-  
-          "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"] // change per page values here
-          ],
-  
-          /**
-           * https://datatables.net/reference/option/pageLength
-           * Change the initial page length (number of rows per page).
-           * Default value: 10.
-           *
-           * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
-           */
-          "pageLength": 10,
-  
-          "language": {
-              "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
-              "processing": "加载中，请稍后...",
-              "search": "搜索: ",
-              "infoFiltered": "从 _MAX_ 条记录过滤后的结果"
-          },
-  
-          "dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
-  
-          "tableTools": {
-              "sSwfPath": "/static/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-              "aButtons": [{
-                  "sExtends": "pdf",
-                  "sButtonText": "PDF"
-              }, {
-                  "sExtends": "csv",
-                  "sButtonText": "CSV"
-              }, {
-                  "sExtends": "xls",
-                  "sButtonText": "Excel"
-              }, {
-                  "sExtends": "print",
-                  "sButtonText": "Print",
-                  "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
-                  "sMessage": "Generated by DataTables"
-              }]
-          }
-      };
-  
-      return options;
-  }
-  
-  /**
-   * 获得Ajax类型的 datagrid 配置
-   * @return {[type]} [description]
-   */
-  function getAjaxOptions(url, itemArray, pagelength) {
-      // url
-      if (!url) {
-          console.error('Unknown url', url);
-          return;
-      }
-  
-      // columns and columnDefs
-      var columns = [],
-          columnDefs = [];
-  
-      if (!itemArray.length) {
-          console.error('Unknown itemArray', itemArray);
-  
-          return;
-      }
-  
-      var orderableArr = [],
-          visibleArr = [],
-          classNameMap = {};
-  
-      for (var i = 0; i < itemArray.length; i++) {
-          var item = itemArray[i],
-              columnOption = {
-              'data': item.name,
-              'title': item.title ? item.title : item.name
-          };
-  
-          // 如果有自定义的render方法，则需要进行处理
-          if (item.render) {
-              var arr = item.render.split('|'),
-                  renderFn = arr[0].trim(),
-                  renderParam = arr[1];
-  
-              if (renderFn && Render[renderFn]) {
-                  columnOption.render = function (data, type, full) {
-                      return Render[renderFn](renderParam, data, type, full);
-                  };
-              }
-          }
-  
-          // 如果需要增加样式类，则需要进行处理className
-          if (item.css) {
-              var existClassNameArr = classNameMap[item.css];
-              if (!existClassNameArr) {
-                  existClassNameArr = [];
-              }
-              existClassNameArr.push(i);
-              classNameMap[item.css] = existClassNameArr;
-          }
-  
-          // 如果需要阻止排序，则需要进行处理orderable
-          if (item.disableorder) {
-              orderableArr.push(i);
-          }
-  
-          // 如果需要隐藏它，则需要进行处理visible
-          if (item.hide) {
-              visibleArr.push(i);
-          }
-  
-          columns.push(columnOption);
-      }
-  
-      var classNameArr = Object.keys(classNameMap);
-      if (classNameArr.length) {
-          classNameArr.forEach(function (className) {
-              columnDefs.push({
-                  'className': className,
-                  'targets': classNameMap[className]
-              });
-          });
-      }
-  
-      if (orderableArr.length) {
-          columnDefs.push({
-              'orderable': false,
-              'targets': orderableArr
-          });
-      }
-  
-      if (visibleArr.length) {
-          columnDefs.push({
-              'visible': false,
-              'targets': visibleArr
-          });
-      }
-  
-      // 配置
-      var dataTableOptions = getDefaultOptions();
-  
-      // 请求
-      dataTableOptions.ajax = {
-          "url": url
-      };
-  
-      // columns
-      dataTableOptions.columns = columns;
-  
-      // columnDefs
-      if (columnDefs.length) {
-          dataTableOptions.columnDefs = columnDefs;
-      }
-  
-      // pagelength
-      if (pagelength != 10) {
-          dataTableOptions.pageLength = pagelength;
-  
-          // 如果指定的每页数量不在下拉框内，还要手动加入
-          if (dataTableOptions.lengthMenu[0].indexOf(pagelength) < 0) {
-              for (var i = 0; i < dataTableOptions.lengthMenu[0].length; i++) {
-                  if (dataTableOptions.lengthMenu[0][i] > pagelength || dataTableOptions.lengthMenu[0][i] === -1) {
-                      dataTableOptions.lengthMenu[0].splice(i, 0, pagelength);
-                      dataTableOptions.lengthMenu[1].splice(i, 0, pagelength);
-                      break;
-                  }
-              }
-          }
-  
-          // "lengthMenu": [
-          //     [10, 20, 50, -1],
-          //     [10, 20, 50, "All"] // change per page values here
-          // ],
-      }
-  
-      return dataTableOptions;
-  }
-  
-  /**
-   * 渲染其他的控件
-   * @param  {[type]} tableId [description]
-   * @return {[type]}         [description]
-   */
-  function renderOther(tableId) {
-      // datatable creates the table wrapper by adding with id {your_table_id}_wrapper
-      var tableWrapper = $('#' + tableId + '_wrapper');
-  
-      // initialize select2 dropdown
-      tableWrapper.find('.dataTables_length select').select2();
-  }
-  
-  // TODO reload
-  var initAjaxServer = function initAjaxServer(vm) {
-      var jqTable = vm.jqTable;
-  
-      var url = vm.url;
-      if (!url) {
-          console.error('Unknown url', url, vm);
-          return;
-      }
-  
-      $.extend(true, $.fn.DataTable.TableTools.classes, {
-          "container": "btn-group tabletools-dropdown-on-portlet",
-          "buttons": {
-              "normal": "btn btn-sm btn-default",
-              "disabled": "btn btn-sm btn-default disabled"
-          },
-          "collection": {
-              "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
-          }
-      });
-  
-      var oTable = jqTable.dataTable({
-          "order": [[0, 'asc']],
-  
-          "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"] // change per page values here
-          ],
-  
-          /**
-           * https://datatables.net/reference/option/pageLength
-           * Change the initial page length (number of rows per page).
-           * Default value: 10.
-           *
-           * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
-           */
-          "pageLength": 10,
-  
-          "language": {
-              "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
-              "processing": "加载中，请稍后...",
-              "search": "搜索: ",
-              "infoFiltered": "从 _MAX_ 条记录过滤后的结果"
-          },
-  
-          "dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
-  
-          "tableTools": {
-              "sSwfPath": "/static/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-              "aButtons": [{
-                  "sExtends": "pdf",
-                  "sButtonText": "PDF"
-              }, {
-                  "sExtends": "csv",
-                  "sButtonText": "CSV"
-              }, {
-                  "sExtends": "xls",
-                  "sButtonText": "Excel"
-              }, {
-                  "sExtends": "print",
-                  "sButtonText": "Print",
-                  "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
-                  "sMessage": "Generated by DataTables"
-              }]
-          },
-          "ordering": false, //关闭列排序
-  
-          "processing": true,
-  
-          /**
-           * https://datatables.net/reference/option/serverSide
-           * 服务器模式，在分页和查找时会重新去请求数据
-           */
-          "serverSide": true,
-  
-          /**
-           * https://datatables.net/reference/option/deferRender
-           * 默认是 false 。即默认情况下，DataTables会将获得的数据全部渲染成 HTML 元素，但这种处理在大数据时会影响性能，尤其在 IE6-IE8。
-           * 推荐在后台分页处理时，将其设置为 true，即延迟渲染，按需渲染。
-           */
-          // "deferRender": true,
-  
-          /**
-           * https://datatables.net/reference/option/destroy
-           * Destroy any existing table matching the selector and replace with the new options. 
-           * Default value: false.
-           *
-           * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
-           */
-          // "destroy": true,
-          "ajax": {
-              "url": url,
-              "type": "POST",
-              "data": function data(d) {
-                  d.myKey = "myValue";
-                  // d.custom = $('#myInput').val();
-                  // etc
-                  // 此处可以追加一些请求参数
-              }
-          },
-          "columns": [{
-              "data": "first_name",
-              "title": "first_name"
-          }, {
-              "data": "last_name",
-              "title": "last_name"
-          }, {
-              "data": "position",
-              "title": "position"
-          }, {
-              "data": "office",
-              "title": "office"
-          }, {
-              "data": "start_date",
-              "title": "start_date"
-          }, {
-              "data": "salary",
-              "title": "salary",
-              "render": function render(data, type, row, meta) {
-                  return data.replace(/\$/g, "￥");
-              }
-          }],
-  
-          /**
-           * https://datatables.net/reference/option/columnDefs
-           * Set column definition initialisation properties.
-           *
-           * 非常像 columns，用于定义如何初始化属性，但它不要求每一列都要定义。因为下面的冲突规则，因此建议如果需要动态改变的，则使用 columnDefs 来定义，例如 visible 属性，这样便于控制。而且也方便集中批量配置。
-           *
-           * 定义冲突规则：
-           * 1. columns 中的优先级要高
-           * 2. columnDefs 中使用数组来定义的属性要比其他的定义的高，比如下例中第一列和第二列将显示，其他列隐藏
-           * 
-           */
-          "columnDefs": [{
-              targets: [0, 1],
-              visible: true
-          }, {
-              targets: '_all',
-              visible: false
-          }]
-  
-      });
-  
-      // 获取并缓存table的id
-      vm.$set('tableId', jqTable.attr('id'));
-  
-      // datatable creates the table wrapper by adding with id {your_table_id}_wrapper
-      var tableWrapper = $('#' + vm.tableId + '_wrapper');
-  
-      // initialize select2 dropdown
-      tableWrapper.find('.dataTables_length select').select2();
-  };
-
-});
-
-;/*!/modules/widget/datagriditem/main.js*/
-define('modules/widget/datagriditem/main', function(require, exports, module) {
-
-  /**
-   * 
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('datagrid-item', {
-    template: "<div style=\"display:none\" data-name=\"{{name}}\" data-title=\"{{title}}\" data-disableorder=\"{{disableorder}}\" data-hide=\"{{hide}}\" data-css=\"{{css}}\"></div>",
-    props: {
-      /**
-       * 该列数据的字段名
-       */
-      'name': {
-        type: String,
-        required: true
-      },
-  
-      /**
-       * 该列在表格中的展示说明，如果为空则取值 name 值
-       */
-      'title': String,
-  
-      /**
-       * 为该列增加的样式类className
-       */
-      'css': String,
-  
-      /**
-       * 该列渲染方法名，方法在/common/render.js中定义
-       */
-      'render': String,
-  
-      /**
-       * 使该列不能够排序
-       */
-      'disableorder': {
-        type: Boolean,
-        'default': false
-      },
-  
-      /**
-       * 使该列不显示
-       */
-      'hide': {
-        type: Boolean,
-        'default': false
-      }
-    },
-    ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/dropdown/main.js*/
-define('modules/widget/dropdown/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('dropdown', {
-      template: "<li class=\"dropdown {{css}}\" id=\"{{id}}\">    \r\n    <slot></slot>   \r\n</li>\r\n",
-      props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/dropdownmenu/main.js*/
-define('modules/widget/dropdownmenu/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('dropdown-menu', {
-      template: "<ul class=\"dropdown-menu {{css}}\">\r\n    <slot></slot>\r\n</ul>\r\n",
-      props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/dropdownmenulist/main.js*/
-define('modules/widget/dropdownmenulist/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('dropdown-menu-list', {
-      template: "<ul class=\"dropdown-menu-list scroller\" style=\"height: 250px;\">\r\n    <slot></slot>\r\n</ul>\r\n",
-      props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/dropdowntoggle/main.js*/
-define('modules/widget/dropdowntoggle/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('dropdown-toggle', {
-      template: "<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" data-hover=\"dropdown\" data-close-others=\"true\">\r\n    <img alt=\"\" :src=\"imgsrc\" v-if=\"imgsrc\"/>\r\n    <i class=\"{{iconClass}}\" v-if=\"iconClass\"></i> \r\n    <slot></slot>\r\n    <span class=\"badge badge-{{btype}}\" v-if=\"bname\"> {{bname}} </span> \r\n   <i class=\"{{iconEndClass}}\" v-if=\"iconEndClass\"></i>  \r\n</a>",
-      props: {
-          /**
-           * 链接地址
-           */
-          'imgsrc': String,
-  
-          /**
-           * icon名字
-           */
-          'icon': String,
-  
-          /**
-           * 一共有三种图标，分别是fa\icon\glyphicons
-           */
-          'icontype': {
-              type: String,
-              'default': 'fa'
-          },
-  
-          /**
-           * 尾部icon名字
-           */
-          'iconend': String,
-  
-          /**
-           * 一共有三种图标，分别是fa\icon\glyphicons
-           */
-          'iconendtype': {
-              type: String,
-              'default': 'fa'
-          },
-  
-          /**
-           * badge name
-           */
-          'bname': String,
-  
-          /**
-           * badge type
-           * Default Primary Info Success Danger Warning
-           */
-          'btype': {
-              type: String,
-              'default': 'default'
-          }
-      },
-      computed: {
-          iconClass: function iconClass() {
-              return this._getIconClass(this.icon, this.icontype);
-          },
-          iconEndClass: function iconEndClass() {
-              return this._getIconClass(this.iconend, this.iconendtype);
-          }
-      },
-      methods: {
-          _getIconClass: function _getIconClass(icon, icontype) {
-              if (!icon) {
-                  return false;
-              }
-  
-              var result;
-  
-              switch (icontype) {
-                  case 'icon':
-                      result = 'icon-' + icon;
-                      break;
-                  case 'glyph':
-                      result = 'glyphicon glyphicon-' + icon;
-                      break;
-                  case 'fa':
-                      result = 'fa fa-' + icon;
-                      break;
-                  default:
-                      result = icon;
-                      break;
-              }
-  
-              return result;
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/forminput/main.js*/
-define('modules/widget/forminput/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('form-input', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" id=\"{{id}}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
-      props: {
-          /**
-           * 
-           */
-          'id': String,
-  
-          /**
-           * text/password
-           */
-          'type': {
-              type: String,
-              'default': 'text'
-          },
-  
-          /**
-           *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
-           * user: 用户名
-           */
-          'icon': String,
-  
-          /**
-           * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-           */
-          'title': String,
-  
-          /**
-           * 是否显示title，非必须，默认显示，即显示<lable>
-           */
-          'hidetitle': {
-              type: Number,
-              'default': 0
-          },
-  
-          /**
-           * input 的name 值，必须
-           */
-          'name': {
-              type: String,
-              required: true
-          },
-  
-          /**
-           * input 的 value 值，不限定什么类型
-           */
-          'value': 'null',
-  
-          'autocomplete': {
-              type: String,
-              'default': 'on'
-          },
-  
-          'readonly': {
-              type: Boolean,
-              'default': false
-          },
-  
-          'horizontal': {
-              type: Boolean,
-              'default': false
-          },
-  
-          /**
-           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
-           */
-          'col': {
-              type: String,
-              'default': '3-9'
-          }
-  
-      },
-      computed: {
-          colLeft: function colLeft() {
-              var defaultVal = 3,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[0], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          },
-          colRight: function colRight() {
-              var defaultVal = 9,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[1], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/modules/widget/inputtext/main.js*/
 define('modules/widget/inputtext/main', function(require, exports, module) {
 
@@ -14224,640 +15046,6 @@ define('modules/widget/inputtext/main', function(require, exports, module) {
      * input 的name 值，必须
      */
     'name']
-  });
-
-});
-
-;/*!/modules/widget/linkitem/main.js*/
-define('modules/widget/linkitem/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('link-item', {
-      template: "<a href=\"{{href}}\">\r\n    <i class=\"{{iconClass}}\" v-if=\"iconClass\"></i> \r\n    <span><slot></slot></span> \r\n    <span class=\"badge badge-{{btype}}\" v-if=\"bname\"> {{bname}} </span> \r\n    <i class=\"{{iconEndClass}}\" v-if=\"iconEndClass\"></i>     \r\n</a>",
-      props: {
-          /**
-           * 链接地址
-           */
-          'href': {
-              type: String,
-              'default': '#'
-          },
-  
-          /**
-           * icon名字
-           */
-          'icon': String,
-  
-          /**
-           * 一共有三种图标，分别是fa\icon\glyphicons
-           */
-          'icontype': {
-              type: String,
-              'default': 'fa'
-          },
-  
-          /**
-           * 尾部icon名字
-           */
-          'iconend': String,
-  
-          /**
-           * 一共有三种图标，分别是fa\icon\glyphicons
-           */
-          'iconendtype': {
-              type: String,
-              'default': 'fa'
-          },
-  
-          /**
-           * badge name
-           */
-          'bname': String,
-  
-          /**
-           * badge type
-           * Default Primary Info Success Danger Warning
-           */
-          'btype': {
-              type: String,
-              'default': 'default'
-          }
-      },
-      computed: {
-          iconClass: function iconClass() {
-              return this._getIconClass(this.icon, this.icontype);
-          },
-          iconEndClass: function iconEndClass() {
-              return this._getIconClass(this.iconend, this.iconendtype);
-          }
-      },
-      methods: {
-          _getIconClass: function _getIconClass(icon, icontype) {
-              if (!icon) {
-                  return false;
-              }
-  
-              var result;
-  
-              switch (icontype) {
-                  case 'icon':
-                      result = 'icon-' + icon;
-                      break;
-                  case 'glyph':
-                      result = 'glyphicon glyphicon-' + icon;
-                      break;
-                  case 'fa':
-                      result = 'fa fa-' + icon;
-                      break;
-                  default:
-                      result = icon;
-                      break;
-              }
-  
-              return result;
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/modal/main.js*/
-define('modules/widget/modal/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('modal', {
-      template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
-      props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          },
-          'tabindex': {
-              type: Number,
-              'default': -1
-          },
-          'title': String,
-          'fullwidth': {
-              type: Boolean,
-              'default': false
-          }
-      },
-      computed: {
-          'className': function className() {
-              var arr = [];
-  
-              if (this.fullwidth) {
-                  arr.push('container');
-              }
-  
-              if (this.css) {
-                  arr.push(this.css);
-              }
-  
-              return arr.join(' ');
-          }
-      },
-      methods: {
-          show: function show() {
-              // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
-  
-              $(this.$el).modal();
-          },
-          hide: function hide() {
-              $(this.$el).modal('hide');
-          },
-          confirm: function confirm() {
-              // 自定义事件，使用方式为v-on:confirm="save"
-              this.$dispatch('confirm', this.id);
-          }
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          _initGeneral();
-      });
-  }
-  /**
-   * data-focus-on="input:first"
-   */
-  
-  function _initGeneral() {
-      // general settings
-      $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner = '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' + '<div class="progress progress-striped active">' + '<div class="progress-bar" style="width: 100%;"></div>' + '</div>' + '</div>';
-  
-      $.fn.modalmanager.defaults.resize = true;
-  }
-  
-  function _ajaxDialog() {
-      //ajax demo:
-      var $modal = $('#ajax-modal');
-  
-      $('#ajax-demo').on('click', function () {
-          // create the backdrop and wait for next modal to be triggered
-          $('body').modalmanager('loading');
-  
-          setTimeout(function () {
-              $modal.load('ui_extended_modals_ajax_sample.html', '', function () {
-                  $modal.modal();
-              });
-          }, 1000);
-      });
-  
-      $modal.on('click', '.update', function () {
-          $modal.modal('loading');
-          setTimeout(function () {
-              $modal.modal('loading').find('.modal-body').prepend('<div class="alert alert-info fade in">' + 'Updated!<button type="button" class="close" data-dismiss="alert">&times;</button>' + '</div>');
-          }, 1000);
-      });
-  }
-
-});
-
-;/*!/modules/widget/notificationitem/main.js*/
-define('modules/widget/notificationitem/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('notification-item', {
-      template: "<li>\r\n    <a href=\"{{href}}\">\r\n        <span class=\"label label-sm label-icon label-{{type}}\"><i class=\"fa fa-{{icon}}\"></i></span> \r\n        <slot></slot><span class=\"time\"> {{time}} </span>\r\n    </a>\r\n</li>\r\n",
-      props: {
-          'href': {
-              type: String,
-              'default': '#'
-          },
-          'type': {
-              type: String,
-              'default': 'default'
-          },
-          'icon': {
-              type: String,
-              'default': 'plus'
-          },
-          'time': {
-              type: String,
-              'default': ''
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/portlet/main.js*/
-define('modules/widget/portlet/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('portlet', {
-      template: "<div class=\"portlet\">\r\n    <div class=\"portlet-title\">\r\n        <div class=\"caption\">\r\n            <i class=\"fa fa-{{icon}}\" v-if=\"icon\"></i>{{ title }}\r\n        </div>\r\n        <div class=\"tools\"></div>\r\n    </div>\r\n    <div class=\"portlet-body\">\r\n        <slot></slot>\r\n    </div>\r\n</div>                  \r\n",
-      props: {
-          'title': String,
-          'icon': String
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/common/select2render.js*/
-define('modules/common/select2render', function(require, exports, module) {
-
-  'use strict';
-  
-  function getgroup(res) {
-      if (res.errno !== 0) {
-          return [];
-      }
-  
-      return res.data;
-  }
-  
-  function searchuser(res) {
-      if (res.errno !== 0) {
-          return [];
-      }
-  
-      return _convert(res.data, 'id', 'name');
-  }
-  
-  function _convert(arr, idName, textName) {
-      if (!Array.isArray(arr)) {
-          return [];
-      }
-  
-      return arr.map(function (item) {
-          return {
-              id: item[idName],
-              text: item[textName]
-          };
-      });
-  }
-  
-  module.exports = {
-      getgroup: getgroup,
-      searchuser: searchuser
-  };
-
-});
-
-;/*!/modules/widget/select2/main.js*/
-define('modules/widget/select2/main', function(require, exports, module) {
-
-  /**
-   * 有两种，一种是ajax请求的，一种是现成的
-   * 
-   * 数据优先级依次是 select2-option > init-data > url
-   *
-   // 直接设置select2-option
-   <select2 value="1">
-      <select2-option title="hello1" value="1"></select2-option>
-      <select2-option title="word2" value="2"></select2-option>
-      <select2-option title="test3" value="3"></select2-option>
-  </select2>
-  
-  // 增加一个数据源init-data，它是数据，相对于设置了一个初始的data，同时也支持select2-option（优先级高）
-  <select2 :init-data="select2data" value="2">
-      <select2-option title="test4" value="4"></select2-option>
-  </select2>
-  
-  // 数据源
-  <select2 url="/admin/user/getgroup">
-      <select2-option title="test4" value="4"></select2-option>
-  </select2>
-  
-  // ajax远程请求
-  <select2 url="/admin/user/searchuser" convert="searchuser" ajax></select2>
-  
-  TODO 自定义format展示，可以考虑render.js中处理
-   转换id和text的函数，因为每个接口返回都有可能不一样，在select2render.js中定义；如果不定义，则默认返回格式符合{errno:0,data:[{id:1,text:'1'}]}
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var Select2Render = require('modules/common/select2render');
-  
-  Vue.component('select2', {
-      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" name=\"{{name}}\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              /**
-               * 当前select2的options范围，包括select2-option中数据和init-data或者url或者ajax数据的集合
-               */
-              data: [],
-              jqSelect: undefined
-          };
-      },
-      props: {
-          /**
-           * input 的name 值，必须
-           */
-          'name': {
-              type: String,
-              required: true
-          },
-          /**
-           * 初始值
-           */
-          value: null,
-          /**
-           * 初始data
-           */
-          initData: Array,
-          /**
-           * 数据来源地址
-           */
-          url: String,
-          /**
-           * 数据转换函数名，在select2render.js中定义。
-           * 不同的接口返回的数据不一定相同，可以接口返回之前转换，也可以前台定义此字段来转换
-           */
-          convert: String,
-          placeholder: {
-              type: String,
-              'default': '请选择'
-          },
-          allowClear: {
-              type: Boolean,
-              'default': false
-          },
-          /**
-           * 是否懒渲染
-           */
-          lazy: {
-              type: Boolean,
-              'default': false
-          },
-          /**
-           * 是否为ajax请求远程数据？
-           */
-          ajax: {
-              type: Boolean,
-              'default': false
-          }
-      },
-      computed: {
-          options: function options() {
-              var result = {};
-  
-              result.data = this.data;
-  
-              if (this.allowClear) {
-                  result.allowClear = true;
-              }
-  
-              result.placeholder = this.placeholder;
-  
-              return result;
-          }
-      },
-      methods: {
-          /**
-           * 销毁select2
-           */
-          destroy: function destroy() {
-              if (this.jqSelect) {
-                  this.jqSelect.off().select2('destroy');
-                  this.jqSelect = undefined;
-              }
-          },
-          init: function init() {
-              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
-              this.lazy = false;
-  
-              // 初始化前要先销毁原来的那个
-              this.destroy();
-  
-              // 获得data，如果有select2-option，则追加到data字段中，并且具有较高优先级
-              var select2options = this.$children,
-                  data = select2options.map(function (item) {
-                  return {
-                      id: item.value,
-                      text: item.title
-                  };
-              });
-  
-              // 来自init-data的数据
-              if (this.initData && Array.isArray(this.initData)) {
-                  data = data.concat(this.initData);
-              }
-  
-              // 来自url的请求数据
-              var self = this;
-  
-              if (this.url) {
-                  $.post(this.url, function (res, status) {
-                      // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
-                      if (self.convert && typeof Select2Render[self.convert] === "function") {
-                          data = data.concat(Select2Render[self.convert](res));
-                      } else if (res.errno === 0) {
-                          data = data.concat(res.data);
-                      }
-  
-                      self.data = data;
-                      self._renderSelect2();
-                  });
-              } else {
-                  this.data = data;
-                  this._renderSelect2();
-              }
-          },
-          initAjax: function initAjax() {
-              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
-              this.lazy = false;
-  
-              // 初始化前要先销毁原来的那个
-              this.destroy();
-  
-              if (!this.url) {
-                  console.error('ajax bug url is undefined');
-                  return;
-              }
-  
-              var self = this;
-  
-              // 最少得一个字符
-              this.options.minimumInputLength = 1;
-  
-              this.options.ajax = {
-                  url: this.url,
-                  dataType: 'json',
-                  quietMillis: 250, //过多久才去搜索，避免请求过快
-                  data: function data(term, page) {
-                      return {
-                          q: term };
-                  },
-                  // search term
-                  results: function results(data, page) {
-                      // parse the results into the format expected by Select2.
-                      // since we are using custom formatting functions we do not need to alter the remote JSON data
-  
-                      var resultsData = [];
-  
-                      // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
-                      if (self.convert && typeof Select2Render[self.convert] === "function") {
-                          resultsData = Select2Render[self.convert](data);
-                      } else if (data.errno === 0) {
-                          resultsData = data.data;
-                      }
-  
-                      return {
-                          results: resultsData
-                      };
-                  },
-                  cache: true
-              };
-  
-              this._renderSelect2();
-          },
-          _renderSelect2: function _renderSelect2() {
-              // select2
-              var self = this,
-                  options = this.options,
-                  jqSelect = $('input', this.$el).select2(options).on('change', function () {
-                  self.value = this.value;
-              });
-  
-              this.jqSelect = jqSelect;
-  
-              // 设置默认值
-              if (this.value) {
-                  this.jqSelect.val(this.value).trigger('change');
-              }
-          }
-      },
-      watch: {
-          /**
-           * 当初始data值变化了时，重新渲染select2
-           */
-          'initData': {
-              handler: function handler(val, oldVal) {
-                  this.init();
-              },
-              deep: true
-          },
-          'value': function value(val, oldVal) {
-              this.jqSelect.val(this.value).trigger('change');
-          }
-      },
-      ready: function ready() {
-          // 如果不是lazy模式，则立即渲染
-          if (!this.lazy) {
-              if (!this.ajax) {
-                  this.init();
-              } else {
-                  this.initAjax();
-              }
-          }
-      }
-  });
-  
-  // newData = [{
-  //     id: 1,
-  //     text: 'hello'
-  // }, {
-  //     id: 2,
-  //     text: 'world'
-  // }, {
-  //     id: 3,
-  //     text: 'what'
-  // }];
-
-});
-
-;/*!/modules/widget/select2option/main.js*/
-define('modules/widget/select2option/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('select2-option', {
-      template: "<div style=\"display:none\" data-value=\"{{value}}\">{{title}}</div>",
-      props: {
-          /**
-           * 选项名字
-           */
-          'title': {
-              type: String,
-              required: true
-          },
-  
-          /**
-           * 选项值
-           */
-          'value': {
-              type: String,
-              'default': ''
-          }
-  
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/tipalert/main.js*/
-define('modules/widget/tipalert/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('tip-alert', {
-      template: "<div class=\"alert alert-{{type}}\" v-show=\"isShow\">\r\n    <button class=\"close\" v-on:click=\"hide\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              isShow: false,
-              type: 'danger', //danger,info,success,warning
-              msg: '' //必填
-          };
-      },
-      methods: {
-          show: function show(msg, type) {
-              // msg 字段必填
-              if (typeof msg !== "string" || !msg.length) {
-                  return;
-              }
-              this.msg = msg;
-  
-              // type 默认为 danger
-              if (type) {
-                  this.type = type;
-              }
-  
-              this.isShow = true;
-          },
-          hide: function hide(event) {
-              this.isShow = false;
-  
-              // 这里非常重要，因为如果在表单里面，它会触发submit提交，必须要阻止
-              // 且由于该方法可能也会被手工调用，因此event不一定存在
-              if (event) {
-                  event.preventDefault();
-              }
-          }
-      }
   });
 
 });
@@ -14915,300 +15103,6 @@ define('pages/index/main', function(require, exports, module) {
       'test3': IndexTest3
     }
   });
-
-});
-
-;/*!/modules/widget/formselect2/main.js*/
-define('modules/widget/formselect2/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('form-select2', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <select2 value=\"1\">\r\n            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n        </select2>\r\n    </div>\r\n</div>\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div>\r\n",
-      props: {
-          /**
-           * 
-           */
-          'id': String,
-  
-          /**
-           * text/password
-           */
-          'type': {
-              type: String,
-              'default': 'text'
-          },
-  
-          /**
-           *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
-           * user: 用户名
-           */
-          'icon': String,
-  
-          /**
-           * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-           */
-          'title': String,
-  
-          /**
-           * input 的name 值，必须
-           */
-          'name': {
-              type: String,
-              required: true
-          },
-  
-          /**
-           * input 的 value 值，不限定什么类型
-           */
-          'value': 'null',
-  
-          'readonly': {
-              type: Boolean,
-              'default': false
-          },
-  
-          'horizontal': {
-              type: Boolean,
-              'default': false
-          },
-  
-          /**
-           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
-           */
-          'col': {
-              type: String,
-              'default': '3-9'
-          }
-  
-      },
-      computed: {
-          colLeft: function colLeft() {
-              var defaultVal = 3,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[0], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          },
-          colRight: function colRight() {
-              var defaultVal = 9,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[1], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/heformitem/main.js*/
-define('modules/widget/heformitem/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('he-form-item', {
-      template: "<div class=\"form-group\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n</div>\r\n",
-      props: {
-          /**
-           * 
-           */
-          'title': String,
-  
-          'horizontal': {
-              type: Boolean,
-              'default': false
-          },
-  
-          /**
-           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
-           */
-          'col': {
-              type: String,
-              'default': '3-9'
-          }
-  
-      },
-      computed: {
-          colLeft: function colLeft() {
-              var defaultVal = 3,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[0], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          },
-          colRight: function colRight() {
-              var defaultVal = 9,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[1], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          }
-      },
-      ready: function ready() {
-          $('input', this.$el).addClass('form-control');
-      }
-  });
-
-});
-
-;/*!/modules/widget/heform/main.js*/
-define('modules/widget/heform/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('he-form', {
-      template: "<form :action=\"action\" :class=\"horizontal?'form-horizontal':''\" role=\"form\" :method=\"method\">\r\n    <div class=\"form-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"form-actions\" v-if=\"!noactions\">\r\n        <slot name=\"actions\"></slot>\r\n    </div>\r\n</form>\r\n",
-      props: {
-          /**
-           * 
-           */
-          'action': String,
-  
-          /**
-           * 默认为post请求
-           */
-          'method': {
-              type: String,
-              'default': 'post'
-          },
-  
-          'horizontal': {
-              type: Boolean,
-              'default': false
-          },
-  
-          /**
-           * 默认是有actions
-           */
-          'noactions': {
-              type: Boolean,
-              'default': false
-          },
-  
-          /**
-           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
-           */
-          'col': {
-              type: String,
-              'default': '3-9'
-          }
-  
-      },
-      computed: {
-          colLeft: function colLeft() {
-              var defaultVal = 3,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[0], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          },
-          colRight: function colRight() {
-              var defaultVal = 9,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[1], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/common/global.js*/
-define('modules/common/global', function(require, exports, module) {
-
-  'use strict';
-  
-  require('modules/widget/forminput/main');
-  require('modules/widget/tipalert/main');
-  require('modules/widget/select2option/main');
-  require('modules/widget/select2/main');
-  require('modules/widget/formselect2/main');
-  
-  require('modules/widget/heformitem/main');
-  require('modules/widget/heform/main');
-  
-  require('modules/widget/adminfooter/main');
-  require('modules/widget/adminheader/main');
-  require('modules/widget/adminheadersearch/main');
-  require('modules/widget/adminmain/main');
-  require('modules/widget/adminmaintitle/main');
-  require('modules/widget/adminmaintoolbar/main');
-  require('modules/widget/adminsidemenuitem/main');
-  require('modules/widget/adminsidemenu/main');
-  require('modules/widget/portlet/main');
-  require('modules/widget/datagriditem/main');
-  require('modules/widget/datagrid/main');
-  require('modules/widget/modal/main');
-  require('modules/widget/dropdown/main');
-  require('modules/widget/dropdowntoggle/main');
-  require('modules/widget/dropdownmenu/main');
-  require('modules/widget/linkitem/main');
-  require('modules/widget/dropdownmenulist/main');
-  require('modules/widget/notificationitem/main');
 
 });
 
