@@ -11877,33 +11877,23 @@ define('modules/widget/select2/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  Vue.directive('select', {
-      twoWay: true,
-      priority: 1000,
-  
-      params: ['options'],
-  
-      bind: function bind() {
-          var self = this;
-          $(this.el).select2(this.params.options).on('change', function () {
-              self.set(this.value);
-          });
-      },
-      update: function update(value) {
-          $(this.el).val(value).trigger('change');
-      },
-      unbind: function unbind() {
-          $(this.el).off().select2('destroy');
-      }
-  });
-  
   Vue.component('select2', {
-      template: "<div>\r\n    <p>Selected: {{value}}</p>\r\n    <input type=\"hidden\" v-select=\"value\" :options=\"options\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div>\r\n    <p>Selected: {{value}}</p>\r\n    <input type=\"hidden\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              data: [],
+              jqSelect: undefined
+          };
+      },
       props: {
           /**
            * 初始值
            */
           value: null,
+          /**
+           * 数据来源地址
+           */
+          url: String,
           placeholder: {
               type: String,
               'default': '请选择'
@@ -11915,43 +11905,74 @@ define('modules/widget/select2/main', function(require, exports, module) {
       },
       computed: {
           options: function options() {
-              var result = {},
-                  data;
+              var result = {};
   
-              // 如果有select2-option，则追加到data字段中
-              var select2options = this.$children;
-              data = select2options.map(function (item) {
-                  return {
-                      id: item.value,
-                      text: item.title
-                  };
-              });
-  
-              result.data = data;
-  
-              // result.data = [{
-              //     id: 1,
-              //     text: 'hello'
-              // }, {
-              //     id: 2,
-              //     text: 'world'
-              // }, {
-              //     id: 3,
-              //     text: 'what'
-              // }];
+              result.data = this.data;
   
               if (this.allowClear) {
                   result.allowClear = true;
               }
   
               result.placeholder = this.placeholder;
-              console.log(result);
   
               return result;
           }
       },
-      ready: function ready() {}
+      methods: {
+          /**
+           * 销毁select2
+           */
+          destroy: function destroy() {
+              if (this.jqSelect) {
+                  this.jqSelect.off().select2('destroy');
+                  this.jqSelect = undefined;
+              }
+          },
+          init: function init() {
+              // 初始化前要先销毁原来的那个
+              this.destroy();
+  
+              // 获得data，如果有select2-option，则追加到data字段中
+              var select2options = this.$children,
+                  data = select2options.map(function (item) {
+                  return {
+                      id: item.value,
+                      text: item.title
+                  };
+              });
+  
+              this.data = data;
+  
+              // select2
+              var self = this,
+                  options = this.options,
+                  jqSelect = $('input', this.$el).select2(options).on('change', function () {
+                  self.value = this.value;
+              });
+  
+              this.jqSelect = jqSelect;
+  
+              // 设置默认值
+              if (this.value) {
+                  this.jqSelect.val(this.value).trigger('change');
+              }
+          }
+      },
+      ready: function ready() {
+          this.init();
+      }
   });
+  
+  // newData = [{
+  //     id: 1,
+  //     text: 'hello'
+  // }, {
+  //     id: 2,
+  //     text: 'world'
+  // }, {
+  //     id: 3,
+  //     text: 'what'
+  // }];
 
 });
 
@@ -14413,7 +14434,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n                <select2></select2>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -14540,7 +14561,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2>\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 value=\"2\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify
