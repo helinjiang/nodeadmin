@@ -6,26 +6,14 @@ define('modules/user_index/main/main', function(require, exports, module) {
   
   var add = require('modules/user_index/add/main');
   var modify = require('modules/user_index/modify/main');
+  var justtest = require('modules/user_index/justtest/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" lazy>\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n\r\n<select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
-      data: function data() {
-          return {
-              select2data: [{
-                  id: 1,
-                  text: 'hello'
-              }, {
-                  id: 2,
-                  text: 'world'
-              }, {
-                  id: 3,
-                  text: 'what'
-              }]
-          };
-      },
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<justtest ></justtest>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
-          'modify': modify
+          'modify': modify,
+          'justtest': justtest
       },
       methods: {
           operate: function operate(event) {
