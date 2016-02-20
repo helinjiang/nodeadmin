@@ -4,6 +4,9 @@ require('/modules/widget/select2option/main');
 require('/modules/widget/select2/main');
 require('/modules/widget/formselect2/main');
 
+require('/modules/widget/heformitem/main');
+require('/modules/widget/heform/main');
+
 require('/modules/widget/adminfooter/main');
 require('/modules/widget/adminheader/main');
 require('/modules/widget/adminheadersearch/main');
