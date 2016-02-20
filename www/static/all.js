@@ -11834,6 +11834,38 @@ define('modules/widget/tipalert/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/select2option/main.js*/
+define('modules/widget/select2option/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('select2-option', {
+      template: "<div style=\"display:none\" data-value=\"{{value}}\">{{title}}</div>",
+      props: {
+          /**
+           * 选项名字
+           */
+          'title': {
+              type: String,
+              required: true
+          },
+  
+          /**
+           * 选项值
+           */
+          'value': {
+              type: String,
+              'default': ''
+          }
+  
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/widget/select2/main.js*/
 define('modules/widget/select2/main', function(require, exports, module) {
 
@@ -11866,7 +11898,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   });
   
   Vue.component('select2', {
-      template: "<div>\r\n    <p>Selected: {{value}}</p>\r\n    <input type=\"hidden\" v-select=\"value\" :options=\"options\" style=\"width: 100%\" />\r\n</div>\r\n",
+      template: "<div>\r\n    <p>Selected: {{value}}</p>\r\n    <input type=\"hidden\" v-select=\"value\" :options=\"options\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
       props: {
           /**
            * 初始值
@@ -11883,20 +11915,30 @@ define('modules/widget/select2/main', function(require, exports, module) {
       },
       computed: {
           options: function options() {
-              var result = {};
+              var result = {},
+                  data;
   
-              result.data = [{
-                  id: 1,
-                  text: 'hello'
-              }, {
-                  id: 2,
-                  text: 'world'
-              }, {
-                  id: 3,
-                  text: 'what'
-              }];
+              // 如果有select2-option，则追加到data字段中
+              var select2options = this.$children;
+              data = select2options.map(function (item) {
+                  return {
+                      id: item.value,
+                      text: item.title
+                  };
+              });
   
-              console.log('-allowClear', this.allowClear);
+              result.data = data;
+  
+              // result.data = [{
+              //     id: 1,
+              //     text: 'hello'
+              // }, {
+              //     id: 2,
+              //     text: 'world'
+              // }, {
+              //     id: 3,
+              //     text: 'what'
+              // }];
   
               if (this.allowClear) {
                   result.allowClear = true;
@@ -13624,6 +13666,7 @@ define('modules/common/global', function(require, exports, module) {
   
   require('modules/widget/forminput/main');
   require('modules/widget/tipalert/main');
+  require('modules/widget/select2option/main');
   require('modules/widget/select2/main');
   
   require('modules/widget/adminfooter/main');
@@ -14497,7 +14540,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2></select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2>\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify

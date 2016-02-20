@@ -45,20 +45,30 @@ Vue.component('select2', {
     },
     computed: {
         options: function() {
-            var result = {};
+            var result = {},
+                data;
 
-            result.data = [{
-                id: 1,
-                text: 'hello'
-            }, {
-                id: 2,
-                text: 'world'
-            }, {
-                id: 3,
-                text: 'what'
-            }];
+            // 如果有select2-option，则追加到data字段中
+            var select2options = this.$children;
+            data = select2options.map(function(item) {
+                return {
+                    id: item.value,
+                    text: item.title
+                }
+            });
 
-            console.log('-allowClear', this.allowClear);
+            result.data = data;
+
+            // result.data = [{
+            //     id: 1,
+            //     text: 'hello'
+            // }, {
+            //     id: 2,
+            //     text: 'world'
+            // }, {
+            //     id: 3,
+            //     text: 'what'
+            // }];
 
             if (this.allowClear) {
                 result.allowClear = true;
@@ -68,7 +78,6 @@ Vue.component('select2', {
             console.log(result);
 
             return result;
-
         }
     },
     ready: function() {

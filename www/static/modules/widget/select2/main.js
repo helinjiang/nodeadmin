@@ -29,7 +29,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   });
   
   Vue.component('select2', {
-      template: "<div>\r\n    <p>Selected: {{value}}</p>\r\n    <input type=\"hidden\" v-select=\"value\" :options=\"options\" style=\"width: 100%\" />\r\n</div>\r\n",
+      template: "<div>\r\n    <p>Selected: {{value}}</p>\r\n    <input type=\"hidden\" v-select=\"value\" :options=\"options\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
       props: {
           /**
            * 初始值
@@ -46,20 +46,30 @@ define('modules/widget/select2/main', function(require, exports, module) {
       },
       computed: {
           options: function options() {
-              var result = {};
+              var result = {},
+                  data;
   
-              result.data = [{
-                  id: 1,
-                  text: 'hello'
-              }, {
-                  id: 2,
-                  text: 'world'
-              }, {
-                  id: 3,
-                  text: 'what'
-              }];
+              // 如果有select2-option，则追加到data字段中
+              var select2options = this.$children;
+              data = select2options.map(function (item) {
+                  return {
+                      id: item.value,
+                      text: item.title
+                  };
+              });
   
-              console.log('-allowClear', this.allowClear);
+              result.data = data;
+  
+              // result.data = [{
+              //     id: 1,
+              //     text: 'hello'
+              // }, {
+              //     id: 2,
+              //     text: 'world'
+              // }, {
+              //     id: 3,
+              //     text: 'what'
+              // }];
   
               if (this.allowClear) {
                   result.allowClear = true;
