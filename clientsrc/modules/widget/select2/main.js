@@ -15,10 +15,13 @@
     <select2-option title="test4" value="4"></select2-option>
 </select2>
 
+// 数据源
 <select2 url="/admin/user/getgroup">
     <select2-option title="test4" value="4"></select2-option>
 </select2>
 
+// ajax远程请求
+<select2 url="/admin/user/searchuser" convert="searchuser" ajax></select2>
 
 TODO 自定义format展示，可以考虑render.js中处理
  转换id和text的函数，因为每个接口返回都有可能不一样，在select2render.js中定义；如果不定义，则默认返回格式符合{errno:0,data:[{id:1,text:'1'}]}

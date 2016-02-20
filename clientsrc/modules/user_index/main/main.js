@@ -2,26 +2,14 @@ var Vue = require('lib/vue');
 
 var add = require('/modules/user_index/add/main');
 var modify = require('/modules/user_index/modify/main');
+var justtest = require('/modules/user_index/justtest/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
-    data: function() {
-        return {
-            select2data: [{
-                id: 1,
-                text: 'hello'
-            }, {
-                id: 2,
-                text: 'world'
-            }, {
-                id: 3,
-                text: 'what'
-            }]
-        }
-    },
     components: {
         'add': add,
-        'modify': modify
+        'modify': modify,
+        'justtest': justtest
     },
     methods: {
         operate: function(event) {
