@@ -21,10 +21,12 @@
 
 
 TODO 自定义format展示，可以考虑render.js中处理
-TODO 转换id和text的函数，因为每个接口返回都有可能不一样
+ 转换id和text的函数，因为每个接口返回都有可能不一样，在select2render.js中定义；如果不定义，则默认返回格式符合{errno:0,data:[{id:1,text:'1'}]}
  */
 
 var Vue = require('lib/vue');
+
+var Select2Render = require('common/select2render');
 
 Vue.component('select2', {
     template: __inline('main.html'),
@@ -54,6 +56,11 @@ Vue.component('select2', {
          * 数据来源地址
          */
         url: String,
+        /**
+         * 数据转换函数名，在select2render.js中定义。
+         * 不同的接口返回的数据不一定相同，可以接口返回之前转换，也可以前台定义此字段来转换
+         */
+        convert: String,
         placeholder: {
             type: String,
             'default': '请选择'
@@ -128,13 +135,11 @@ Vue.component('select2', {
 
             if (this.url) {
                 $.post(this.url, function(res, status) {
-                    if (res.errno === 0) {
-                        data = data.concat(res.data.map(function(item) {
-                            return {
-                                id: item.id,
-                                text: item.name
-                            }
-                        }));
+                    // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
+                    if (self.convert && typeof Select2Render[self.convert] === "function") {
+                        data = data.concat(Select2Render[self.convert](res));
+                    } else if (res.errno === 0) {
+                        data = data.concat(res.data);
                     }
 
                     self.data = data;
@@ -158,6 +163,8 @@ Vue.component('select2', {
                 return;
             }
 
+            var self = this;
+
             // 最少得一个字符
             this.options.minimumInputLength = 1;
 
@@ -174,13 +181,17 @@ Vue.component('select2', {
                     // parse the results into the format expected by Select2.
                     // since we are using custom formatting functions we do not need to alter the remote JSON data
 
+                    var resultsData = [];
+
+                    // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
+                    if (self.convert && typeof Select2Render[self.convert] === "function") {
+                        resultsData = Select2Render[self.convert](data);
+                    } else if (data.errno === 0) {
+                        resultsData = data.data;
+                    }
+
                     return {
-                        results: data.data.map(function(item) {
-                            return {
-                                id: item.id,
-                                text: item.name
-                            }
-                        })
+                        results: resultsData
                     };
                 },
                 cache: true

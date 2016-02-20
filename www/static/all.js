@@ -11866,6 +11866,47 @@ define('modules/widget/select2option/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/common/select2render.js*/
+define('modules/common/select2render', function(require, exports, module) {
+
+  'use strict';
+  
+  function getgroup(res) {
+      if (res.errno !== 0) {
+          return [];
+      }
+  
+      return res.data;
+  }
+  
+  function searchuser(res) {
+      if (res.errno !== 0) {
+          return [];
+      }
+  
+      return _convert(res.data, 'id', 'name');
+  }
+  
+  function _convert(arr, idName, textName) {
+      if (!Array.isArray(arr)) {
+          return [];
+      }
+  
+      return arr.map(function (item) {
+          return {
+              id: item[idName],
+              text: item[textName]
+          };
+      });
+  }
+  
+  module.exports = {
+      getgroup: getgroup,
+      searchuser: searchuser
+  };
+
+});
+
 ;/*!/modules/widget/select2/main.js*/
 define('modules/widget/select2/main', function(require, exports, module) {
 
@@ -11892,12 +11933,14 @@ define('modules/widget/select2/main', function(require, exports, module) {
   
   
   TODO 自定义format展示，可以考虑render.js中处理
-  TODO 转换id和text的函数，因为每个接口返回都有可能不一样
+   转换id和text的函数，因为每个接口返回都有可能不一样，在select2render.js中定义；如果不定义，则默认返回格式符合{errno:0,data:[{id:1,text:'1'}]}
    */
   
   'use strict';
   
   var Vue = require('modules/lib/vue');
+  
+  var Select2Render = require('modules/common/select2render');
   
   Vue.component('select2', {
       template: "<div v-show=\"!lazy\">\r\n    <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p>\r\n    <input type=\"hidden\" style=\"width: 100%\" />\r\n    <slot></slot>\r\n</div>\r\n",
@@ -11927,6 +11970,11 @@ define('modules/widget/select2/main', function(require, exports, module) {
            * 数据来源地址
            */
           url: String,
+          /**
+           * 数据转换函数名，在select2render.js中定义。
+           * 不同的接口返回的数据不一定相同，可以接口返回之前转换，也可以前台定义此字段来转换
+           */
+          convert: String,
           placeholder: {
               type: String,
               'default': '请选择'
@@ -12001,13 +12049,11 @@ define('modules/widget/select2/main', function(require, exports, module) {
   
               if (this.url) {
                   $.post(this.url, function (res, status) {
-                      if (res.errno === 0) {
-                          data = data.concat(res.data.map(function (item) {
-                              return {
-                                  id: item.id,
-                                  text: item.name
-                              };
-                          }));
+                      // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
+                      if (self.convert && typeof Select2Render[self.convert] === "function") {
+                          data = data.concat(Select2Render[self.convert](res));
+                      } else if (res.errno === 0) {
+                          data = data.concat(res.data);
                       }
   
                       self.data = data;
@@ -12030,6 +12076,8 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   return;
               }
   
+              var self = this;
+  
               // 最少得一个字符
               this.options.minimumInputLength = 1;
   
@@ -12046,13 +12094,17 @@ define('modules/widget/select2/main', function(require, exports, module) {
                       // parse the results into the format expected by Select2.
                       // since we are using custom formatting functions we do not need to alter the remote JSON data
   
+                      var resultsData = [];
+  
+                      // 如果定义了convert函数，则使用它处理，否则默认判断res.errno==0和获取res.data
+                      if (self.convert && typeof Select2Render[self.convert] === "function") {
+                          resultsData = Select2Render[self.convert](data);
+                      } else if (data.errno === 0) {
+                          resultsData = data.data;
+                      }
+  
                       return {
-                          results: data.data.map(function (item) {
-                              return {
-                                  id: item.id,
-                                  text: item.name
-                              };
-                          })
+                          results: resultsData
                       };
                   },
                   cache: true
@@ -14697,7 +14749,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" lazy>\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n\r\n<select2 url=\"/admin/user/searchuser\" ajax></select2>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" lazy>\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n\r\n<select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       data: function data() {
           return {
               select2data: [{

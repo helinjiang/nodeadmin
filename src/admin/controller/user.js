@@ -101,7 +101,15 @@ export default class extends Base {
         }, {
             id: 3,
             name: '游客'
-        }]
+        }];
+
+        // 可以在后台直接返回select2的数据，也可以前端再转化
+        data = data.map(function(item) {
+            return {
+                id: item.id,
+                text: item.name
+            }
+        });
 
         return this.success(data);
     }
