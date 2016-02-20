@@ -2,6 +2,8 @@ define('modules/widget/select2/main', function(require, exports, module) {
 
   /**
    * 有两种，一种是ajax请求的，一种是现成的
+   * 
+   * 数据优先级依次是 select2-option > init-data > url
    *
    // 直接设置select2-option
    <select2 value="1">
@@ -12,6 +14,10 @@ define('modules/widget/select2/main', function(require, exports, module) {
   
   // 增加一个数据源init-data，它是数据，相对于设置了一个初始的data，同时也支持select2-option（优先级高）
   <select2 :init-data="select2data" init-value="2">
+      <select2-option title="test4" value="4"></select2-option>
+  </select2>
+  
+  <select2 url="/admin/user/getgroup">
       <select2-option title="test4" value="4"></select2-option>
   </select2>
    */
@@ -103,13 +109,33 @@ define('modules/widget/select2/main', function(require, exports, module) {
               });
   
               // 来自init-data的数据
-              console.log(this.initData);
               if (this.initData && Array.isArray(this.initData)) {
                   data = data.concat(this.initData);
               }
   
-              this.data = data;
+              // 来自url的请求数据
+              var self = this;
   
+              if (this.url) {
+                  $.post(this.url, function (res, status) {
+                      if (res.errno === 0) {
+                          data = data.concat(res.data.map(function (item) {
+                              return {
+                                  id: item.id,
+                                  text: item.name
+                              };
+                          }));
+                      }
+  
+                      self.data = data;
+                      self._renderSelect2();
+                  });
+              } else {
+                  this.data = data;
+                  this._renderSelect2();
+              }
+          },
+          _renderSelect2: function _renderSelect2() {
               // select2
               var self = this,
                   options = this.options,

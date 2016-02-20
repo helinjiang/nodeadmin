@@ -86,4 +86,23 @@ export default class extends Base {
             }
         }
     }
+
+
+    /**
+     * 获得用户组值
+     */
+    getgroupAction() {
+        let data = [{
+            id: 1,
+            name: '管理员'
+        }, {
+            id: 2,
+            name: '普通用户'
+        }, {
+            id: 3,
+            name: '游客'
+        }]
+
+        return this.success(data);
+    }
 }
