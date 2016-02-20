@@ -30,6 +30,9 @@ export default class extends Base {
             if (item.state < 0) {
                 // 为表格中的无效数据增加样式：DT_RowClass，默认值有'active', 'success', 'warning', 'danger'，也可以自定义
                 item.DT_RowClass = 'warning';
+                item.stateShow = '无效';
+            } else {
+                item.stateShow = '有效';
             }
 
             return item;
