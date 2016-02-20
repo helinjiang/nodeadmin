@@ -8,7 +8,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n                <form-select2 name=\"state\" title=\"状态\" horizontal></form-select2>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n                <form-select2 name=\"state\" title=\"状态\" horizontal></form-select2>\r\n            </div>\r\n        </form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -16,7 +16,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
       },
       methods: {
           showModal: function showModal() {
-              $('input', this.jqForm).val('');
+              this._reset();
   
               this.$children[0].show();
           },
@@ -29,6 +29,9 @@ define('modules/user_index/add/main', function(require, exports, module) {
           saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
+          },
+          _reset: function _reset() {
+              $('[name="name"], [name="pwd"]', this.jqForm).val('');
           }
       },
       ready: function ready() {

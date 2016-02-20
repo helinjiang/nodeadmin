@@ -11,7 +11,7 @@
 </select2>
 
 // 增加一个数据源init-data，它是数据，相对于设置了一个初始的data，同时也支持select2-option（优先级高）
-<select2 :init-data="select2data" init-value="2">
+<select2 :init-data="select2data" value="2">
     <select2-option title="test4" value="4"></select2-option>
 </select2>
 
@@ -39,18 +39,21 @@ Vue.component('select2', {
              * 当前select2的options范围，包括select2-option中数据和init-data或者url或者ajax数据的集合
              */
             data: [],
-            /**
-             * 当前select2的value值
-             */
-            value: undefined,
             jqSelect: undefined
         }
     },
     props: {
         /**
+         * input 的name 值，必须
+         */
+        'name': {
+            type: String,
+            required: true
+        },
+        /**
          * 初始值
          */
-        initValue: null,
+        value: null,
         /**
          * 初始data
          */
@@ -216,8 +219,8 @@ Vue.component('select2', {
             this.jqSelect = jqSelect;
 
             // 设置默认值
-            if (this.initValue) {
-                this.jqSelect.val(this.initValue).trigger('change');
+            if (this.value) {
+                this.jqSelect.val(this.value).trigger('change');
             }
         }
     },
@@ -230,7 +233,10 @@ Vue.component('select2', {
                 this.init();
             },
             deep: true
-        }
+        },
+        'value': function(val, oldVal) {
+            this.jqSelect.val(this.value).trigger('change');
+        },
     },
     ready: function() {
         // 如果不是lazy模式，则立即渲染

@@ -7,7 +7,7 @@ Vue.component('form-select2', {
          * 
          */
         'id': String,
-	
+
         /**
          * text/password
          */

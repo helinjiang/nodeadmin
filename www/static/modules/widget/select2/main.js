@@ -13,7 +13,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   </select2>
   
   // 增加一个数据源init-data，它是数据，相对于设置了一个初始的data，同时也支持select2-option（优先级高）
-  <select2 :init-data="select2data" init-value="2">
+  <select2 :init-data="select2data" value="2">
       <select2-option title="test4" value="4"></select2-option>
   </select2>
   
@@ -36,25 +36,28 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Select2Render = require('modules/common/select2render');
   
   Vue.component('select2', {
-      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" name=\"{{name}}\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
       data: function data() {
           return {
               /**
                * 当前select2的options范围，包括select2-option中数据和init-data或者url或者ajax数据的集合
                */
               data: [],
-              /**
-               * 当前select2的value值
-               */
-              value: undefined,
               jqSelect: undefined
           };
       },
       props: {
           /**
+           * input 的name 值，必须
+           */
+          'name': {
+              type: String,
+              required: true
+          },
+          /**
            * 初始值
            */
-          initValue: null,
+          value: null,
           /**
            * 初始data
            */
@@ -216,8 +219,8 @@ define('modules/widget/select2/main', function(require, exports, module) {
               this.jqSelect = jqSelect;
   
               // 设置默认值
-              if (this.initValue) {
-                  this.jqSelect.val(this.initValue).trigger('change');
+              if (this.value) {
+                  this.jqSelect.val(this.value).trigger('change');
               }
           }
       },
@@ -230,6 +233,9 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   this.init();
               },
               deep: true
+          },
+          'value': function value(val, oldVal) {
+              this.jqSelect.val(this.value).trigger('change');
           }
       },
       ready: function ready() {

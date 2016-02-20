@@ -40,7 +40,7 @@ export default class extends Base {
 
     async saveAction() {
         let {
-            id, name, pwd
+            id, name, pwd, state
         } = this.post();
 
         //console.log(title, theme, slide_content); 
@@ -54,7 +54,7 @@ export default class extends Base {
             pwd: pwd,
             createTime: datetime,
             updateTime: datetime,
-            state: 1
+            state: state
         };
         console.log(record);
         // return this.success('test');

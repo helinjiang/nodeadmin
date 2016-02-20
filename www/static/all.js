@@ -11923,7 +11923,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   </select2>
   
   // 增加一个数据源init-data，它是数据，相对于设置了一个初始的data，同时也支持select2-option（优先级高）
-  <select2 :init-data="select2data" init-value="2">
+  <select2 :init-data="select2data" value="2">
       <select2-option title="test4" value="4"></select2-option>
   </select2>
   
@@ -11946,25 +11946,28 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Select2Render = require('modules/common/select2render');
   
   Vue.component('select2', {
-      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" name=\"{{name}}\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
       data: function data() {
           return {
               /**
                * 当前select2的options范围，包括select2-option中数据和init-data或者url或者ajax数据的集合
                */
               data: [],
-              /**
-               * 当前select2的value值
-               */
-              value: undefined,
               jqSelect: undefined
           };
       },
       props: {
           /**
+           * input 的name 值，必须
+           */
+          'name': {
+              type: String,
+              required: true
+          },
+          /**
            * 初始值
            */
-          initValue: null,
+          value: null,
           /**
            * 初始data
            */
@@ -12126,8 +12129,8 @@ define('modules/widget/select2/main', function(require, exports, module) {
               this.jqSelect = jqSelect;
   
               // 设置默认值
-              if (this.initValue) {
-                  this.jqSelect.val(this.initValue).trigger('change');
+              if (this.value) {
+                  this.jqSelect.val(this.value).trigger('change');
               }
           }
       },
@@ -12140,6 +12143,9 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   this.init();
               },
               deep: true
+          },
+          'value': function value(val, oldVal) {
+              this.jqSelect.val(this.value).trigger('change');
           }
       },
       ready: function ready() {
@@ -12175,7 +12181,7 @@ define('modules/widget/formselect2/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('form-select2', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <select2 init-value=\"1\">\r\n            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n        </select2>\r\n    </div>\r\n</div>\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div>\r\n",
+      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <select2 value=\"1\">\r\n            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n        </select2>\r\n    </div>\r\n</div>\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div>\r\n",
       props: {
           /**
            * 
@@ -14731,7 +14737,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n                <form-select2 name=\"state\" title=\"状态\" horizontal></form-select2>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <form action=\"/admin/user/save\" class=\"form-horizontal\" role=\"form\" method=\"post\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"name\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"pwd\" title=\"密码\" horizontal></form-input>\r\n                <form-select2 name=\"state\" title=\"状态\" horizontal></form-select2>\r\n            </div>\r\n        </form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -14739,7 +14745,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
       },
       methods: {
           showModal: function showModal() {
-              $('input', this.jqForm).val('');
+              this._reset();
   
               this.$children[0].show();
           },
@@ -14752,6 +14758,9 @@ define('modules/user_index/add/main', function(require, exports, module) {
           saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
+          },
+          _reset: function _reset() {
+              $('[name="name"], [name="pwd"]', this.jqForm).val('');
           }
       },
       ready: function ready() {
@@ -14855,7 +14864,7 @@ define('modules/user_index/justtest/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div v-if=\"debug\">\r\n    <select2 init-value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n    <select2 :init-data=\"select2data\" init-value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2>\r\n</div>\r\n",
+      template: "<div v-if=\"debug\">\r\n    <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2>\r\n</div>\r\n",
       data: function data() {
           return {
               select2data: [{
@@ -14892,7 +14901,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var justtest = require('modules/user_index/justtest/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<justtest ></justtest>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<justtest debug></justtest>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify,

@@ -12,7 +12,7 @@ module.exports = Vue.extend({
     },
     methods: {
         showModal: function() {
-            $('input', this.jqForm).val('');
+            this._reset();
 
             this.$children[0].show();
         },
@@ -25,6 +25,9 @@ module.exports = Vue.extend({
         saveSubmit: function(msg) {
             // 提交表单
             this.jqForm.submit();
+        },
+        _reset: function(){
+            $('[name="name"], [name="pwd"]', this.jqForm).val('');
         }
     },
     ready: function() {

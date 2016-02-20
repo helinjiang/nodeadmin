@@ -1,10 +1,10 @@
 <div v-if="debug">
-    <select2 init-value="1">
+    <select2 value="1">
         <select2-option title="hello1" value="1"></select2-option>
         <select2-option title="word2" value="2"></select2-option>
         <select2-option title="test3" value="3"></select2-option>
     </select2>
-    <select2 :init-data="select2data" init-value="2">
+    <select2 :init-data="select2data" value="2">
         <select2-option title="test4" value="4"></select2-option>
     </select2>
     <select2 url="/admin/user/getgroup" convert="getgroup">
