@@ -5,7 +5,7 @@ define('modules/widget/heformitem/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form-item', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <slot></slot>\r\n    </div>\r\n</div>",
+      template: "<div class=\"form-group\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n</div>\r\n",
       props: {
           /**
            * 
@@ -60,7 +60,9 @@ define('modules/widget/heformitem/main', function(require, exports, module) {
               }
           }
       },
-      ready: function ready() {}
+      ready: function ready() {
+          $('input', this.$el).addClass('form-control');
+      }
   });
 
 });

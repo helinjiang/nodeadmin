@@ -57,6 +57,6 @@ Vue.component('he-form-item', {
         }
     },
     ready: function() {
-       
+        $('input', this.$el).addClass('form-control');
     }
 });
