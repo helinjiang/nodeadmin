@@ -17,6 +17,9 @@
 <select2 url="/admin/user/getgroup" lazy>
     <select2-option title="test4" value="4"></select2-option>
 </select2>
+
+<select2 url="/admin/user/searchuser" ajax></select2>
+
 <portlet title="用户列表" icon="globe">    
     <datagrid url="/admin/user/getdata" pagelength="4" v-on:click="operate" v-ref:datagrid>
         <datagrid-item name="id" title="ID"></datagrid-item>

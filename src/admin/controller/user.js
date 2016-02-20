@@ -105,4 +105,24 @@ export default class extends Base {
 
         return this.success(data);
     }
+
+    /**
+     * 搜索用户
+     */
+    async searchuserAction() {
+        let {
+            q
+        } = this.get();
+
+        //console.log(title, theme, slide_content); 
+        let model = this.model("user");
+
+        let data = await model.where({
+            'name': ["like", "%" + q + "%"]
+        }).select();
+
+        console.log(data);
+
+        return this.success(data);
+    }
 }

@@ -18,6 +18,10 @@
 <select2 url="/admin/user/getgroup">
     <select2-option title="test4" value="4"></select2-option>
 </select2>
+
+
+TODO 自定义format展示，可以考虑render.js中处理
+TODO 转换id和text的函数，因为每个接口返回都有可能不一样
  */
 
 var Vue = require('lib/vue');
@@ -62,6 +66,13 @@ Vue.component('select2', {
          * 是否懒渲染
          */
         lazy: {
+            type: Boolean,
+            'default': false
+        },
+        /**
+         * 是否为ajax请求远程数据？
+         */
+        ajax: {
             type: Boolean,
             'default': false
         }
@@ -135,6 +146,49 @@ Vue.component('select2', {
             }
 
         },
+        initAjax: function() {
+            // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
+            this.lazy = false;
+
+            // 初始化前要先销毁原来的那个
+            this.destroy();
+
+            if (!this.url) {
+                console.error('ajax bug url is undefined');
+                return;
+            }
+
+            // 最少得一个字符
+            this.options.minimumInputLength = 1;
+
+            this.options.ajax = {
+                url: this.url,
+                dataType: 'json',
+                quietMillis: 250, //过多久才去搜索，避免请求过快
+                data: function(term, page) {
+                    return {
+                        q: term, // search term
+                    };
+                },
+                results: function(data, page) {
+                    // parse the results into the format expected by Select2.
+                    // since we are using custom formatting functions we do not need to alter the remote JSON data
+
+                    return {
+                        results: data.data.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.name
+                            }
+                        })
+                    };
+                },
+                cache: true
+            }
+
+            this._renderSelect2();
+
+        },
         _renderSelect2: function() {
             // select2 
             var self = this,
@@ -167,7 +221,11 @@ Vue.component('select2', {
     ready: function() {
         // 如果不是lazy模式，则立即渲染
         if (!this.lazy) {
-            this.init();
+            if (!this.ajax) {
+                this.init();
+            } else {
+                this.initAjax();
+            }
         }
     }
 });

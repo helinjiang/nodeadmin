@@ -11889,6 +11889,10 @@ define('modules/widget/select2/main', function(require, exports, module) {
   <select2 url="/admin/user/getgroup">
       <select2-option title="test4" value="4"></select2-option>
   </select2>
+  
+  
+  TODO 自定义format展示，可以考虑render.js中处理
+  TODO 转换id和text的函数，因为每个接口返回都有可能不一样
    */
   
   'use strict';
@@ -11935,6 +11939,13 @@ define('modules/widget/select2/main', function(require, exports, module) {
            * 是否懒渲染
            */
           lazy: {
+              type: Boolean,
+              'default': false
+          },
+          /**
+           * 是否为ajax请求远程数据？
+           */
+          ajax: {
               type: Boolean,
               'default': false
           }
@@ -12007,6 +12018,48 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   this._renderSelect2();
               }
           },
+          initAjax: function initAjax() {
+              // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
+              this.lazy = false;
+  
+              // 初始化前要先销毁原来的那个
+              this.destroy();
+  
+              if (!this.url) {
+                  console.error('ajax bug url is undefined');
+                  return;
+              }
+  
+              // 最少得一个字符
+              this.options.minimumInputLength = 1;
+  
+              this.options.ajax = {
+                  url: this.url,
+                  dataType: 'json',
+                  quietMillis: 250, //过多久才去搜索，避免请求过快
+                  data: function data(term, page) {
+                      return {
+                          q: term };
+                  },
+                  // search term
+                  results: function results(data, page) {
+                      // parse the results into the format expected by Select2.
+                      // since we are using custom formatting functions we do not need to alter the remote JSON data
+  
+                      return {
+                          results: data.data.map(function (item) {
+                              return {
+                                  id: item.id,
+                                  text: item.name
+                              };
+                          })
+                      };
+                  },
+                  cache: true
+              };
+  
+              this._renderSelect2();
+          },
           _renderSelect2: function _renderSelect2() {
               // select2
               var self = this,
@@ -12037,7 +12090,11 @@ define('modules/widget/select2/main', function(require, exports, module) {
       ready: function ready() {
           // 如果不是lazy模式，则立即渲染
           if (!this.lazy) {
-              this.init();
+              if (!this.ajax) {
+                  this.init();
+              } else {
+                  this.initAjax();
+              }
           }
       }
   });
@@ -14640,7 +14697,7 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" lazy>\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify></modify>\r\n</admin-main-toolbar>\r\n\r\n<select2 init-value=\"1\">\r\n    <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n    <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n    <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n</select2>\r\n<select2 :init-data=\"select2data\" init-value=\"2\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\">\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n<select2 url=\"/admin/user/getgroup\" lazy>\r\n    <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n</select2>\r\n\r\n<select2 url=\"/admin/user/searchuser\" ajax></select2>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"state\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       data: function data() {
           return {
               select2data: [{
