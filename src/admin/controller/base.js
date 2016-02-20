@@ -18,9 +18,8 @@ export default class extends think.controller.base {
         this.assign('user', userInfo);
     }
 
-    getCurTimeStr(dateObj) {
-        var formatStr = 'YYYY-MM-DD HH:mm:ss',
-            result;
+    getCurTimeStr(dateObj, formatStr = 'YYYY-MM-DD HH:mm:ss') {
+        var result;
 
         switch (typeof dateObj) {
             case 'object':
@@ -38,5 +37,9 @@ export default class extends think.controller.base {
         }
 
         return result;
+    }
+
+    getCurDateStr(dateObj) {
+        return this.getCurTimeStr(dateObj, 'YYYY-MM-DD');
     }
 }

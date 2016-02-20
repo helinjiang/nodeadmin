@@ -23,6 +23,7 @@ export default class extends Base {
             // 转义时间
             item.createTime = this.getCurTimeStr(item.createTime);
             item.updateTime = this.getCurTimeStr(item.updateTime);
+            item.birthday = this.getCurDateStr(item.birthday);
 
             // 为表格中的每一行增加id：DT_RowId，以便后续方便操作
             item.DT_RowId = 'row_' + item.id;
