@@ -69,14 +69,26 @@ export default class extends Base {
         if (!id) {
             // 新增
             record.createTime = datetime;
-            id = await model
-                .add(record)
+
+            // result returns {id: 1000, type: "add"} or {id: 1000, type: "exist"} } }
+            let result = await model
+                .thenAdd(record, {
+                    name: name
+                })
                 .catch(err => this.fail(err.message || 'error'));
 
-            if (id) {
+            console.log(result);
+
+            if (result.type === 'add') {
                 return this.success({
                     _type: 'add',
-                    id: id,
+                    id: result.id,
+                    name: name
+                });
+            } else {
+                return this.fail(100, 'fail', {
+                    _type: 'exist',
+                    id: result.id,
                     name: name
                 });
             }
