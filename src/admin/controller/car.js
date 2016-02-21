@@ -80,6 +80,7 @@ export default class extends Base {
             return item;
         });
 
+        // TODO 注意，此处由于datatables的限制，只能使用this.json方法
         // return this.success(data);
         return this.json({
             draw: draw,

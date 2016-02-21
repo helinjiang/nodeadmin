@@ -180,6 +180,10 @@ function initAjaxServer(vm) {
     // TODO 此处有待商榷，也可能是GET
     dataTableOptions.ajax.type = 'POST';
 
+    // TODO 增加参数
+    // https://datatables.net/examples/ajax/custom_data_property.html
+    // dataTableOptions.ajax.dataSrc = 'data';
+
     // TODO 此处可以追加一些请求参数
     // dataTableOptions.ajax.data = function(d){
     //     d.myKey = "myValue";

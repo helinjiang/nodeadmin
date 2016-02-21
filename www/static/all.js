@@ -11504,7 +11504,7 @@ define('modules/car_index/main/main', function(require, exports, module) {
   var detail = require('modules/car_index/detail/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify,
@@ -13985,6 +13985,9 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   function initAjaxFront(vm) {
       // 配置
       var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+      if (typeof dataTableOptions !== 'object') {
+          return;
+      }
   
       var jqTable = vm.jqTable;
   
@@ -13998,6 +14001,65 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       // 渲染其他的控件
       renderOther(vm.tableId);
   }
+  
+  function initAjaxServer(vm) {
+      // 配置
+      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+      if (typeof dataTableOptions !== 'object') {
+          return;
+      }
+  
+      //前端关闭列排序，因为没必要，如果一定要排序，则需要服务端排序之后再返回
+      dataTableOptions.ordering = false;
+  
+      dataTableOptions.processing = true;
+  
+      /**
+       * https://datatables.net/reference/option/serverSide
+       * 服务器模式，在分页和查找时会重新去请求数据
+       */
+      dataTableOptions.serverSide = true;
+  
+      /**
+       * https://datatables.net/reference/option/deferRender
+       * 默认是 false 。即默认情况下，DataTables会将获得的数据全部渲染成 HTML 元素，但这种处理在大数据时会影响性能，尤其在 IE6-IE8。
+       * 推荐在后台分页处理时，将其设置为 true，即延迟渲染，按需渲染。
+       */
+      // dataTableOptions.deferRender = true;
+  
+      /**
+       * https://datatables.net/reference/option/destroy
+       * Destroy any existing table matching the selector and replace with the new options. 
+       * Default value: false.
+       *
+       * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
+       */
+      // dataTableOptions.destroy = true;
+  
+      // TODO 此处有待商榷，也可能是GET
+      dataTableOptions.ajax.type = 'POST';
+  
+      // TODO 增加参数
+      // https://datatables.net/examples/ajax/custom_data_property.html
+      // dataTableOptions.ajax.dataSrc = 'data';
+  
+      // TODO 此处可以追加一些请求参数
+      // dataTableOptions.ajax.data = function(d){
+      //     d.myKey = "myValue";
+      // };
+  
+      var jqTable = vm.jqTable;
+  
+      // 开始生成datatables
+      var oTable = jqTable.dataTable(dataTableOptions);
+      vm.$set('oTable', oTable);
+  
+      // 获取并缓存table的id
+      vm.$set('tableId', jqTable.attr('id'));
+  
+      // 渲染其他的控件
+      renderOther(vm.tableId);
+  };
   
   /**
    * 默认的配置
@@ -14169,6 +14231,17 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
   
       // columnDefs
       if (columnDefs.length) {
+          /**
+           * https://datatables.net/reference/option/columnDefs
+           * Set column definition initialisation properties.
+           *
+           * 非常像 columns，用于定义如何初始化属性，但它不要求每一列都要定义。因为下面的冲突规则，因此建议如果需要动态改变的，则使用 columnDefs 来定义，例如 visible 属性，这样便于控制。而且也方便集中批量配置。
+           *
+           * 定义冲突规则：
+           * 1. columns 中的优先级要高
+           * 2. columnDefs 中使用数组来定义的属性要比其他的定义的高，比如下例中第一列和第二列将显示，其他列隐藏
+           * 
+           */
           dataTableOptions.columnDefs = columnDefs;
       }
   
@@ -14208,158 +14281,6 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
       // initialize select2 dropdown
       tableWrapper.find('.dataTables_length select').select2();
   }
-  
-  // TODO reload
-  var initAjaxServer = function initAjaxServer(vm) {
-      var jqTable = vm.jqTable;
-  
-      var url = vm.url;
-      if (!url) {
-          console.error('Unknown url', url, vm);
-          return;
-      }
-  
-      $.extend(true, $.fn.DataTable.TableTools.classes, {
-          "container": "btn-group tabletools-dropdown-on-portlet",
-          "buttons": {
-              "normal": "btn btn-sm btn-default",
-              "disabled": "btn btn-sm btn-default disabled"
-          },
-          "collection": {
-              "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
-          }
-      });
-  
-      var oTable = jqTable.dataTable({
-          "order": [[0, 'asc']],
-  
-          "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"] // change per page values here
-          ],
-  
-          /**
-           * https://datatables.net/reference/option/pageLength
-           * Change the initial page length (number of rows per page).
-           * Default value: 10.
-           *
-           * 设置每一页展示多少条记录，最好在lengthMenu中定义了该值，否则会导致lengthMenu中没有选中的值
-           */
-          "pageLength": 10,
-  
-          "language": {
-              "info": "第 _START_ 条到第 _END_ 条记录 (总计 _TOTAL_ 条记录)",
-              "processing": "加载中，请稍后...",
-              "search": "搜索: ",
-              "infoFiltered": "从 _MAX_ 条记录过滤后的结果"
-          },
-  
-          "dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
-  
-          "tableTools": {
-              "sSwfPath": "/static/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-              "aButtons": [{
-                  "sExtends": "pdf",
-                  "sButtonText": "PDF"
-              }, {
-                  "sExtends": "csv",
-                  "sButtonText": "CSV"
-              }, {
-                  "sExtends": "xls",
-                  "sButtonText": "Excel"
-              }, {
-                  "sExtends": "print",
-                  "sButtonText": "Print",
-                  "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
-                  "sMessage": "Generated by DataTables"
-              }]
-          },
-          "ordering": false, //关闭列排序
-  
-          "processing": true,
-  
-          /**
-           * https://datatables.net/reference/option/serverSide
-           * 服务器模式，在分页和查找时会重新去请求数据
-           */
-          "serverSide": true,
-  
-          /**
-           * https://datatables.net/reference/option/deferRender
-           * 默认是 false 。即默认情况下，DataTables会将获得的数据全部渲染成 HTML 元素，但这种处理在大数据时会影响性能，尤其在 IE6-IE8。
-           * 推荐在后台分页处理时，将其设置为 true，即延迟渲染，按需渲染。
-           */
-          // "deferRender": true,
-  
-          /**
-           * https://datatables.net/reference/option/destroy
-           * Destroy any existing table matching the selector and replace with the new options. 
-           * Default value: false.
-           *
-           * 如果某个table已经被渲染成了DataTables，是否采用销毁的方式来重渲染表格。
-           */
-          // "destroy": true,
-          "ajax": {
-              "url": url,
-              "type": "POST",
-              "data": function data(d) {
-                  d.myKey = "myValue";
-                  // d.custom = $('#myInput').val();
-                  // etc
-                  // 此处可以追加一些请求参数
-              }
-          },
-          "columns": [{
-              "data": "first_name",
-              "title": "first_name"
-          }, {
-              "data": "last_name",
-              "title": "last_name"
-          }, {
-              "data": "position",
-              "title": "position"
-          }, {
-              "data": "office",
-              "title": "office"
-          }, {
-              "data": "start_date",
-              "title": "start_date"
-          }, {
-              "data": "salary",
-              "title": "salary",
-              "render": function render(data, type, row, meta) {
-                  return data.replace(/\$/g, "￥");
-              }
-          }],
-  
-          /**
-           * https://datatables.net/reference/option/columnDefs
-           * Set column definition initialisation properties.
-           *
-           * 非常像 columns，用于定义如何初始化属性，但它不要求每一列都要定义。因为下面的冲突规则，因此建议如果需要动态改变的，则使用 columnDefs 来定义，例如 visible 属性，这样便于控制。而且也方便集中批量配置。
-           *
-           * 定义冲突规则：
-           * 1. columns 中的优先级要高
-           * 2. columnDefs 中使用数组来定义的属性要比其他的定义的高，比如下例中第一列和第二列将显示，其他列隐藏
-           * 
-           */
-          "columnDefs": [{
-              targets: [0, 1],
-              visible: true
-          }, {
-              targets: '_all',
-              visible: false
-          }]
-  
-      });
-  
-      // 获取并缓存table的id
-      vm.$set('tableId', jqTable.attr('id'));
-  
-      // datatable creates the table wrapper by adding with id {your_table_id}_wrapper
-      var tableWrapper = $('#' + vm.tableId + '_wrapper');
-  
-      // initialize select2 dropdown
-      tableWrapper.find('.dataTables_length select').select2();
-  };
 
 });
 
