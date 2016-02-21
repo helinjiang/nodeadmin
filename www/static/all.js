@@ -11286,9 +11286,9 @@ define('modules/car_index/delete/main', function(require, exports, module) {
                   value: data.id,
                   title: 'ID'
               }, {
-                  key: 'ownerId',
-                  value: data.ownerId,
-                  title: '车主人ID'
+                  key: 'user_name',
+                  value: data.user_name,
+                  title: '车主人'
               }, {
                   key: 'name',
                   value: data.name,
@@ -11363,9 +11363,9 @@ define('modules/car_index/detail/main', function(require, exports, module) {
                   value: data.id,
                   title: 'ID'
               }, {
-                  key: 'ownerId',
-                  value: data.ownerId,
-                  title: '车主人ID'
+                  key: 'user_name',
+                  value: data.user_name,
+                  title: '车主人'
               }, {
                   key: 'name',
                   value: data.name,
@@ -11397,12 +11397,13 @@ define('modules/car_index/modify/main', function(require, exports, module) {
   'use strict';
   
   var Vue = require('modules/lib/vue');
+  //Vue.config.debug = true;
   
   var validator = require('modules/common/validator');
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">        \r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" :value=\"item.id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" :value=\"item.name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy :value=\"item.ownerId\" v-on:select2change=\"checkOwnerId\"  v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value=\"item.state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value=\"item.buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">        \r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" :value=\"item.id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" :value=\"item.name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy :value=\"item.ownerId\" v-on:select2change=\"checkOwnerId\"  v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value=\"item.state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value=\"item.buydate\"></date><!--TODO type check failed for value=\"item.buydate\". Expected String, got Undefined.-->\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined,
@@ -11500,7 +11501,7 @@ define('modules/car_index/main/main', function(require, exports, module) {
   var detail = require('modules/car_index/detail/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"ownerId\" title=\"车主人ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify,

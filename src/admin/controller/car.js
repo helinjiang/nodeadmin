@@ -17,9 +17,28 @@ export default class extends Base {
      * @return {object} JSON 格式数据
      */
     async getdataAction() {
-        let data = await this.model('car').order({
-            id: "DESC",
-        }).select();
+        // console.log(this.model('car').getSchema());
+
+        let data = await this.model('car')
+            // .join("think_user ON think_car.ownerId=think_user.id")
+            .alias("c")
+            // .join({
+            //     table: "user",
+            //     join: "left", //join 方式，有 left, right, inner 3 种方式
+            //     as: "u", // 表别名
+            //     on: ["ownerId", "id"] //ON 条件
+            // })
+            .join({
+                table: "select id as user_id, name as user_name from think_user",
+                as: "u", // 表别名
+                on: ["ownerId", "user_id"] //ON 条件
+            })
+            .order({
+                'c.id': "DESC",
+            })
+            .select();
+
+        // console.log(data);
 
         data = data.map(item => {
             // 转义时间

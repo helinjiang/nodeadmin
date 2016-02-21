@@ -21,9 +21,9 @@ define('modules/car_index/delete/main', function(require, exports, module) {
                   value: data.id,
                   title: 'ID'
               }, {
-                  key: 'ownerId',
-                  value: data.ownerId,
-                  title: '车主人ID'
+                  key: 'user_name',
+                  value: data.user_name,
+                  title: '车主人'
               }, {
                   key: 'name',
                   value: data.name,

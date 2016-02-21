@@ -1,4 +1,5 @@
 var Vue = require('lib/vue');
+//Vue.config.debug = true;
 
 var validator = require('common/validator');
 var Msg = require('/modules/widget/msg/main');
