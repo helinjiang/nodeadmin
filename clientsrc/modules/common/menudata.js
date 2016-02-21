@@ -20,6 +20,12 @@ var menus = {
             url: '/admin/user',
             icon: 'pin',
             active: false
+        },{
+            id:'menuCar',
+            name: '汽车管理',
+            url: '/admin/car',
+            icon: 'pin',
+            active: false
         }]
     }, {
         id:'2',

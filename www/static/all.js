@@ -12540,6 +12540,12 @@ define('modules/common/menudata', function(require, exports, module) {
               url: '/admin/user',
               icon: 'pin',
               active: false
+          }, {
+              id: 'menuCar',
+              name: '汽车管理',
+              url: '/admin/car',
+              icon: 'pin',
+              active: false
           }]
       }, {
           id: '2',
@@ -15498,6 +15504,40 @@ define('modules/user_index/main/main', function(require, exports, module) {
 
 ;/*!/pages/user_index/main.js*/
 define('pages/user_index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var UserMain = require('modules/user_index/main/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          UserMain: UserMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/car_index/main.js*/
+define('pages/car_index/main', function(require, exports, module) {
 
   /**
    * Boot up the Vue instance and wire up the router.
