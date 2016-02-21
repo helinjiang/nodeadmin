@@ -239,7 +239,9 @@ define('modules/widget/select2/main', function(require, exports, module) {
               deep: true
           },
           'value': function value(val, oldVal) {
-              this.jqSelect.val(this.value).trigger('change');
+              if (this.jqSelect) {
+                  this.jqSelect.val(this.value).trigger('change');
+              }
           }
       },
       ready: function ready() {

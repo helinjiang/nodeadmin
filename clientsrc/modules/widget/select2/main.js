@@ -239,7 +239,9 @@ Vue.component('select2', {
             deep: true
         },
         'value': function(val, oldVal) {
-            this.jqSelect.val(this.value).trigger('change');
+            if (this.jqSelect) {
+                this.jqSelect.val(this.value).trigger('change');
+            }
         },
     },
     ready: function() {

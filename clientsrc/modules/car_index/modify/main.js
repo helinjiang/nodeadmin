@@ -8,18 +8,15 @@ module.exports = Vue.extend({
     data: function() {
         return {
             jqForm: undefined,
-            id: undefined,
-            name: undefined,
-            state: undefined,
-            birthday: undefined
+            item:undefined
         };
     },
     methods: {
         showModal: function(data) {
-            this.id = data.id;
-            this.name = data.name;
-            this.state = data.state;
-            this.birthday = data.birthday;
+
+            this.item = data;
+
+            this.$refs.user.init();
 
             this.$children[0].show();
         },
@@ -28,6 +25,9 @@ module.exports = Vue.extend({
         },
         reportSuccess: function(data) {
             this.$dispatch('savesuccess', data);
+        },
+        checkOwnerId: function(name) {
+            this.jqForm.valid();
         },
         saveSubmit: function(msg) {
             // 提交表单

@@ -64,12 +64,7 @@ function showDlgModify(vm, jqTarget) {
 
     // console.log(data);
 
-    vm.$refs.modify.showModal({
-        id: data.id,
-        name: data.name,
-        state: data.state,
-        birthday: data.birthday
-    });
+    vm.$refs.modify.showModal(data);
 }
 
 function showDlgDelete(vm, jqTarget) {

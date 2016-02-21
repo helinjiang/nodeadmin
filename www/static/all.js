@@ -11402,22 +11402,19 @@ define('modules/car_index/modify/main', function(require, exports, module) {
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" >\r\n                <select2 name=\"state\" :value=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" >\r\n                <date name=\"birthday\" :value=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">        \r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" :value=\"item.id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" :value=\"item.name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy :value=\"item.ownerId\" v-on:select2change=\"checkOwnerId\"  v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value=\"item.state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value=\"item.buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined,
-              id: undefined,
-              name: undefined,
-              state: undefined,
-              birthday: undefined
+              item: undefined
           };
       },
       methods: {
           showModal: function showModal(data) {
-              this.id = data.id;
-              this.name = data.name;
-              this.state = data.state;
-              this.birthday = data.birthday;
+  
+              this.item = data;
+  
+              this.$refs.user.init();
   
               this.$children[0].show();
           },
@@ -11426,6 +11423,9 @@ define('modules/car_index/modify/main', function(require, exports, module) {
           },
           reportSuccess: function reportSuccess(data) {
               this.$dispatch('savesuccess', data);
+          },
+          checkOwnerId: function checkOwnerId(name) {
+              this.jqForm.valid();
           },
           saveSubmit: function saveSubmit(msg) {
               // 提交表单
@@ -11556,12 +11556,7 @@ define('modules/car_index/main/main', function(require, exports, module) {
   
       // console.log(data);
   
-      vm.$refs.modify.showModal({
-          id: data.id,
-          name: data.name,
-          state: data.state,
-          birthday: data.birthday
-      });
+      vm.$refs.modify.showModal(data);
   }
   
   function showDlgDelete(vm, jqTarget) {
@@ -12780,7 +12775,9 @@ define('modules/widget/select2/main', function(require, exports, module) {
               deep: true
           },
           'value': function value(val, oldVal) {
-              this.jqSelect.val(this.value).trigger('change');
+              if (this.jqSelect) {
+                  this.jqSelect.val(this.value).trigger('change');
+              }
           }
       },
       ready: function ready() {
