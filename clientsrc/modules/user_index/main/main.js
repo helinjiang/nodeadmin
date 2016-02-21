@@ -3,6 +3,7 @@ var Vue = require('lib/vue');
 var add = require('/modules/user_index/add/main');
 var modify = require('/modules/user_index/modify/main');
 var deletePage = require('/modules/user_index/delete/main');
+var detail = require('/modules/user_index/detail/main');
 var justtest = require('/modules/user_index/justtest/main');
 
 module.exports = Vue.extend({
@@ -11,6 +12,7 @@ module.exports = Vue.extend({
         'add': add,
         'modify': modify,
         'delete': deletePage,
+        'detail': detail,
         'justtest': justtest
     },
     methods: {
@@ -30,6 +32,9 @@ module.exports = Vue.extend({
                     break;
                 case 'delete':
                     showDlgDelete(this, $target);
+                    break;
+                case 'detail':
+                    showDlgDetail(this, $target);
                     break;
                 default:
                     break;
@@ -91,4 +96,24 @@ function showDlgDelete(vm, jqTarget) {
         name: data.name,
         stateShow: data.stateShow
     });
+}
+
+function showDlgDetail(vm, jqTarget) {
+    var id = jqTarget.data('id'),
+        data;
+
+    if (!id) {
+        console.error('No ID!');
+        return;
+    }
+
+    data = vm.$refs.datagrid.getDataById('id', id);
+    if (!data) {
+        console.error('No data of id=' + id);
+        return;
+    }
+
+    // console.log(data);
+
+    vm.$refs.detail.showModal(data);
 }
