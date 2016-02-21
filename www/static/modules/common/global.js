@@ -6,6 +6,7 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/widget/tipalert/main');
   require('modules/widget/select2option/main');
   require('modules/widget/select2/main');
+  require('modules/widget/date/main');
   
   require('modules/widget/heformitem/main');
   require('modules/widget/heform/main');

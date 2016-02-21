@@ -177,3 +177,8 @@ Login page
     font-size: 13px;
   }
 }
+
+/*!/modules/widget/date/main.css*/
+select {
+  min-width: 300px;
+}
