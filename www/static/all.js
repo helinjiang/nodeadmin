@@ -12198,7 +12198,12 @@ define('modules/widget/date/main', function(require, exports, module) {
   };
   
   Vue.component('date', {
-      template: "<div class=\"input-group date \" :data-date=\"value\" data-date-format=\"yyyy-mm-dd\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" :value=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      template: "<div class=\"input-group date \" :data-date=\"value\" :data-date-format=\"format\" :data-date-start-date=\"startDate\" :data-date-today-btn=\"todayBtn\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" :value=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              format: 'yyyy-mm-dd'
+          };
+      },
       props: {
           /**
            * input 的name 值，必须
@@ -12208,9 +12213,21 @@ define('modules/widget/date/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 初始值
+           * 初始值，默认为当前日期
            */
-          'value': String
+          'value': String,
+          /**
+           * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#id6
+           * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html
+           * 1.指定日期：'2015-12-10'
+           * 2.当前日期基础上计算： '+0d'
+           */
+          'startDate': String,
+          /**
+           * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#todaybtn
+           * true, fase, 'linked'
+           */
+          'todayBtn': 'null'
       },
       ready: function ready() {
           _init(this);
@@ -14956,7 +14973,7 @@ define('modules/user_index/justtest/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div v-if=\"debug\">\r\n<!--     <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2> -->\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n</div>\r\n",
+      template: "<div v-if=\"debug\">\r\n<!--     <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2> -->\r\n\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n    <date name=\"birthday2\" value=\"2016-12-12\" start-date=\"+0d\"></date>\r\n    <date name=\"birthday3\" value=\"2015-12-12\" start-date=\"2015-12-10\"></date>\r\n    <date name=\"birthday4\" today-btn=\"linked\"></date>\r\n\r\n</div>\r\n",
       data: function data() {
           return {
               select2data: [{

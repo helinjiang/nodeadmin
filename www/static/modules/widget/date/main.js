@@ -22,7 +22,12 @@ define('modules/widget/date/main', function(require, exports, module) {
   };
   
   Vue.component('date', {
-      template: "<div class=\"input-group date \" :data-date=\"value\" data-date-format=\"yyyy-mm-dd\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" :value=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      template: "<div class=\"input-group date \" :data-date=\"value\" :data-date-format=\"format\" :data-date-start-date=\"startDate\" :data-date-today-btn=\"todayBtn\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" :value=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              format: 'yyyy-mm-dd'
+          };
+      },
       props: {
           /**
            * input 的name 值，必须
@@ -32,9 +37,21 @@ define('modules/widget/date/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 初始值
+           * 初始值，默认为当前日期
            */
-          'value': String
+          'value': String,
+          /**
+           * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#id6
+           * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html
+           * 1.指定日期：'2015-12-10'
+           * 2.当前日期基础上计算： '+0d'
+           */
+          'startDate': String,
+          /**
+           * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#todaybtn
+           * true, fase, 'linked'
+           */
+          'todayBtn': 'null'
       },
       ready: function ready() {
           _init(this);
