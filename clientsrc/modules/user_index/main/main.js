@@ -58,6 +58,8 @@ function showDlgModify(vm, jqTarget) {
 
     vm.$refs.modify.showModal({
         id: data.id,
-        name: data.name
+        name: data.name,
+        state: data.state,
+        birthday: data.birthday
     });
 }

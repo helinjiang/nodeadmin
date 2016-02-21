@@ -1,5 +1,5 @@
 <div class="modifypage">
-    <modal title="修改用户信息">
+    <modal title="修改用户信息" v-on:confirm="saveSubmit">
         <he-form action="/admin/user/save" noactions>
             <he-form-item title="ID">
                 <input type="text" name="id" :value="id" readonly>
@@ -9,6 +9,15 @@
             </he-form-item>
             <he-form-item title="密码">
                 <input type="password" name="pwd">
+            </he-form-item>
+            <he-form-item title="状态" >
+                <select2 name="state" :value="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+            <he-form-item title="生日" >
+                <date name="birthday" :value="birthday"></date>
             </he-form-item>
         </he-form>
     </modal>
