@@ -44,10 +44,9 @@ export default class extends Base {
 
     async saveAction() {
         let {
-            id, name, pwd, state
+            id, name, pwd, state, birthday
         } = this.post();
 
-        //console.log(title, theme, slide_content); 
         let model = this.model("user");
         let datetime = this.getCurTimeStr();
 
@@ -58,7 +57,8 @@ export default class extends Base {
             pwd: pwd,
             createTime: datetime,
             updateTime: datetime,
-            state: state
+            state: state,
+            birthday: birthday
         };
         console.log(record);
         // return this.success('test');
