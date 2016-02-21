@@ -31,9 +31,18 @@ CREATE TABLE IF NOT EXISTS `think_car` (
   `ownerId` int(11) unsigned NOT NULL,
   `name` varchar(64) NOT NULL,
   `buydate` date NOT NULL,
+  `state` int(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `carownerid` (`ownerId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- 转存表中的数据 `think_car`
+--
+
+INSERT INTO `think_car` (`id`, `ownerId`, `name`, `buydate`, `state`) VALUES
+(1, 3, 'car1', '2016-02-01', 1),
+(2, 35, 'asd', '2015-12-12', 1);
 
 -- --------------------------------------------------------
 
