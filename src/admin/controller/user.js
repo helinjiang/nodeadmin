@@ -43,6 +43,10 @@ export default class extends Base {
     }
 
     async saveAction() {
+        if (this.isGet()) {
+            return this.fail('Not Post');
+        }
+
         let {
             id, name, pwd, state, birthday
         } = this.post();
@@ -95,6 +99,29 @@ export default class extends Base {
         }
     }
 
+    async deleteAction() {
+        if (this.isGet()) {
+            return this.fail('Not Post');
+        }
+
+        let id = this.post('id');
+        let model = this.model("user");
+
+        let affectedRows = await model
+            .where({
+                id: id
+            })
+            .delete()
+            .catch(err => this.fail(err.message || 'error'));
+
+        if (affectedRows) {
+            return this.success({
+                _type: 'delete',
+                id: id,
+                affectedRows: affectedRows
+            });
+        }
+    }
 
     /**
      * 获得用户组值

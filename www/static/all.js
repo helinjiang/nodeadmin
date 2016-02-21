@@ -15096,6 +15096,67 @@ define('modules/user_index/modify/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/user_index/delete/main.js*/
+define('modules/user_index/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr>\r\n                <th>ID</th>\r\n                <td>{{id}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>用户名</th>\r\n                <td>{{name}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>状态</th>\r\n                <td>{{stateShow}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              id: undefined,
+              name: undefined,
+              stateShow: undefined
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.id = data.id;
+              this.name = data.name;
+              this.stateShow = data.stateShow;
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
+              var self = this;
+  
+              $.post('/admin/user/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  console.log(responseText, statusText);
+                  if (statusText !== 'success' || responseText.errno !== 0) {
+                      // 提示失败
+                      Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
+                  } else {
+                      // 提示成功
+                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
+  
+                      // 关闭对话框
+                      self.hideModal();
+  
+                      // 刷新列表
+                      self.reportSuccess(responseText.data);
+                  }
+              });
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/user_index/main/main.js*/
 define('modules/user_index/main/main', function(require, exports, module) {
 
@@ -15105,13 +15166,15 @@ define('modules/user_index/main/main', function(require, exports, module) {
   
   var add = require('modules/user_index/add/main');
   var modify = require('modules/user_index/modify/main');
+  var deletePage = require('modules/user_index/delete/main');
   var justtest = require('modules/user_index/justtest/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n</admin-main-toolbar>\r\n\r\n<!-- <justtest debug></justtest> -->\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n</admin-main-toolbar>\r\n\r\n<!-- <justtest debug></justtest> -->\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
       components: {
           'add': add,
           'modify': modify,
+          'delete': deletePage,
           'justtest': justtest
       },
       methods: {
@@ -15128,6 +15191,9 @@ define('modules/user_index/main/main', function(require, exports, module) {
               switch (type) {
                   case 'modify':
                       showDlgModify(this, $target);
+                      break;
+                  case 'delete':
+                      showDlgDelete(this, $target);
                       break;
                   default:
                       break;
@@ -15162,6 +15228,30 @@ define('modules/user_index/main/main', function(require, exports, module) {
           name: data.name,
           state: data.state,
           birthday: data.birthday
+      });
+  }
+  
+  function showDlgDelete(vm, jqTarget) {
+      var id = jqTarget.data('id'),
+          data;
+  
+      if (!id) {
+          console.error('No ID!');
+          return;
+      }
+  
+      data = vm.$refs.datagrid.getDataById('id', id);
+      if (!data) {
+          console.error('No data of id=' + id);
+          return;
+      }
+  
+      // console.log(data);
+  
+      vm.$refs['delete'].showModal({
+          id: data.id,
+          name: data.name,
+          stateShow: data.stateShow
       });
   }
 
