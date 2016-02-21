@@ -213,7 +213,11 @@ define('modules/widget/select2/main', function(require, exports, module) {
               var self = this,
                   options = this.options,
                   jqSelect = $('input', this.$el).select2(options).on('change', function () {
+                  // TODO 此处有一个bug，因为watch 了 value ，导致会触发了两次change事件
                   self.value = this.value;
+  
+                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544
+                  self.$dispatch('select2change', self.name);
               });
   
               this.jqSelect = jqSelect;

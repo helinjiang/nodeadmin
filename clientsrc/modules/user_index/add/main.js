@@ -27,6 +27,7 @@ module.exports = Vue.extend({
             this.jqForm.submit();
         },
         _reset: function(){
+            // TODO 还有select2等组件也要恢复初始
             $('[name="name"], [name="pwd"]', this.jqForm).val('');
         }
     },

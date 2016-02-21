@@ -31,6 +31,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
               this.jqForm.submit();
           },
           _reset: function _reset() {
+              // TODO 还有select2等组件也要恢复初始
               $('[name="name"], [name="pwd"]', this.jqForm).val('');
           }
       },

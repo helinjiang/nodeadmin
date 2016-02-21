@@ -2,6 +2,7 @@ define('modules/widget/date/main', function(require, exports, module) {
 
   /**
    * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#autoclose
+   * TODO today等常量
    */
   
   'use strict';

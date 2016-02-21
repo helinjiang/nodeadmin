@@ -13,6 +13,7 @@ module.exports = Vue.extend({
     methods: {
         showModal: function() {
             this._reset();
+            this.$refs.user.init();
 
             this.$children[0].show();
         },
@@ -26,8 +27,11 @@ module.exports = Vue.extend({
             // 提交表单
             this.jqForm.submit();
         },
-        _reset: function(){
-            $('[name="name"], [name="pwd"]', this.jqForm).val('');
+        checkOwnerId: function(name) {
+            this.jqForm.valid();
+        },
+        _reset: function() {
+            $('[name="name"]', this.jqForm).val('');
         }
     },
     ready: function() {
@@ -50,25 +54,13 @@ function handleValidator(vm) {
         name: {
             required: {
                 rule: true,
-                message: '用户名不能为空！'
-            },
-            minlength: {
-                rule: 2,
-                message: '最小长度为2'
-            },
-            maxlength: {
-                rule: 6,
-                message: '最大长度为6'
+                message: '汽车名字不能为空！'
             }
         },
-        pwd: {
+        ownerId: {
             required: {
                 rule: true,
-                message: '密码不能为空！'
-            },
-            minlength: {
-                rule: 6,
-                message: '最小长度为6'
+                message: '车主人不能为空！'
             }
         }
     }, {

@@ -30,6 +30,7 @@ function check($form, checkConfig, handler) {
         errorElement: 'span', //default input error message container
         errorClass: 'help-block', // default input error message class
         focusInvalid: false, // do not focus the last invalid input
+        ignore: ".ignore",  //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
 
         invalidHandler: function(event, validator) { //display error alert on form submit   
             if (handler && handler.invalidHandler) {

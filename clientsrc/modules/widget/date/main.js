@@ -1,5 +1,6 @@
 /**
  * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#autoclose
+ * TODO today等常量
  */
 
 var Vue = require('lib/vue');

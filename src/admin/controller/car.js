@@ -41,4 +41,75 @@ export default class extends Base {
 
         return this.success(data);
     }
+
+    async saveAction() {
+        if (this.isGet()) {
+            return this.fail('Not Post');
+        }
+
+        return this.success(this.post());
+
+        // let {
+        //     id, name, pwd, state, birthday
+        // } = this.post();
+
+        // let model = this.model("user");
+        // let datetime = this.getCurTimeStr();
+
+        // pwd = think.md5('think_' + pwd);
+
+        // let record = {
+        //     name: name,
+        //     pwd: pwd,
+        //     updateTime: datetime,
+        //     state: state,
+        //     birthday: birthday
+        // };
+        // console.log(record);
+        // // return this.success('test');
+
+        // if (!id) {
+        //     // 新增
+        //     record.createTime = datetime;
+
+        //     // result returns {id: 1000, type: "add"} or {id: 1000, type: "exist"} } }
+        //     let result = await model
+        //         .thenAdd(record, {
+        //             name: name
+        //         })
+        //         .catch(err => this.fail(err.message || 'error'));
+
+        //     console.log(result);
+
+        //     if (result.type === 'add') {
+        //         return this.success({
+        //             _type: 'add',
+        //             id: result.id,
+        //             name: name
+        //         });
+        //     } else {
+        //         return this.fail(100, 'fail', {
+        //             _type: 'exist',
+        //             id: result.id,
+        //             name: name
+        //         });
+        //     }
+        // } else {
+        //     // 修改
+        //     let affectedRows = await model
+        //         .where({
+        //             id: id
+        //         })
+        //         .update(record)
+        //         .catch(err => this.fail(err.message || 'error'));
+
+        //     if (affectedRows) {
+        //         return this.success({
+        //             _type: 'modify',
+        //             id: id,
+        //             name: name
+        //         });
+        //     }
+        // }
+    }
 }

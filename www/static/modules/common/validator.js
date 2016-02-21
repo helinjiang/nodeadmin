@@ -34,6 +34,7 @@ define('modules/common/validator', function(require, exports, module) {
           errorElement: 'span', //default input error message container
           errorClass: 'help-block', // default input error message class
           focusInvalid: false, // do not focus the last invalid input
+          ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
   
           invalidHandler: function invalidHandler(event, validator) {
               //display error alert on form submit  

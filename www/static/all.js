@@ -11012,6 +11012,7 @@ define('modules/common/validator', function(require, exports, module) {
           errorElement: 'span', //default input error message container
           errorClass: 'help-block', // default input error message class
           focusInvalid: false, // do not focus the last invalid input
+          ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
   
           invalidHandler: function invalidHandler(event, validator) {
               //display error alert on form submit  
@@ -11177,7 +11178,7 @@ define('modules/car_index/add/main', function(require, exports, module) {
   var Msg = require('modules/widget/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\"  v-on:select2change=\"checkOwnerId\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined
@@ -11186,6 +11187,7 @@ define('modules/car_index/add/main', function(require, exports, module) {
       methods: {
           showModal: function showModal() {
               this._reset();
+              this.$refs.user.init();
   
               this.$children[0].show();
           },
@@ -11199,8 +11201,11 @@ define('modules/car_index/add/main', function(require, exports, module) {
               // 提交表单
               this.jqForm.submit();
           },
+          checkOwnerId: function checkOwnerId(name) {
+              this.jqForm.valid();
+          },
           _reset: function _reset() {
-              $('[name="name"], [name="pwd"]', this.jqForm).val('');
+              $('[name="name"]', this.jqForm).val('');
           }
       },
       ready: function ready() {
@@ -11222,25 +11227,13 @@ define('modules/car_index/add/main', function(require, exports, module) {
           name: {
               required: {
                   rule: true,
-                  message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
+                  message: '汽车名字不能为空！'
               }
           },
-          pwd: {
+          ownerId: {
               required: {
                   rule: true,
-                  message: '密码不能为空！'
-              },
-              minlength: {
-                  rule: 6,
-                  message: '最小长度为6'
+                  message: '车主人不能为空！'
               }
           }
       }, {
@@ -12760,7 +12753,11 @@ define('modules/widget/select2/main', function(require, exports, module) {
               var self = this,
                   options = this.options,
                   jqSelect = $('input', this.$el).select2(options).on('change', function () {
+                  // TODO 此处有一个bug，因为watch 了 value ，导致会触发了两次change事件
                   self.value = this.value;
+  
+                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544
+                  self.$dispatch('select2change', self.name);
               });
   
               this.jqSelect = jqSelect;
@@ -12815,6 +12812,7 @@ define('modules/widget/date/main', function(require, exports, module) {
 
   /**
    * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#autoclose
+   * TODO today等常量
    */
   
   'use strict';
@@ -15351,6 +15349,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
               this.jqForm.submit();
           },
           _reset: function _reset() {
+              // TODO 还有select2等组件也要恢复初始
               $('[name="name"], [name="pwd"]', this.jqForm).val('');
           }
       },
