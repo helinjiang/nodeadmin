@@ -19,11 +19,6 @@ $.fn.datepicker.dates['zh-CN'] = {
 
 Vue.component('date', {
     template: __inline('main.html'),
-    data: function() {
-        return {
-            format: 'yyyy-mm-dd'
-        }
-    },
     props: {
         /**
          * input 的name 值，必须
@@ -36,6 +31,13 @@ Vue.component('date', {
          * 初始值，默认为当前日期
          */
         'value': String,
+        /**
+         * input 的name 值，必须
+         */
+        'format': {
+            type: String,
+            'default': 'yyyy-mm-dd'
+        },
         /**
          * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#id6
          * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html
