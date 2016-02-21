@@ -7,11 +7,14 @@ module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
+            id: undefined,
             items: []
         };
     },
-    methods: {        
+    methods: {
         showModal: function(data) {
+            this.id = data.id;
+
             this.items = [{
                 key: 'id',
                 value: data.id,
@@ -45,7 +48,7 @@ module.exports = Vue.extend({
         saveSubmit: function(msg) {
             var self = this;
 
-            $.post('/admin/user/delete', {
+            $.post('/admin/car/delete', {
                 id: this.id
             }, function(responseText, statusText) {
                 console.log(responseText, statusText);

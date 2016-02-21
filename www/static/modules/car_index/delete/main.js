@@ -11,11 +11,14 @@ define('modules/car_index/delete/main', function(require, exports, module) {
       template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
+              id: undefined,
               items: []
           };
       },
       methods: {
           showModal: function showModal(data) {
+              this.id = data.id;
+  
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -49,7 +52,7 @@ define('modules/car_index/delete/main', function(require, exports, module) {
           saveSubmit: function saveSubmit(msg) {
               var self = this;
   
-              $.post('/admin/user/delete', {
+              $.post('/admin/car/delete', {
                   id: this.id
               }, function (responseText, statusText) {
                   console.log(responseText, statusText);

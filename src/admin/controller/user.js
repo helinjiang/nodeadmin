@@ -111,7 +111,7 @@ export default class extends Base {
         }
     }
 
-    async deleteAction() {
+    async deleteAction() {        
         if (this.isGet()) {
             return this.fail('Not Post');
         }
@@ -124,7 +124,17 @@ export default class extends Base {
                 id: id
             })
             .delete()
-            .catch(err => this.fail(err.message || 'error'));
+            // .catch(err => this.fail(err.message || 'error'));
+            .catch(err => {
+                // TODO 由于它是外键，因此如果存在记录情况下，直接删除的话SQL会报错
+                console.error('===',err);
+                console.error('===',err.message);
+                console.error('===',err.errno);
+                this.fail(err.message || 'error')
+            });
+
+
+        // console.log('--', affectedRows);
 
         if (affectedRows) {
             return this.success({

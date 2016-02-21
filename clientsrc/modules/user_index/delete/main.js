@@ -35,7 +35,7 @@ module.exports = Vue.extend({
                 console.log(responseText, statusText);
                 if (statusText !== 'success' || responseText.errno !== 0) {
                     // 提示失败
-                    Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
+                    Msg.error('删除' + self.name + '(' + self.id + ')出错！' + JSON.stringify(responseText));
                 } else {
                     // 提示成功
                     Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
