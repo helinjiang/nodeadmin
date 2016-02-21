@@ -59,7 +59,6 @@ export default class extends Base {
         let record = {
             name: name,
             pwd: pwd,
-            createTime: datetime,
             updateTime: datetime,
             state: state,
             birthday: birthday
@@ -69,6 +68,7 @@ export default class extends Base {
 
         if (!id) {
             // 新增
+            record.createTime = datetime;
             id = await model
                 .add(record)
                 .catch(err => this.fail(err.message || 'error'));
