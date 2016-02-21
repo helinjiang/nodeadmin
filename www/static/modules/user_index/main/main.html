@@ -1,6 +1,6 @@
 <admin-main-toolbar>
     <add v-on:savesuccess="reloadDataGrid"></add>
-    <modify v-ref:modify></modify>
+    <modify v-ref:modify v-on:savesuccess="reloadDataGrid"></modify>
 </admin-main-toolbar>
 
 <!-- <justtest debug></justtest> -->

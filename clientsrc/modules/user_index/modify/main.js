@@ -64,16 +64,6 @@ function handleValidator(vm) {
                 rule: 6,
                 message: '最大长度为6'
             }
-        },
-        pwd: {
-            required: {
-                rule: true,
-                message: '密码不能为空！'
-            },
-            minlength: {
-                rule: 6,
-                message: '最小长度为6'
-            }
         }
     }, {
         submitHandler: function(form) {

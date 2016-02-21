@@ -86,7 +86,11 @@ export default class extends Base {
                 .catch(err => this.fail(err.message || 'error'));
 
             if (affectedRows) {
-                return this.success(id);
+                return this.success({
+                    _type: 'modify',
+                    id: id,
+                    name: name
+                });
             }
         }
     }
