@@ -35,6 +35,7 @@ define('modules/car_index/add/main', function(require, exports, module) {
               this.jqForm.valid();
           },
           _reset: function _reset() {
+              // TODO select2 的初始化
               $('[name="name"]', this.jqForm).val('');
           }
       },

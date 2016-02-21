@@ -31,6 +31,7 @@ module.exports = Vue.extend({
             this.jqForm.valid();
         },
         _reset: function() {
+            // TODO select2 的初始化
             $('[name="name"]', this.jqForm).val('');
         }
     },
