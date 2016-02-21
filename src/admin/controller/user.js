@@ -19,7 +19,7 @@ export default class extends Base {
     async getdataAction() {
         let data = await this.model('user').getAllUser();
 
-        data.map(item => {
+        data = data.map(item => {
             // 转义时间
             item.createTime = this.getCurTimeStr(item.createTime);
             item.updateTime = this.getCurTimeStr(item.updateTime);

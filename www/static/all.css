@@ -1,3 +1,7 @@
+/*!/modules/car_index/add/main.css*/
+.addpage{
+    display: inline-block;
+}
 /*!/modules/test/add/main.css*/
 .addpage{
     display: inline-block;
@@ -11,6 +15,10 @@
   margin-right: 10px;
 }
 
+/*!/modules/widget/date/main.css*/
+select {
+  min-width: 300px;
+}
 /*!/modules/widget/select2/main.css*/
 select {
   min-width: 300px;
@@ -176,9 +184,4 @@ Login page
   .login .checkbox {
     font-size: 13px;
   }
-}
-
-/*!/modules/widget/date/main.css*/
-select {
-  min-width: 300px;
 }

@@ -10975,6 +10975,643 @@ define('modules/article/container/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/common/validator.js*/
+define('modules/common/validator', function(require, exports, module) {
+
+  /**
+   * 基于 jquery.validate.js 修改  
+   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
+   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
+   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
+   * 也可以两者同时使用。
+   */
+  
+  /**
+   * 校验form，支持checkConfig集中配置，也支持在input中进行配置
+   * @param  {[type]}   $form       [description]
+   * @param  {[type]}   checkConfig [description]
+   * @param  {[type]}   handler     [description]
+   * @return {[type]}               [description]
+   * @author helinjiang
+   * @date   2016-01-17
+   */
+  'use strict';
+  
+  function check($form, checkConfig, handler) {
+      if (!$form.length) {
+          return;
+      }
+  
+      // 处理handler
+      // var handler = {
+      //     invalidHandler: function(event, validator) { },
+      //     submitHandler: function(form) { }
+      // }
+  
+      var validateConfig = {
+          errorElement: 'span', //default input error message container
+          errorClass: 'help-block', // default input error message class
+          focusInvalid: false, // do not focus the last invalid input
+  
+          invalidHandler: function invalidHandler(event, validator) {
+              //display error alert on form submit  
+              if (handler && handler.invalidHandler) {
+                  handler.invalidHandler(event, validator);
+              }
+          },
+  
+          highlight: function highlight(element) {
+              // hightlight error inputs
+              $(element).closest('.form-group').addClass('has-error'); // set error class to the control group
+          },
+  
+          success: function success(label) {
+              label.closest('.form-group').removeClass('has-error');
+              label.remove();
+          },
+  
+          errorPlacement: function errorPlacement(error, element) {
+              error.appendTo(element.closest('.errwrap'));
+          },
+  
+          submitHandler: function submitHandler(form) {
+              if (handler && handler.submitHandler) {
+                  handler.submitHandler(form);
+              } else {
+                  form.submit();
+              }
+          }
+      };
+  
+      // 处理checkConfig
+      // var checkConfig = {
+      //     username: {
+      //         required: {
+      //             rule: true,
+      //             message: '用户名不能为空！'
+      //         },
+      //         minlength: {
+      //             rule: 2,
+      //             message: '最小长度为2'
+      //         },
+      //         maxlength: {
+      //             rule: 6,
+      //             // message: '最大长度为6'
+      //         }
+      //     }
+      // }
+      if (!$.isEmptyObject(checkConfig)) {
+          var rules = {},
+              messages = {};
+  
+          for (var k in checkConfig) {
+              // k=username
+              if (checkConfig.hasOwnProperty(k)) {
+                  var v = checkConfig[k];
+                  for (var vk in v) {
+                      // vk=required
+                      // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
+                      var vv = v[vk];
+  
+                      if (typeof vv === 'object') {
+                          // 如果校验器对应的值不是对象，则要解析其中的rule和message
+                          // 校验器的传值 rule
+                          if (vv.rule) {
+                              if (!rules[k]) {
+                                  rules[k] = {};
+                              }
+                              rules[k][vk] = vv.rule;
+                          }
+  
+                          // 校验器失败之后的提示 message
+                          if (vv.message) {
+                              if (!messages[k]) {
+                                  messages[k] = {};
+                              }
+                              messages[k][vk] = vv.message;
+                          }
+                      } else {
+                          // 如果校验器对应的值不是对象，则将其当作 rule
+                          if (!rules[k]) {
+                              rules[k] = {};
+                          }
+                          rules[k][vk] = vv;
+                      }
+                  }
+              }
+          }
+  
+          if (!$.isEmptyObject(rules)) {
+              validateConfig.rules = rules;
+          }
+  
+          if (!$.isEmptyObject(messages)) {
+              validateConfig.messages = messages;
+          }
+      }
+  
+      // console.log(validateConfig);
+  
+      $form.validate(validateConfig);
+  }
+  
+  module.exports = {
+      check: check
+  };
+
+});
+
+;/*!/modules/widget/msg/main.js*/
+define('modules/widget/msg/main', function(require, exports, module) {
+
+  'use strict';
+  
+  toastr.options = {
+      "closeButton": true,
+      // "debug": true,
+      "positionClass": "toast-top-center",
+      "onclick": null,
+      "showDuration": "1000",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+  };
+  
+  function info(content) {
+      toastr.info(content, '信息');
+  }
+  
+  function success(content) {
+      toastr.success(content, '成功');
+  }
+  
+  function error(content) {
+      toastr.error(content, '错误');
+  }
+  
+  function warning(content) {
+      toastr.warning(content, '警告');
+  }
+  
+  module.exports = {
+      info: info,
+      success: success,
+      error: error,
+      warning: warning
+  };
+
+});
+
+;/*!/modules/car_index/add/main.js*/
+define('modules/car_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              jqForm: undefined
+          };
+      },
+      methods: {
+          showModal: function showModal() {
+              this._reset();
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
+              // 提交表单
+              this.jqForm.submit();
+          },
+          _reset: function _reset() {
+              $('[name="name"], [name="pwd"]', this.jqForm).val('');
+          }
+      },
+      ready: function ready() {
+          // 缓存该值，避免重复获取
+          this.$set('jqForm', $('form', $(this.$el)));
+  
+          _init(this);
+      }
+  });
+  
+  function _init(vm) {
+      $(function () {
+          handleValidator(vm);
+      });
+  }
+  
+  function handleValidator(vm) {
+      validator.check(vm.jqForm, {
+          name: {
+              required: {
+                  rule: true,
+                  message: '用户名不能为空！'
+              },
+              minlength: {
+                  rule: 2,
+                  message: '最小长度为2'
+              },
+              maxlength: {
+                  rule: 6,
+                  message: '最大长度为6'
+              }
+          },
+          pwd: {
+              required: {
+                  rule: true,
+                  message: '密码不能为空！'
+              },
+              minlength: {
+                  rule: 6,
+                  message: '最小长度为6'
+              }
+          }
+      }, {
+          submitHandler: function submitHandler(form) {
+              $(form).ajaxSubmit({
+                  success: function success(responseText, statusText) {
+                      if (statusText !== 'success' || responseText.errno !== 0) {
+                          // 提示失败
+                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
+                      } else {
+                          // 提示成功
+                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+  
+                          // 关闭对话框
+                          vm.hideModal();
+  
+                          // 刷新列表
+                          vm.reportSuccess(responseText.data);
+                      }
+                  }
+              });
+          }
+      });
+  }
+
+});
+
+;/*!/modules/car_index/delete/main.js*/
+define('modules/car_index/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              items: []
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'ownerId',
+                  value: data.ownerId,
+                  title: '车主人ID'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '汽车名字'
+              }, {
+                  key: 'buydate',
+                  value: data.buydate,
+                  title: '购买日期'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
+              var self = this;
+  
+              $.post('/admin/user/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  console.log(responseText, statusText);
+                  if (statusText !== 'success' || responseText.errno !== 0) {
+                      // 提示失败
+                      Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
+                  } else {
+                      // 提示成功
+                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
+  
+                      // 关闭对话框
+                      self.hideModal();
+  
+                      // 刷新列表
+                      self.reportSuccess(responseText.data);
+                  }
+              });
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/car_index/detail/main.js*/
+define('modules/car_index/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              items: []
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'ownerId',
+                  value: data.ownerId,
+                  title: '车主人ID'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '汽车名字'
+              }, {
+                  key: 'buydate',
+                  value: data.buydate,
+                  title: '购买日期'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/car_index/modify/main.js*/
+define('modules/car_index/modify/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" >\r\n                <select2 name=\"state\" :value=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" >\r\n                <date name=\"birthday\" :value=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              jqForm: undefined,
+              id: undefined,
+              name: undefined,
+              state: undefined,
+              birthday: undefined
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.id = data.id;
+              this.name = data.name;
+              this.state = data.state;
+              this.birthday = data.birthday;
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
+              // 提交表单
+              this.jqForm.submit();
+          }
+      },
+      ready: function ready() {
+          // 缓存该值，避免重复获取
+          this.jqForm = $('form', $(this.$el));
+  
+          _init(this);
+      }
+  });
+  
+  function _init(vm) {
+      $(function () {
+          handleValidator(vm);
+      });
+  }
+  
+  function handleValidator(vm) {
+      validator.check(vm.jqForm, {
+          name: {
+              required: {
+                  rule: true,
+                  message: '用户名不能为空！'
+              },
+              minlength: {
+                  rule: 2,
+                  message: '最小长度为2'
+              },
+              maxlength: {
+                  rule: 6,
+                  message: '最大长度为6'
+              }
+          }
+      }, {
+          submitHandler: function submitHandler(form) {
+              $(form).ajaxSubmit({
+                  success: function success(responseText, statusText) {
+                      if (statusText !== 'success' || responseText.errno !== 0) {
+                          // 提示失败
+                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
+                      } else {
+                          // 提示成功
+                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+  
+                          // 关闭对话框
+                          vm.hideModal();
+  
+                          // 刷新列表
+                          vm.reportSuccess(responseText.data);
+                      }
+                  }
+              });
+          }
+      });
+  }
+
+});
+
+;/*!/modules/car_index/main/main.js*/
+define('modules/car_index/main/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var add = require('modules/car_index/add/main');
+  var modify = require('modules/car_index/modify/main');
+  var deletePage = require('modules/car_index/delete/main');
+  var detail = require('modules/car_index/detail/main');
+  
+  module.exports = Vue.extend({
+      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"ownerId\" title=\"车主人ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      components: {
+          'add': add,
+          'modify': modify,
+          'delete': deletePage,
+          'detail': detail
+      },
+      methods: {
+          operate: function operate(event) {
+              console.log('operate', event.target);
+              var target = event.target,
+                  $target = $(target),
+                  type = $target.data('type');
+  
+              if (!type) {
+                  return;
+              }
+  
+              switch (type) {
+                  case 'modify':
+                      showDlgModify(this, $target);
+                      break;
+                  case 'delete':
+                      showDlgDelete(this, $target);
+                      break;
+                  case 'detail':
+                      showDlgDetail(this, $target);
+                      break;
+                  default:
+                      break;
+              }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
+          }
+      },
+      ready: function ready() {}
+  });
+  
+  function showDlgModify(vm, jqTarget) {
+      var id = jqTarget.data('id'),
+          data;
+  
+      if (!id) {
+          console.error('No ID!');
+          return;
+      }
+  
+      data = vm.$refs.datagrid.getDataById('id', id);
+      if (!data) {
+          console.error('No data of id=' + id);
+          return;
+      }
+  
+      // console.log(data);
+  
+      vm.$refs.modify.showModal({
+          id: data.id,
+          name: data.name,
+          state: data.state,
+          birthday: data.birthday
+      });
+  }
+  
+  function showDlgDelete(vm, jqTarget) {
+      var id = jqTarget.data('id'),
+          data;
+  
+      if (!id) {
+          console.error('No ID!');
+          return;
+      }
+  
+      data = vm.$refs.datagrid.getDataById('id', id);
+      if (!data) {
+          console.error('No data of id=' + id);
+          return;
+      }
+  
+      // console.log(data);
+  
+      vm.$refs['delete'].showModal(data);
+  }
+  
+  function showDlgDetail(vm, jqTarget) {
+      var id = jqTarget.data('id'),
+          data;
+  
+      if (!id) {
+          console.error('No ID!');
+          return;
+      }
+  
+      data = vm.$refs.datagrid.getDataById('id', id);
+      if (!data) {
+          console.error('No data of id=' + id);
+          return;
+      }
+  
+      // console.log(data);
+  
+      vm.$refs.detail.showModal(data);
+  }
+
+});
+
 ;/*!/modules/common/app.js*/
 define('modules/common/app', function(require, exports, module) {
 
@@ -14159,152 +14796,6 @@ define('modules/common/global', function(require, exports, module) {
 
 });
 
-;/*!/modules/common/validator.js*/
-define('modules/common/validator', function(require, exports, module) {
-
-  /**
-   * 基于 jquery.validate.js 修改  
-   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
-   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
-   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
-   * 也可以两者同时使用。
-   */
-  
-  /**
-   * 校验form，支持checkConfig集中配置，也支持在input中进行配置
-   * @param  {[type]}   $form       [description]
-   * @param  {[type]}   checkConfig [description]
-   * @param  {[type]}   handler     [description]
-   * @return {[type]}               [description]
-   * @author helinjiang
-   * @date   2016-01-17
-   */
-  'use strict';
-  
-  function check($form, checkConfig, handler) {
-      if (!$form.length) {
-          return;
-      }
-  
-      // 处理handler
-      // var handler = {
-      //     invalidHandler: function(event, validator) { },
-      //     submitHandler: function(form) { }
-      // }
-  
-      var validateConfig = {
-          errorElement: 'span', //default input error message container
-          errorClass: 'help-block', // default input error message class
-          focusInvalid: false, // do not focus the last invalid input
-  
-          invalidHandler: function invalidHandler(event, validator) {
-              //display error alert on form submit  
-              if (handler && handler.invalidHandler) {
-                  handler.invalidHandler(event, validator);
-              }
-          },
-  
-          highlight: function highlight(element) {
-              // hightlight error inputs
-              $(element).closest('.form-group').addClass('has-error'); // set error class to the control group
-          },
-  
-          success: function success(label) {
-              label.closest('.form-group').removeClass('has-error');
-              label.remove();
-          },
-  
-          errorPlacement: function errorPlacement(error, element) {
-              error.appendTo(element.closest('.errwrap'));
-          },
-  
-          submitHandler: function submitHandler(form) {
-              if (handler && handler.submitHandler) {
-                  handler.submitHandler(form);
-              } else {
-                  form.submit();
-              }
-          }
-      };
-  
-      // 处理checkConfig
-      // var checkConfig = {
-      //     username: {
-      //         required: {
-      //             rule: true,
-      //             message: '用户名不能为空！'
-      //         },
-      //         minlength: {
-      //             rule: 2,
-      //             message: '最小长度为2'
-      //         },
-      //         maxlength: {
-      //             rule: 6,
-      //             // message: '最大长度为6'
-      //         }
-      //     }
-      // }
-      if (!$.isEmptyObject(checkConfig)) {
-          var rules = {},
-              messages = {};
-  
-          for (var k in checkConfig) {
-              // k=username
-              if (checkConfig.hasOwnProperty(k)) {
-                  var v = checkConfig[k];
-                  for (var vk in v) {
-                      // vk=required
-                      // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
-                      var vv = v[vk];
-  
-                      if (typeof vv === 'object') {
-                          // 如果校验器对应的值不是对象，则要解析其中的rule和message
-                          // 校验器的传值 rule
-                          if (vv.rule) {
-                              if (!rules[k]) {
-                                  rules[k] = {};
-                              }
-                              rules[k][vk] = vv.rule;
-                          }
-  
-                          // 校验器失败之后的提示 message
-                          if (vv.message) {
-                              if (!messages[k]) {
-                                  messages[k] = {};
-                              }
-                              messages[k][vk] = vv.message;
-                          }
-                      } else {
-                          // 如果校验器对应的值不是对象，则将其当作 rule
-                          if (!rules[k]) {
-                              rules[k] = {};
-                          }
-                          rules[k][vk] = vv;
-                      }
-                  }
-              }
-          }
-  
-          if (!$.isEmptyObject(rules)) {
-              validateConfig.rules = rules;
-          }
-  
-          if (!$.isEmptyObject(messages)) {
-              validateConfig.messages = messages;
-          }
-      }
-  
-      // console.log(validateConfig);
-  
-      $form.validate(validateConfig);
-  }
-  
-  module.exports = {
-      check: check
-  };
-
-});
-
 ;/*!/modules/index/test1/main.js*/
 define('modules/index/test1/main', function(require, exports, module) {
 
@@ -14661,51 +15152,6 @@ define('modules/widget/hecheckbox/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/msg/main.js*/
-define('modules/widget/msg/main', function(require, exports, module) {
-
-  'use strict';
-  
-  toastr.options = {
-      "closeButton": true,
-      // "debug": true,
-      "positionClass": "toast-top-center",
-      "onclick": null,
-      "showDuration": "1000",
-      "hideDuration": "1000",
-      "timeOut": "5000",
-      "extendedTimeOut": "1000",
-      "showEasing": "swing",
-      "hideEasing": "linear",
-      "showMethod": "fadeIn",
-      "hideMethod": "fadeOut"
-  };
-  
-  function info(content) {
-      toastr.info(content, '信息');
-  }
-  
-  function success(content) {
-      toastr.success(content, '成功');
-  }
-  
-  function error(content) {
-      toastr.error(content, '错误');
-  }
-  
-  function warning(content) {
-      toastr.warning(content, '警告');
-  }
-  
-  module.exports = {
-      info: info,
-      success: success,
-      error: error,
-      warning: warning
-  };
-
-});
-
 ;/*!/modules/widget/loading/main.js*/
 define('modules/widget/loading/main', function(require, exports, module) {
 
@@ -14973,6 +15419,123 @@ define('modules/user_index/add/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/user_index/delete/main.js*/
+define('modules/user_index/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr>\r\n                <th>ID</th>\r\n                <td>{{id}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>用户名</th>\r\n                <td>{{name}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>状态</th>\r\n                <td>{{stateShow}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              id: undefined,
+              name: undefined,
+              stateShow: undefined
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.id = data.id;
+              this.name = data.name;
+              this.stateShow = data.stateShow;
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+          saveSubmit: function saveSubmit(msg) {
+              var self = this;
+  
+              $.post('/admin/user/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  console.log(responseText, statusText);
+                  if (statusText !== 'success' || responseText.errno !== 0) {
+                      // 提示失败
+                      Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
+                  } else {
+                      // 提示成功
+                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
+  
+                      // 关闭对话框
+                      self.hideModal();
+  
+                      // 刷新列表
+                      self.reportSuccess(responseText.data);
+                  }
+              });
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/user_index/detail/main.js*/
+define('modules/user_index/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/widget/msg/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              items: []
+          };
+      },
+      methods: {
+          showModal: function showModal(data) {
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '用户名'
+              }, {
+                  key: 'birthday',
+                  value: data.birthday,
+                  title: '生日'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }, {
+                  key: 'createTime',
+                  value: data.createTime,
+                  title: '创建时间'
+              }, {
+                  key: 'updateTime',
+                  value: data.updateTime,
+                  title: '最后修改时间'
+              }];
+  
+              this.$children[0].show();
+          },
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/user_index/justtest/main.js*/
 define('modules/user_index/justtest/main', function(require, exports, module) {
 
@@ -15102,281 +15665,6 @@ define('modules/user_index/modify/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/inputtext/main.js*/
-define('modules/widget/inputtext/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-    template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
-    data: function data() {
-      return {
-        isShow: false,
-        type: 'danger', //danger,info,success,warning
-        msg: '' //必填
-      };
-    },
-    props: [
-    /**
-     *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
-     * user: 用户名
-     */
-    'icon',
-  
-    /**
-     * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-     */
-    'title',
-  
-    /**
-     * 是否显示title，非必须，默认显示，即显示<lable>
-     */
-    'notitle',
-  
-    /**
-     * input 的name 值，必须
-     */
-    'name']
-  });
-
-});
-
-;/*!/pages/article/main.js*/
-define('pages/article/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var Container = require('modules/article/container/main');
-  
-  window.app = new Vue({
-    el: '#app',
-    components: {
-      Container: Container
-    },
-    ready: function ready() {
-      var child = this.$refs.mycon;
-      // console.log(child);
-      child.getArticleDetail('a10');
-    }
-  });
-
-});
-
-;/*!/pages/index/main.js*/
-define('pages/index/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var IndexTest1 = require('modules/index/test1/main');
-  var IndexTest2 = require('modules/index/test2/main');
-  var IndexTest3 = require('modules/index/test3/main');
-  
-  window.app = new Vue({
-    el: '#app',
-    data: {
-      'currentView': 'index.html'
-    },
-    components: {
-      'index-test1': IndexTest1,
-      'test2': IndexTest2,
-      'test3': IndexTest3
-    }
-  });
-
-});
-
-;/*!/pages/login_index/main.js*/
-define('pages/login_index/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var LoginPanel = require('modules/login_index/loginpanel/main');
-  
-  window.app = new Vue({
-    el: '#loginwrapper',
-    data: {
-      'currentView': 'index.html'
-    },
-    components: {
-      LoginPanel: LoginPanel
-    }
-  });
-
-});
-
-;/*!/pages/test/main.js*/
-define('pages/test/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var TestMain = require('modules/test/main/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          TestMain: TestMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
-
-});
-
-;/*!/modules/user_index/delete/main.js*/
-define('modules/user_index/delete/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr>\r\n                <th>ID</th>\r\n                <td>{{id}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>用户名</th>\r\n                <td>{{name}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>状态</th>\r\n                <td>{{stateShow}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              id: undefined,
-              name: undefined,
-              stateShow: undefined
-          };
-      },
-      methods: {
-          showModal: function showModal(data) {
-              this.id = data.id;
-              this.name = data.name;
-              this.stateShow = data.stateShow;
-  
-              this.$children[0].show();
-          },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
-              var self = this;
-  
-              $.post('/admin/user/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  console.log(responseText, statusText);
-                  if (statusText !== 'success' || responseText.errno !== 0) {
-                      // 提示失败
-                      Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
-                  } else {
-                      // 提示成功
-                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
-  
-                      // 关闭对话框
-                      self.hideModal();
-  
-                      // 刷新列表
-                      self.reportSuccess(responseText.data);
-                  }
-              });
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/user_index/detail/main.js*/
-define('modules/user_index/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: []
-          };
-      },
-      methods: {
-          showModal: function showModal(data) {
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '用户名'
-              }, {
-                  key: 'birthday',
-                  value: data.birthday,
-                  title: '生日'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }, {
-                  key: 'createTime',
-                  value: data.createTime,
-                  title: '创建时间'
-              }, {
-                  key: 'updateTime',
-                  value: data.updateTime,
-                  title: '最后修改时间'
-              }];
-  
-              this.$children[0].show();
-          },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/modules/user_index/main/main.js*/
 define('modules/user_index/main/main', function(require, exports, module) {
 
@@ -15502,8 +15790,76 @@ define('modules/user_index/main/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/user_index/main.js*/
-define('pages/user_index/main', function(require, exports, module) {
+;/*!/modules/widget/inputtext/main.js*/
+define('modules/widget/inputtext/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+    template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
+    data: function data() {
+      return {
+        isShow: false,
+        type: 'danger', //danger,info,success,warning
+        msg: '' //必填
+      };
+    },
+    props: [
+    /**
+     *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
+     * user: 用户名
+     */
+    'icon',
+  
+    /**
+     * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
+     */
+    'title',
+  
+    /**
+     * 是否显示title，非必须，默认显示，即显示<lable>
+     */
+    'notitle',
+  
+    /**
+     * input 的name 值，必须
+     */
+    'name']
+  });
+
+});
+
+;/*!/pages/article/main.js*/
+define('pages/article/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var Container = require('modules/article/container/main');
+  
+  window.app = new Vue({
+    el: '#app',
+    components: {
+      Container: Container
+    },
+    ready: function ready() {
+      var child = this.$refs.mycon;
+      // console.log(child);
+      child.getArticleDetail('a10');
+    }
+  });
+
+});
+
+;/*!/pages/car_index/main.js*/
+define('pages/car_index/main', function(require, exports, module) {
 
   /**
    * Boot up the Vue instance and wire up the router.
@@ -15516,12 +15872,12 @@ define('pages/user_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var UserMain = require('modules/user_index/main/main');
+  var CarMain = require('modules/car_index/main/main');
   
   window.app = new Vue({
       el: '#app',
       components: {
-          UserMain: UserMain
+          CarMain: CarMain
       },
       ready: function ready() {
           _init();
@@ -15536,8 +15892,98 @@ define('pages/user_index/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/car_index/main.js*/
-define('pages/car_index/main', function(require, exports, module) {
+;/*!/pages/index/main.js*/
+define('pages/index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var IndexTest1 = require('modules/index/test1/main');
+  var IndexTest2 = require('modules/index/test2/main');
+  var IndexTest3 = require('modules/index/test3/main');
+  
+  window.app = new Vue({
+    el: '#app',
+    data: {
+      'currentView': 'index.html'
+    },
+    components: {
+      'index-test1': IndexTest1,
+      'test2': IndexTest2,
+      'test3': IndexTest3
+    }
+  });
+
+});
+
+;/*!/pages/login_index/main.js*/
+define('pages/login_index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var LoginPanel = require('modules/login_index/loginpanel/main');
+  
+  window.app = new Vue({
+    el: '#loginwrapper',
+    data: {
+      'currentView': 'index.html'
+    },
+    components: {
+      LoginPanel: LoginPanel
+    }
+  });
+
+});
+
+;/*!/pages/test/main.js*/
+define('pages/test/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var TestMain = require('modules/test/main/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          TestMain: TestMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/user_index/main.js*/
+define('pages/user_index/main', function(require, exports, module) {
 
   /**
    * Boot up the Vue instance and wire up the router.
