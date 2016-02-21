@@ -18,8 +18,27 @@ export default class extends Base {
      */
     async getdataAction() {
         // console.log(this.model('car').getSchema());
+        if (this.isGet()) {
+            return this.fail('Not Post');
+        }
+        // datatables的第几次渲染，从1递增，可用于在异步请求下，区分当前返回的数据是第几次请求返回的。
+        let draw = this.post('draw');
 
-        let data = await this.model('car')
+        // 第几条数据开始
+        let start = this.post('start');
+
+        // 一次请求多少条记录
+        let length = this.post('length');
+
+        // 快速搜索框中的值
+        let searchValue = this.post('search[value]');
+
+        // 由于thinkjs中是以页为单位的，因此在此进行换算
+        // https://thinkjs.org/zh-cn/doc/2.1/model_crud.html#toc-6ce
+        let page = start / length + 1;
+
+
+        let result = await this.model('car')
             // .join("think_user ON think_car.ownerId=think_user.id")
             .alias("c")
             // .join({
@@ -36,9 +55,12 @@ export default class extends Base {
             .order({
                 'c.id': "DESC",
             })
-            .select();
+            .page(page, length)
+            .countSelect();
 
-        // console.log(data);
+        console.log(result);
+
+        let data = result.data;
 
         data = data.map(item => {
             // 转义时间
@@ -58,7 +80,13 @@ export default class extends Base {
             return item;
         });
 
-        return this.success(data);
+        // return this.success(data);
+        return this.json({
+            draw: draw,
+            recordsTotal: result.count,
+            recordsFiltered: result.count, // TODO 此处还没考虑搜索条件
+            data: data
+        });
     }
 
     async saveAction() {
@@ -127,7 +155,7 @@ export default class extends Base {
     }
 
 
-     async deleteAction() {
+    async deleteAction() {
         if (this.isGet()) {
             return this.fail('Not Post');
         }
