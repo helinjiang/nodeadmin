@@ -6,14 +6,15 @@ require('common/global');
 
 var Vue = require('lib/vue');
 
+var LoginHeader = require('/modules/login_index/loginheader/main');
+var LoginFooter = require('/modules/login_index/loginfooter/main');
 var LoginPanel = require('/modules/login_index/loginpanel/main');
 
 window.app = new Vue({
-  el: '#loginwrapper',
-  data: {
-    'currentView': 'index.html'
-  },
-  components: {
-    LoginPanel
-  }
+    el: '#app',
+    components: {
+        LoginHeader,
+        LoginFooter,
+        LoginPanel
+    }
 });
