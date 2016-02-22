@@ -9447,6 +9447,21 @@ define('modules/common/validator', function(require, exports, module) {
    * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
    * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
    * 也可以两者同时使用。
+   *
+      username: {
+          required: {
+              rule: true,
+              message: '用户名不能为空！'
+          },
+          minlength: {
+              rule: 2,
+              message: '最小长度为2'
+          },
+          maxlength: {
+              rule: 6,
+              message: '最大长度为6'
+          }
+      }
    */
   
   /**
@@ -10764,124 +10779,6 @@ define('modules/common/app', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/forminput/main.js*/
-define('modules/widget/forminput/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('form-input', {
-      template: "<div class=\"form-group\" v-if=\"horizontal\">\r\n    <label class=\"col-md-{{colLeft}} control-label\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"col-md-{{colRight}} errwrap\">\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" id=\"{{id}}\" class=\"form-control\" autocomplete=\"{{autocomplete}}\" value=\"{{value}}\" readonly=\"{{readonly}}\">\r\n    </div>\r\n</div>\r\n\r\n<div class=\"form-group errwrap\" v-else>\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!hidetitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input name=\"{{ name }}\" type=\"{{ type }}\" class=\"form-control placeholder-no-fix\" autocomplete=\"{{autocomplete}}\" placeholder=\"{{ title }}\" readonly=\"{{readonly}}\" />\r\n    </div>\r\n</div> \r\n",
-      props: {
-          /**
-           * 
-           */
-          'id': String,
-  
-          /**
-           * text/password
-           */
-          'type': {
-              type: String,
-              'default': 'text'
-          },
-  
-          /**
-           *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
-           * user: 用户名
-           */
-          'icon': String,
-  
-          /**
-           * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-           */
-          'title': String,
-  
-          /**
-           * 是否显示title，非必须，默认显示，即显示<lable>
-           */
-          'hidetitle': {
-              type: Number,
-              'default': 0
-          },
-  
-          /**
-           * input 的name 值，必须
-           */
-          'name': {
-              type: String,
-              required: true
-          },
-  
-          /**
-           * input 的 value 值，不限定什么类型
-           */
-          'value': 'null',
-  
-          'autocomplete': {
-              type: String,
-              'default': 'on'
-          },
-  
-          'readonly': {
-              type: Boolean,
-              'default': false
-          },
-  
-          'horizontal': {
-              type: Boolean,
-              'default': false
-          },
-  
-          /**
-           * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
-           */
-          'col': {
-              type: String,
-              'default': '3-9'
-          }
-  
-      },
-      computed: {
-          colLeft: function colLeft() {
-              var defaultVal = 3,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[0], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          },
-          colRight: function colRight() {
-              var defaultVal = 9,
-                  val;
-  
-              if (!this.col) {
-                  return defaultVal;
-              }
-  
-              val = parseInt(this.col.split('-')[1], 10);
-  
-              if (isNaN(val) || val < 1 || val > 12) {
-                  return defaultVal;
-              } else {
-                  return val;
-              }
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/modules/widget/tipalert/main.js*/
 define('modules/widget/tipalert/main', function(require, exports, module) {
 
@@ -11347,6 +11244,58 @@ define('modules/widget/date/main', function(require, exports, module) {
           autoclose: true,
           language: 'zh-CN'
       });
+  }
+
+});
+
+;/*!/modules/widget/hecheckbox/main.js*/
+define('modules/widget/hecheckbox/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('he-checkbox', {
+      template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" value=\"{{ value }}\" /> \r\n    {{ title }} \r\n</label>",
+      data: function data() {
+          return {
+              checkboxElem: undefined
+          };
+      },
+      props: {
+          /**
+           * checkbox 的 name 值，必须
+           */
+          name: {
+              type: String,
+              required: true
+          },
+          value: String,
+          title: String
+      },
+      methods: {
+          isChecked: function isChecked() {
+              return this.checkboxElem.attr('checked') === 'checked';
+          },
+          getVal: function getVal() {
+              if (this.isChecked()) {
+                  return this.checkboxElem.val();
+              }
+          }
+      },
+      ready: function ready() {
+          this.checkboxElem = $('input', $(this.$el));
+  
+          handleUniform(this);
+      }
+  });
+  
+  function handleUniform(vm) {
+      if (!jQuery().uniform) {
+          return;
+      }
+  
+      vm.checkboxElem.uniform();
   }
 
 });
@@ -13151,12 +13100,12 @@ define('modules/common/global', function(require, exports, module) {
 
   'use strict';
   
-  require('modules/widget/forminput/main');
   require('modules/widget/tipalert/main');
   require('modules/widget/select2option/main');
   require('modules/widget/select2/main');
   require('modules/widget/date/main');
   
+  require('modules/widget/hecheckbox/main');
   require('modules/widget/heformitem/main');
   require('modules/widget/heform/main');
   
@@ -14934,72 +14883,6 @@ define('modules/login_index/header/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/formactions/main.js*/
-define('modules/widget/formactions/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"form-actions\">\r\n    <slot>willreplace</slot>\r\n</div>\r\n"
-  });
-
-});
-
-;/*!/modules/widget/hecheckbox/main.js*/
-define('modules/widget/hecheckbox/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" value=\"{{ value }}\" /> \r\n    {{ title }} \r\n</label>",
-      data: function data() {
-          return {
-              checkboxElem: undefined
-          };
-      },
-      props: ['value',
-  
-      /**
-       * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-       */
-      'title',
-  
-      /**
-       * input 的name 值，必须
-       */
-      'name'],
-      methods: {
-          isChecked: function isChecked() {
-              return this.checkboxElem.attr('checked') === 'checked';
-          },
-          getVal: function getVal() {
-              if (this.isChecked()) {
-                  return this.checkboxElem.val();
-              }
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('checkboxElem', $('input', $(this.$el)));
-  
-          handleUniform(this);
-      }
-  });
-  
-  var handleUniform = function handleUniform(vm) {
-      if (!jQuery().uniform) {
-          return;
-      }
-  
-      vm.checkboxElem.uniform();
-  };
-
-});
-
 ;/*!/modules/widget/loading/main.js*/
 define('modules/widget/loading/main', function(require, exports, module) {
 
@@ -15031,28 +14914,20 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   'use strict';
   
   var Vue = require('modules/lib/vue');
+  
   var validator = require('modules/common/validator');
-  
-  var FormActions = require('modules/widget/formactions/main');
-  var HeCheckbox = require('modules/widget/hecheckbox/main');
-  
   var Msg = require('modules/widget/msg/main');
   var Loading = require('modules/widget/loading/main');
   
   module.exports = Vue.extend({
-      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <form-input name=\"username\" title=\"用户名\" icon=\"user\"></form-input>\r\n    <form-input type=\"password\" name=\"password\" title=\"密码\" icon=\"lock\"></form-input>\r\n\r\n    <form-actions>\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </form-actions>\r\n\r\n</form>",
+      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\"/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
       data: function data() {
           return {
               jqForm: undefined
           };
       },
-      components: {
-          FormActions: FormActions,
-          HeCheckbox: HeCheckbox
-      },
       ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('jqForm', $(this.$el));
+          this.jqForm = $(this.$el);
   
           _init(this);
       }
@@ -15073,14 +14948,6 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
               required: {
                   rule: true,
                   message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
               }
           },
           password: {
@@ -15089,24 +14956,31 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
                   message: '密码不能为空！'
               },
               minlength: {
-                  rule: 2,
-                  message: '最小长度为6'
+                  rule: 3,
+                  message: '最小长度为3'
               }
           }
       }, {
           submitHandler: function submitHandler(form) {
+              // http://malsup.com/jquery/form/
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
                       console.log(responseText, statusText);
                       if (statusText !== 'success' || responseText.errno !== 0) {
-                          vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
+                          Msg.error('登录失败，请输入正确的用户名和密码！');
                       } else {
-                          vm.$refs.alert.hide();
-                          Msg.success('登录成功，正在跳转...');
                           Loading.show('登录成功，正在跳转...');
-                          // 加载中...
+  
                           // 跳转到主页面
                           window.location.href = '/admin/';
+                      }
+                  },
+                  error: function error(err) {
+                      // {readyState: 4, responseText: "{"errno":500,"errmsg":"Connection refused, mysql:/…thinkjs.org/doc/error_message.html#econnrefused"}", responseJSON: Object, status: 500, statusText: "Internal Server Error"}
+                      if (err.status === 500) {
+                          Msg.error('内部错误，请联系管理员！');
+                      } else {
+                          Msg.error('登录失败！');
                       }
                   }
               });

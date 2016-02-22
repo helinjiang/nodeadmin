@@ -4,6 +4,21 @@
  * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
  * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
  * 也可以两者同时使用。
+ *
+    username: {
+        required: {
+            rule: true,
+            message: '用户名不能为空！'
+        },
+        minlength: {
+            rule: 2,
+            message: '最小长度为2'
+        },
+        maxlength: {
+            rule: 6,
+            message: '最大长度为6'
+        }
+    }
  */
 
 /**

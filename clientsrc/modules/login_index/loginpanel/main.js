@@ -1,9 +1,6 @@
 var Vue = require('lib/vue');
+
 var validator = require('common/validator');
-
-var FormActions = require('widget/formactions/main');
-var HeCheckbox = require('widget/hecheckbox/main');
-
 var Msg = require('/modules/widget/msg/main');
 var Loading = require('/modules/widget/loading/main');
 
@@ -14,13 +11,8 @@ module.exports = Vue.extend({
             jqForm: undefined
         };
     },
-    components: {
-        FormActions,
-        HeCheckbox
-    },
     ready: function() {
-        // 缓存该值，避免重复获取
-        this.$set('jqForm', $(this.$el));
+        this.jqForm = $(this.$el);
 
         _init(this);
     }
@@ -42,14 +34,6 @@ function handleValidator(vm) {
             required: {
                 rule: true,
                 message: '用户名不能为空！'
-            },
-            minlength: {
-                rule: 2,
-                message: '最小长度为2'
-            },
-            maxlength: {
-                rule: 6,
-                message: '最大长度为6'
             }
         },
         password: {
@@ -58,24 +42,31 @@ function handleValidator(vm) {
                 message: '密码不能为空！'
             },
             minlength: {
-                rule: 2,
-                message: '最小长度为6'
+                rule: 3,
+                message: '最小长度为3'
             }
         }
     }, {
         submitHandler: function(form) {
+            // http://malsup.com/jquery/form/
             $(form).ajaxSubmit({
-                success: function(responseText, statusText) {     
+                success: function(responseText, statusText) {
                     console.log(responseText, statusText);
                     if (statusText !== 'success' || responseText.errno !== 0) {
-                        vm.$refs.alert.show('登录失败，请输入正确的用户名和密码！');
+                        Msg.error('登录失败，请输入正确的用户名和密码！');
                     } else {
-                        vm.$refs.alert.hide();
-                        Msg.success('登录成功，正在跳转...');
                         Loading.show('登录成功，正在跳转...');
-                        // 加载中...
+
                         // 跳转到主页面
                         window.location.href = '/admin/';
+                    }
+                },
+                error: function(err) {
+                    // {readyState: 4, responseText: "{"errno":500,"errmsg":"Connection refused, mysql:/…thinkjs.org/doc/error_message.html#econnrefused"}", responseJSON: Object, status: 500, statusText: "Internal Server Error"}
+                    if (err.status === 500) {
+                        Msg.error('内部错误，请联系管理员！');
+                    } else {
+                        Msg.error('登录失败！');
                     }
                 }
             });
