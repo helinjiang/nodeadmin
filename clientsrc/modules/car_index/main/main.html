@@ -1,0 +1,17 @@
+<admin-main-toolbar>
+    <add v-on:savesuccess="reloadDataGrid"></add>
+    <modify v-ref:modify v-on:savesuccess="reloadDataGrid"></modify>
+    <delete v-ref:delete v-on:savesuccess="reloadDataGrid"></delete>
+    <detail v-ref:detail></detail>
+</admin-main-toolbar>
+
+<portlet title="用户列表" icon="globe">    
+    <datagrid url="/admin/car/getdata" pagelength="4" type="server" v-on:click="operate" v-ref:datagrid>
+        <datagrid-item name="id" title="ID"></datagrid-item>
+        <datagrid-item name="user_name" title="车主人"></datagrid-item>
+        <datagrid-item name="name" title="汽车名字"></datagrid-item>
+        <datagrid-item name="buydate" title="购买日期"></datagrid-item>
+        <datagrid-item name="stateShow" title="状态"></datagrid-item>
+        <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
+    </datagrid>
+</portlet>

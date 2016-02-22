@@ -1,0 +1,7 @@
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+    <img alt="" :src="imgsrc" v-if="imgsrc"/>
+    <i class="{{iconClass}}" v-if="iconClass"></i> 
+    <slot></slot>
+    <span class="badge badge-{{btype}}" v-if="bname"> {{bname}} </span> 
+   <i class="{{iconEndClass}}" v-if="iconEndClass"></i>  
+</a>

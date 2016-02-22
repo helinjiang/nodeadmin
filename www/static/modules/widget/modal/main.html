@@ -1,0 +1,13 @@
+<div id="{{id}}" class="modal {{className}} fade" tabindex="{{tabindex}}" data-focus-on="input:first">
+    <div class="modal-header" v-if="title">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h4 class="modal-title">{{title}}</h4>
+    </div>
+    <div class="modal-body">
+        <slot></slot>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default"> 取消 </button>
+        <button type="button" class="btn btn-primary" v-on:click="confirm"> 确认 </button>
+    </div>
+</div>

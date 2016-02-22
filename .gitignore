@@ -39,8 +39,15 @@ node_modules
 
 *.tmp
 *.temp
-
-npm-debug.log
-
 /temp
-/output
+
+# IDE config
+.idea
+
+# output
+output/
+output.tar.gz
+
+# thinkjs
+app/
+runtime/

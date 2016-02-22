@@ -1,0 +1,24 @@
+<div class="addpage">
+    <button class="btn btn-success" v-on:click="showModal">
+        新增 <i class="fa fa-plus"></i>
+    </button>
+    <modal title="新增用户信息" v-on:confirm="saveSubmit">
+        <he-form action="/admin/user/save" horizontal noactions>
+            <he-form-item title="用户名" horizontal>
+                <input type="text" name="name">
+            </he-form-item>
+            <he-form-item title="密码" horizontal>
+                <input type="password" name="pwd">
+            </he-form-item>
+            <he-form-item title="状态" horizontal>
+                <select2 name="state" value="1">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+            <he-form-item title="生日" horizontal>
+                <date name="birthday" value="2015-12-12"></date>
+            </he-form-item>
+        </he-form>
+    </modal>
+</div>

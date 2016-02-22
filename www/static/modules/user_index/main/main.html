@@ -1,0 +1,21 @@
+<admin-main-toolbar>
+    <add v-on:savesuccess="reloadDataGrid"></add>
+    <modify v-ref:modify v-on:savesuccess="reloadDataGrid"></modify>
+    <delete v-ref:delete v-on:savesuccess="reloadDataGrid"></delete>
+    <detail v-ref:detail></detail>
+</admin-main-toolbar>
+
+<!-- <justtest debug></justtest> -->
+
+<portlet title="用户列表" icon="globe">    
+    <datagrid url="/admin/user/getdata" pagelength="4" v-on:click="operate" v-ref:datagrid>
+        <datagrid-item name="id" title="ID"></datagrid-item>
+        <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
+        <datagrid-item name="pwd" hide></datagrid-item>
+        <datagrid-item name="birthday" title="生日"></datagrid-item>
+        <datagrid-item name="createTime" title="创建时间"></datagrid-item>
+        <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
+        <datagrid-item name="stateShow" title="状态"></datagrid-item>
+        <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
+    </datagrid>
+</portlet>
