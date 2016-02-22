@@ -135,8 +135,6 @@ fis.match('::packager', {
     packTo: '/static/all.css' //css打成一个包
 }).match('static/**.{css,scss}', {
     packTo: '' 
-}).match('{modules,pages}/{index,article}/**.{css,scss}', {
-    packTo: '' 
 });
   
 

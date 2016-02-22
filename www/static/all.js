@@ -9438,1543 +9438,6 @@ define('modules/lib/vue', function(require, exports, module) {
 
 });
 
-;/*!/modules/common/service.js*/
-define('modules/common/service', function(require, exports, module) {
-
-  //mock data
-  'use strict';
-  
-  var articles = [{
-      'wrap_img': "/static/images/wrap_image_1.jpg",
-      'avatar': '/static/images/avatar1.jpg',
-      'author_id': '001',
-      'article_id': 'a10',
-      'author': '小禾',
-      'timestamp': '1430035573188',
-      'title': '遇见安然（十四）荷兰出差 白露（8）',
-      'read': 334,
-      'like': 34,
-      'comment': 20
-  }, {
-      'wrap_img': "/static/images/wrap_image_2.jpg",
-      'avatar': '/static/images/avatar2.jpeg',
-      'author_id': '002',
-      'article_id': 'a11',
-      'author': 'caroline蕴',
-      'timestamp': '1435005573188',
-      'title': '波兰独立之五：反俄的“普罗米修斯”计划',
-      'read': 3314,
-      'like': 324,
-      'comment': 20
-  }, {
-      'wrap_img': "/static/images/wrap_image_3.jpg",
-      'avatar': '/static/images/avatar3.jpg',
-      'author_id': '003',
-      'article_id': 'a13',
-      'author': '小禾',
-      'timestamp': '1435035573188',
-      'title': '遇见安然（十四）荷兰出差 白露（8）',
-      'read': 334,
-      'like': 34,
-      'comment': 20
-  }, {
-      'avatar': '/static/images/avatar4.png',
-      'author_id': '004',
-      'article_id': 'a14',
-      'author': '洛洛莉ya',
-      'timestamp': '1435035573188',
-      'title': '【租用时光】Graceland先森|教我如何提升鉴赏力',
-      'read': 134,
-      'like': 24,
-      'comment': 2
-  }, {
-      'wrap_img': "/static/images/wrap_image_4.jpg",
-      'avatar': '/static/images/avatar5.jpg',
-      'author_id': '005',
-      'article_id': 'a15',
-      'author': '洛洛莉ya',
-      'timestamp': '1435025573188',
-      'title': '我的寂寞芳邻（3）夜色中有多少不为人知的故事',
-      'read': 134,
-      'like': 24,
-      'comment': 2
-  }, {
-      'wrap_img': "/static/images/wrap_image_5.jpg",
-      'avatar': '/static/images/avatar6.jpeg',
-      'author_id': '006',
-      'article_id': 'a16',
-      'author': '艾瑞克自留地 ',
-      'timestamp': '1435031573188',
-      'title': '“职业刷客”自述套利全过程，无处不在，无根无解',
-      'read': 34,
-      'like': 124,
-      'comment': 20
-  }, {
-      'avatar': '/static/images/avatar7.png',
-      'author_id': '007',
-      'article_id': 'a17',
-      'author': '洛洛莉ya',
-      'timestamp': '1435035573188',
-      'title': '世界凭什么温柔待你？',
-      'read': 40,
-      'like': 24,
-      'comment': 2
-  }, {
-      'avatar': '/static/images/avatar8.png',
-      'author_id': '008',
-      'article_id': 'a18',
-      'author': '霍真布鲁兹老爷 ',
-      'timestamp': '1435035573188',
-      'title': '教练，我想打篮球-----我们都曾是三井寿',
-      'read': 84,
-      'like': 44,
-      'comment': 9
-  }, {
-      'wrap_img': "/static/images/wrap_image_6.jpg",
-      'avatar': '/static/images/avatar9.png',
-      'author_id': '009',
-      'article_id': 'a19',
-      'author': '李陌359',
-      'timestamp': '1433035573188',
-      'title': '不在场证明：真假女神（05）',
-      'read': 134,
-      'like': 24,
-      'comment': 2
-  }, {
-      'wrap_img': "/static/images/wrap_image_7.jpg",
-      'avatar': '/static/images/avatar10.png',
-      'author_id': '010',
-      'article_id': 'a20',
-      'author': '微冷微冷 ',
-      'timestamp': '1435035573188',
-      'title': '长大后我就成了你',
-      'read': 2194,
-      'like': 124,
-      'comment': 5
-  }];
-  
-  //just for mock
-  function shuffleArray(array) {
-      for (var i = array.length - 1; i > 0; i--) {
-          var j = Math.floor(Math.random() * (i + 1));
-          var temp = array[i];
-          array[i] = array[j];
-          array[j] = temp;
-      }
-      return array;
-  }
-  
-  /**
-   * get article list
-   * @param  {[type]} cate [description]
-   * @return {[type]}      [description]
-   */
-  function getArticleList(type, cate, cb) {
-      //you should call ajax api to get data
-      //$.ajax()
-  
-      //just for mock
-      articles = shuffleArray(articles);
-      cb(shuffleArray(articles.slice(Math.round(Math.random() * 5))));
-  }
-  
-  /**
-   * search articles by keyword
-   * @param  {[type]}   keyword [description]
-   * @param  {Function} cb      [description]
-   * @return {[type]}           [description]
-   */
-  function searchArticles(keyword, cb) {
-  
-      //mock
-      var _articles = [];
-      for (var i = 0; i < articles.length; i++) {
-          if (articles[i]['title'].indexOf(keyword) > -1) {
-              _articles.push(articles[i]);
-          }
-      };
-      cb(_articles);
-  }
-  
-  /**
-   * get article detail by id
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
-   */
-  function getArticleDetail(id, cb) {
-      //mock
-      var article = {};
-      for (var i = 0; i < articles.length; i++) {
-          if (articles[i]['article_id'] == id) {
-              article = articles[i];
-              break;
-          }
-      };
-      //markdown content
-      article.content = '>引子 \n ## 标题1 \n ### 子标题1';
-      cb(article);
-  }
-  
-  module.exports = {
-      getArticleList: getArticleList,
-      searchArticles: searchArticles,
-      getArticleDetail: getArticleDetail
-  };
-
-});
-
-;/*!/modules/lib/marked.js*/
-define('modules/lib/marked', function(require, exports, module) {
-
-  /**
-   * marked - a markdown parser
-   * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
-   * https://github.com/chjj/marked
-   */
-  
-  /**
-   * Block-Level Grammar
-   */
-  
-  var block = {
-    newline: /^\n+/,
-    code: /^( {4}[^\n]+\n*)+/,
-    fences: noop,
-    hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-    heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-    nptable: noop,
-    lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-    blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-    list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-    html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
-    def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-    table: noop,
-    paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-    text: /^[^\n]+/
-  };
-  
-  block.bullet = /(?:[*+-]|\d+\.)/;
-  block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
-  block.item = replace(block.item, 'gm')
-    (/bull/g, block.bullet)
-    ();
-  
-  block.list = replace(block.list)
-    (/bull/g, block.bullet)
-    ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-    ('def', '\\n+(?=' + block.def.source + ')')
-    ();
-  
-  block.blockquote = replace(block.blockquote)
-    ('def', block.def)
-    ();
-  
-  block._tag = '(?!(?:'
-    + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-    + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
-  
-  block.html = replace(block.html)
-    ('comment', /<!--[\s\S]*?-->/)
-    ('closed', /<(tag)[\s\S]+?<\/\1>/)
-    ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-    (/tag/g, block._tag)
-    ();
-  
-  block.paragraph = replace(block.paragraph)
-    ('hr', block.hr)
-    ('heading', block.heading)
-    ('lheading', block.lheading)
-    ('blockquote', block.blockquote)
-    ('tag', '<' + block._tag)
-    ('def', block.def)
-    ();
-  
-  /**
-   * Normal Block Grammar
-   */
-  
-  block.normal = merge({}, block);
-  
-  /**
-   * GFM Block Grammar
-   */
-  
-  block.gfm = merge({}, block.normal, {
-    fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]+?)\s*\1 *(?:\n+|$)/,
-    paragraph: /^/,
-    heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-  });
-  
-  block.gfm.paragraph = replace(block.paragraph)
-    ('(?!', '(?!'
-      + block.gfm.fences.source.replace('\\1', '\\2') + '|'
-      + block.list.source.replace('\\1', '\\3') + '|')
-    ();
-  
-  /**
-   * GFM + Tables Block Grammar
-   */
-  
-  block.tables = merge({}, block.gfm, {
-    nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-    table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-  });
-  
-  /**
-   * Block Lexer
-   */
-  
-  function Lexer(options) {
-    this.tokens = [];
-    this.tokens.links = {};
-    this.options = options || marked.defaults;
-    this.rules = block.normal;
-  
-    if (this.options.gfm) {
-      if (this.options.tables) {
-        this.rules = block.tables;
-      } else {
-        this.rules = block.gfm;
-      }
-    }
-  }
-  
-  /**
-   * Expose Block Rules
-   */
-  
-  Lexer.rules = block;
-  
-  /**
-   * Static Lex Method
-   */
-  
-  Lexer.lex = function(src, options) {
-    var lexer = new Lexer(options);
-    return lexer.lex(src);
-  };
-  
-  /**
-   * Preprocessing
-   */
-  
-  Lexer.prototype.lex = function(src) {
-    src = src
-      .replace(/\r\n|\r/g, '\n')
-      .replace(/\t/g, '    ')
-      .replace(/\u00a0/g, ' ')
-      .replace(/\u2424/g, '\n');
-  
-    return this.token(src, true);
-  };
-  
-  /**
-   * Lexing
-   */
-  
-  Lexer.prototype.token = function(src, top, bq) {
-    var src = src.replace(/^ +$/gm, '')
-      , next
-      , loose
-      , cap
-      , bull
-      , b
-      , item
-      , space
-      , i
-      , l;
-  
-    while (src) {
-      // newline
-      if (cap = this.rules.newline.exec(src)) {
-        src = src.substring(cap[0].length);
-        if (cap[0].length > 1) {
-          this.tokens.push({
-            type: 'space'
-          });
-        }
-      }
-  
-      // code
-      if (cap = this.rules.code.exec(src)) {
-        src = src.substring(cap[0].length);
-        cap = cap[0].replace(/^ {4}/gm, '');
-        this.tokens.push({
-          type: 'code',
-          text: !this.options.pedantic
-            ? cap.replace(/\n+$/, '')
-            : cap
-        });
-        continue;
-      }
-  
-      // fences (gfm)
-      if (cap = this.rules.fences.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'code',
-          lang: cap[2],
-          text: cap[3]
-        });
-        continue;
-      }
-  
-      // heading
-      if (cap = this.rules.heading.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'heading',
-          depth: cap[1].length,
-          text: cap[2]
-        });
-        continue;
-      }
-  
-      // table no leading pipe (gfm)
-      if (top && (cap = this.rules.nptable.exec(src))) {
-        src = src.substring(cap[0].length);
-  
-        item = {
-          type: 'table',
-          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3].replace(/\n$/, '').split('\n')
-        };
-  
-        for (i = 0; i < item.align.length; i++) {
-          if (/^ *-+: *$/.test(item.align[i])) {
-            item.align[i] = 'right';
-          } else if (/^ *:-+: *$/.test(item.align[i])) {
-            item.align[i] = 'center';
-          } else if (/^ *:-+ *$/.test(item.align[i])) {
-            item.align[i] = 'left';
-          } else {
-            item.align[i] = null;
-          }
-        }
-  
-        for (i = 0; i < item.cells.length; i++) {
-          item.cells[i] = item.cells[i].split(/ *\| */);
-        }
-  
-        this.tokens.push(item);
-  
-        continue;
-      }
-  
-      // lheading
-      if (cap = this.rules.lheading.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'heading',
-          depth: cap[2] === '=' ? 1 : 2,
-          text: cap[1]
-        });
-        continue;
-      }
-  
-      // hr
-      if (cap = this.rules.hr.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'hr'
-        });
-        continue;
-      }
-  
-      // blockquote
-      if (cap = this.rules.blockquote.exec(src)) {
-        src = src.substring(cap[0].length);
-  
-        this.tokens.push({
-          type: 'blockquote_start'
-        });
-  
-        cap = cap[0].replace(/^ *> ?/gm, '');
-  
-        // Pass `top` to keep the current
-        // "toplevel" state. This is exactly
-        // how markdown.pl works.
-        this.token(cap, top, true);
-  
-        this.tokens.push({
-          type: 'blockquote_end'
-        });
-  
-        continue;
-      }
-  
-      // list
-      if (cap = this.rules.list.exec(src)) {
-        src = src.substring(cap[0].length);
-        bull = cap[2];
-  
-        this.tokens.push({
-          type: 'list_start',
-          ordered: bull.length > 1
-        });
-  
-        // Get each top-level item.
-        cap = cap[0].match(this.rules.item);
-  
-        next = false;
-        l = cap.length;
-        i = 0;
-  
-        for (; i < l; i++) {
-          item = cap[i];
-  
-          // Remove the list item's bullet
-          // so it is seen as the next token.
-          space = item.length;
-          item = item.replace(/^ *([*+-]|\d+\.) +/, '');
-  
-          // Outdent whatever the
-          // list item contains. Hacky.
-          if (~item.indexOf('\n ')) {
-            space -= item.length;
-            item = !this.options.pedantic
-              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-              : item.replace(/^ {1,4}/gm, '');
-          }
-  
-          // Determine whether the next list item belongs here.
-          // Backpedal if it does not belong in this list.
-          if (this.options.smartLists && i !== l - 1) {
-            b = block.bullet.exec(cap[i + 1])[0];
-            if (bull !== b && !(bull.length > 1 && b.length > 1)) {
-              src = cap.slice(i + 1).join('\n') + src;
-              i = l - 1;
-            }
-          }
-  
-          // Determine whether item is loose or not.
-          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-          // for discount behavior.
-          loose = next || /\n\n(?!\s*$)/.test(item);
-          if (i !== l - 1) {
-            next = item.charAt(item.length - 1) === '\n';
-            if (!loose) loose = next;
-          }
-  
-          this.tokens.push({
-            type: loose
-              ? 'loose_item_start'
-              : 'list_item_start'
-          });
-  
-          // Recurse.
-          this.token(item, false, bq);
-  
-          this.tokens.push({
-            type: 'list_item_end'
-          });
-        }
-  
-        this.tokens.push({
-          type: 'list_end'
-        });
-  
-        continue;
-      }
-  
-      // html
-      if (cap = this.rules.html.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: this.options.sanitize
-            ? 'paragraph'
-            : 'html',
-          pre: !this.options.sanitizer
-            && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-          text: cap[0]
-        });
-        continue;
-      }
-  
-      // def
-      if ((!bq && top) && (cap = this.rules.def.exec(src))) {
-        src = src.substring(cap[0].length);
-        this.tokens.links[cap[1].toLowerCase()] = {
-          href: cap[2],
-          title: cap[3]
-        };
-        continue;
-      }
-  
-      // table (gfm)
-      if (top && (cap = this.rules.table.exec(src))) {
-        src = src.substring(cap[0].length);
-  
-        item = {
-          type: 'table',
-          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
-        };
-  
-        for (i = 0; i < item.align.length; i++) {
-          if (/^ *-+: *$/.test(item.align[i])) {
-            item.align[i] = 'right';
-          } else if (/^ *:-+: *$/.test(item.align[i])) {
-            item.align[i] = 'center';
-          } else if (/^ *:-+ *$/.test(item.align[i])) {
-            item.align[i] = 'left';
-          } else {
-            item.align[i] = null;
-          }
-        }
-  
-        for (i = 0; i < item.cells.length; i++) {
-          item.cells[i] = item.cells[i]
-            .replace(/^ *\| *| *\| *$/g, '')
-            .split(/ *\| */);
-        }
-  
-        this.tokens.push(item);
-  
-        continue;
-      }
-  
-      // top-level paragraph
-      if (top && (cap = this.rules.paragraph.exec(src))) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'paragraph',
-          text: cap[1].charAt(cap[1].length - 1) === '\n'
-            ? cap[1].slice(0, -1)
-            : cap[1]
-        });
-        continue;
-      }
-  
-      // text
-      if (cap = this.rules.text.exec(src)) {
-        // Top-level should never reach here.
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'text',
-          text: cap[0]
-        });
-        continue;
-      }
-  
-      if (src) {
-        throw new
-          Error('Infinite loop on byte: ' + src.charCodeAt(0));
-      }
-    }
-  
-    return this.tokens;
-  };
-  
-  /**
-   * Inline-Level Grammar
-   */
-  
-  var inline = {
-    escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
-    autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
-    url: noop,
-    tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
-    link: /^!?\[(inside)\]\(href\)/,
-    reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
-    nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
-    strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
-    em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
-    code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
-    br: /^ {2,}\n(?!\s*$)/,
-    del: noop,
-    text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
-  };
-  
-  inline._inside = /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;
-  inline._href = /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
-  
-  inline.link = replace(inline.link)
-    ('inside', inline._inside)
-    ('href', inline._href)
-    ();
-  
-  inline.reflink = replace(inline.reflink)
-    ('inside', inline._inside)
-    ();
-  
-  /**
-   * Normal Inline Grammar
-   */
-  
-  inline.normal = merge({}, inline);
-  
-  /**
-   * Pedantic Inline Grammar
-   */
-  
-  inline.pedantic = merge({}, inline.normal, {
-    strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
-    em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
-  });
-  
-  /**
-   * GFM Inline Grammar
-   */
-  
-  inline.gfm = merge({}, inline.normal, {
-    escape: replace(inline.escape)('])', '~|])')(),
-    url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
-    del: /^~~(?=\S)([\s\S]*?\S)~~/,
-    text: replace(inline.text)
-      (']|', '~]|')
-      ('|', '|https?://|')
-      ()
-  });
-  
-  /**
-   * GFM + Line Breaks Inline Grammar
-   */
-  
-  inline.breaks = merge({}, inline.gfm, {
-    br: replace(inline.br)('{2,}', '*')(),
-    text: replace(inline.gfm.text)('{2,}', '*')()
-  });
-  
-  /**
-   * Inline Lexer & Compiler
-   */
-  
-  function InlineLexer(links, options) {
-    this.options = options || marked.defaults;
-    this.links = links;
-    this.rules = inline.normal;
-    this.renderer = this.options.renderer || new Renderer;
-    this.renderer.options = this.options;
-  
-    if (!this.links) {
-      throw new
-        Error('Tokens array requires a `links` property.');
-    }
-  
-    if (this.options.gfm) {
-      if (this.options.breaks) {
-        this.rules = inline.breaks;
-      } else {
-        this.rules = inline.gfm;
-      }
-    } else if (this.options.pedantic) {
-      this.rules = inline.pedantic;
-    }
-  }
-  
-  /**
-   * Expose Inline Rules
-   */
-  
-  InlineLexer.rules = inline;
-  
-  /**
-   * Static Lexing/Compiling Method
-   */
-  
-  InlineLexer.output = function(src, links, options) {
-    var inline = new InlineLexer(links, options);
-    return inline.output(src);
-  };
-  
-  /**
-   * Lexing/Compiling
-   */
-  
-  InlineLexer.prototype.output = function(src) {
-    var out = ''
-      , link
-      , text
-      , href
-      , cap;
-  
-    while (src) {
-      // escape
-      if (cap = this.rules.escape.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += cap[1];
-        continue;
-      }
-  
-      // autolink
-      if (cap = this.rules.autolink.exec(src)) {
-        src = src.substring(cap[0].length);
-        if (cap[2] === '@') {
-          text = cap[1].charAt(6) === ':'
-            ? this.mangle(cap[1].substring(7))
-            : this.mangle(cap[1]);
-          href = this.mangle('mailto:') + text;
-        } else {
-          text = escape(cap[1]);
-          href = text;
-        }
-        out += this.renderer.link(href, null, text);
-        continue;
-      }
-  
-      // url (gfm)
-      if (!this.inLink && (cap = this.rules.url.exec(src))) {
-        src = src.substring(cap[0].length);
-        text = escape(cap[1]);
-        href = text;
-        out += this.renderer.link(href, null, text);
-        continue;
-      }
-  
-      // tag
-      if (cap = this.rules.tag.exec(src)) {
-        if (!this.inLink && /^<a /i.test(cap[0])) {
-          this.inLink = true;
-        } else if (this.inLink && /^<\/a>/i.test(cap[0])) {
-          this.inLink = false;
-        }
-        src = src.substring(cap[0].length);
-        out += this.options.sanitize
-          ? this.options.sanitizer
-            ? this.options.sanitizer(cap[0])
-            : escape(cap[0])
-          : cap[0]
-        continue;
-      }
-  
-      // link
-      if (cap = this.rules.link.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.inLink = true;
-        out += this.outputLink(cap, {
-          href: cap[2],
-          title: cap[3]
-        });
-        this.inLink = false;
-        continue;
-      }
-  
-      // reflink, nolink
-      if ((cap = this.rules.reflink.exec(src))
-          || (cap = this.rules.nolink.exec(src))) {
-        src = src.substring(cap[0].length);
-        link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
-        link = this.links[link.toLowerCase()];
-        if (!link || !link.href) {
-          out += cap[0].charAt(0);
-          src = cap[0].substring(1) + src;
-          continue;
-        }
-        this.inLink = true;
-        out += this.outputLink(cap, link);
-        this.inLink = false;
-        continue;
-      }
-  
-      // strong
-      if (cap = this.rules.strong.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.strong(this.output(cap[2] || cap[1]));
-        continue;
-      }
-  
-      // em
-      if (cap = this.rules.em.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.em(this.output(cap[2] || cap[1]));
-        continue;
-      }
-  
-      // code
-      if (cap = this.rules.code.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.codespan(escape(cap[2], true));
-        continue;
-      }
-  
-      // br
-      if (cap = this.rules.br.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.br();
-        continue;
-      }
-  
-      // del (gfm)
-      if (cap = this.rules.del.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.del(this.output(cap[1]));
-        continue;
-      }
-  
-      // text
-      if (cap = this.rules.text.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.text(escape(this.smartypants(cap[0])));
-        continue;
-      }
-  
-      if (src) {
-        throw new
-          Error('Infinite loop on byte: ' + src.charCodeAt(0));
-      }
-    }
-  
-    return out;
-  };
-  
-  /**
-   * Compile Link
-   */
-  
-  InlineLexer.prototype.outputLink = function(cap, link) {
-    var href = escape(link.href)
-      , title = link.title ? escape(link.title) : null;
-  
-    return cap[0].charAt(0) !== '!'
-      ? this.renderer.link(href, title, this.output(cap[1]))
-      : this.renderer.image(href, title, escape(cap[1]));
-  };
-  
-  /**
-   * Smartypants Transformations
-   */
-  
-  InlineLexer.prototype.smartypants = function(text) {
-    if (!this.options.smartypants) return text;
-    return text
-      // em-dashes
-      .replace(/---/g, '\u2014')
-      // en-dashes
-      .replace(/--/g, '\u2013')
-      // opening singles
-      .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
-      // closing singles & apostrophes
-      .replace(/'/g, '\u2019')
-      // opening doubles
-      .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
-      // closing doubles
-      .replace(/"/g, '\u201d')
-      // ellipses
-      .replace(/\.{3}/g, '\u2026');
-  };
-  
-  /**
-   * Mangle Links
-   */
-  
-  InlineLexer.prototype.mangle = function(text) {
-    if (!this.options.mangle) return text;
-    var out = ''
-      , l = text.length
-      , i = 0
-      , ch;
-  
-    for (; i < l; i++) {
-      ch = text.charCodeAt(i);
-      if (Math.random() > 0.5) {
-        ch = 'x' + ch.toString(16);
-      }
-      out += '&#' + ch + ';';
-    }
-  
-    return out;
-  };
-  
-  /**
-   * Renderer
-   */
-  
-  function Renderer(options) {
-    this.options = options || {};
-  }
-  
-  Renderer.prototype.code = function(code, lang, escaped) {
-    if (this.options.highlight) {
-      var out = this.options.highlight(code, lang);
-      if (out != null && out !== code) {
-        escaped = true;
-        code = out;
-      }
-    }
-  
-    if (!lang) {
-      return '<pre><code>'
-        + (escaped ? code : escape(code, true))
-        + '\n</code></pre>';
-    }
-  
-    return '<pre><code class="'
-      + this.options.langPrefix
-      + escape(lang, true)
-      + '">'
-      + (escaped ? code : escape(code, true))
-      + '\n</code></pre>\n';
-  };
-  
-  Renderer.prototype.blockquote = function(quote) {
-    return '<blockquote>\n' + quote + '</blockquote>\n';
-  };
-  
-  Renderer.prototype.html = function(html) {
-    return html;
-  };
-  
-  Renderer.prototype.heading = function(text, level, raw) {
-    return '<h'
-      + level
-      + ' id="'
-      + this.options.headerPrefix
-      + raw.toLowerCase().replace(/[^\w]+/g, '-')
-      + '">'
-      + text
-      + '</h'
-      + level
-      + '>\n';
-  };
-  
-  Renderer.prototype.hr = function() {
-    return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
-  };
-  
-  Renderer.prototype.list = function(body, ordered) {
-    var type = ordered ? 'ol' : 'ul';
-    return '<' + type + '>\n' + body + '</' + type + '>\n';
-  };
-  
-  Renderer.prototype.listitem = function(text) {
-    return '<li>' + text + '</li>\n';
-  };
-  
-  Renderer.prototype.paragraph = function(text) {
-    return '<p>' + text + '</p>\n';
-  };
-  
-  Renderer.prototype.table = function(header, body) {
-    return '<table>\n'
-      + '<thead>\n'
-      + header
-      + '</thead>\n'
-      + '<tbody>\n'
-      + body
-      + '</tbody>\n'
-      + '</table>\n';
-  };
-  
-  Renderer.prototype.tablerow = function(content) {
-    return '<tr>\n' + content + '</tr>\n';
-  };
-  
-  Renderer.prototype.tablecell = function(content, flags) {
-    var type = flags.header ? 'th' : 'td';
-    var tag = flags.align
-      ? '<' + type + ' style="text-align:' + flags.align + '">'
-      : '<' + type + '>';
-    return tag + content + '</' + type + '>\n';
-  };
-  
-  // span level renderer
-  Renderer.prototype.strong = function(text) {
-    return '<strong>' + text + '</strong>';
-  };
-  
-  Renderer.prototype.em = function(text) {
-    return '<em>' + text + '</em>';
-  };
-  
-  Renderer.prototype.codespan = function(text) {
-    return '<code>' + text + '</code>';
-  };
-  
-  Renderer.prototype.br = function() {
-    return this.options.xhtml ? '<br/>' : '<br>';
-  };
-  
-  Renderer.prototype.del = function(text) {
-    return '<del>' + text + '</del>';
-  };
-  
-  Renderer.prototype.link = function(href, title, text) {
-    if (this.options.sanitize) {
-      try {
-        var prot = decodeURIComponent(unescape(href))
-          .replace(/[^\w:]/g, '')
-          .toLowerCase();
-      } catch (e) {
-        return '';
-      }
-      if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
-        return '';
-      }
-    }
-    var out = '<a href="' + href + '"';
-    if (title) {
-      out += ' title="' + title + '"';
-    }
-    out += '>' + text + '</a>';
-    return out;
-  };
-  
-  Renderer.prototype.image = function(href, title, text) {
-    var out = '<img src="' + href + '" alt="' + text + '"';
-    if (title) {
-      out += ' title="' + title + '"';
-    }
-    out += this.options.xhtml ? '/>' : '>';
-    return out;
-  };
-  
-  Renderer.prototype.text = function(text) {
-    return text;
-  };
-  
-  /**
-   * Parsing & Compiling
-   */
-  
-  function Parser(options) {
-    this.tokens = [];
-    this.token = null;
-    this.options = options || marked.defaults;
-    this.options.renderer = this.options.renderer || new Renderer;
-    this.renderer = this.options.renderer;
-    this.renderer.options = this.options;
-  }
-  
-  /**
-   * Static Parse Method
-   */
-  
-  Parser.parse = function(src, options, renderer) {
-    var parser = new Parser(options, renderer);
-    return parser.parse(src);
-  };
-  
-  /**
-   * Parse Loop
-   */
-  
-  Parser.prototype.parse = function(src) {
-    this.inline = new InlineLexer(src.links, this.options, this.renderer);
-    this.tokens = src.reverse();
-  
-    var out = '';
-    while (this.next()) {
-      out += this.tok();
-    }
-  
-    return out;
-  };
-  
-  /**
-   * Next Token
-   */
-  
-  Parser.prototype.next = function() {
-    return this.token = this.tokens.pop();
-  };
-  
-  /**
-   * Preview Next Token
-   */
-  
-  Parser.prototype.peek = function() {
-    return this.tokens[this.tokens.length - 1] || 0;
-  };
-  
-  /**
-   * Parse Text Tokens
-   */
-  
-  Parser.prototype.parseText = function() {
-    var body = this.token.text;
-  
-    while (this.peek().type === 'text') {
-      body += '\n' + this.next().text;
-    }
-  
-    return this.inline.output(body);
-  };
-  
-  /**
-   * Parse Current Token
-   */
-  
-  Parser.prototype.tok = function() {
-    switch (this.token.type) {
-      case 'space': {
-        return '';
-      }
-      case 'hr': {
-        return this.renderer.hr();
-      }
-      case 'heading': {
-        return this.renderer.heading(
-          this.inline.output(this.token.text),
-          this.token.depth,
-          this.token.text);
-      }
-      case 'code': {
-        return this.renderer.code(this.token.text,
-          this.token.lang,
-          this.token.escaped);
-      }
-      case 'table': {
-        var header = ''
-          , body = ''
-          , i
-          , row
-          , cell
-          , flags
-          , j;
-  
-        // header
-        cell = '';
-        for (i = 0; i < this.token.header.length; i++) {
-          flags = { header: true, align: this.token.align[i] };
-          cell += this.renderer.tablecell(
-            this.inline.output(this.token.header[i]),
-            { header: true, align: this.token.align[i] }
-          );
-        }
-        header += this.renderer.tablerow(cell);
-  
-        for (i = 0; i < this.token.cells.length; i++) {
-          row = this.token.cells[i];
-  
-          cell = '';
-          for (j = 0; j < row.length; j++) {
-            cell += this.renderer.tablecell(
-              this.inline.output(row[j]),
-              { header: false, align: this.token.align[j] }
-            );
-          }
-  
-          body += this.renderer.tablerow(cell);
-        }
-        return this.renderer.table(header, body);
-      }
-      case 'blockquote_start': {
-        var body = '';
-  
-        while (this.next().type !== 'blockquote_end') {
-          body += this.tok();
-        }
-  
-        return this.renderer.blockquote(body);
-      }
-      case 'list_start': {
-        var body = ''
-          , ordered = this.token.ordered;
-  
-        while (this.next().type !== 'list_end') {
-          body += this.tok();
-        }
-  
-        return this.renderer.list(body, ordered);
-      }
-      case 'list_item_start': {
-        var body = '';
-  
-        while (this.next().type !== 'list_item_end') {
-          body += this.token.type === 'text'
-            ? this.parseText()
-            : this.tok();
-        }
-  
-        return this.renderer.listitem(body);
-      }
-      case 'loose_item_start': {
-        var body = '';
-  
-        while (this.next().type !== 'list_item_end') {
-          body += this.tok();
-        }
-  
-        return this.renderer.listitem(body);
-      }
-      case 'html': {
-        var html = !this.token.pre && !this.options.pedantic
-          ? this.inline.output(this.token.text)
-          : this.token.text;
-        return this.renderer.html(html);
-      }
-      case 'paragraph': {
-        return this.renderer.paragraph(this.inline.output(this.token.text));
-      }
-      case 'text': {
-        return this.renderer.paragraph(this.parseText());
-      }
-    }
-  };
-  
-  /**
-   * Helpers
-   */
-  
-  function escape(html, encode) {
-    return html
-      .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-  
-  function unescape(html) {
-    return html.replace(/&([#\w]+);/g, function(_, n) {
-      n = n.toLowerCase();
-      if (n === 'colon') return ':';
-      if (n.charAt(0) === '#') {
-        return n.charAt(1) === 'x'
-          ? String.fromCharCode(parseInt(n.substring(2), 16))
-          : String.fromCharCode(+n.substring(1));
-      }
-      return '';
-    });
-  }
-  
-  function replace(regex, opt) {
-    regex = regex.source;
-    opt = opt || '';
-    return function self(name, val) {
-      if (!name) return new RegExp(regex, opt);
-      val = val.source || val;
-      val = val.replace(/(^|[^\[])\^/g, '$1');
-      regex = regex.replace(name, val);
-      return self;
-    };
-  }
-  
-  function noop() {}
-  noop.exec = noop;
-  
-  function merge(obj) {
-    var i = 1
-      , target
-      , key;
-  
-    for (; i < arguments.length; i++) {
-      target = arguments[i];
-      for (key in target) {
-        if (Object.prototype.hasOwnProperty.call(target, key)) {
-          obj[key] = target[key];
-        }
-      }
-    }
-  
-    return obj;
-  }
-  
-  
-  /**
-   * Marked
-   */
-  
-  function marked(src, opt, callback) {
-    if (callback || typeof opt === 'function') {
-      if (!callback) {
-        callback = opt;
-        opt = null;
-      }
-  
-      opt = merge({}, marked.defaults, opt || {});
-  
-      var highlight = opt.highlight
-        , tokens
-        , pending
-        , i = 0;
-  
-      try {
-        tokens = Lexer.lex(src, opt)
-      } catch (e) {
-        return callback(e);
-      }
-  
-      pending = tokens.length;
-  
-      var done = function(err) {
-        if (err) {
-          opt.highlight = highlight;
-          return callback(err);
-        }
-  
-        var out;
-  
-        try {
-          out = Parser.parse(tokens, opt);
-        } catch (e) {
-          err = e;
-        }
-  
-        opt.highlight = highlight;
-  
-        return err
-          ? callback(err)
-          : callback(null, out);
-      };
-  
-      if (!highlight || highlight.length < 3) {
-        return done();
-      }
-  
-      delete opt.highlight;
-  
-      if (!pending) return done();
-  
-      for (; i < tokens.length; i++) {
-        (function(token) {
-          if (token.type !== 'code') {
-            return --pending || done();
-          }
-          return highlight(token.text, token.lang, function(err, code) {
-            if (err) return done(err);
-            if (code == null || code === token.text) {
-              return --pending || done();
-            }
-            token.text = code;
-            token.escaped = true;
-            --pending || done();
-          });
-        })(tokens[i]);
-      }
-  
-      return;
-    }
-    try {
-      if (opt) opt = merge({}, marked.defaults, opt);
-      return Parser.parse(Lexer.lex(src, opt), opt);
-    } catch (e) {
-      e.message += '\nPlease report this to https://github.com/chjj/marked.';
-      if ((opt || marked.defaults).silent) {
-        return '<p>An error occured:</p><pre>'
-          + escape(e.message + '', true)
-          + '</pre>';
-      }
-      throw e;
-    }
-  }
-  
-  /**
-   * Options
-   */
-  
-  marked.options =
-  marked.setOptions = function(opt) {
-    merge(marked.defaults, opt);
-    return marked;
-  };
-  
-  marked.defaults = {
-    gfm: true,
-    tables: true,
-    breaks: false,
-    pedantic: false,
-    sanitize: false,
-    sanitizer: null,
-    mangle: true,
-    smartLists: false,
-    silent: false,
-    highlight: null,
-    langPrefix: 'lang-',
-    smartypants: false,
-    headerPrefix: '',
-    renderer: new Renderer,
-    xhtml: false
-  };
-  
-  /**
-   * Expose
-   */
-  
-  marked.Parser = Parser;
-  marked.parser = Parser.parse;
-  
-  marked.Renderer = Renderer;
-  
-  marked.Lexer = Lexer;
-  marked.lexer = Lexer.lex;
-  
-  marked.InlineLexer = InlineLexer;
-  marked.inlineLexer = InlineLexer.output;
-  
-  marked.parse = marked;
-  
-  module.exports = marked;
-  
-  
-
-});
-
-;/*!/modules/article/container/main.js*/
-define('modules/article/container/main', function(require, exports, module) {
-
-  "use strict";
-  
-  var Vue = require('modules/lib/vue');
-  var service = require("modules/common/service");
-  var marked = require("modules/lib/marked");
-  
-  require("lib/bootstrap/js/bootstrap.min");
-  
-  // 这种方式的样式可能会导致无法被覆盖，因为它会被追加到自定义css的后面
-  // require.loadCss({
-  //   'url': 'http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.css'
-  // });
-  
-  // require.loadCss({
-  //   'url': 'plugins/bootstrap/css/bootstrap.css'
-  // });
-  
-  // 可自行设置进去，替换特定的标签位置，这样就能够避免问题。但也可以一起打包，因为一般的插件css会很少的
-  
-  // console.log(__uri('plugins/bootstrap/js/bootstrap.min.js'));
-  // var oHead = document.getElementsByTagName('head').item(0);
-  // var oScript = document.createElement('script');
-  // oScript.src = __uri('plugins/bootstrap/js/bootstrap.min.js');
-  // oHead.appendChild(oScript);
-  
-  module.exports = Vue.extend({
-    inherit: true, //集成父元素所有属性
-    template: "<button type=\"button\" class=\"btn btn-default\" data-toggle=\"tooltip\" data-placement=\"left\" title=\"Tooltip on left\">Tooltip on left</button>\r\n<button type=\"button\" class=\"btn btn-default\" data-toggle=\"tooltip\" data-placement=\"right\" title=\"Tooltip on left\">Tooltip on right</button>\r\n<div class=\"container reader-font1\">\r\n    <div class=\"article\">\r\n        <div class=\"preview\">\r\n            <div class=\"author-info\">\r\n                <a class=\"avatar\" href=\"#\">\r\n                    <img thumbnail=\"90x90\" quality=\"100\" v-attr=\"src:article.avatar\">\r\n                </a>\r\n                <span class=\"label\">\r\n                    作者{{ article_id }}\r\n                </span>\r\n                <a class=\"author-name blue-link\" href=\"#\">\r\n                    <span>\r\n                        {{ article.author }}\r\n                    </span>\r\n                </a>\r\n                <span data-toggle=\"tooltip\" data-original-title=\"最后编辑于 2015.06.21 18:49\">\r\n                    {{ article.timestamp }}\r\n                </span>\r\n                <div>\r\n                    <span>\r\n                        写了85799字\r\n                    </span>\r\n                    ，\r\n                    <span>\r\n                        被{{ article.read }}人关注\r\n                    </span>\r\n                    ，\r\n                    <span>\r\n                        获得了{{ article.like }}个喜欢\r\n                    </span>\r\n                </div>\r\n            </div>\r\n            <h1 class=\"title\">\r\n                {{ article.title }}\r\n            </h1>\r\n            <div class=\"meta-top\">\r\n                <span class=\"wordage\">\r\n                    字数5669\r\n                </span>\r\n                <span class=\"views-count\">\r\n                    阅读{{ article.read }}\r\n                </span>\r\n                <span class=\"comments-count\">\r\n                    评论{{ article.comment }}\r\n                </span>\r\n                <span class=\"likes-count\">\r\n                    喜欢{{ article.like }}\r\n                </span>\r\n            </div>\r\n           \r\n            <div class=\"show-content\" v-html=\"article.content | marked\">\r\n\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
-    data: function data() {
-      return {
-        'article': {
-          'content': ''
-        },
-        'article_id': '0'
-      };
-    },
-    compiled: function compiled() {
-      console.log('==', this.article_id);
-      this.getArticleDetail(this.article_id);
-    },
-    methods: {
-      getArticleDetail: function getArticleDetail(id) {
-        console.log('--', id);
-        var self = this;
-        var article = service.getArticleDetail(id, function (article) {
-          self.$data.article = article;
-        });
-      }
-    },
-    filters: {
-      marked: marked
-    },
-    ready: function ready() {
-      console.log('==3--', this.article_id);
-      console.log('plugins/bootstrap/js/bootstrap.min.js');
-      // console.log(__uri('/static/plugins/bootstrap/js/bootstrap.min.js'));
-      //   $(function () {
-      $('[data-toggle="tooltip"]').tooltip();
-      // })
-      // setTimeout(function() {
-      //   console.log('===');
-      //   $('[data-toggle="tooltip"]').tooltip()
-      // }, 1000);
-    }
-  });
-
-});
-
 ;/*!/modules/common/validator.js*/
 define('modules/common/validator', function(require, exports, module) {
 
@@ -12576,7 +11039,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Select2Render = require('modules/common/select2render');
   
   Vue.component('select2', {
-      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>",
       data: function data() {
           return {
               /**
@@ -12896,7 +11359,7 @@ define('modules/widget/heformitem/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form-item', {
-      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>\r\n",
+      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>",
       props: {
           /**
            * 
@@ -13161,21 +11624,21 @@ define('modules/common/menudata', function(require, exports, module) {
       name: 'Home',
       active: false,
       children: [{
-          id: 'dashboard',
+          id: 'menuIndex',
           name: 'Dashboard',
-          url: 'index.html',
+          url: '/admin',
           icon: 'home',
           active: false
       }, {
           id: 'menuSystem',
           name: '系统管理',
-          icon: 'home',
+          icon: 'share',
           active: false,
           children: [{
               id: 'menuUser',
               name: '用户管理',
               url: '/admin/user',
-              icon: 'pin',
+              icon: 'anchor',
               active: false
           }, {
               id: 'menuCar',
@@ -13184,104 +11647,105 @@ define('modules/common/menudata', function(require, exports, module) {
               icon: 'pin',
               active: false
           }]
-      }, {
-          id: '2',
-          name: 'Page Layouts',
-          icon: 'home',
-          active: false,
-          children: [{
-              id: '21',
-              name: 'Sidebar Fixed Page',
-              url: 'layout_sidebar_fixed.html',
-              icon: 'anchor',
-              active: false,
-              badge: {
-                  type: 'warning',
-                  value: 'new'
-              }
-          }, {
-              id: 'test',
-              name: 'Sidebar Closed Page',
-              url: 'test.html',
-              icon: 'anchor',
-              active: false,
-              badge: 'new'
-          }, {
-              id: '23',
-              name: 'Boxed Page',
-              url: 'layout_sidebar_fixed.html',
-              icon: 'pin',
-              active: false
-          }]
-      }, {
-          id: '3',
-          name: '4 Level Menu',
-          icon: 'share',
-          active: false,
-          children: [{
-              id: '31',
-              name: 'Item 1',
-              icon: 'anchor',
-              active: false,
-              children: [{
-                  id: '311',
-                  name: ' Sample Link 1',
-                  url: 'layout_sidebar_fixed.html',
-                  icon: 'anchor',
-                  active: false,
-                  children: [{
-                      id: '3111',
-                      name: 'sub-4',
-                      url: 'layout_sidebar_fixed.html',
-                      icon: 'anchor',
-                      active: false
-                  }, {
-                      id: '3112',
-                      name: 'sub-4',
-                      url: 'layout_sidebar_closed.html',
-                      icon: 'anchor',
-                      active: false
-                  }, {
-                      id: '3113',
-                      name: 'sub-4',
-                      url: 'layout_sidebar_closed.html',
-                      icon: 'anchor',
-                      active: false
-                  }]
-              }, {
-                  id: '312',
-                  name: ' Sample Link 2',
-                  url: 'layout_sidebar_closed.html',
-                  icon: 'anchor',
-                  active: false
-              }, {
-                  id: '313',
-                  name: ' Sample Link 2',
-                  url: 'layout_sidebar_closed.html',
-                  icon: 'anchor',
-                  active: false
-              }]
-          }, {
-              id: '32',
-              name: 'Item 2',
-              icon: 'anchor',
-              active: false
-          }, {
-              id: '33',
-              name: 'Item 3',
-              url: 'layout_sidebar_fixed.html',
-              icon: 'pin',
-              active: false
-          }]
-      }, {
-          id: '4',
-          name: 'Login',
-          url: 'login.html',
-          icon: 'user',
-          active: false
       }]
   };
   
+  // {
+  //     id:'2',
+  //     name: 'Page Layouts',
+  //     icon: 'home',
+  //     active: false,
+  //     children: [{
+  //         id:'21',
+  //         name: 'Sidebar Fixed Page',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'anchor',
+  //         active: false,
+  //         badge: {
+  //             type: 'warning',
+  //             value: 'new'
+  //         }
+  //     }, {
+  //         id:'test',
+  //         name: 'Sidebar Closed Page',
+  //         url: 'test.html',
+  //         icon: 'anchor',
+  //         active: false,
+  //         badge: 'new'
+  //     }, {
+  //         id:'23',
+  //         name: 'Boxed Page',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'pin',
+  //         active: false
+  //     }]
+  // }, {
+  //     id:'3',
+  //     name: '4 Level Menu',
+  //     icon: 'share',
+  //     active: false,
+  //     children: [{
+  //         id:'31',
+  //         name: 'Item 1',
+  //         icon: 'anchor',
+  //         active: false,
+  //         children: [{
+  //             id:'311',
+  //             name: ' Sample Link 1',
+  //             url: 'layout_sidebar_fixed.html',
+  //             icon: 'anchor',
+  //             active: false,
+  //             children: [{
+  //                 id:'3111',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_fixed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }, {
+  //                 id:'3112',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_closed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }, {
+  //                 id:'3113',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_closed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }]
+  //         }, {
+  //             id:'312',
+  //             name: ' Sample Link 2',
+  //             url: 'layout_sidebar_closed.html',
+  //             icon: 'anchor',
+  //             active: false
+  //         }, {
+  //             id:'313',
+  //             name: ' Sample Link 2',
+  //             url: 'layout_sidebar_closed.html',
+  //             icon: 'anchor',
+  //             active: false
+  //         }]
+  //     }, {
+  //         id:'32',
+  //         name: 'Item 2',
+  //         icon: 'anchor',
+  //         active: false
+  //     }, {
+  //         id:'33',
+  //         name: 'Item 3',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'pin',
+  //         active: false
+  //     }]
+  // }, {
+  //     id:'4',
+  //     name: 'Login',
+  //     url: 'login.html',
+  //     icon: 'user',
+  //     active: false
+  // }
   module.exports = menus;
 
 });
@@ -14717,62 +13181,1483 @@ define('modules/common/global', function(require, exports, module) {
 
 });
 
-;/*!/modules/index/test1/main.js*/
-define('modules/index/test1/main', function(require, exports, module) {
+;/*!/modules/common/service.js*/
+define('modules/common/service', function(require, exports, module) {
+
+  //mock data
+  'use strict';
+  
+  var articles = [{
+      'wrap_img': "/static/images/wrap_image_1.jpg",
+      'avatar': '/static/images/avatar1.jpg',
+      'author_id': '001',
+      'article_id': 'a10',
+      'author': '小禾',
+      'timestamp': '1430035573188',
+      'title': '遇见安然（十四）荷兰出差 白露（8）',
+      'read': 334,
+      'like': 34,
+      'comment': 20
+  }, {
+      'wrap_img': "/static/images/wrap_image_2.jpg",
+      'avatar': '/static/images/avatar2.jpeg',
+      'author_id': '002',
+      'article_id': 'a11',
+      'author': 'caroline蕴',
+      'timestamp': '1435005573188',
+      'title': '波兰独立之五：反俄的“普罗米修斯”计划',
+      'read': 3314,
+      'like': 324,
+      'comment': 20
+  }, {
+      'wrap_img': "/static/images/wrap_image_3.jpg",
+      'avatar': '/static/images/avatar3.jpg',
+      'author_id': '003',
+      'article_id': 'a13',
+      'author': '小禾',
+      'timestamp': '1435035573188',
+      'title': '遇见安然（十四）荷兰出差 白露（8）',
+      'read': 334,
+      'like': 34,
+      'comment': 20
+  }, {
+      'avatar': '/static/images/avatar4.png',
+      'author_id': '004',
+      'article_id': 'a14',
+      'author': '洛洛莉ya',
+      'timestamp': '1435035573188',
+      'title': '【租用时光】Graceland先森|教我如何提升鉴赏力',
+      'read': 134,
+      'like': 24,
+      'comment': 2
+  }, {
+      'wrap_img': "/static/images/wrap_image_4.jpg",
+      'avatar': '/static/images/avatar5.jpg',
+      'author_id': '005',
+      'article_id': 'a15',
+      'author': '洛洛莉ya',
+      'timestamp': '1435025573188',
+      'title': '我的寂寞芳邻（3）夜色中有多少不为人知的故事',
+      'read': 134,
+      'like': 24,
+      'comment': 2
+  }, {
+      'wrap_img': "/static/images/wrap_image_5.jpg",
+      'avatar': '/static/images/avatar6.jpeg',
+      'author_id': '006',
+      'article_id': 'a16',
+      'author': '艾瑞克自留地 ',
+      'timestamp': '1435031573188',
+      'title': '“职业刷客”自述套利全过程，无处不在，无根无解',
+      'read': 34,
+      'like': 124,
+      'comment': 20
+  }, {
+      'avatar': '/static/images/avatar7.png',
+      'author_id': '007',
+      'article_id': 'a17',
+      'author': '洛洛莉ya',
+      'timestamp': '1435035573188',
+      'title': '世界凭什么温柔待你？',
+      'read': 40,
+      'like': 24,
+      'comment': 2
+  }, {
+      'avatar': '/static/images/avatar8.png',
+      'author_id': '008',
+      'article_id': 'a18',
+      'author': '霍真布鲁兹老爷 ',
+      'timestamp': '1435035573188',
+      'title': '教练，我想打篮球-----我们都曾是三井寿',
+      'read': 84,
+      'like': 44,
+      'comment': 9
+  }, {
+      'wrap_img': "/static/images/wrap_image_6.jpg",
+      'avatar': '/static/images/avatar9.png',
+      'author_id': '009',
+      'article_id': 'a19',
+      'author': '李陌359',
+      'timestamp': '1433035573188',
+      'title': '不在场证明：真假女神（05）',
+      'read': 134,
+      'like': 24,
+      'comment': 2
+  }, {
+      'wrap_img': "/static/images/wrap_image_7.jpg",
+      'avatar': '/static/images/avatar10.png',
+      'author_id': '010',
+      'article_id': 'a20',
+      'author': '微冷微冷 ',
+      'timestamp': '1435035573188',
+      'title': '长大后我就成了你',
+      'read': 2194,
+      'like': 124,
+      'comment': 5
+  }];
+  
+  //just for mock
+  function shuffleArray(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var temp = array[i];
+          array[i] = array[j];
+          array[j] = temp;
+      }
+      return array;
+  }
+  
+  /**
+   * get article list
+   * @param  {[type]} cate [description]
+   * @return {[type]}      [description]
+   */
+  function getArticleList(type, cate, cb) {
+      //you should call ajax api to get data
+      //$.ajax()
+  
+      //just for mock
+      articles = shuffleArray(articles);
+      cb(shuffleArray(articles.slice(Math.round(Math.random() * 5))));
+  }
+  
+  /**
+   * search articles by keyword
+   * @param  {[type]}   keyword [description]
+   * @param  {Function} cb      [description]
+   * @return {[type]}           [description]
+   */
+  function searchArticles(keyword, cb) {
+  
+      //mock
+      var _articles = [];
+      for (var i = 0; i < articles.length; i++) {
+          if (articles[i]['title'].indexOf(keyword) > -1) {
+              _articles.push(articles[i]);
+          }
+      };
+      cb(_articles);
+  }
+  
+  /**
+   * get article detail by id
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
+  function getArticleDetail(id, cb) {
+      //mock
+      var article = {};
+      for (var i = 0; i < articles.length; i++) {
+          if (articles[i]['article_id'] == id) {
+              article = articles[i];
+              break;
+          }
+      };
+      //markdown content
+      article.content = '>引子 \n ## 标题1 \n ### 子标题1';
+      cb(article);
+  }
+  
+  module.exports = {
+      getArticleList: getArticleList,
+      searchArticles: searchArticles,
+      getArticleDetail: getArticleDetail
+  };
+
+});
+
+;/*!/modules/index_index/main/main.js*/
+define('modules/index_index/main/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-    data: function data() {
-      return {
-        msg: "hello, i am test1"
-      };
-    },
-    template: "<hr>\r\n<h2>{{ msg }}</h2>\r\n<p>简单页面</p>"
+      template: "<h1>欢迎！</h1>",
+      ready: function ready() {}
   });
 
 });
 
-;/*!/modules/index/test2/main.js*/
-define('modules/index/test2/main', function(require, exports, module) {
+;/*!/modules/lib/marked.js*/
+define('modules/lib/marked', function(require, exports, module) {
 
-  'use strict';
+  /**
+   * marked - a markdown parser
+   * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
+   * https://github.com/chjj/marked
+   */
   
-  var Vue = require('modules/lib/vue');
+  /**
+   * Block-Level Grammar
+   */
   
-  module.exports = Vue.extend({
-    data: function data() {
-      return {
-        msg: "hello, i am test2"
-      };
-    },
-    props: ['msg2'],
-    template: "<hr>\r\n<h2>{{ msg }}</h2>\r\n<p v-if=\"msg2\">我想多说一句：{{ msg2 }}</p>\r\n<p>测试props</p>"
+  var block = {
+    newline: /^\n+/,
+    code: /^( {4}[^\n]+\n*)+/,
+    fences: noop,
+    hr: /^( *[-*_]){3,} *(?:\n+|$)/,
+    heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
+    nptable: noop,
+    lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
+    blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
+    list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
+    html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
+    def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
+    table: noop,
+    paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
+    text: /^[^\n]+/
+  };
+  
+  block.bullet = /(?:[*+-]|\d+\.)/;
+  block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
+  block.item = replace(block.item, 'gm')
+    (/bull/g, block.bullet)
+    ();
+  
+  block.list = replace(block.list)
+    (/bull/g, block.bullet)
+    ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+    ('def', '\\n+(?=' + block.def.source + ')')
+    ();
+  
+  block.blockquote = replace(block.blockquote)
+    ('def', block.def)
+    ();
+  
+  block._tag = '(?!(?:'
+    + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+    + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
+    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
+  
+  block.html = replace(block.html)
+    ('comment', /<!--[\s\S]*?-->/)
+    ('closed', /<(tag)[\s\S]+?<\/\1>/)
+    ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+    (/tag/g, block._tag)
+    ();
+  
+  block.paragraph = replace(block.paragraph)
+    ('hr', block.hr)
+    ('heading', block.heading)
+    ('lheading', block.lheading)
+    ('blockquote', block.blockquote)
+    ('tag', '<' + block._tag)
+    ('def', block.def)
+    ();
+  
+  /**
+   * Normal Block Grammar
+   */
+  
+  block.normal = merge({}, block);
+  
+  /**
+   * GFM Block Grammar
+   */
+  
+  block.gfm = merge({}, block.normal, {
+    fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]+?)\s*\1 *(?:\n+|$)/,
+    paragraph: /^/,
+    heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
   });
-
-});
-
-;/*!/modules/index/test3/main.js*/
-define('modules/index/test3/main', function(require, exports, module) {
-
-  'use strict';
   
-  var Vue = require('modules/lib/vue');
-  var Test2 = require('modules/index/test2/main');
+  block.gfm.paragraph = replace(block.paragraph)
+    ('(?!', '(?!'
+      + block.gfm.fences.source.replace('\\1', '\\2') + '|'
+      + block.list.source.replace('\\1', '\\3') + '|')
+    ();
   
-  module.exports = Vue.extend({
-    data: function data() {
-      return {
-        msg: "hello, i am test3"
-      };
-    },
-    template: "<hr>\r\n<div class=\"test3\">\r\n    <h2>{{ msg }}</h2>\r\n    <test2 msg2=\"do not afaid\"></test2>\r\n    <p>测试组件嵌套组件</p>\r\n</div>\r\n",
-    components: {
-      'test2': Test2
+  /**
+   * GFM + Tables Block Grammar
+   */
+  
+  block.tables = merge({}, block.gfm, {
+    nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
+    table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
+  });
+  
+  /**
+   * Block Lexer
+   */
+  
+  function Lexer(options) {
+    this.tokens = [];
+    this.tokens.links = {};
+    this.options = options || marked.defaults;
+    this.rules = block.normal;
+  
+    if (this.options.gfm) {
+      if (this.options.tables) {
+        this.rules = block.tables;
+      } else {
+        this.rules = block.gfm;
+      }
     }
+  }
+  
+  /**
+   * Expose Block Rules
+   */
+  
+  Lexer.rules = block;
+  
+  /**
+   * Static Lex Method
+   */
+  
+  Lexer.lex = function(src, options) {
+    var lexer = new Lexer(options);
+    return lexer.lex(src);
+  };
+  
+  /**
+   * Preprocessing
+   */
+  
+  Lexer.prototype.lex = function(src) {
+    src = src
+      .replace(/\r\n|\r/g, '\n')
+      .replace(/\t/g, '    ')
+      .replace(/\u00a0/g, ' ')
+      .replace(/\u2424/g, '\n');
+  
+    return this.token(src, true);
+  };
+  
+  /**
+   * Lexing
+   */
+  
+  Lexer.prototype.token = function(src, top, bq) {
+    var src = src.replace(/^ +$/gm, '')
+      , next
+      , loose
+      , cap
+      , bull
+      , b
+      , item
+      , space
+      , i
+      , l;
+  
+    while (src) {
+      // newline
+      if (cap = this.rules.newline.exec(src)) {
+        src = src.substring(cap[0].length);
+        if (cap[0].length > 1) {
+          this.tokens.push({
+            type: 'space'
+          });
+        }
+      }
+  
+      // code
+      if (cap = this.rules.code.exec(src)) {
+        src = src.substring(cap[0].length);
+        cap = cap[0].replace(/^ {4}/gm, '');
+        this.tokens.push({
+          type: 'code',
+          text: !this.options.pedantic
+            ? cap.replace(/\n+$/, '')
+            : cap
+        });
+        continue;
+      }
+  
+      // fences (gfm)
+      if (cap = this.rules.fences.exec(src)) {
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: 'code',
+          lang: cap[2],
+          text: cap[3]
+        });
+        continue;
+      }
+  
+      // heading
+      if (cap = this.rules.heading.exec(src)) {
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: 'heading',
+          depth: cap[1].length,
+          text: cap[2]
+        });
+        continue;
+      }
+  
+      // table no leading pipe (gfm)
+      if (top && (cap = this.rules.nptable.exec(src))) {
+        src = src.substring(cap[0].length);
+  
+        item = {
+          type: 'table',
+          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
+          cells: cap[3].replace(/\n$/, '').split('\n')
+        };
+  
+        for (i = 0; i < item.align.length; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = 'right';
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = 'center';
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = 'left';
+          } else {
+            item.align[i] = null;
+          }
+        }
+  
+        for (i = 0; i < item.cells.length; i++) {
+          item.cells[i] = item.cells[i].split(/ *\| */);
+        }
+  
+        this.tokens.push(item);
+  
+        continue;
+      }
+  
+      // lheading
+      if (cap = this.rules.lheading.exec(src)) {
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: 'heading',
+          depth: cap[2] === '=' ? 1 : 2,
+          text: cap[1]
+        });
+        continue;
+      }
+  
+      // hr
+      if (cap = this.rules.hr.exec(src)) {
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: 'hr'
+        });
+        continue;
+      }
+  
+      // blockquote
+      if (cap = this.rules.blockquote.exec(src)) {
+        src = src.substring(cap[0].length);
+  
+        this.tokens.push({
+          type: 'blockquote_start'
+        });
+  
+        cap = cap[0].replace(/^ *> ?/gm, '');
+  
+        // Pass `top` to keep the current
+        // "toplevel" state. This is exactly
+        // how markdown.pl works.
+        this.token(cap, top, true);
+  
+        this.tokens.push({
+          type: 'blockquote_end'
+        });
+  
+        continue;
+      }
+  
+      // list
+      if (cap = this.rules.list.exec(src)) {
+        src = src.substring(cap[0].length);
+        bull = cap[2];
+  
+        this.tokens.push({
+          type: 'list_start',
+          ordered: bull.length > 1
+        });
+  
+        // Get each top-level item.
+        cap = cap[0].match(this.rules.item);
+  
+        next = false;
+        l = cap.length;
+        i = 0;
+  
+        for (; i < l; i++) {
+          item = cap[i];
+  
+          // Remove the list item's bullet
+          // so it is seen as the next token.
+          space = item.length;
+          item = item.replace(/^ *([*+-]|\d+\.) +/, '');
+  
+          // Outdent whatever the
+          // list item contains. Hacky.
+          if (~item.indexOf('\n ')) {
+            space -= item.length;
+            item = !this.options.pedantic
+              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
+              : item.replace(/^ {1,4}/gm, '');
+          }
+  
+          // Determine whether the next list item belongs here.
+          // Backpedal if it does not belong in this list.
+          if (this.options.smartLists && i !== l - 1) {
+            b = block.bullet.exec(cap[i + 1])[0];
+            if (bull !== b && !(bull.length > 1 && b.length > 1)) {
+              src = cap.slice(i + 1).join('\n') + src;
+              i = l - 1;
+            }
+          }
+  
+          // Determine whether item is loose or not.
+          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
+          // for discount behavior.
+          loose = next || /\n\n(?!\s*$)/.test(item);
+          if (i !== l - 1) {
+            next = item.charAt(item.length - 1) === '\n';
+            if (!loose) loose = next;
+          }
+  
+          this.tokens.push({
+            type: loose
+              ? 'loose_item_start'
+              : 'list_item_start'
+          });
+  
+          // Recurse.
+          this.token(item, false, bq);
+  
+          this.tokens.push({
+            type: 'list_item_end'
+          });
+        }
+  
+        this.tokens.push({
+          type: 'list_end'
+        });
+  
+        continue;
+      }
+  
+      // html
+      if (cap = this.rules.html.exec(src)) {
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: this.options.sanitize
+            ? 'paragraph'
+            : 'html',
+          pre: !this.options.sanitizer
+            && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
+          text: cap[0]
+        });
+        continue;
+      }
+  
+      // def
+      if ((!bq && top) && (cap = this.rules.def.exec(src))) {
+        src = src.substring(cap[0].length);
+        this.tokens.links[cap[1].toLowerCase()] = {
+          href: cap[2],
+          title: cap[3]
+        };
+        continue;
+      }
+  
+      // table (gfm)
+      if (top && (cap = this.rules.table.exec(src))) {
+        src = src.substring(cap[0].length);
+  
+        item = {
+          type: 'table',
+          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
+          cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
+        };
+  
+        for (i = 0; i < item.align.length; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = 'right';
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = 'center';
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = 'left';
+          } else {
+            item.align[i] = null;
+          }
+        }
+  
+        for (i = 0; i < item.cells.length; i++) {
+          item.cells[i] = item.cells[i]
+            .replace(/^ *\| *| *\| *$/g, '')
+            .split(/ *\| */);
+        }
+  
+        this.tokens.push(item);
+  
+        continue;
+      }
+  
+      // top-level paragraph
+      if (top && (cap = this.rules.paragraph.exec(src))) {
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: 'paragraph',
+          text: cap[1].charAt(cap[1].length - 1) === '\n'
+            ? cap[1].slice(0, -1)
+            : cap[1]
+        });
+        continue;
+      }
+  
+      // text
+      if (cap = this.rules.text.exec(src)) {
+        // Top-level should never reach here.
+        src = src.substring(cap[0].length);
+        this.tokens.push({
+          type: 'text',
+          text: cap[0]
+        });
+        continue;
+      }
+  
+      if (src) {
+        throw new
+          Error('Infinite loop on byte: ' + src.charCodeAt(0));
+      }
+    }
+  
+    return this.tokens;
+  };
+  
+  /**
+   * Inline-Level Grammar
+   */
+  
+  var inline = {
+    escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
+    autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
+    url: noop,
+    tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
+    link: /^!?\[(inside)\]\(href\)/,
+    reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
+    nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
+    strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
+    em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
+    code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
+    br: /^ {2,}\n(?!\s*$)/,
+    del: noop,
+    text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
+  };
+  
+  inline._inside = /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;
+  inline._href = /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
+  
+  inline.link = replace(inline.link)
+    ('inside', inline._inside)
+    ('href', inline._href)
+    ();
+  
+  inline.reflink = replace(inline.reflink)
+    ('inside', inline._inside)
+    ();
+  
+  /**
+   * Normal Inline Grammar
+   */
+  
+  inline.normal = merge({}, inline);
+  
+  /**
+   * Pedantic Inline Grammar
+   */
+  
+  inline.pedantic = merge({}, inline.normal, {
+    strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
+    em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
   });
+  
+  /**
+   * GFM Inline Grammar
+   */
+  
+  inline.gfm = merge({}, inline.normal, {
+    escape: replace(inline.escape)('])', '~|])')(),
+    url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
+    del: /^~~(?=\S)([\s\S]*?\S)~~/,
+    text: replace(inline.text)
+      (']|', '~]|')
+      ('|', '|https?://|')
+      ()
+  });
+  
+  /**
+   * GFM + Line Breaks Inline Grammar
+   */
+  
+  inline.breaks = merge({}, inline.gfm, {
+    br: replace(inline.br)('{2,}', '*')(),
+    text: replace(inline.gfm.text)('{2,}', '*')()
+  });
+  
+  /**
+   * Inline Lexer & Compiler
+   */
+  
+  function InlineLexer(links, options) {
+    this.options = options || marked.defaults;
+    this.links = links;
+    this.rules = inline.normal;
+    this.renderer = this.options.renderer || new Renderer;
+    this.renderer.options = this.options;
+  
+    if (!this.links) {
+      throw new
+        Error('Tokens array requires a `links` property.');
+    }
+  
+    if (this.options.gfm) {
+      if (this.options.breaks) {
+        this.rules = inline.breaks;
+      } else {
+        this.rules = inline.gfm;
+      }
+    } else if (this.options.pedantic) {
+      this.rules = inline.pedantic;
+    }
+  }
+  
+  /**
+   * Expose Inline Rules
+   */
+  
+  InlineLexer.rules = inline;
+  
+  /**
+   * Static Lexing/Compiling Method
+   */
+  
+  InlineLexer.output = function(src, links, options) {
+    var inline = new InlineLexer(links, options);
+    return inline.output(src);
+  };
+  
+  /**
+   * Lexing/Compiling
+   */
+  
+  InlineLexer.prototype.output = function(src) {
+    var out = ''
+      , link
+      , text
+      , href
+      , cap;
+  
+    while (src) {
+      // escape
+      if (cap = this.rules.escape.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += cap[1];
+        continue;
+      }
+  
+      // autolink
+      if (cap = this.rules.autolink.exec(src)) {
+        src = src.substring(cap[0].length);
+        if (cap[2] === '@') {
+          text = cap[1].charAt(6) === ':'
+            ? this.mangle(cap[1].substring(7))
+            : this.mangle(cap[1]);
+          href = this.mangle('mailto:') + text;
+        } else {
+          text = escape(cap[1]);
+          href = text;
+        }
+        out += this.renderer.link(href, null, text);
+        continue;
+      }
+  
+      // url (gfm)
+      if (!this.inLink && (cap = this.rules.url.exec(src))) {
+        src = src.substring(cap[0].length);
+        text = escape(cap[1]);
+        href = text;
+        out += this.renderer.link(href, null, text);
+        continue;
+      }
+  
+      // tag
+      if (cap = this.rules.tag.exec(src)) {
+        if (!this.inLink && /^<a /i.test(cap[0])) {
+          this.inLink = true;
+        } else if (this.inLink && /^<\/a>/i.test(cap[0])) {
+          this.inLink = false;
+        }
+        src = src.substring(cap[0].length);
+        out += this.options.sanitize
+          ? this.options.sanitizer
+            ? this.options.sanitizer(cap[0])
+            : escape(cap[0])
+          : cap[0]
+        continue;
+      }
+  
+      // link
+      if (cap = this.rules.link.exec(src)) {
+        src = src.substring(cap[0].length);
+        this.inLink = true;
+        out += this.outputLink(cap, {
+          href: cap[2],
+          title: cap[3]
+        });
+        this.inLink = false;
+        continue;
+      }
+  
+      // reflink, nolink
+      if ((cap = this.rules.reflink.exec(src))
+          || (cap = this.rules.nolink.exec(src))) {
+        src = src.substring(cap[0].length);
+        link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
+        link = this.links[link.toLowerCase()];
+        if (!link || !link.href) {
+          out += cap[0].charAt(0);
+          src = cap[0].substring(1) + src;
+          continue;
+        }
+        this.inLink = true;
+        out += this.outputLink(cap, link);
+        this.inLink = false;
+        continue;
+      }
+  
+      // strong
+      if (cap = this.rules.strong.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += this.renderer.strong(this.output(cap[2] || cap[1]));
+        continue;
+      }
+  
+      // em
+      if (cap = this.rules.em.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += this.renderer.em(this.output(cap[2] || cap[1]));
+        continue;
+      }
+  
+      // code
+      if (cap = this.rules.code.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += this.renderer.codespan(escape(cap[2], true));
+        continue;
+      }
+  
+      // br
+      if (cap = this.rules.br.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += this.renderer.br();
+        continue;
+      }
+  
+      // del (gfm)
+      if (cap = this.rules.del.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += this.renderer.del(this.output(cap[1]));
+        continue;
+      }
+  
+      // text
+      if (cap = this.rules.text.exec(src)) {
+        src = src.substring(cap[0].length);
+        out += this.renderer.text(escape(this.smartypants(cap[0])));
+        continue;
+      }
+  
+      if (src) {
+        throw new
+          Error('Infinite loop on byte: ' + src.charCodeAt(0));
+      }
+    }
+  
+    return out;
+  };
+  
+  /**
+   * Compile Link
+   */
+  
+  InlineLexer.prototype.outputLink = function(cap, link) {
+    var href = escape(link.href)
+      , title = link.title ? escape(link.title) : null;
+  
+    return cap[0].charAt(0) !== '!'
+      ? this.renderer.link(href, title, this.output(cap[1]))
+      : this.renderer.image(href, title, escape(cap[1]));
+  };
+  
+  /**
+   * Smartypants Transformations
+   */
+  
+  InlineLexer.prototype.smartypants = function(text) {
+    if (!this.options.smartypants) return text;
+    return text
+      // em-dashes
+      .replace(/---/g, '\u2014')
+      // en-dashes
+      .replace(/--/g, '\u2013')
+      // opening singles
+      .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
+      // closing singles & apostrophes
+      .replace(/'/g, '\u2019')
+      // opening doubles
+      .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
+      // closing doubles
+      .replace(/"/g, '\u201d')
+      // ellipses
+      .replace(/\.{3}/g, '\u2026');
+  };
+  
+  /**
+   * Mangle Links
+   */
+  
+  InlineLexer.prototype.mangle = function(text) {
+    if (!this.options.mangle) return text;
+    var out = ''
+      , l = text.length
+      , i = 0
+      , ch;
+  
+    for (; i < l; i++) {
+      ch = text.charCodeAt(i);
+      if (Math.random() > 0.5) {
+        ch = 'x' + ch.toString(16);
+      }
+      out += '&#' + ch + ';';
+    }
+  
+    return out;
+  };
+  
+  /**
+   * Renderer
+   */
+  
+  function Renderer(options) {
+    this.options = options || {};
+  }
+  
+  Renderer.prototype.code = function(code, lang, escaped) {
+    if (this.options.highlight) {
+      var out = this.options.highlight(code, lang);
+      if (out != null && out !== code) {
+        escaped = true;
+        code = out;
+      }
+    }
+  
+    if (!lang) {
+      return '<pre><code>'
+        + (escaped ? code : escape(code, true))
+        + '\n</code></pre>';
+    }
+  
+    return '<pre><code class="'
+      + this.options.langPrefix
+      + escape(lang, true)
+      + '">'
+      + (escaped ? code : escape(code, true))
+      + '\n</code></pre>\n';
+  };
+  
+  Renderer.prototype.blockquote = function(quote) {
+    return '<blockquote>\n' + quote + '</blockquote>\n';
+  };
+  
+  Renderer.prototype.html = function(html) {
+    return html;
+  };
+  
+  Renderer.prototype.heading = function(text, level, raw) {
+    return '<h'
+      + level
+      + ' id="'
+      + this.options.headerPrefix
+      + raw.toLowerCase().replace(/[^\w]+/g, '-')
+      + '">'
+      + text
+      + '</h'
+      + level
+      + '>\n';
+  };
+  
+  Renderer.prototype.hr = function() {
+    return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
+  };
+  
+  Renderer.prototype.list = function(body, ordered) {
+    var type = ordered ? 'ol' : 'ul';
+    return '<' + type + '>\n' + body + '</' + type + '>\n';
+  };
+  
+  Renderer.prototype.listitem = function(text) {
+    return '<li>' + text + '</li>\n';
+  };
+  
+  Renderer.prototype.paragraph = function(text) {
+    return '<p>' + text + '</p>\n';
+  };
+  
+  Renderer.prototype.table = function(header, body) {
+    return '<table>\n'
+      + '<thead>\n'
+      + header
+      + '</thead>\n'
+      + '<tbody>\n'
+      + body
+      + '</tbody>\n'
+      + '</table>\n';
+  };
+  
+  Renderer.prototype.tablerow = function(content) {
+    return '<tr>\n' + content + '</tr>\n';
+  };
+  
+  Renderer.prototype.tablecell = function(content, flags) {
+    var type = flags.header ? 'th' : 'td';
+    var tag = flags.align
+      ? '<' + type + ' style="text-align:' + flags.align + '">'
+      : '<' + type + '>';
+    return tag + content + '</' + type + '>\n';
+  };
+  
+  // span level renderer
+  Renderer.prototype.strong = function(text) {
+    return '<strong>' + text + '</strong>';
+  };
+  
+  Renderer.prototype.em = function(text) {
+    return '<em>' + text + '</em>';
+  };
+  
+  Renderer.prototype.codespan = function(text) {
+    return '<code>' + text + '</code>';
+  };
+  
+  Renderer.prototype.br = function() {
+    return this.options.xhtml ? '<br/>' : '<br>';
+  };
+  
+  Renderer.prototype.del = function(text) {
+    return '<del>' + text + '</del>';
+  };
+  
+  Renderer.prototype.link = function(href, title, text) {
+    if (this.options.sanitize) {
+      try {
+        var prot = decodeURIComponent(unescape(href))
+          .replace(/[^\w:]/g, '')
+          .toLowerCase();
+      } catch (e) {
+        return '';
+      }
+      if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
+        return '';
+      }
+    }
+    var out = '<a href="' + href + '"';
+    if (title) {
+      out += ' title="' + title + '"';
+    }
+    out += '>' + text + '</a>';
+    return out;
+  };
+  
+  Renderer.prototype.image = function(href, title, text) {
+    var out = '<img src="' + href + '" alt="' + text + '"';
+    if (title) {
+      out += ' title="' + title + '"';
+    }
+    out += this.options.xhtml ? '/>' : '>';
+    return out;
+  };
+  
+  Renderer.prototype.text = function(text) {
+    return text;
+  };
+  
+  /**
+   * Parsing & Compiling
+   */
+  
+  function Parser(options) {
+    this.tokens = [];
+    this.token = null;
+    this.options = options || marked.defaults;
+    this.options.renderer = this.options.renderer || new Renderer;
+    this.renderer = this.options.renderer;
+    this.renderer.options = this.options;
+  }
+  
+  /**
+   * Static Parse Method
+   */
+  
+  Parser.parse = function(src, options, renderer) {
+    var parser = new Parser(options, renderer);
+    return parser.parse(src);
+  };
+  
+  /**
+   * Parse Loop
+   */
+  
+  Parser.prototype.parse = function(src) {
+    this.inline = new InlineLexer(src.links, this.options, this.renderer);
+    this.tokens = src.reverse();
+  
+    var out = '';
+    while (this.next()) {
+      out += this.tok();
+    }
+  
+    return out;
+  };
+  
+  /**
+   * Next Token
+   */
+  
+  Parser.prototype.next = function() {
+    return this.token = this.tokens.pop();
+  };
+  
+  /**
+   * Preview Next Token
+   */
+  
+  Parser.prototype.peek = function() {
+    return this.tokens[this.tokens.length - 1] || 0;
+  };
+  
+  /**
+   * Parse Text Tokens
+   */
+  
+  Parser.prototype.parseText = function() {
+    var body = this.token.text;
+  
+    while (this.peek().type === 'text') {
+      body += '\n' + this.next().text;
+    }
+  
+    return this.inline.output(body);
+  };
+  
+  /**
+   * Parse Current Token
+   */
+  
+  Parser.prototype.tok = function() {
+    switch (this.token.type) {
+      case 'space': {
+        return '';
+      }
+      case 'hr': {
+        return this.renderer.hr();
+      }
+      case 'heading': {
+        return this.renderer.heading(
+          this.inline.output(this.token.text),
+          this.token.depth,
+          this.token.text);
+      }
+      case 'code': {
+        return this.renderer.code(this.token.text,
+          this.token.lang,
+          this.token.escaped);
+      }
+      case 'table': {
+        var header = ''
+          , body = ''
+          , i
+          , row
+          , cell
+          , flags
+          , j;
+  
+        // header
+        cell = '';
+        for (i = 0; i < this.token.header.length; i++) {
+          flags = { header: true, align: this.token.align[i] };
+          cell += this.renderer.tablecell(
+            this.inline.output(this.token.header[i]),
+            { header: true, align: this.token.align[i] }
+          );
+        }
+        header += this.renderer.tablerow(cell);
+  
+        for (i = 0; i < this.token.cells.length; i++) {
+          row = this.token.cells[i];
+  
+          cell = '';
+          for (j = 0; j < row.length; j++) {
+            cell += this.renderer.tablecell(
+              this.inline.output(row[j]),
+              { header: false, align: this.token.align[j] }
+            );
+          }
+  
+          body += this.renderer.tablerow(cell);
+        }
+        return this.renderer.table(header, body);
+      }
+      case 'blockquote_start': {
+        var body = '';
+  
+        while (this.next().type !== 'blockquote_end') {
+          body += this.tok();
+        }
+  
+        return this.renderer.blockquote(body);
+      }
+      case 'list_start': {
+        var body = ''
+          , ordered = this.token.ordered;
+  
+        while (this.next().type !== 'list_end') {
+          body += this.tok();
+        }
+  
+        return this.renderer.list(body, ordered);
+      }
+      case 'list_item_start': {
+        var body = '';
+  
+        while (this.next().type !== 'list_item_end') {
+          body += this.token.type === 'text'
+            ? this.parseText()
+            : this.tok();
+        }
+  
+        return this.renderer.listitem(body);
+      }
+      case 'loose_item_start': {
+        var body = '';
+  
+        while (this.next().type !== 'list_item_end') {
+          body += this.tok();
+        }
+  
+        return this.renderer.listitem(body);
+      }
+      case 'html': {
+        var html = !this.token.pre && !this.options.pedantic
+          ? this.inline.output(this.token.text)
+          : this.token.text;
+        return this.renderer.html(html);
+      }
+      case 'paragraph': {
+        return this.renderer.paragraph(this.inline.output(this.token.text));
+      }
+      case 'text': {
+        return this.renderer.paragraph(this.parseText());
+      }
+    }
+  };
+  
+  /**
+   * Helpers
+   */
+  
+  function escape(html, encode) {
+    return html
+      .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+  
+  function unescape(html) {
+    return html.replace(/&([#\w]+);/g, function(_, n) {
+      n = n.toLowerCase();
+      if (n === 'colon') return ':';
+      if (n.charAt(0) === '#') {
+        return n.charAt(1) === 'x'
+          ? String.fromCharCode(parseInt(n.substring(2), 16))
+          : String.fromCharCode(+n.substring(1));
+      }
+      return '';
+    });
+  }
+  
+  function replace(regex, opt) {
+    regex = regex.source;
+    opt = opt || '';
+    return function self(name, val) {
+      if (!name) return new RegExp(regex, opt);
+      val = val.source || val;
+      val = val.replace(/(^|[^\[])\^/g, '$1');
+      regex = regex.replace(name, val);
+      return self;
+    };
+  }
+  
+  function noop() {}
+  noop.exec = noop;
+  
+  function merge(obj) {
+    var i = 1
+      , target
+      , key;
+  
+    for (; i < arguments.length; i++) {
+      target = arguments[i];
+      for (key in target) {
+        if (Object.prototype.hasOwnProperty.call(target, key)) {
+          obj[key] = target[key];
+        }
+      }
+    }
+  
+    return obj;
+  }
+  
+  
+  /**
+   * Marked
+   */
+  
+  function marked(src, opt, callback) {
+    if (callback || typeof opt === 'function') {
+      if (!callback) {
+        callback = opt;
+        opt = null;
+      }
+  
+      opt = merge({}, marked.defaults, opt || {});
+  
+      var highlight = opt.highlight
+        , tokens
+        , pending
+        , i = 0;
+  
+      try {
+        tokens = Lexer.lex(src, opt)
+      } catch (e) {
+        return callback(e);
+      }
+  
+      pending = tokens.length;
+  
+      var done = function(err) {
+        if (err) {
+          opt.highlight = highlight;
+          return callback(err);
+        }
+  
+        var out;
+  
+        try {
+          out = Parser.parse(tokens, opt);
+        } catch (e) {
+          err = e;
+        }
+  
+        opt.highlight = highlight;
+  
+        return err
+          ? callback(err)
+          : callback(null, out);
+      };
+  
+      if (!highlight || highlight.length < 3) {
+        return done();
+      }
+  
+      delete opt.highlight;
+  
+      if (!pending) return done();
+  
+      for (; i < tokens.length; i++) {
+        (function(token) {
+          if (token.type !== 'code') {
+            return --pending || done();
+          }
+          return highlight(token.text, token.lang, function(err, code) {
+            if (err) return done(err);
+            if (code == null || code === token.text) {
+              return --pending || done();
+            }
+            token.text = code;
+            token.escaped = true;
+            --pending || done();
+          });
+        })(tokens[i]);
+      }
+  
+      return;
+    }
+    try {
+      if (opt) opt = merge({}, marked.defaults, opt);
+      return Parser.parse(Lexer.lex(src, opt), opt);
+    } catch (e) {
+      e.message += '\nPlease report this to https://github.com/chjj/marked.';
+      if ((opt || marked.defaults).silent) {
+        return '<p>An error occured:</p><pre>'
+          + escape(e.message + '', true)
+          + '</pre>';
+      }
+      throw e;
+    }
+  }
+  
+  /**
+   * Options
+   */
+  
+  marked.options =
+  marked.setOptions = function(opt) {
+    merge(marked.defaults, opt);
+    return marked;
+  };
+  
+  marked.defaults = {
+    gfm: true,
+    tables: true,
+    breaks: false,
+    pedantic: false,
+    sanitize: false,
+    sanitizer: null,
+    mangle: true,
+    smartLists: false,
+    silent: false,
+    highlight: null,
+    langPrefix: 'lang-',
+    smartypants: false,
+    headerPrefix: '',
+    renderer: new Renderer,
+    xhtml: false
+  };
+  
+  /**
+   * Expose
+   */
+  
+  marked.Parser = Parser;
+  marked.parser = Parser.parse;
+  
+  marked.Renderer = Renderer;
+  
+  marked.Lexer = Lexer;
+  marked.lexer = Lexer.lex;
+  
+  marked.InlineLexer = InlineLexer;
+  marked.inlineLexer = InlineLexer.output;
+  
+  marked.parse = marked;
+  
+  module.exports = marked;
+  
+  
 
 });
 
@@ -15197,44 +15082,6 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
           }
       });
   }
-
-});
-
-;/*!/modules/test/add/main.js*/
-define('modules/test/add/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>    \r\n    </button>\r\n\r\n    <modal title=\"testtitle\">\r\n\r\n        <form action=\"#\" class=\"form-horizontal\" role=\"form\">\r\n            <div class=\"form-body\">\r\n                <form-input name=\"username\" title=\"用户名\" horizontal></form-input>\r\n                <form-input type=\"password\" name=\"password\" title=\"密码\" horizontal></form-input>\r\n            </div>\r\n        </form>\r\n        \r\n    </modal>\r\n\r\n</div>\r\n",
-      methods: {
-          showModal: function showModal() {
-              this.$children[0].show();
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/test/main/main.js*/
-define('modules/test/main/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var add = require('modules/test/add/main');
-  
-  module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add></add>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"datagrid\" icon=\"globe\">    \r\n    <datagrid type=\"server\" url=\"https://www.datatables.net/examples/server_side/scripts/post.php\"></datagrid>\r\n</portlet>",
-      components: {
-          'add': add
-      },
-      ready: function ready() {}
-  });
 
 });
 
@@ -15753,33 +15600,6 @@ define('modules/widget/inputtext/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/article/main.js*/
-define('pages/article/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var Container = require('modules/article/container/main');
-  
-  window.app = new Vue({
-    el: '#app',
-    components: {
-      Container: Container
-    },
-    ready: function ready() {
-      var child = this.$refs.mycon;
-      // console.log(child);
-      child.getArticleDetail('a10');
-    }
-  });
-
-});
-
 ;/*!/pages/car_index/main.js*/
 define('pages/car_index/main', function(require, exports, module) {
 
@@ -15814,8 +15634,8 @@ define('pages/car_index/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/index/main.js*/
-define('pages/index/main', function(require, exports, module) {
+;/*!/pages/index_index/main.js*/
+define('pages/index_index/main', function(require, exports, module) {
 
   /**
    * Boot up the Vue instance and wire up the router.
@@ -15823,23 +15643,28 @@ define('pages/index/main', function(require, exports, module) {
   
   'use strict';
   
+  require('modules/common/global');
+  
   var Vue = require('modules/lib/vue');
   
-  var IndexTest1 = require('modules/index/test1/main');
-  var IndexTest2 = require('modules/index/test2/main');
-  var IndexTest3 = require('modules/index/test3/main');
+  var App = require('modules/common/app');
+  var IndexMain = require('modules/index_index/main/main');
   
   window.app = new Vue({
-    el: '#app',
-    data: {
-      'currentView': 'index.html'
-    },
-    components: {
-      'index-test1': IndexTest1,
-      'test2': IndexTest2,
-      'test3': IndexTest3
-    }
+      el: '#app',
+      components: {
+          IndexMain: IndexMain
+      },
+      ready: function ready() {
+          _init();
+      }
   });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
 
 });
 
@@ -15867,40 +15692,6 @@ define('pages/login_index/main', function(require, exports, module) {
       LoginPanel: LoginPanel
     }
   });
-
-});
-
-;/*!/pages/test/main.js*/
-define('pages/test/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var TestMain = require('modules/test/main/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          TestMain: TestMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
 
 });
 
