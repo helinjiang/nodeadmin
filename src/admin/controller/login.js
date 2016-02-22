@@ -50,7 +50,11 @@ export default class extends Base {
 
         // 如果登录失败，则返回失败
         if (think.isEmpty(result)) {
-            return this.fail('login fail');
+            // 自定义错误码
+            // https://thinkjs.org/zh-cn/doc/2.1/api_controller.html#toc-ff1
+            // https://thinkjs.org/zh-cn/doc/2.1/controller.html#toc-1ab
+            // https://thinkjs.org/zh-cn/doc/2.1/i18n.html#toc-d0f
+            return this.fail('LOGIN_FAIL');
         }
 
         // 如果成功，则保存用户信息
