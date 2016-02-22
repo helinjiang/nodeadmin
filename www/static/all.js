@@ -14892,15 +14892,43 @@ var require, define;
     require.timeout = 5000;
 
 })(this);
-;/*!/modules/login_index/loginheader/main.js*/
-define('modules/login_index/loginheader/main', function(require, exports, module) {
+;/*!/modules/login_index/container/main.js*/
+define('modules/login_index/container/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<!-- BEGIN LOGO -->\r\n<div class=\"logo\">\r\n    <a href=\"index.html\">\r\n        <!-- <img src=\"/static/img/logo.png\" alt=\"\" /> -->\r\n        <h1>NodeAdmin 后台管理系统1</h1>\r\n    </a>\r\n</div>\r\n<!-- END LOGO -->",
+      template: "<div class=\"content\">\r\n    <slot></slot>\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/login_index/footer/main.js*/
+define('modules/login_index/footer/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"copyright\">\r\n    2016 &copy; <a href=\"https://github.com/helinjiang/nodeadmin\" target=\"_blank\">NodeAdmin</a>.\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/login_index/header/main.js*/
+define('modules/login_index/header/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"logo\">\r\n    <a href=\"index.html\">\r\n        <img src=\"/static/img/logo.png\" alt=\"logo\" />\r\n    </a>\r\n</div>\r\n",
       ready: function ready() {}
   });
 
@@ -15682,20 +15710,6 @@ define('pages/index_index/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/login_index/loginfooter/main.js*/
-define('modules/login_index/loginfooter/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<!-- BEGIN COPYRIGHT -->\r\n<div class=\"copyright\">\r\n    2016 &copy; <a href=\"https://github.com/helinjiang/nodeadmin\" target=\"_blank\">NodeAdmin</a>.\r\n</div>\r\n<!-- END COPYRIGHT -->",
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/pages/login_index/main.js*/
 define('pages/login_index/main', function(require, exports, module) {
 
@@ -15709,14 +15723,16 @@ define('pages/login_index/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  var LoginHeader = require('modules/login_index/loginheader/main');
-  var LoginFooter = require('modules/login_index/loginfooter/main');
+  var LoginHeader = require('modules/login_index/header/main');
+  var LoginFooter = require('modules/login_index/footer/main');
+  var LoginContainer = require('modules/login_index/container/main');
   var LoginPanel = require('modules/login_index/loginpanel/main');
   
   window.app = new Vue({
       el: '#app',
       components: {
           LoginHeader: LoginHeader,
+          LoginContainer: LoginContainer,
           LoginFooter: LoginFooter,
           LoginPanel: LoginPanel
       }

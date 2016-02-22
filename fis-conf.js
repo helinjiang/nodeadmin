@@ -157,7 +157,10 @@ fis.match('::packager', {
 // 将所有的静态资源都放入到/static文件夹下，因为thinkjs的静态资源文件夹就是这个
 
 
-fis.project.currentMedia() === 'dev' && fis.util.del(fis.project.getProjectPath('../dev'));
+if(fis.project.currentMedia() === 'dev'){
+    fis.util.del(fis.project.getProjectPath('../dev'));
+    fis.util.del(fis.project.getProjectPath('../www/static'));
+} 
 
 fis.media('dev')
     .match('**', {
