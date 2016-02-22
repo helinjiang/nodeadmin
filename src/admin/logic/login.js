@@ -5,19 +5,24 @@
  * @return {}     []
  */
 export default class extends think.logic.base {
-  /**
-   * index action logic
-   * @return {} []
-   */
-  indexAction(){
-   
-  }
+    /**
+     * index action logic
+     * @return {} []
+     */
+    indexAction() {
 
-  loginAction() {
-    this.allowMethods = "post"; //只允许 GET 和 POST 请求类型
+    }
 
-    this.rules = {
-      username: "required|length:2,5"
-    };
-  }
+    loginAction() {
+        // 只允许post操作
+        // https://thinkjs.org/zh-cn/doc/2.1/logic.html#toc-b1c
+        this.allowMethods = "post";
+
+        // 其他规则
+        // https://thinkjs.org/zh-cn/doc/2.1/logic.html#toc-54a
+        this.rules = {
+            username: "required",
+            password: "required"
+        };
+    }
 }
