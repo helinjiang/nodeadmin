@@ -1,59 +1,40 @@
 <!DOCTYPE html>
-<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
-<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
-<!--[if !IE]><!-->
-<html lang="en" class="no-js">
-<!--<![endif]-->
 
-<head>
-    <!--inline[modules/common_htmls/meta.html]-->
-    <title>登录</title>    
+<html lang="zh-CN">
 
-    <!--inline[modules/common_htmls/css_global.html]-->
+    <head>
+        <!--inline[modules/common_htmls/meta.html]-->
+        <title>登录</title>    
 
-    <!-- BEGIN PAGE LEVEL STYLES -->
-    <link rel="stylesheet" href="/static/plugins/select2/select2.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-toastr/toastr.min.css"/><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-datepicker/css/datepicker.css"/><!--ignore-->
-    <!-- END PAGE LEVEL SCRIPTS -->
-    
-    <!--inline[modules/common_htmls/css_theme.html]-->
+        <!--inline[modules/common_htmls/css_global.html]-->
+        <!--inline[modules/common_htmls/css_plugins.html]-->    
+        <!--inline[modules/common_htmls/css_theme.html]-->
 
-    <link rel="stylesheet" href="./main.scss">
-</head>
+        <link rel="stylesheet" href="./main.scss">
+    </head>
 
-<body class="login">
+    <body class="login_index">
 
-    <div id="app">
-        <login-header></login-header>
+        <div id="app">
+            <login-header></login-header>
 
-        <login-container>
-            <login-panel></login-panel>
-        </login-container>
-        
-        <login-footer></login-footer>
-    </div>  
+            <login-container>
+                <login-panel></login-panel>
+            </login-container>
+            
+            <login-footer></login-footer>
+        </div>  
 
-    <!--inline[modules/common_htmls/js_global.html]-->
+        <!--inline[modules/common_htmls/js_global.html]-->
+        <!--inline[modules/common_htmls/js_plugins.html]-->  
 
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script src="/static/plugins/jquery-validation/js/jquery.validate.min.js"></script><!--ignore-->
-    <script src="/static/plugins/select2/select2.min.js"></script><!--ignore-->
-    <script src="/static/plugins/jquery.form.min.js"></script><!--ignore-->
-    <script src="/static/plugins/bootstrap-toastr/toastr.min.js"></script><!--ignore-->
-    <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!--ignore-->
-    <!-- END PAGE LEVEL PLUGINS -->
+        <script src="/static/modules/lib/mod.js"></script>
 
-    <script src="/static/modules/lib/mod.js"></script>
+        <script src="./main.js"></script>
+        <script type="text/javascript">
+            require(['./main']);
+        </script>
 
-    <!--这里我是有疑问的！！！-->
-    <script src="./main.js"></script>
-
-    <script type="text/javascript">
-        require(['./main']);
-    </script>
-    <!-- END JAVASCRIPTS -->
-</body>
-<!-- END BODY -->
+    </body>
 
 </html>

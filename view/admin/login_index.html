@@ -1,56 +1,54 @@
 <!DOCTYPE html>
-<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
-<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
-<!--[if !IE]><!-->
-<html lang="en" class="no-js">
-<!--<![endif]-->
 
-<head>
-        <meta charset="utf-8" />
+<html lang="zh-CN">
+
+    <head>
+            <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="" name="description" />
     <meta content="" name="author" />
     <meta name="MobileOptimized" content="320">
-    <title>登录</title>    
+        <title>登录</title>    
 
-        <!-- BEGIN GLOBAL MANDATORY STYLES -->    <link rel="stylesheet" href="/static/plugins/font-awesome/css/font-awesome.min.css" />
+            <!-- BEGIN GLOBAL MANDATORY STYLES -->    <link rel="stylesheet" href="/static/plugins/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="/static/plugins/simple-line-icons/simple-line-icons.min.css" />
     <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/static/plugins/uniform/css/uniform.default.min.css" />
     <!-- END GLOBAL MANDATORY STYLES -->
-
-    <!-- BEGIN PAGE LEVEL STYLES -->
-    <link rel="stylesheet" href="/static/plugins/select2/select2.css" />
+            <!-- BEGIN PAGE LEVEL STYLES -->
+    <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css"/>
+    <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal.css"/>
+    <link rel="stylesheet" href="/static/plugins/select2/select2.css"/>
+    <link rel="stylesheet" href="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/>
     <link rel="stylesheet" href="/static/plugins/bootstrap-toastr/toastr.min.css"/>
     <link rel="stylesheet" href="/static/plugins/bootstrap-datepicker/css/datepicker.css"/>
-    <!-- END PAGE LEVEL SCRIPTS -->
-    
-        <!-- BEGIN THEME STYLES -->
+    <!-- END PAGE LEVEL SCRIPTS -->    
+            <!-- BEGIN THEME STYLES -->
     <link rel="stylesheet" href="/static/css/style-conquer.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
     <link rel="stylesheet" href="/static/css/style-responsive.css" />
     <link rel="stylesheet" href="/static/css/plugins.css" />
     <link rel="stylesheet" href="/static/css/themes/default.css" />
     <!-- END THEME STYLES -->
-
+    
     <link rel="stylesheet" href="http://fonts.useso.com/css?family=Open+Sans:400,300,600,700&subset=all" />
     <link rel="stylesheet" href="/static/all.css" />
 </head>
 
-<body class="login">
+    <body class="login_index">
 
-    <div id="app">
-        <login-header></login-header>
+        <div id="app">
+            <login-header></login-header>
 
-        <login-container>
-            <login-panel></login-panel>
-        </login-container>
-        
-        <login-footer></login-footer>
-    </div>  
+            <login-container>
+                <login-panel></login-panel>
+            </login-container>
+            
+            <login-footer></login-footer>
+        </div>  
 
-        <!-- BEGIN CORE PLUGINS -->
+            <!-- BEGIN CORE PLUGINS -->
     <script src="/static/plugins/jquery-1.11.0.min.js"></script>
     <script src="/static/plugins/jquery-migrate-1.2.1.min.js"></script>
 
@@ -63,24 +61,25 @@
     <script src="/static/plugins/jquery.blockui.min.js"></script>
     <script src="/static/plugins/uniform/jquery.uniform.min.js"></script>
     <!-- END CORE PLUGINS -->
-
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
+            <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="/static/plugins/bootstrap-modal/js/bootstrap-modalmanager.js"></script>
+    <script src="/static/plugins/bootstrap-modal/js/bootstrap-modal.js"></script>
     <script src="/static/plugins/jquery-validation/js/jquery.validate.min.js"></script>
     <script src="/static/plugins/select2/select2.min.js"></script>
     <script src="/static/plugins/jquery.form.min.js"></script>
+    <script src="/static/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="/static/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
+    <script src="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
     <script src="/static/plugins/bootstrap-toastr/toastr.min.js"></script>
     <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <!-- END PAGE LEVEL PLUGINS -->
 
-    <!--这里我是有疑问的！！！-->
-    <!-- END JAVASCRIPTS -->
-
+    
 <script src="/static/modules/lib/mod.js"></script>
 <script type="text/javascript" src="/static/all.js"></script>
 <script type="text/javascript">
-        require(['pages/login_index/main']);
-    </script>
+            require(['pages/login_index/main']);
+        </script>
 </body>
-<!-- END BODY -->
 
 </html>
