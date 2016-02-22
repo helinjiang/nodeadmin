@@ -1,0 +1,14 @@
+.logo {
+  margin: 0 auto;   
+  margin-top:60px;
+  padding: 15px;
+  text-align: center;
+}  
+
+@media (max-width: 480px) {
+
+  .logo {
+    margin-top:10px;
+  }
+
+}

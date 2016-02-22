@@ -4,24 +4,24 @@ define('modules/widget/hecheckbox/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  module.exports = Vue.extend({
+  Vue.component('he-checkbox', {
       template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" value=\"{{ value }}\" /> \r\n    {{ title }} \r\n</label>",
       data: function data() {
           return {
               checkboxElem: undefined
           };
       },
-      props: ['value',
-  
-      /**
-       * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-       */
-      'title',
-  
-      /**
-       * input 的name 值，必须
-       */
-      'name'],
+      props: {
+          /**
+           * checkbox 的 name 值，必须
+           */
+          name: {
+              type: String,
+              required: true
+          },
+          value: String,
+          title: String
+      },
       methods: {
           isChecked: function isChecked() {
               return this.checkboxElem.attr('checked') === 'checked';
@@ -33,19 +33,18 @@ define('modules/widget/hecheckbox/main', function(require, exports, module) {
           }
       },
       ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('checkboxElem', $('input', $(this.$el)));
+          this.checkboxElem = $('input', $(this.$el));
   
           handleUniform(this);
       }
   });
   
-  var handleUniform = function handleUniform(vm) {
+  function handleUniform(vm) {
       if (!jQuery().uniform) {
           return;
       }
   
       vm.checkboxElem.uniform();
-  };
+  }
 
 });

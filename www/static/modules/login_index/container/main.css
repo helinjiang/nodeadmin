@@ -1,0 +1,65 @@
+.content {
+  background-color: #fff;
+  width: 360px;
+  margin: 0 auto;
+  margin-bottom: 0px;
+  padding: 30px;
+  padding-top: 20px;
+  padding-bottom: 15px;
+  border-radius: 4px;
+}
+
+.content h3 {
+  color: #000;
+}
+
+.content h4 {
+  color: #555;
+}
+
+.content p {
+  color: #222;
+}
+
+.content .login-form {
+  padding: 0px;
+  margin: 0px;
+}
+
+.content .form-title {
+  font-weight: 300;
+  margin-bottom: 25px;
+}
+
+.content .form-actions {
+  background-color: #fff;
+  clear: both;
+  border: 0px;
+  border-bottom: 1px solid #eee;
+  padding: 0px 30px 25px 30px;
+  margin-left: -30px;
+  margin-right: -30px;
+}
+
+.content .form-actions .checkbox {
+  margin-left: 0;
+  padding-left: 0;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.content .form-actions .btn {
+  margin-top: 1px;
+}
+
+@media (max-width: 480px) {
+  .content {
+    width: 280px;
+  }
+  .content h3 {
+    font-size: 22px;
+  }
+  .content .checkbox {
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,71 @@
+.content {
+  background-color:#fff; 
+  width: 360px;
+  margin: 0 auto; 
+  margin-bottom: 0px;
+  padding: 30px;  
+  padding-top: 20px;  
+  padding-bottom: 15px;  
+  border-radius: 4px;
+
+  h3 {
+    color: #000;
+  }
+  h4  {
+    color: #555;
+  }
+
+  p {
+    color: #222;
+  }
+
+  .login-form {
+      padding: 0px;
+      margin: 0px;
+  }
+
+  .form-title {
+    font-weight: 300;
+    margin-bottom: 25px;
+  }
+
+  .form-actions {
+    background-color: #fff;
+    clear: both;
+    border: 0px;
+    border-bottom: 1px solid #eee;
+    padding: 0px 30px 25px 30px;
+    margin-left: -30px;
+    margin-right: -30px;
+
+    .checkbox {
+      margin-left: 0;
+      padding-left: 0;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .btn {
+      margin-top: 1px;
+    }
+  }  
+
+}
+
+
+@media (max-width: 480px) {
+
+  .content {
+    width: 280px;
+
+    h3 {
+      font-size: 22px;
+    }
+
+    .checkbox {
+      font-size: 13px;
+    }
+  }
+
+  
+}
