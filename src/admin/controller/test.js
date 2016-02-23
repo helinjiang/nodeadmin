@@ -13,9 +13,9 @@ export default class extends Base {
     }
 
     /**
-     * 获得用户组值
+     * 获得用户组值，实际请求地址为 /admin/test/get_group
      */
-    getgroupAction() {
+    getGroupAction() {
         let data = [{
             id: 1,
             name: '管理员'
