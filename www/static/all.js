@@ -11454,8 +11454,8 @@ define('modules/widget/heform/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminfooter/main.js*/
-define('modules/widget/adminfooter/main', function(require, exports, module) {
+;/*!/modules/module_admin/footer/main.js*/
+define('modules/module_admin/footer/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11486,8 +11486,8 @@ define('modules/widget/adminfooter/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminheader/main.js*/
-define('modules/widget/adminheader/main', function(require, exports, module) {
+;/*!/modules/module_admin/header/main.js*/
+define('modules/module_admin/header/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11509,8 +11509,8 @@ define('modules/widget/adminheader/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminheadersearch/main.js*/
-define('modules/widget/adminheadersearch/main', function(require, exports, module) {
+;/*!/modules/module_admin/headersearch/main.js*/
+define('modules/module_admin/headersearch/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11548,8 +11548,8 @@ define('modules/widget/adminheadersearch/main', function(require, exports, modul
 
 });
 
-;/*!/modules/widget/adminmain/main.js*/
-define('modules/widget/adminmain/main', function(require, exports, module) {
+;/*!/modules/module_admin/main/main.js*/
+define('modules/module_admin/main/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11699,8 +11699,8 @@ define('modules/common/menudata', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminmaintitle/main.js*/
-define('modules/widget/adminmaintitle/main', function(require, exports, module) {
+;/*!/modules/module_admin/maintitle/main.js*/
+define('modules/module_admin/maintitle/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11756,8 +11756,8 @@ define('modules/widget/adminmaintitle/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/widget/adminmaintoolbar/main.js*/
-define('modules/widget/adminmaintoolbar/main', function(require, exports, module) {
+;/*!/modules/module_admin/maintoolbar/main.js*/
+define('modules/module_admin/maintoolbar/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11770,8 +11770,8 @@ define('modules/widget/adminmaintoolbar/main', function(require, exports, module
 
 });
 
-;/*!/modules/widget/adminsidemenuitem/main.js*/
-define('modules/widget/adminsidemenuitem/main', function(require, exports, module) {
+;/*!/modules/module_admin/sidemenuitem/main.js*/
+define('modules/module_admin/sidemenuitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11811,8 +11811,8 @@ define('modules/widget/adminsidemenuitem/main', function(require, exports, modul
 
 });
 
-;/*!/modules/widget/adminsidemenu/main.js*/
-define('modules/widget/adminsidemenu/main', function(require, exports, module) {
+;/*!/modules/module_admin/sidemenu/main.js*/
+define('modules/module_admin/sidemenu/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13109,14 +13109,15 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/widget/heformitem/main');
   require('modules/widget/heform/main');
   
-  require('modules/widget/adminfooter/main');
-  require('modules/widget/adminheader/main');
-  require('modules/widget/adminheadersearch/main');
-  require('modules/widget/adminmain/main');
-  require('modules/widget/adminmaintitle/main');
-  require('modules/widget/adminmaintoolbar/main');
-  require('modules/widget/adminsidemenuitem/main');
-  require('modules/widget/adminsidemenu/main');
+  require('modules/module_admin/footer/main');
+  require('modules/module_admin/header/main');
+  require('modules/module_admin/headersearch/main');
+  require('modules/module_admin/main/main');
+  require('modules/module_admin/maintitle/main');
+  require('modules/module_admin/maintoolbar/main');
+  require('modules/module_admin/sidemenuitem/main');
+  require('modules/module_admin/sidemenu/main');
+  
   require('modules/widget/portlet/main');
   require('modules/widget/datagriditem/main');
   require('modules/widget/datagrid/main');

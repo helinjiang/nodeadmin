@@ -1,4 +1,4 @@
-define('modules/widget/adminmain/main', function(require, exports, module) {
+define('modules/module_admin/main/main', function(require, exports, module) {
 
   'use strict';
   

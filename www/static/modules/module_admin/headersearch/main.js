@@ -1,4 +1,4 @@
-define('modules/widget/adminheadersearch/main', function(require, exports, module) {
+define('modules/module_admin/headersearch/main', function(require, exports, module) {
 
   'use strict';
   

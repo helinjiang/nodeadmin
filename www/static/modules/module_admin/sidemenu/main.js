@@ -1,4 +1,4 @@
-define('modules/widget/adminsidemenu/main', function(require, exports, module) {
+define('modules/module_admin/sidemenu/main', function(require, exports, module) {
 
   'use strict';
   

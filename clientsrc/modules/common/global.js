@@ -7,14 +7,15 @@ require('/modules/widget/hecheckbox/main');
 require('/modules/widget/heformitem/main');
 require('/modules/widget/heform/main');
 
-require('/modules/widget/adminfooter/main');
-require('/modules/widget/adminheader/main');
-require('/modules/widget/adminheadersearch/main');
-require('/modules/widget/adminmain/main');
-require('/modules/widget/adminmaintitle/main');
-require('/modules/widget/adminmaintoolbar/main');
-require('/modules/widget/adminsidemenuitem/main');
-require('/modules/widget/adminsidemenu/main');
+require('/modules/module_admin/footer/main');
+require('/modules/module_admin/header/main');
+require('/modules/module_admin/headersearch/main');
+require('/modules/module_admin/main/main');
+require('/modules/module_admin/maintitle/main');
+require('/modules/module_admin/maintoolbar/main');
+require('/modules/module_admin/sidemenuitem/main');
+require('/modules/module_admin/sidemenu/main');
+
 require('/modules/widget/portlet/main');
 require('/modules/widget/datagriditem/main');
 require('/modules/widget/datagrid/main');

@@ -1,4 +1,4 @@
-define('modules/widget/adminmaintoolbar/main', function(require, exports, module) {
+define('modules/module_admin/maintoolbar/main', function(require, exports, module) {
 
   'use strict';
   
