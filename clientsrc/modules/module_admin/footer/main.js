@@ -21,4 +21,4 @@ var handleGoTop = function() {
         App.scrollTo();
         e.preventDefault();
     });
-}
+};

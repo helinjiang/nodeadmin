@@ -11248,6 +11248,20 @@ define('modules/widget/date/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/widget/clearfix/main.js*/
+define('modules/widget/clearfix/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('clearfix', {
+      template: " <div class=\"clearfix\"></div>",
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/widget/hecheckbox/main.js*/
 define('modules/widget/hecheckbox/main', function(require, exports, module) {
 
@@ -13104,6 +13118,8 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/widget/select2option/main');
   require('modules/widget/select2/main');
   require('modules/widget/date/main');
+  
+  require('modules/widget/clearfix/main');
   
   require('modules/widget/hecheckbox/main');
   require('modules/widget/heformitem/main');

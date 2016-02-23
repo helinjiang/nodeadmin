@@ -3,6 +3,8 @@ require('/modules/widget/select2option/main');
 require('/modules/widget/select2/main');
 require('/modules/widget/date/main');
 
+require('/modules/widget/clearfix/main');
+
 require('/modules/widget/hecheckbox/main');
 require('/modules/widget/heformitem/main');
 require('/modules/widget/heform/main');
