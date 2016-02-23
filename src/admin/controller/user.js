@@ -13,7 +13,8 @@ export default class extends Base {
     }
 
     /**
-     * 获得数据库表think_user中所有的用户信息
+     * 获得数据库表 think_user 中所有的用户信息
+     * 
      * @return {object} JSON 格式数据
      */
     async getdataAction() {
@@ -24,7 +25,7 @@ export default class extends Base {
 
         // 为了最后的显示，进行数据处理
         data = data.map(item => {
-            // 转义时间
+            // 转义时间显示
             item.createTime = this.getCurTimeStr(item.createTime);
             item.updateTime = this.getCurTimeStr(item.updateTime);
             item.birthday = this.getCurDateStr(item.birthday);
@@ -48,7 +49,8 @@ export default class extends Base {
     }
 
     /**
-     * 新增数据到数据库表think_user中
+     * 新增数据到数据库表 think_user 中
+     * 
      * @return {object} JSON 格式数据
      */
     addAction() {
@@ -78,7 +80,8 @@ export default class extends Base {
     }
 
     /**
-     * 修改数据到数据库表think_user中
+     * 修改数据到数据库表 think_user 中
+     * 
      * @return {object} JSON 格式数据
      */
     modifyAction() {
@@ -104,36 +107,41 @@ export default class extends Base {
 
     }
 
+    /**
+     * 从数据库表 think_user 中删除一条记录
+     *
+     * @return {object} JSON 格式数据
+     */
     async deleteAction() {
-        if (this.isGet()) {
-            return this.fail('Not Post');
-        }
-
+        // 获取参数
         let id = this.post('id');
         let model = this.model("user");
 
+        // 参数校验，在logic中已完成
+
+        // TODO 检查外键情况，查询是否有其他的数据表有用到该数据
+
+        // 删除
         let affectedRows = await model
             .where({
                 id: id
             })
             .delete()
-            // .catch(err => this.fail(err.message || 'error'));
             .catch(err => {
-                // TODO 由于它是外键，因此如果存在记录情况下，直接删除的话SQL会报错
-                console.error('===', err);
-                console.error('===', err.message);
-                console.error('===', err.errno);
-                this.fail(err.message || 'error')
+                return this.fail(err.message || 'error')
             });
 
-
-        // console.log('--', affectedRows);
-
+        // 处理返回结果
         if (affectedRows) {
             return this.success({
                 _type: 'delete',
-                id: id,
-                affectedRows: affectedRows
+                affectedRows: affectedRows,
+                id: id
+            });
+        } else {
+            return this.fail('delete failed!', {
+                _type: 'delete',
+                id: id
             });
         }
     }
@@ -155,20 +163,21 @@ export default class extends Base {
                 .thenAdd(record, {
                     name: name
                 })
-                .catch(err => this.fail(err.message || 'error'));
+                .catch(err => {
+                    return this.fail(err.message || 'error');
+                });
 
-            // 新增结果
+            // 处理返回结果
             if (result.type === 'add') {
+
                 return this.success({
                     _type: result.type,
-                    id: result.id,
-                    name: name
+                    record
                 });
             } else {
-                return this.fail(100, 'fail', {
+                return this.fail('already exist same name!', {
                     _type: result.type,
-                    id: result.id,
-                    name: name
+                    record
                 });
             }
         } else {
@@ -178,16 +187,22 @@ export default class extends Base {
                     id: id
                 })
                 .update(record)
-                .catch(err => this.fail(err.message || 'error'));
+                .catch(err => {
+                    return this.fail(err.message || 'error');
+                });
 
+            // 处理返回结果
             if (affectedRows) {
                 return this.success({
                     _type: 'modify',
-                    id: id,
-                    name: name
+                    affectedRows: affectedRows,
+                    record
                 });
-            }else {
-                return this.fail('modify failed');
+            } else {
+                return this.fail('modify failed!', {
+                    _type: 'modify',
+                    record
+                });
             }
         }
     }

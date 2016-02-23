@@ -14,7 +14,6 @@ export default class extends think.logic.base {
     }
 
     addAction() {
-        console.log('logic addAction');
         // 只允许post操作
         this.allowMethods = "post";
 
@@ -28,7 +27,6 @@ export default class extends think.logic.base {
     }
 
     modifyAction() {
-        console.log('logic addAction');
         // 只允许post操作
         this.allowMethods = "post";
 
@@ -38,6 +36,16 @@ export default class extends think.logic.base {
             name: "required",
             state: "required",
             birthday: "required"
+        };
+    }
+
+    deleteAction() {
+        // 只允许post操作
+        this.allowMethods = "post";
+
+        // 其他规则
+        this.rules = {
+            id: "required"
         };
     }
 }
