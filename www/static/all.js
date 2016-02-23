@@ -11523,45 +11523,6 @@ define('modules/module_admin/header/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/module_admin/headersearch/main.js*/
-define('modules/module_admin/headersearch/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-header-search', {
-      template: "<form class=\"search-form search-form-header\" role=\"form\" action=\"index.html\">\r\n    <div class=\"input-icon right\">\r\n        <i class=\"icon-magnifier\"></i>\r\n        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n    </div>\r\n</form>\r\n",
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          handleQuickSearch(); // handles quick search
-      });
-  }
-  
-  var handleQuickSearch = function handleQuickSearch() {
-  
-      // handle search for header search input on enter press
-      $('.search-form-header').on('keypress', 'input.form-control', function (e) {
-          if (e.which == 13) {
-              $('.search-form-header').submit();
-              return false;
-          }
-      });
-  
-      // handle search for header search input on icon click
-      $('.search-form-header').on('click', '.icon-search', function (e) {
-          $('.search-form-header').submit();
-          return false;
-      });
-  };
-
-});
-
 ;/*!/modules/module_admin/container/main.js*/
 define('modules/module_admin/container/main', function(require, exports, module) {
 
@@ -13110,7 +13071,6 @@ define('modules/common/global', function(require, exports, module) {
   
   require('modules/module_admin/footer/main');
   require('modules/module_admin/header/main');
-  require('modules/module_admin/headersearch/main');
   require('modules/module_admin/container/main');
   require('modules/module_admin/maintitle/main');
   require('modules/module_admin/maintoolbar/main');
