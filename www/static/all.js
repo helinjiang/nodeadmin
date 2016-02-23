@@ -11548,14 +11548,14 @@ define('modules/module_admin/headersearch/main', function(require, exports, modu
 
 });
 
-;/*!/modules/module_admin/main/main.js*/
-define('modules/module_admin/main/main', function(require, exports, module) {
+;/*!/modules/module_admin/container/main.js*/
+define('modules/module_admin/container/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
-  Vue.component('admin-main', {
+  Vue.component('admin-container', {
       template: "<div class=\"page-container\">\r\n    <slot name=\"menu\"></slot>\r\n    <div class=\"page-content-wrapper\">\r\n        <div class=\"page-content\">              \r\n            <slot name=\"title\"></slot>\r\n            <div class=\"row\">\r\n                <div class=\"col-md-12\">\r\n                    <slot></slot>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
       ready: function ready() {}
   });
@@ -13112,7 +13112,7 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/module_admin/footer/main');
   require('modules/module_admin/header/main');
   require('modules/module_admin/headersearch/main');
-  require('modules/module_admin/main/main');
+  require('modules/module_admin/container/main');
   require('modules/module_admin/maintitle/main');
   require('modules/module_admin/maintoolbar/main');
   require('modules/module_admin/sidemenuitem/main');

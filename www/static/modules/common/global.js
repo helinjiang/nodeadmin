@@ -14,7 +14,7 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/module_admin/footer/main');
   require('modules/module_admin/header/main');
   require('modules/module_admin/headersearch/main');
-  require('modules/module_admin/main/main');
+  require('modules/module_admin/container/main');
   require('modules/module_admin/maintitle/main');
   require('modules/module_admin/maintoolbar/main');
   require('modules/module_admin/sidemenuitem/main');
