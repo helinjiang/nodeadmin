@@ -56,6 +56,11 @@ define('modules/widget/date/main', function(require, exports, module) {
            */
           'todayBtn': 'null'
       },
+      watch: {
+          value: function value(val, oldVal) {
+              console.log('--', val, oldVal);
+          }
+      },
       ready: function ready() {
           _init(this);
       }

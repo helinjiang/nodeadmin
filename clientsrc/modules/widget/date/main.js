@@ -51,6 +51,11 @@ Vue.component('date', {
          * true, fase, 'linked'
          */
         'todayBtn': 'null'
+    }, 
+    watch: {
+        value : function(val, oldVal) {
+            console.log('--', val, oldVal);
+        }
     },
     ready: function() {
         _init(this);
