@@ -8,7 +8,8 @@ module.exports = Vue.extend({
     data: function() {
         return {
             jqForm: undefined,
-            birthday: '2015-12-12'
+            birthday: '2015-12-12',
+            state: '1'
         };
     },
     methods: {
@@ -31,10 +32,10 @@ module.exports = Vue.extend({
             // TODO 还有select2等组件也要恢复初始
             $('[name="name"], [name="pwd"]', this.jqForm).val('');
 
-            this.$refs.state.value = '1';
-            // console.log(this.$refs.birthday);
-            // this.$refs.birthday.value = '2015-12-12';
-            this.value = '2015-12-12';
+            console.log('_resetnow', this.state, this.$refs.state.value);
+
+            this.state = '1';
+            this.birthday = '2015-12-12';
         },
         handleValidator: function() {
             var self = this;

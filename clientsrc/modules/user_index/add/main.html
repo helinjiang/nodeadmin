@@ -11,13 +11,13 @@
                 <input type="password" name="pwd">
             </he-form-item>
             <he-form-item title="状态" horizontal>
-                <select2 name="state" value="1" v-ref:state>
+                <select2 name="state" :value.sync="state" v-ref:state>
                     <select2-option title="有效" value="1"></select2-option>
                     <select2-option title="无效" value="-1"></select2-option>
                 </select2>
             </he-form-item>
             <he-form-item title="生日" horizontal>
-                <date name="birthday" :value="birthday" v-ref:birthday></date>
+                <date name="birthday" :value.sync="birthday" v-ref:birthday></date>
             </he-form-item>
         </he-form>
     </modal>

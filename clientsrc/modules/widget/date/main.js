@@ -51,27 +51,20 @@ Vue.component('date', {
          * true, fase, 'linked'
          */
         'todayBtn': 'null'
-    }, 
-    watch: {
-        value : function(val, oldVal) {
-            console.log('--', val, oldVal);
-        }
     },
     ready: function() {
-        _init(this);
+
+        $(this.$el).datepicker({
+            autoclose: true,
+            language: 'zh-CN'
+        });
+
+        // 如果input标签使用:value="value",则需要在下面事件时人为处理值，但如果设置了v-model="value"之后，已经是双向绑定了，则不需要再如此处理了
+        // $(this.$el).on('changeDate', function(e) {
+        //     `e` here contains the extra attributes
+        //     注意这里很关键，在datepicker选择完成值，要设置value的值
+        //     vm.value = e.format();
+        // });
+        
     }
 });
-
-
-function _init(vm) {
-    $(function() {
-        _initDatePicker(vm);
-    });
-}
-
-function _initDatePicker(vm) {
-    $(vm.$el).datepicker({
-        autoclose: true,
-        language: 'zh-CN'
-    });
-}
