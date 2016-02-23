@@ -11571,105 +11571,112 @@ define('modules/common/menudata', function(require, exports, module) {
               icon: 'pin',
               active: false
           }]
-      }]
+      }, {
+          id: 'menuTest',
+          name: '测试专用',
+          url: '/admin/test',
+          icon: 'pin',
+          active: false
+      }
+      // {
+      //     id:'2',
+      //     name: 'Page Layouts',
+      //     icon: 'home',
+      //     active: false,
+      //     children: [{
+      //         id:'21',
+      //         name: 'Sidebar Fixed Page',
+      //         url: 'layout_sidebar_fixed.html',
+      //         icon: 'anchor',
+      //         active: false,
+      //         badge: {
+      //             type: 'warning',
+      //             value: 'new'
+      //         }
+      //     }, {
+      //         id:'test',
+      //         name: 'Sidebar Closed Page',
+      //         url: 'test.html',
+      //         icon: 'anchor',
+      //         active: false,
+      //         badge: 'new'
+      //     }, {
+      //         id:'23',
+      //         name: 'Boxed Page',
+      //         url: 'layout_sidebar_fixed.html',
+      //         icon: 'pin',
+      //         active: false
+      //     }]
+      // }, {
+      //     id:'3',
+      //     name: '4 Level Menu',
+      //     icon: 'share',
+      //     active: false,
+      //     children: [{
+      //         id:'31',
+      //         name: 'Item 1',
+      //         icon: 'anchor',
+      //         active: false,
+      //         children: [{
+      //             id:'311',
+      //             name: ' Sample Link 1',
+      //             url: 'layout_sidebar_fixed.html',
+      //             icon: 'anchor',
+      //             active: false,
+      //             children: [{
+      //                 id:'3111',
+      //                 name: 'sub-4',
+      //                 url: 'layout_sidebar_fixed.html',
+      //                 icon: 'anchor',
+      //                 active: false
+      //             }, {
+      //                 id:'3112',
+      //                 name: 'sub-4',
+      //                 url: 'layout_sidebar_closed.html',
+      //                 icon: 'anchor',
+      //                 active: false
+      //             }, {
+      //                 id:'3113',
+      //                 name: 'sub-4',
+      //                 url: 'layout_sidebar_closed.html',
+      //                 icon: 'anchor',
+      //                 active: false
+      //             }]
+      //         }, {
+      //             id:'312',
+      //             name: ' Sample Link 2',
+      //             url: 'layout_sidebar_closed.html',
+      //             icon: 'anchor',
+      //             active: false
+      //         }, {
+      //             id:'313',
+      //             name: ' Sample Link 2',
+      //             url: 'layout_sidebar_closed.html',
+      //             icon: 'anchor',
+      //             active: false
+      //         }]
+      //     }, {
+      //         id:'32',
+      //         name: 'Item 2',
+      //         icon: 'anchor',
+      //         active: false
+      //     }, {
+      //         id:'33',
+      //         name: 'Item 3',
+      //         url: 'layout_sidebar_fixed.html',
+      //         icon: 'pin',
+      //         active: false
+      //     }]
+      // }, {
+      //     id:'4',
+      //     name: 'Login',
+      //     url: 'login.html',
+      //     icon: 'user',
+      //     active: false
+      // }
+      ]
   };
   
-  // {
-  //     id:'2',
-  //     name: 'Page Layouts',
-  //     icon: 'home',
-  //     active: false,
-  //     children: [{
-  //         id:'21',
-  //         name: 'Sidebar Fixed Page',
-  //         url: 'layout_sidebar_fixed.html',
-  //         icon: 'anchor',
-  //         active: false,
-  //         badge: {
-  //             type: 'warning',
-  //             value: 'new'
-  //         }
-  //     }, {
-  //         id:'test',
-  //         name: 'Sidebar Closed Page',
-  //         url: 'test.html',
-  //         icon: 'anchor',
-  //         active: false,
-  //         badge: 'new'
-  //     }, {
-  //         id:'23',
-  //         name: 'Boxed Page',
-  //         url: 'layout_sidebar_fixed.html',
-  //         icon: 'pin',
-  //         active: false
-  //     }]
-  // }, {
-  //     id:'3',
-  //     name: '4 Level Menu',
-  //     icon: 'share',
-  //     active: false,
-  //     children: [{
-  //         id:'31',
-  //         name: 'Item 1',
-  //         icon: 'anchor',
-  //         active: false,
-  //         children: [{
-  //             id:'311',
-  //             name: ' Sample Link 1',
-  //             url: 'layout_sidebar_fixed.html',
-  //             icon: 'anchor',
-  //             active: false,
-  //             children: [{
-  //                 id:'3111',
-  //                 name: 'sub-4',
-  //                 url: 'layout_sidebar_fixed.html',
-  //                 icon: 'anchor',
-  //                 active: false
-  //             }, {
-  //                 id:'3112',
-  //                 name: 'sub-4',
-  //                 url: 'layout_sidebar_closed.html',
-  //                 icon: 'anchor',
-  //                 active: false
-  //             }, {
-  //                 id:'3113',
-  //                 name: 'sub-4',
-  //                 url: 'layout_sidebar_closed.html',
-  //                 icon: 'anchor',
-  //                 active: false
-  //             }]
-  //         }, {
-  //             id:'312',
-  //             name: ' Sample Link 2',
-  //             url: 'layout_sidebar_closed.html',
-  //             icon: 'anchor',
-  //             active: false
-  //         }, {
-  //             id:'313',
-  //             name: ' Sample Link 2',
-  //             url: 'layout_sidebar_closed.html',
-  //             icon: 'anchor',
-  //             active: false
-  //         }]
-  //     }, {
-  //         id:'32',
-  //         name: 'Item 2',
-  //         icon: 'anchor',
-  //         active: false
-  //     }, {
-  //         id:'33',
-  //         name: 'Item 3',
-  //         url: 'layout_sidebar_fixed.html',
-  //         icon: 'pin',
-  //         active: false
-  //     }]
-  // }, {
-  //     id:'4',
-  //     name: 'Login',
-  //     url: 'login.html',
-  //     icon: 'user',
-  //     active: false
-  // }
   module.exports = menus;
 
 });
@@ -14966,6 +14973,69 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
 
 });
 
+;/*!/modules/test_index/testselect2/main.js*/
+define('modules/test_index/testselect2/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"test-select2\">\r\n\r\n    <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/searchuser\" convert=\"searchuser\" ajax></select2> \r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              select2data: [{
+                  id: 1,
+                  text: 'hello'
+              }, {
+                  id: 2,
+                  text: 'world'
+              }, {
+                  id: 3,
+                  text: 'what'
+              }]
+          };
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/test_index/testdate/main.js*/
+define('modules/test_index/testdate/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"test-date\">\r\n\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n\r\n    <date name=\"birthday2\" value=\"2016-12-12\" start-date=\"+0d\"></date>\r\n\r\n    <date name=\"birthday3\" value=\"2015-12-12\" start-date=\"2015-12-10\"></date>\r\n    \r\n    <date name=\"birthday4\" today-btn=\"linked\"></date>\r\n\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/test_index/main/main.js*/
+define('modules/test_index/main/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var TestSelect2 = require('modules/test_index/testselect2/main');
+  var TestDate = require('modules/test_index/testdate/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"test_index-main\">\r\n\r\n    <div class=\"row\">\r\n\r\n        <div class=\"col-md-6\">\r\n            <test-select2></test-select2>\r\n        </div>   \r\n        \r\n        <div class=\"col-md-6\">\r\n             <test-date></test-date>  \r\n        </div>  \r\n\r\n    </div>  \r\n    \r\n</div>",
+      components: {
+          TestSelect2: TestSelect2,
+          TestDate: TestDate
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/user_index/add/main.js*/
 define('modules/user_index/add/main', function(require, exports, module) {
 
@@ -15186,39 +15256,6 @@ define('modules/user_index/detail/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/justtest/main.js*/
-define('modules/user_index/justtest/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div v-if=\"debug\">\r\n<!--     <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2> -->\r\n\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n    <date name=\"birthday2\" value=\"2016-12-12\" start-date=\"+0d\"></date>\r\n    <date name=\"birthday3\" value=\"2015-12-12\" start-date=\"2015-12-10\"></date>\r\n    <date name=\"birthday4\" today-btn=\"linked\"></date>\r\n\r\n</div>\r\n",
-      data: function data() {
-          return {
-              select2data: [{
-                  id: 1,
-                  text: 'hello'
-              }, {
-                  id: 2,
-                  text: 'world'
-              }, {
-                  id: 3,
-                  text: 'what'
-              }]
-          };
-      },
-      props: {
-          debug: {
-              type: Boolean
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/modules/user_index/modify/main.js*/
 define('modules/user_index/modify/main', function(require, exports, module) {
 
@@ -15326,16 +15363,14 @@ define('modules/user_index/main/main', function(require, exports, module) {
   var modify = require('modules/user_index/modify/main');
   var deletePage = require('modules/user_index/delete/main');
   var detail = require('modules/user_index/detail/main');
-  var justtest = require('modules/user_index/justtest/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index_main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <!-- <justtest debug></justtest> -->\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n    \r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'add': add,
           'modify': modify,
           'delete': deletePage,
-          'detail': detail,
-          'justtest': justtest
+          'detail': detail
       },
       methods: {
           operate: function operate(event) {
@@ -15585,6 +15620,36 @@ define('pages/login_index/main', function(require, exports, module) {
       <html lang="en" class="no-js">
       <!--<![endif]-->
    */
+
+});
+
+;/*!/pages/test_index/main.js*/
+define('pages/test_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var TestMain = require('modules/test_index/main/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          TestMain: TestMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
 
 });
 

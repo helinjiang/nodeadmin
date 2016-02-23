@@ -4,7 +4,6 @@ var add = require('/modules/user_index/add/main');
 var modify = require('/modules/user_index/modify/main');
 var deletePage = require('/modules/user_index/delete/main');
 var detail = require('/modules/user_index/detail/main');
-var justtest = require('/modules/user_index/justtest/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
@@ -12,8 +11,7 @@ module.exports = Vue.extend({
         'add': add,
         'modify': modify,
         'delete': deletePage,
-        'detail': detail,
-        'justtest': justtest
+        'detail': detail
     },
     methods: {
         operate: function(event) {

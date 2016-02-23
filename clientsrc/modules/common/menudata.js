@@ -28,6 +28,13 @@ var menus = {
                 active: false
             }]
         },
+        {
+            id: 'menuTest',
+            name: '测试专用',
+            url: '/admin/test',
+            icon: 'pin',
+            active: false
+        }
         // {
         //     id:'2',
         //     name: 'Page Layouts',

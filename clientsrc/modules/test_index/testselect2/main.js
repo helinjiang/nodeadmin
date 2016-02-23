@@ -14,12 +14,7 @@ module.exports = Vue.extend({
                 id: 3,
                 text: 'what'
             }]
-        }
-    },
-    props: {
-        debug: {
-            type: Boolean
-        }
+        };
     },
     ready: function() {
 

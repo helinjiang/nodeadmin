@@ -1,4 +1,4 @@
-<div class="user_index_main">
+<div class="user_index-main">
 
     <admin-main-toolbar>
         <add v-on:savesuccess="reloadDataGrid"></add>
@@ -6,8 +6,6 @@
         <delete v-ref:delete v-on:savesuccess="reloadDataGrid"></delete>
         <detail v-ref:detail></detail>
     </admin-main-toolbar>
-
-    <!-- <justtest debug></justtest> -->
 
     <portlet title="用户列表" icon="globe">    
         <datagrid url="/admin/user/getdata" pagelength="4" v-on:click="operate" v-ref:datagrid>
@@ -21,5 +19,5 @@
             <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
         </datagrid>
     </portlet>   
-    
+
 </div>
