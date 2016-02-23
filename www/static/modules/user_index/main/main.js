@@ -19,103 +19,44 @@ define('modules/user_index/main/main', function(require, exports, module) {
       },
       methods: {
           operate: function operate(event) {
-              console.log('operate', event.target);
               var target = event.target,
                   $target = $(target),
-                  type = $target.data('type');
+                  type = $target.data('type'),
+                  id,
+                  data;
   
-              if (!type) {
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
                   return;
               }
   
-              switch (type) {
-                  case 'modify':
-                      showDlgModify(this, $target);
-                      break;
-                  case 'delete':
-                      showDlgDelete(this, $target);
-                      break;
-                  case 'detail':
-                      showDlgDetail(this, $target);
-                      break;
-                  default:
-                      break;
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
               }
           },
           reloadDataGrid: function reloadDataGrid() {
               this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
           }
       },
       ready: function ready() {}
   });
-  
-  function showDlgModify(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.modify.showModal({
-          id: data.id,
-          name: data.name,
-          state: data.state,
-          birthday: data.birthday
-      });
-  }
-  
-  function showDlgDelete(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs['delete'].showModal({
-          id: data.id,
-          name: data.name,
-          stateShow: data.stateShow
-      });
-  }
-  
-  function showDlgDetail(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.detail.showModal(data);
-  }
 
 });
