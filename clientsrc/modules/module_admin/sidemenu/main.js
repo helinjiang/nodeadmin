@@ -57,7 +57,6 @@ function _init() {
         handleFixedSidebar(); // handles fixed sidebar menu
         handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect 
         handleSidebarMenu(); // handles main menu
-        handleQuickSearch(); // handles quick search
         handleSidebarToggler(); // handles sidebar hide/show     
     });
 }
@@ -290,21 +289,5 @@ var handleSidebarToggler = function() {
         }
         App.fixContentHeight(); //fix content & sidebar height
         App.runResponsiveHandlers();
-    });
-}
-
-var handleQuickSearch = function() {
-    // handle search for sidebar search input on enter press
-    $('.search-form-sidebar').on('keypress', 'input.form-control', function(e) {
-        if (e.which == 13) {
-            $('.search-form-sidebar').submit();
-            return false;
-        }
-    });
-
-    // handle search for sidebar search input on icon click
-    $('.search-form-sidebar').on('click', '.icon-search', function(e) {
-        $('.search-form-sidebar').submit();
-        return false;
     });
 }

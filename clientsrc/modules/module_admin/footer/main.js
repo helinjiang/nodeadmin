@@ -3,22 +3,22 @@ var App = require('common/app');
 
 Vue.component('admin-footer', {
     template: __inline('main.html'),
+    data: function() {
+        return {
+            year: ''
+        }
+    },
+    methods: {
+        goTop: function(event) {
+            App.scrollTo();
+
+            // 如果该方法可能被手工调用，则event不一定存在
+            if (event) {
+                event.preventDefault();
+            }
+        }
+    },
     ready: function() {
-        _init();
+        this.year = new Date().getFullYear();
     }
 });
-
-function _init() {
-    $(function() {
-        handleGoTop(); //handles scroll to top functionality in the footer
-    });
-}
-
-// Handles the go to top button at the footer
-var handleGoTop = function() {
-    /* set variables locally for increased performance */
-    jQuery('.footer').on('click', '.go-top', function(e) {
-        App.scrollTo();
-        e.preventDefault();
-    });
-};

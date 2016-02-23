@@ -8,7 +8,7 @@ define('modules/module_admin/sidemenu/main', function(require, exports, module) 
   var menuData = require('modules/common/menudata');
   
   Vue.component('admin-side-menu', {
-      template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n            <li class=\"sidebar-search-wrapper\">\r\n                <form class=\"search-form\" role=\"form\" action=\"index.html\" method=\"get\">\r\n                    <div class=\"input-icon right\">\r\n                        <i class=\"fa fa-search\"></i>\r\n                        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n                    </div>\r\n                </form>\r\n            </li>\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
+      template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
       props: {
           'menuId': {
               type: String,
@@ -61,7 +61,6 @@ define('modules/module_admin/sidemenu/main', function(require, exports, module) 
           handleFixedSidebar(); // handles fixed sidebar menu
           handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect
           handleSidebarMenu(); // handles main menu
-          handleQuickSearch(); // handles quick search
           handleSidebarToggler(); // handles sidebar hide/show   
       });
   }
@@ -294,22 +293,6 @@ define('modules/module_admin/sidemenu/main', function(require, exports, module) 
           }
           App.fixContentHeight(); //fix content & sidebar height
           App.runResponsiveHandlers();
-      });
-  };
-  
-  var handleQuickSearch = function handleQuickSearch() {
-      // handle search for sidebar search input on enter press
-      $('.search-form-sidebar').on('keypress', 'input.form-control', function (e) {
-          if (e.which == 13) {
-              $('.search-form-sidebar').submit();
-              return false;
-          }
-      });
-  
-      // handle search for sidebar search input on icon click
-      $('.search-form-sidebar').on('click', '.icon-search', function (e) {
-          $('.search-form-sidebar').submit();
-          return false;
       });
   };
 

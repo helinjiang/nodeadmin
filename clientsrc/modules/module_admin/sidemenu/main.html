@@ -10,14 +10,7 @@
                 </div>
                 <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
             </li>
-            <li class="sidebar-search-wrapper">
-                <form class="search-form" role="form" action="index.html" method="get">
-                    <div class="input-icon right">
-                        <i class="fa fa-search"></i>
-                        <input type="text" class="form-control input-sm" name="query" placeholder="Search...">
-                    </div>
-                </form>
-            </li>
+
             <!-- <admin-side-menu-item class="item" :model="treeData"> </admin-side-menu-item> -->
             <admin-side-menu-item v-for="submenu in treeData.children" :model="submenu" :mindex="$index" :mtotal="treeData.children.length"> </admin-side-menu-item>
         </ul>
