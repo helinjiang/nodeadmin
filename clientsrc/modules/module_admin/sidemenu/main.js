@@ -6,6 +6,9 @@ var menuData = require('common/menudata');
 Vue.component('admin-side-menu', {
     template: __inline('main.html'),
     props: {
+        /**
+         * menuId对应common/menudata.js中的菜单数据，用以指示当前菜单该高亮的是哪个菜单。
+         */
         'menuId': {
             type: String,
             required: true

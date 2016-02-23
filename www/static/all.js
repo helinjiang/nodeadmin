@@ -11691,10 +11691,12 @@ define('modules/module_admin/maintitle/main', function(require, exports, module)
               required: true
           },
           'desc': String,
+  
+          /**
+           * 面包屑设置，格式为 name|url|icon;name|url|icon
+           */
           'items': {
               coerce: function coerce(val) {
-                  // name|url|icon;name|url|icon
-  
                   if (!val) {
                       return [{
                           name: 'Home',
@@ -11799,6 +11801,9 @@ define('modules/module_admin/sidemenu/main', function(require, exports, module) 
   Vue.component('admin-side-menu', {
       template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
       props: {
+          /**
+           * menuId对应common/menudata.js中的菜单数据，用以指示当前菜单该高亮的是哪个菜单。
+           */
           'menuId': {
               type: String,
               required: true

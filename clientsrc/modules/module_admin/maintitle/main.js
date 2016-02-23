@@ -10,10 +10,12 @@ Vue.component('admin-main-title', {
             required: true
         },
         'desc': String,
+
+        /**
+         * 面包屑设置，格式为 name|url|icon;name|url|icon
+         */
         'items': {
             coerce: function(val) {
-                // name|url|icon;name|url|icon
-
                 if (!val) {
                     return [{
                         name: 'Home',
