@@ -1,7 +1,9 @@
+
 /*** IE 8 Fixes ***/
 /***
 Page sidebar
 ***/
+
 .ie8 .page-sidebar {
   width: 225px;
   float: left;
@@ -18,13 +20,13 @@ Page sidebar
   margin: 0;
   padding: 0;
   margin: 0;
-  padding: 0;
+  padding: 0; 
 }
 
 .page-sidebar-menu > li {
   display: block;
   margin: 0;
-  padding: 0;
+  padding: 0; 
   border: 0px;
 }
 
@@ -36,16 +38,16 @@ Page sidebar
 }
 
 .page-sidebar-menu > li.start > a {
-  border-top-color: transparent !important;
+   border-top-color: transparent !important;
 }
 
 .page-sidebar-menu > li:last-child > a,
 .page-sidebar-menu > li.last > a {
-  border-bottom-color: transparent !important;
+   border-bottom-color: transparent !important;
 }
 
 .page-sidebar-menu > li > a {
-  border-right: 4px solid transparent;
+  border-right: 4px solid transparent; 
   display: block;
   position: relative;
   margin: 0;
@@ -57,24 +59,30 @@ Page sidebar
 
 .page-sidebar-fixed .page-sidebar-menu > li > a {
   -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
+     -moz-transition: all 0.2s ease;
+       -o-transition: all 0.2s ease;
+          transition: all 0.2s ease;
 }
 
-.page-sidebar-reversed.page-sidebar-fixed .page-sidebar-menu > li > a {
-  -webkit-transition: none;
-  transition: none;
+.page-sidebar-reversed.page-sidebar-fixed .page-sidebar-menu > li > a{
+     -webkit-transition: none;
+        -moz-transition: none;
+          -o-transition: none;
+             transition: none;
 }
+
+
 
 .page-sidebar-menu > li > a i {
   font-size: 16px;
   margin-right: 5px;
-  text-shadow: none;
+  text-shadow:none; 
 }
 
 .page-sidebar-menu.page-sidebar-menu-circle-icons > li > a i {
   font-size: 12px;
   margin-right: 5px;
-  text-shadow: none;
+  text-shadow:none; 
   border-radius: 50%;
   border: 1px solid #555;
   height: 25px;
@@ -88,53 +96,54 @@ Page sidebar
 }
 
 .page-sidebar-menu > li.active > a {
-  border: none;
-  text-shadow: none;
+  border: none; 
+  text-shadow:none;
   border-right: 4px solid #d12610;
-}
+}  
 
-.page-sidebar ul > li > a > .arrow:before {
-  float: right;
-  margin-top: 0px;
-  margin-right: 5px;
-  display: inline;
-  font-size: 16px;
-  font-family: FontAwesome;
-  height: auto;
-  content: "\f104";
-  font-weight: 300;
-  text-shadow: none;
+.page-sidebar ul > li > a > .arrow:before {  
+   float: right;
+   margin-top: 0px;
+   margin-right: 5px;
+   display: inline;
+   font-size: 16px;
+   font-family: FontAwesome;
+   height: auto;
+   content: "\f104";
+   font-weight: 300;
+   text-shadow:none;
 }
 
 .page-sidebar ul.page-sidebar-menu-circle-icons > li > a > .arrow:before {
   margin-top: 3px;
-}
+} 
 
 .page-sidebar ul > li.active > a > .arrow:before {
   margin-right: 1px;
 }
 
-.page-sidebar-menu > li > a > .arrow.open:before {
-  float: right;
-  margin-top: 0px;
-  margin-right: 3px;
-  display: inline;
-  font-family: FontAwesome;
-  height: auto;
-  font-size: 16px;
-  content: "\f107";
-  font-weight: 300;
-  text-shadow: none;
+.page-sidebar-menu > li > a > .arrow.open:before {   
+   float: right;
+   margin-top: 0px;
+   margin-right: 3px;
+   display: inline;
+   font-family: FontAwesome;
+   height: auto;
+   font-size: 16px;
+   content: "\f107";
+   font-weight: 300;
+   text-shadow:none;
 }
 
 /* bagin: sidebar menu badges */
 .page-sidebar-menu li > a .badge {
-  float: right;
-  margin-top: 1px;
-  margin-right: 13px;
+   float: right;
+   margin-top: 1px;
+   margin-right: 13px;
 }
 
 /* end: sidebar menu badges */
+
 .page-sidebar-menu .sub-menu {
   padding: 0;
 }
@@ -169,51 +178,51 @@ Page sidebar
 }
 
 /* 3rd level sub menu */
-.page-sidebar-menu > li > ul.sub-menu > li ul.sub-menu {
+.page-sidebar-menu > li > ul.sub-menu  > li ul.sub-menu {
   display: none;
   list-style: none;
   clear: both;
   margin: 0px 0px 0px 0px;
 }
 
-.page-sidebar-menu > li > ul.sub-menu li > a > .arrow:before {
-  float: right;
-  margin-top: 1px;
-  margin-right: 20px;
-  display: inline;
-  font-size: 16px;
-  font-family: FontAwesome;
-  height: auto;
-  content: "\f104";
-  font-weight: 300;
-  text-shadow: none;
+.page-sidebar-menu > li > ul.sub-menu  li > a > .arrow:before   {  
+   float: right;
+   margin-top: 1px;
+   margin-right: 20px;
+   display: inline;
+   font-size: 16px;
+   font-family: FontAwesome;
+   height: auto;
+   content: "\f104";
+   font-weight: 300;
+   text-shadow:none;
 }
 
-.page-sidebar-menu > li > ul.sub-menu li > a > .arrow.open:before {
-  float: right;
-  margin-top: 1px;
-  margin-right: 18px;
-  display: inline;
-  font-family: FontAwesome;
-  height: auto;
-  font-size: 16px;
-  content: "\f107";
-  font-weight: 300;
-  text-shadow: none;
+.page-sidebar-menu > li > ul.sub-menu  li > a > .arrow.open:before {   
+   float: right;
+   margin-top: 1px;
+   margin-right: 18px;
+   display: inline;
+   font-family: FontAwesome;
+   height: auto;
+   font-size: 16px;
+   content: "\f107";
+   font-weight: 300;
+   text-shadow:none;
 }
 
 .page-sidebar-menu > li.active > ul.sub-menu > li.active ul.sub-menu {
   display: block;
 }
 
-.page-sidebar-menu > li > ul.sub-menu > li ul.sub-menu li {
+.page-sidebar-menu > li > ul.sub-menu > li  ul.sub-menu li {
   background: none;
   margin: 0px;
   padding: 0px;
   margin-top: 1px !important;
 }
 
-.page-sidebar-menu > li > ul.sub-menu li > ul.sub-menu > li > a {
+.page-sidebar-menu > li > ul.sub-menu  li > ul.sub-menu > li > a {
   display: block;
   margin: 0px 0px 0px 0px;
   padding: 5px 0px;
@@ -223,11 +232,11 @@ Page sidebar
   background: none;
 }
 
-.page-sidebar-menu > li > ul.sub-menu > li > ul.sub-menu > li > a {
+.page-sidebar-menu > li > ul.sub-menu > li > ul.sub-menu > li > a {  
   padding-left: 60px;
 }
 
-.page-sidebar-menu > li > ul.sub-menu > li > ul.sub-menu > li > ul.sub-menu > li > a {
+.page-sidebar-menu > li > ul.sub-menu > li > ul.sub-menu > li > ul.sub-menu > li > a {  
   padding-left: 80px;
 }
 
@@ -235,15 +244,20 @@ Page sidebar
   display: block;
 }
 
-.page-sidebar-menu > li > ul.sub-menu li > ul.sub-menu > li > a > i {
+
+.page-sidebar-menu > li > ul.sub-menu  li > ul.sub-menu > li > a > i {
   font-size: 13px;
 }
+
 
 /***
 Sidebar toggler(show/hide)
 ***/
+
 .sidebar-toggler {
-  border-radius: 4px 0px 0px 4px;
+  -webkit-border-radius: 4px 0px 0px 4px;
+     -moz-border-radius: 4px 0px 0px 4px;
+          border-radius: 4px 0px 0px 4px;
   cursor: pointer;
   display: block;
   float: right;
@@ -258,14 +272,14 @@ Sidebar toggler(show/hide)
 }
 
 .sidebar-toggler:before {
-  margin: 0px 2px 3px 8px;
-  display: inline-block;
-  font-size: 18px;
-  font-family: FontAwesome;
-  height: auto;
-  content: "\f104";
-  font-weight: 300;
-  text-shadow: none;
+   margin: 0px 2px 3px 8px;
+   display: inline-block;
+   font-size: 18px;
+   font-family: FontAwesome;
+   height: auto;
+   content: "\f104";
+   font-weight: 300;
+   text-shadow:none;
 }
 
 .page-sidebar-closed .sidebar-toggler:before {
@@ -274,7 +288,7 @@ Sidebar toggler(show/hide)
 }
 
 .page-sidebar-reversed.page-sidebar-closed .sidebar-toggler:before {
-  content: "\f104";
+  content: "\f104"; 
   margin: 0px 4px 3px 8px;
 }
 
@@ -283,12 +297,15 @@ Sidebar toggler(show/hide)
 }
 
 .page-sidebar-reversed .sidebar-toggler {
-  margin-right: 0;
+  margin-right: 0;  
   margin-left: -1px;
   float: left;
-  border-radius: 0px 4px 4px 0px;
+  -webkit-border-radius: 0px 4px 4px 0px;
+     -moz-border-radius: 0px 4px 4px 0px;
+          border-radius: 0px 4px 4px 0px;
 }
 
-.ie .page-sidebar-reversed .sidebar-toggler {
+.ie .page-sidebar-reversed .sidebar-toggler {  
   margin-left: -1px;
 }
+

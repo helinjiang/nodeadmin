@@ -11,6 +11,10 @@ Header and header elements.
           box-shadow: none;
   height: 45px;
   min-height: 45px;
+  /***
+  Top bar menu
+  ***/
+  /* enable arrow for dropdown menu */
 }
 
 .header .navbar-fixed-top {
@@ -154,4 +158,27 @@ Header and header elements.
 
 .header .navbar-nav .dropdown-menu {
   margin-top: 3px;
+}
+
+.header .nav > li > .dropdown-menu:before {
+  position: absolute;
+  top: -7px;
+  right: 9px;
+  display: inline-block !important;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #ccc;
+  border-left: 7px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  content: '';
+}
+
+.header .nav > li > .dropdown-menu:after {
+  position: absolute;
+  top: -6px;
+  right: 10px;
+  display: inline-block !important;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #fff;
+  border-left: 6px solid transparent;
+  content: '';
 }

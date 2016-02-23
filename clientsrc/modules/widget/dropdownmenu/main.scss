@@ -1,3 +1,4 @@
+
 /* extended dropdowns */
 .dropdown-menu.extended {
   padding: 0 0 4px 0;
@@ -13,7 +14,7 @@
   border-bottom-color: #eee !important;
 }
 
-.dropdown-menu.extended li a {
+.dropdown-menu.extended li a{
   display: block;
   padding: 5px 10px !important;
   clear: both;
@@ -22,22 +23,21 @@
   white-space: normal !important;
 }
 
-.dropdown-menu.extended li i {
+.dropdown-menu.extended li i{
   margin-right: 3px;
 }
 
-.dropdown-menu.extended li a {
-  font-size: 13px;
-  padding: 10px !important;
-  background-color: #ffffff;
+.dropdown-menu.extended li a{
+   font-size: 13px;
+   padding: 10px !important;
+   background-color: #ffffff;
 }
 
 .dropdown-menu.extended li a:hover {
   background-image: none;
   background-color: #f5f5f5;
   color: #000;
-  -webkit-filter: none;
-          filter: none;
+  filter:none;
 }
 
 .dropdown-menu.extended li p {
@@ -50,7 +50,7 @@
   color: #333;
 }
 
-.dropdown-menu.extended li a {
+.dropdown-menu.extended li a{
   padding: 7px 0 5px 0px;
   list-style: none;
   border-bottom: 1px solid #f4f4f4 !important;
@@ -68,11 +68,13 @@
   border-bottom: 1px solid #f4f4f4 !important;
 }
 
+
 .dropdown-menu.extended li.external > a {
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 400;    
   border-bottom: 0 !important;
 }
+
 
 /* header notifications dropdowns */
 .dropdown-menu .dropdown-menu-list.scroller {
@@ -89,7 +91,7 @@
 }
 
 .dropdown-menu.notification li > a > .label-icon {
-  padding: 4px 5px 4px 5px;
+  padding: 4px 5px 4px 5px; 
 }
 
 .dropdown-menu.notification li > a > .label-icon > i {

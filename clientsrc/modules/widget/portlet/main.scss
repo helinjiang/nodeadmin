@@ -1,21 +1,22 @@
 /***
 Portlets
 ***/
-.portlet {
+
+.portlet  {
   clear: both;
   margin-top: 0px;
   margin-bottom: 25px;
   padding: 0px;
   -webkit-box-shadow1: 0 1px 4px rgba(0, 0, 0, 0.07);
-  box-shadow1: 0 1px 4px rgba(0, 0, 0, 0.07);
+          box-shadow1: 0 1px 4px rgba(0, 0, 0, 0.07);
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-.portlet > .portlet-title {
+.portlet > .portlet-title { 
   background-color: #eee;
   border-radius: 4px 4px 0 0;
-  padding: 10px 10px 2px 10px;
+  padding:10px 10px 2px 10px;
   height: 38px;
 }
 
@@ -39,10 +40,10 @@ Portlets
   font-weight: 400;
   margin: 0;
   padding: 0;
-  margin-top: 1px;
+  margin-top: 1px; 
 }
 
-.portlet > .portlet-title .bootstrap-switch {
+.portlet > .portlet-title .bootstrap-switch {   
   margin-top: -10px !important;
 }
 
@@ -56,7 +57,8 @@ Portlets
 }
 
 .portlet > .portlet-title > .tools,
-.portlet > .portlet-title > .actions {
+.portlet > .portlet-title > .actions
+ {
   display: inline-block;
   padding: 0;
   margin: 0;
@@ -71,7 +73,7 @@ Portlets
 .portlet > .portlet-title > .tools > a {
   display: inline-block;
   height: 16px;
-  margin-left: 5px;
+  margin-left:5px;
 }
 
 .portlet > .portlet-title > .actions > .dropdown-menu i {
@@ -80,42 +82,45 @@ Portlets
 
 .portlet > .portlet-title > .tools > a.remove {
   margin-bottom: 2px;
-  background-image: url(../img/portlet-remove-icon.png);
+  background-image:url(../img/portlet-remove-icon.png);
   background-repeat: no-repeat;
   width: 11px;
 }
 
 .portlet > .portlet-title > .tools > a.config {
   margin-bottom: 2px;
-  background-image: url(../img/portlet-config-icon.png);
+  background-image:url(../img/portlet-config-icon.png);
   background-repeat: no-repeat;
   width: 12px;
 }
 
 .portlet > .portlet-title > .tools > a.reload {
   margin-bottom: 2px;
-  background-image: url(../img/portlet-reload-icon.png);
+  background-image:url(../img/portlet-reload-icon.png);
   width: 13px;
 }
 
 .portlet > .portlet-title > .tools > a.expand {
   margin-bottom: 2px;
-  background-image: url(../img/portlet-expand-icon.png);
+  background-image:url(../img/portlet-expand-icon.png);
   width: 14px;
 }
 
 .portlet > .portlet-title > .tools > a.collapse {
   margin-bottom: 2px;
-  background-image: url(../img/portlet-collapse-icon.png);
+  background-image:url(../img/portlet-collapse-icon.png);
   width: 14px;
 }
 
 .portlet > .portlet-title > .tools > a:hover {
   text-decoration: none;
   -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  -ms-transition: all 0.1s ease-in-out;
   transition: all 0.1s ease-in-out;
-  opacity: .6;
-  filter: 'alpha(opacity=60)';
+  opacity:.6;  
+  filter:'alpha(opacity=60)';
 }
 
 .portlet > .portlet-title > .actions > .btn-group {
@@ -150,9 +155,9 @@ Portlets
 }
 
 .portlet > .portlet-body {
-  clear: both;
-  padding: 10px;
-  background-color: #fff;
+  clear: both;  
+  padding: 10px;    
+  background-color: #fff;  
   border-radius: 0px 0px 4px 4px;
 }
 
