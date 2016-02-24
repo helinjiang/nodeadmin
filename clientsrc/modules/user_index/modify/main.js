@@ -1,42 +1,24 @@
-var Vue = require('lib/vue');
+var CommonCrud = require('common/crud');
 
-var validator = require('common/validator');
-var Msg = require('components/msg/main');
-
-module.exports = Vue.extend({
+module.exports = CommonCrud.extend({
     template: __inline('main.html'),
-    data: function() {
-        return {
-            jqForm: undefined,
-            id: undefined,
-            name: undefined,
-            state: undefined,
-            birthday: undefined
-        };
+    data: {
+        id: undefined,
+        name: undefined,
+        state: undefined,
+        birthday: undefined
     },
     methods: {
-        showModal: function(data) {
-            this.id = data.id;
-            this.name = data.name;
-            this.state = data.state;
-            this.birthday = data.birthday;
-
-            this.$children[0].show();
+        beforeShowModal: function(data) {
+            if (data) {
+                this.id = data.id;
+                this.name = data.name;
+                this.state = data.state;
+                this.birthday = data.birthday;
+            }
         },
-        hideModal: function() {
-            this.$children[0].hide();
-        },
-        reportSuccess: function(data) {
-            this.$dispatch('savesuccess', data);
-        },
-        saveSubmit: function(msg) {
-            // 提交表单
-            this.jqForm.submit();
-        },
-        handleValidator: function() {
-            var self = this;
-
-            validator.check(this.jqForm, {
+        getValidatorConfig: function() {
+            var config = {
                 name: {
                     required: {
                         rule: true,
@@ -57,49 +39,9 @@ module.exports = Vue.extend({
                         message: '生日不能为空！'
                     }
                 }
-            }, {
-                submitHandler: function(form) {
-                    $(form).ajaxSubmit({
-                        success: function(responseText, statusText) {
-                            console.log(responseText, statusText);
+            };
 
-                            if (statusText !== 'success' || responseText.errno !== 0) {
-                                // 提示失败
-                                Msg.error('保存出错！失败原因为：' + JSON.stringify(responseText.errmsg));
-                            } else {
-                                // 提示成功
-                                Msg.success('保存成功！');
-
-                                // 关闭对话框
-                                self.hideModal();
-
-                                // 刷新列表
-                                self.reportSuccess(responseText.data);
-                            }
-                        },
-                        error: function(err) {
-                            console.error(err);
-
-                            if (err.status === 500) {
-                                Msg.error('内部错误，请联系管理员！');
-                            } else {
-                                Msg.error('登录失败！');
-                            }
-                        }
-                    });
-
-                }
-            });
+            return config;
         }
-    },
-    events: {
-        valuechange: function(name, val, oldVal) {
-            validator.valid(this.jqForm, name);
-        }
-    },
-    ready: function() {
-        this.jqForm = $('form', this.$el);
-
-        this.handleValidator();
     }
 });

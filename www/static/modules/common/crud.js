@@ -22,7 +22,7 @@ define('modules/common/crud', function(require, exports, module) {
           /**
            * 弹出对话框之前执行，比如初始化对话框中的表单数据等
            */
-          beforeShowModal: function beforeShowModal() {},
+          beforeShowModal: function beforeShowModal(data) {},
   
           getValidatorConfig: function getValidatorConfig() {
               return {};
@@ -31,8 +31,8 @@ define('modules/common/crud', function(require, exports, module) {
           /**
            * 弹出对话框
            */
-          showModal: function showModal() {
-              this.beforeShowModal();
+          showModal: function showModal(data) {
+              this.beforeShowModal(data);
   
               this.$children[0].show();
           },
@@ -136,7 +136,16 @@ define('modules/common/crud', function(require, exports, module) {
           // data       
           if (typeof param.data === "object") {
               // 注意，这里的data要和commonOptions中的合并，而不是覆盖
-              var newData = $.extend(options.data(), param.data);
+              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
+              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
+              // var newData = $.extend(options.data(), param.data);
+              // var newData = Object.assign(options.data(), param.data);
+              var newData = options.data(),
+                  keys = Object.keys(param.data);
+  
+              keys.forEach(function (key) {
+                  newData[key] = param.data[key];
+              });
   
               options.data = function () {
                   return newData;
