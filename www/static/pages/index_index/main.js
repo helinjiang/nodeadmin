@@ -11,7 +11,7 @@ define('pages/index_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var IndexMain = require('modules/index_index/main/main');
+  var IndexMain = require('modules/index_index/main');
   
   window.app = new Vue({
       el: '#app',

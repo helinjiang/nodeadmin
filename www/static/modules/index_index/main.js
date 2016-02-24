@@ -1,4 +1,4 @@
-define('modules/index_index/main/main', function(require, exports, module) {
+define('modules/index_index/main', function(require, exports, module) {
 
   'use strict';
   

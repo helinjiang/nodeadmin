@@ -1,35 +1,31 @@
 <!DOCTYPE html>
-<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
-<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
-<!--[if !IE]><!-->
-<html lang="en" class="no-js">
-<!--<![endif]-->
 
-<head>
-    <meta charset="utf-8" />
-    <title>用户信息管理</title>
+<html lang="zh-CN">
+
+    <head>
+            <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="" name="description" />
     <meta content="" name="author" />
     <meta name="MobileOptimized" content="320">
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+        <title>NodeAdmin 后台管理系统</title>    
+
+            <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link rel="stylesheet" href="/static/plugins/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="/static/plugins/simple-line-icons/simple-line-icons.min.css" />
     <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/static/plugins/uniform/css/uniform.default.min.css" />
     <!-- END GLOBAL MANDATORY STYLES -->
-    <!-- BEGIN PAGE LEVEL STYLES -->
+            <!-- BEGIN PAGE LEVEL STYLES -->
     <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css"/>
     <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal.css"/>
     <link rel="stylesheet" href="/static/plugins/select2/select2.css"/>
-    <!-- <link rel="stylesheet" href="/static/plugins/select2/css/select2.min.css"/> -->
-    <!-- <link rel="stylesheet" href="/static/plugins/select2/css/select2-bootstrap.min.css"/> -->
     <link rel="stylesheet" href="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/>
     <link rel="stylesheet" href="/static/plugins/bootstrap-toastr/toastr.min.css"/>
     <link rel="stylesheet" href="/static/plugins/bootstrap-datepicker/css/datepicker.css"/>
-    <!-- END PAGE LEVEL SCRIPTS -->
-    <!-- BEGIN THEME STYLES -->
+    <!-- END PAGE LEVEL SCRIPTS -->    
+            <!-- BEGIN THEME STYLES -->
     <link rel="stylesheet" href="/static/css/style-conquer.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
     <link rel="stylesheet" href="/static/css/style-responsive.css" />
@@ -37,49 +33,52 @@
     <link rel="stylesheet" href="/static/css/themes/default.css" />
     <!-- END THEME STYLES -->
     
-
     <link rel="stylesheet" href="http://fonts.useso.com/css?family=Open+Sans:400,300,600,700&subset=all" />
     <link rel="stylesheet" href="/static/all.css" />
 </head>
 
+    <body class="page-header-fixed page-sidebar-fixed index_index">
+        
+        <div id="app">
 
-<body class="page-header-fixed page-sidebar-fixed page-test">
-    <div id="app">
-        <admin-header username="<%=user.name%>"></admin-header>
+            <admin-header username="<%=user.name%>"></admin-header>
 
-        <div class="clearfix"></div>
+            <clearfix></clearfix>
 
-        <admin-main> 
-            <admin-side-menu slot="menu" menu-id="menuIndex"></admin-side-menu>
-            <admin-main-title slot="title" title="Dashboard" desc="" items="首页|/admin|home;Dashboard"></admin-main-title>
-            <index-main></index-main>
-        </admin-main>
+            <admin-container> 
 
-        <div class="clearfix"></div>
+                <admin-side-menu slot="menu" menu-id="menuIndex"></admin-side-menu>
 
-        <admin-footer></admin-footer>
-    </div>
+                <admin-main-title slot="title" title="Dashboard" desc="" items="首页|/admin|home;Dashboard"></admin-main-title>
 
+                <index-main></index-main>
 
+            </admin-container>
 
-    <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
-    <!-- BEGIN CORE PLUGINS -->
+            <clearfix></clearfix>
+
+            <admin-footer></admin-footer>
+            
+        </div>
+
+            <!-- BEGIN CORE PLUGINS -->
     <script src="/static/plugins/jquery-1.11.0.min.js"></script>
     <script src="/static/plugins/jquery-migrate-1.2.1.min.js"></script>
+
     <!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
     <!-- <script src="/static/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js"></script> -->
+    
     <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script>
     <script src="/static/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
     <script src="/static/plugins/jquery.blockui.min.js"></script>
     <script src="/static/plugins/uniform/jquery.uniform.min.js"></script>
     <!-- END CORE PLUGINS -->
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
+            <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script src="/static/plugins/bootstrap-modal/js/bootstrap-modalmanager.js"></script>
     <script src="/static/plugins/bootstrap-modal/js/bootstrap-modal.js"></script>
     <script src="/static/plugins/jquery-validation/js/jquery.validate.min.js"></script>
     <script src="/static/plugins/select2/select2.min.js"></script>
-    <!--<script src="/static/plugins/select2/js/select2.min.js"></script>-->  
     <script src="/static/plugins/jquery.form.min.js"></script>
     <script src="/static/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="/static/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
@@ -87,14 +86,13 @@
     <script src="/static/plugins/bootstrap-toastr/toastr.min.js"></script>
     <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <!-- END PAGE LEVEL PLUGINS -->
-    <!-- END JAVASCRIPTS -->
 
+    
 <script src="/static/modules/lib/mod.js"></script>
 <script type="text/javascript" src="/static/all.js"></script>
 <script type="text/javascript">
-        require(['pages/index_index/main']);
-    </script>
+            require(['pages/index_index/main']);
+        </script>
 </body>
-<!-- END BODY -->
 
 </html>

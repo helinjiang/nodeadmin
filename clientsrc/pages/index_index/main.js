@@ -7,7 +7,7 @@ require('common/global');
 var Vue = require('lib/vue');
 
 var App = require('/modules/common/app');
-var IndexMain = require('/modules/index_index/main/main');
+var IndexMain = require('/modules/index_index/main');
 
 window.app = new Vue({
     el: '#app',
