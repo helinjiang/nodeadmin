@@ -7,16 +7,36 @@ module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
-            id: undefined,
-            name: undefined,
-            stateShow: undefined
+            items: []
         };
     },
     methods: {
         showModal: function(data) {
-            this.id = data.id;
-            this.name = data.name;
-            this.stateShow = data.stateShow;
+            this.items = [{
+                key: 'id',
+                value: data.id,
+                title: 'ID'
+            }, {
+                key: 'name',
+                value: data.name,
+                title: '用户名'
+            }, {
+                key: 'birthday',
+                value: data.birthday,
+                title: '生日'
+            }, {
+                key: 'stateShow',
+                value: data.stateShow,
+                title: '状态'
+            }, {
+                key: 'createTime',
+                value: data.createTime,
+                title: '创建时间'
+            }, {
+                key: 'updateTime',
+                value: data.updateTime,
+                title: '最后修改时间'
+            }];
 
             this.$children[0].show();
         },
