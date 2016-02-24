@@ -11385,7 +11385,12 @@ define('modules/components/date/main', function(require, exports, module) {
   };
   
   Vue.component('date', {
-      template: "<div class=\"input-group date \" :data-date=\"value\" :data-date-format=\"format\" :data-date-start-date=\"startDate\" :data-date-today-btn=\"todayBtn\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" v-model=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      template: "<div class=\"input-group date \" :data-date=\"value\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" v-model=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              jqDate: undefined
+          };
+      },
       props: {
           /**
            * input 的name 值，必须
@@ -11432,15 +11437,30 @@ define('modules/components/date/main', function(require, exports, module) {
            * 此处检测value变化了，则将input的值进行切换。
            */
           'value': function value(val, oldVal) {
+              // 触发date面板上的选择，尤其是初始值为undefined时，日期面板上是没有高亮选中态的
+              this.jqDate.datepicker('update');
+  
               this.reportChange(this.name, val, oldVal);
           }
       },
       ready: function ready() {
+          this.jqDate = $(this.$el);
   
-          $(this.$el).datepicker({
+          var options = {
               autoclose: true,
-              language: 'zh-CN'
-          });
+              language: 'zh-CN',
+              format: this.format
+          };
+  
+          if (this.startDate) {
+              options.startDate = this.startDate;
+          }
+  
+          if (typeof this.todayBtn == 'boolean' || this.todayBtn && this.todayBtn === 'linked') {
+              options.todayBtn = this.todayBtn;
+          }
+  
+          this.jqDate.datepicker(options);
   
           // 如果input标签使用:value="value",则需要在下面事件时人为处理值，但如果设置了v-model="value"之后，已经是双向绑定了，则不需要再如此处理了
           // $(this.$el).on('changeDate', function(e) {
