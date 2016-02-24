@@ -3,23 +3,14 @@ var Vue = require('lib/vue');
 Vue.component('modal', {
     template: __inline('main.html'),
     props: {
-        'id': {
-            type: String,
-            'default': ''
-        },
-        'css': {
-            type: String,
-            'default': ''
-        },
+        'id': String,
+        'css': String,
         'tabindex': {
             type: Number,
             'default': -1
         },
         'title': String,
-        'fullwidth': {
-            type: Boolean,
-            'default': false
-        },
+        'fullwidth': Boolean,
     },
     computed: {
         'className': function() {
@@ -39,7 +30,7 @@ Vue.component('modal', {
     methods: {
         show: function() {
             // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
-            
+
             $(this.$el).modal();
         },
         hide: function() {

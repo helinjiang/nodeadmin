@@ -7,23 +7,14 @@ define('modules/components/modal/main', function(require, exports, module) {
   Vue.component('modal', {
       template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
       props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          },
+          'id': String,
+          'css': String,
           'tabindex': {
               type: Number,
               'default': -1
           },
           'title': String,
-          'fullwidth': {
-              type: Boolean,
-              'default': false
-          }
+          'fullwidth': Boolean
       },
       computed: {
           'className': function className() {

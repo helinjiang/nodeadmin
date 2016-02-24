@@ -10,12 +10,15 @@ module.exports = CommonCrud.extend({
     },
     methods: {
         beforeShowModal: function(data) {
-            if (data) {
-                this.id = data.id;
-                this.name = data.name;
-                this.state = data.state;
-                this.birthday = data.birthday;
+            if (!data) {
+                return;
             }
+
+            // 初始化数据
+            this.id = data.id;
+            this.name = data.name;
+            this.state = data.state;
+            this.birthday = data.birthday;
         },
         getValidatorConfig: function() {
             var config = {

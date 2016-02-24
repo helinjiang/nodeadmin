@@ -10854,10 +10854,12 @@ define('modules/common/crud', function(require, exports, module) {
           },
   
           /**
-           * 提交对话框中的表单
+           * 对话框确定按钮点击之后的回调函数
            */
-          saveSubmit: function saveSubmit(msg) {
-              this.jqForm.submit();
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              }
           },
   
           /**
@@ -10870,21 +10872,7 @@ define('modules/common/crud', function(require, exports, module) {
                   submitHandler: function submitHandler(form) {
                       $(form).ajaxSubmit({
                           success: function success(responseText, statusText) {
-                              console.log(responseText, statusText);
-  
-                              if (statusText !== 'success' || responseText.errno !== 0) {
-                                  // 提示失败
-                                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-                              } else {
-                                  // 提示成功
-                                  Msg.success('^_^ 处理成功！');
-  
-                                  // 关闭对话框
-                                  self.hideModal();
-  
-                                  // 刷新列表
-                                  self.reportSuccess(responseText.data);
-                              }
+                              self.dealSuccessRes(responseText, statusText);
                           },
                           error: function error(err) {
                               console.error(err);
@@ -10898,11 +10886,29 @@ define('modules/common/crud', function(require, exports, module) {
                       });
                   }
               });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
           }
       },
       events: {
           /**
            * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
            * @param  {string} name   表单中某一表单元素的name属性值
            * @param  {string} val    新值
            * @param  {string} oldVal 旧值
@@ -10910,6 +10916,15 @@ define('modules/common/crud', function(require, exports, module) {
            */
           valuechange: function valuechange(name, val, oldVal) {
               return validator.valid(this.jqForm, name);
+          },
+  
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
           }
       },
       ready: function ready() {
@@ -12902,23 +12917,14 @@ define('modules/components/modal/main', function(require, exports, module) {
   Vue.component('modal', {
       template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
       props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          },
+          'id': String,
+          'css': String,
           'tabindex': {
               type: Number,
               'default': -1
           },
           'title': String,
-          'fullwidth': {
-              type: Boolean,
-              'default': false
-          }
+          'fullwidth': Boolean
       },
       computed: {
           'className': function className() {
@@ -15309,7 +15315,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: {
           name: undefined,
           pwd: undefined,
@@ -15374,20 +15380,24 @@ define('modules/user_index/delete/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: []
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
+              this.id = data.id;
+  
+              // 设置要展示的信息条目
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -15413,39 +15423,17 @@ define('modules/user_index/delete/main', function(require, exports, module) {
                   value: data.updateTime,
                   title: '最后修改时间'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
+          triggerSubmit: function triggerSubmit() {
               var self = this;
   
               $.post('/admin/user/delete', {
                   id: this.id
               }, function (responseText, statusText) {
-                  console.log(responseText, statusText);
-                  if (statusText !== 'success' || responseText.errno !== 0) {
-                      // 提示失败
-                      Msg.error('删除' + self.name + '(' + self.id + ')出错！' + JSON.stringify(responseText));
-                  } else {
-                      // 提示成功
-                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
-  
-                      // 关闭对话框
-                      self.hideModal();
-  
-                      // 刷新列表
-                      self.reportSuccess(responseText.data);
-                  }
+                  self.dealSuccessRes(responseText, statusText);
               });
           }
-      },
-      ready: function ready() {}
+      }
   });
 
 });
@@ -15458,39 +15446,42 @@ define('modules/user_index/detail/main', function(require, exports, module) {
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
       data: {
           items: []
       },
       methods: {
           beforeShowModal: function beforeShowModal(data) {
-              if (data) {
-                  this.items = [{
-                      key: 'id',
-                      value: data.id,
-                      title: 'ID'
-                  }, {
-                      key: 'name',
-                      value: data.name,
-                      title: '用户名'
-                  }, {
-                      key: 'birthday',
-                      value: data.birthday,
-                      title: '生日'
-                  }, {
-                      key: 'stateShow',
-                      value: data.stateShow,
-                      title: '状态'
-                  }, {
-                      key: 'createTime',
-                      value: data.createTime,
-                      title: '创建时间'
-                  }, {
-                      key: 'updateTime',
-                      value: data.updateTime,
-                      title: '最后修改时间'
-                  }];
+              if (!data) {
+                  return;
               }
+  
+              // 设置要展示的信息条目
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '用户名'
+              }, {
+                  key: 'birthday',
+                  value: data.birthday,
+                  title: '生日'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }, {
+                  key: 'createTime',
+                  value: data.createTime,
+                  title: '创建时间'
+              }, {
+                  key: 'updateTime',
+                  value: data.updateTime,
+                  title: '最后修改时间'
+              }];
           }
       }
   });
@@ -15505,7 +15496,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: {
           id: undefined,
           name: undefined,
@@ -15514,12 +15505,15 @@ define('modules/user_index/modify/main', function(require, exports, module) {
       },
       methods: {
           beforeShowModal: function beforeShowModal(data) {
-              if (data) {
-                  this.id = data.id;
-                  this.name = data.name;
-                  this.state = data.state;
-                  this.birthday = data.birthday;
+              if (!data) {
+                  return;
               }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.name = data.name;
+              this.state = data.state;
+              this.birthday = data.birthday;
           },
           getValidatorConfig: function getValidatorConfig() {
               var config = {

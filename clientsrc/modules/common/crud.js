@@ -50,10 +50,12 @@ var commonOptions = {
         },
 
         /**
-         * 提交对话框中的表单
+         * 对话框确定按钮点击之后的回调函数
          */
-        saveSubmit: function(msg) {
-            this.jqForm.submit();
+        triggerSubmit: function(modalId) {
+            if (this.jqForm) {
+                this.jqForm.submit();
+            }
         },
 
         /**
@@ -66,21 +68,7 @@ var commonOptions = {
                 submitHandler: function(form) {
                     $(form).ajaxSubmit({
                         success: function(responseText, statusText) {
-                            console.log(responseText, statusText);
-
-                            if (statusText !== 'success' || responseText.errno !== 0) {
-                                // 提示失败
-                                Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-                            } else {
-                                // 提示成功
-                                Msg.success('^_^ 处理成功！');
-
-                                // 关闭对话框
-                                self.hideModal();
-
-                                // 刷新列表
-                                self.reportSuccess(responseText.data);
-                            }
+                            self.dealSuccessRes(responseText, statusText);
                         },
                         error: function(err) {
                             console.error(err);
@@ -95,11 +83,29 @@ var commonOptions = {
 
                 }
             });
+        },
+        dealSuccessRes: function(responseText, statusText) {
+            console.log(responseText, statusText);
+
+            if (statusText !== 'success' || responseText.errno !== 0) {
+                // 提示失败
+                Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+            } else {
+                // 提示成功
+                Msg.success('^_^ 处理成功！');
+
+                // 关闭对话框
+                this.hideModal();
+
+                // 刷新列表
+                this.reportSuccess(responseText.data);
+            }
         }
     },
     events: {
         /**
          * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+         * 
          * @param  {string} name   表单中某一表单元素的name属性值
          * @param  {string} val    新值
          * @param  {string} oldVal 旧值
@@ -107,7 +113,16 @@ var commonOptions = {
          */
         valuechange: function(name, val, oldVal) {
             return validator.valid(this.jqForm, name);
-        }
+        },
+
+        /**
+         * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+         * 
+         * @param  {string} modalId   当前modal的id
+         */
+        confirm: function(modalId) {
+            this.triggerSubmit(modalId);
+        },
     },
     ready: function() {
         this.jqForm = $('form', this.$el);
@@ -141,7 +156,7 @@ module.exports = {
             // var newData = Object.assign(options.data(), param.data);
             var newData = options.data(),
                 keys = Object.keys(param.data);
-                
+
             keys.forEach(function(key) {
                 newData[key] = param.data[key];
             });

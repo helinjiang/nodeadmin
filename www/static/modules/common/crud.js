@@ -52,10 +52,12 @@ define('modules/common/crud', function(require, exports, module) {
           },
   
           /**
-           * 提交对话框中的表单
+           * 对话框确定按钮点击之后的回调函数
            */
-          saveSubmit: function saveSubmit(msg) {
-              this.jqForm.submit();
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              }
           },
   
           /**
@@ -68,21 +70,7 @@ define('modules/common/crud', function(require, exports, module) {
                   submitHandler: function submitHandler(form) {
                       $(form).ajaxSubmit({
                           success: function success(responseText, statusText) {
-                              console.log(responseText, statusText);
-  
-                              if (statusText !== 'success' || responseText.errno !== 0) {
-                                  // 提示失败
-                                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-                              } else {
-                                  // 提示成功
-                                  Msg.success('^_^ 处理成功！');
-  
-                                  // 关闭对话框
-                                  self.hideModal();
-  
-                                  // 刷新列表
-                                  self.reportSuccess(responseText.data);
-                              }
+                              self.dealSuccessRes(responseText, statusText);
                           },
                           error: function error(err) {
                               console.error(err);
@@ -96,11 +84,29 @@ define('modules/common/crud', function(require, exports, module) {
                       });
                   }
               });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
           }
       },
       events: {
           /**
            * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
            * @param  {string} name   表单中某一表单元素的name属性值
            * @param  {string} val    新值
            * @param  {string} oldVal 旧值
@@ -108,6 +114,15 @@ define('modules/common/crud', function(require, exports, module) {
            */
           valuechange: function valuechange(name, val, oldVal) {
               return validator.valid(this.jqForm, name);
+          },
+  
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
           }
       },
       ready: function ready() {
