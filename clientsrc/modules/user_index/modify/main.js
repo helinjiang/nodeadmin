@@ -50,17 +50,25 @@ module.exports = Vue.extend({
                         rule: 64,
                         message: '最大长度为64'
                     }
+                },
+                birthday: {
+                    required: {
+                        rule: true,
+                        message: '生日不能为空！'
+                    }
                 }
             }, {
                 submitHandler: function(form) {
                     $(form).ajaxSubmit({
                         success: function(responseText, statusText) {
+                            console.log(responseText, statusText);
+
                             if (statusText !== 'success' || responseText.errno !== 0) {
                                 // 提示失败
-                                Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
+                                Msg.error('保存出错！失败原因为：' + JSON.stringify(responseText.errmsg));
                             } else {
                                 // 提示成功
-                                Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+                                Msg.success('保存成功！');
 
                                 // 关闭对话框
                                 self.hideModal();
@@ -68,10 +76,25 @@ module.exports = Vue.extend({
                                 // 刷新列表
                                 self.reportSuccess(responseText.data);
                             }
+                        },
+                        error: function(err) {
+                            console.error(err);
+
+                            if (err.status === 500) {
+                                Msg.error('内部错误，请联系管理员！');
+                            } else {
+                                Msg.error('登录失败！');
+                            }
                         }
                     });
+
                 }
             });
+        }
+    },
+    events: {
+        valuechange: function(name, val, oldVal) {
+            validator.valid(this.jqForm, name);
         }
     },
     ready: function() {
