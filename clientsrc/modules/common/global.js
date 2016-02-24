@@ -1,13 +1,13 @@
-require('/modules/widget/tipalert/main');
-require('/modules/widget/select2option/main');
-require('/modules/widget/select2/main');
-require('/modules/widget/date/main');
+require('components/tipalert/main');
+require('components/select2option/main');
+require('components/select2/main');
+require('components/date/main');
 
-require('/modules/widget/clearfix/main');
+require('components/clearfix/main');
 
-require('/modules/widget/hecheckbox/main');
-require('/modules/widget/heformitem/main');
-require('/modules/widget/heform/main');
+require('components/hecheckbox/main');
+require('components/heformitem/main');
+require('components/heform/main');
 
 require('/modules/module_admin/footer/main');
 require('/modules/module_admin/header/main');
@@ -17,14 +17,14 @@ require('/modules/module_admin/maintoolbar/main');
 require('/modules/module_admin/sidemenuitem/main');
 require('/modules/module_admin/sidemenu/main');
 
-require('/modules/widget/portlet/main');
-require('/modules/widget/datagriditem/main');
-require('/modules/widget/datagrid/main');
-require('/modules/widget/modal/main');
-require('/modules/widget/dropdown/main');
-require('/modules/widget/dropdowntoggle/main');
-require('/modules/widget/dropdownmenu/main');
-require('/modules/widget/linkitem/main');
-require('/modules/widget/dropdownmenulist/main');
-require('/modules/widget/notificationitem/main');
+require('components/portlet/main');
+require('components/datagriditem/main');
+require('components/datagrid/main');
+require('components/modal/main');
+require('components/dropdown/main');
+require('components/dropdowntoggle/main');
+require('components/dropdownmenu/main');
+require('components/linkitem/main');
+require('components/dropdownmenulist/main');
+require('components/notificationitem/main');
 

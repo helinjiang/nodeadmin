@@ -5,7 +5,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   /**
    * 初始默认值

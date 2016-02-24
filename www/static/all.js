@@ -9600,8 +9600,8 @@ define('modules/common/validator', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/msg/main.js*/
-define('modules/widget/msg/main', function(require, exports, module) {
+;/*!/modules/components/msg/main.js*/
+define('modules/components/msg/main', function(require, exports, module) {
 
   'use strict';
   
@@ -9653,7 +9653,7 @@ define('modules/car_index/add/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\"  v-on:select2change=\"checkOwnerId\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -9748,7 +9748,7 @@ define('modules/car_index/delete/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -9828,7 +9828,7 @@ define('modules/car_index/detail/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -9881,7 +9881,7 @@ define('modules/car_index/modify/main', function(require, exports, module) {
   //Vue.config.debug = true;
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">        \r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" :value=\"item.id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" :value=\"item.name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy :value=\"item.ownerId\" v-on:select2change=\"checkOwnerId\"  v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value=\"item.state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value=\"item.buydate\"></date><!--TODO type check failed for value=\"item.buydate\". Expected String, got Undefined.-->\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -10779,8 +10779,8 @@ define('modules/common/app', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/tipalert/main.js*/
-define('modules/widget/tipalert/main', function(require, exports, module) {
+;/*!/modules/components/tipalert/main.js*/
+define('modules/components/tipalert/main', function(require, exports, module) {
 
   'use strict';
   
@@ -10824,8 +10824,8 @@ define('modules/widget/tipalert/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/select2option/main.js*/
-define('modules/widget/select2option/main', function(require, exports, module) {
+;/*!/modules/components/select2option/main.js*/
+define('modules/components/select2option/main', function(require, exports, module) {
 
   'use strict';
   
@@ -10902,8 +10902,8 @@ define('modules/common/select2render', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/select2/main.js*/
-define('modules/widget/select2/main', function(require, exports, module) {
+;/*!/modules/components/select2/main.js*/
+define('modules/components/select2/main', function(require, exports, module) {
 
   /**
    * 有两种，一种是ajax请求的，一种是现成的
@@ -11166,8 +11166,8 @@ define('modules/widget/select2/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/date/main.js*/
-define('modules/widget/date/main', function(require, exports, module) {
+;/*!/modules/components/date/main.js*/
+define('modules/components/date/main', function(require, exports, module) {
 
   /**
    * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#autoclose
@@ -11243,8 +11243,8 @@ define('modules/widget/date/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/clearfix/main.js*/
-define('modules/widget/clearfix/main', function(require, exports, module) {
+;/*!/modules/components/clearfix/main.js*/
+define('modules/components/clearfix/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11257,8 +11257,8 @@ define('modules/widget/clearfix/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/hecheckbox/main.js*/
-define('modules/widget/hecheckbox/main', function(require, exports, module) {
+;/*!/modules/components/hecheckbox/main.js*/
+define('modules/components/hecheckbox/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11309,8 +11309,8 @@ define('modules/widget/hecheckbox/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/heformitem/main.js*/
-define('modules/widget/heformitem/main', function(require, exports, module) {
+;/*!/modules/components/heformitem/main.js*/
+define('modules/components/heformitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11379,8 +11379,8 @@ define('modules/widget/heformitem/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/heform/main.js*/
-define('modules/widget/heform/main', function(require, exports, module) {
+;/*!/modules/components/heform/main.js*/
+define('modules/components/heform/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12094,8 +12094,8 @@ define('modules/module_admin/sidemenu/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/widget/portlet/main.js*/
-define('modules/widget/portlet/main', function(require, exports, module) {
+;/*!/modules/components/portlet/main.js*/
+define('modules/components/portlet/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12112,8 +12112,8 @@ define('modules/widget/portlet/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/datagriditem/main.js*/
-define('modules/widget/datagriditem/main', function(require, exports, module) {
+;/*!/modules/components/datagriditem/main.js*/
+define('modules/components/datagriditem/main', function(require, exports, module) {
 
   /**
    * 
@@ -12232,8 +12232,8 @@ define('modules/common/render', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/datagrid/main.js*/
-define('modules/widget/datagrid/main', function(require, exports, module) {
+;/*!/modules/components/datagrid/main.js*/
+define('modules/components/datagrid/main', function(require, exports, module) {
 
   /**
    * 需要支持：
@@ -12662,8 +12662,8 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/modal/main.js*/
-define('modules/widget/modal/main', function(require, exports, module) {
+;/*!/modules/components/modal/main.js*/
+define('modules/components/modal/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12765,8 +12765,8 @@ define('modules/widget/modal/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/dropdown/main.js*/
-define('modules/widget/dropdown/main', function(require, exports, module) {
+;/*!/modules/components/dropdown/main.js*/
+define('modules/components/dropdown/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12789,8 +12789,8 @@ define('modules/widget/dropdown/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/dropdowntoggle/main.js*/
-define('modules/widget/dropdowntoggle/main', function(require, exports, module) {
+;/*!/modules/components/dropdowntoggle/main.js*/
+define('modules/components/dropdowntoggle/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12883,8 +12883,8 @@ define('modules/widget/dropdowntoggle/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/widget/dropdownmenu/main.js*/
-define('modules/widget/dropdownmenu/main', function(require, exports, module) {
+;/*!/modules/components/dropdownmenu/main.js*/
+define('modules/components/dropdownmenu/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12907,8 +12907,8 @@ define('modules/widget/dropdownmenu/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/linkitem/main.js*/
-define('modules/widget/linkitem/main', function(require, exports, module) {
+;/*!/modules/components/linkitem/main.js*/
+define('modules/components/linkitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13004,8 +13004,8 @@ define('modules/widget/linkitem/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/dropdownmenulist/main.js*/
-define('modules/widget/dropdownmenulist/main', function(require, exports, module) {
+;/*!/modules/components/dropdownmenulist/main.js*/
+define('modules/components/dropdownmenulist/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13028,8 +13028,8 @@ define('modules/widget/dropdownmenulist/main', function(require, exports, module
 
 });
 
-;/*!/modules/widget/notificationitem/main.js*/
-define('modules/widget/notificationitem/main', function(require, exports, module) {
+;/*!/modules/components/notificationitem/main.js*/
+define('modules/components/notificationitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13065,16 +13065,16 @@ define('modules/common/global', function(require, exports, module) {
 
   'use strict';
   
-  require('modules/widget/tipalert/main');
-  require('modules/widget/select2option/main');
-  require('modules/widget/select2/main');
-  require('modules/widget/date/main');
+  require('modules/components/tipalert/main');
+  require('modules/components/select2option/main');
+  require('modules/components/select2/main');
+  require('modules/components/date/main');
   
-  require('modules/widget/clearfix/main');
+  require('modules/components/clearfix/main');
   
-  require('modules/widget/hecheckbox/main');
-  require('modules/widget/heformitem/main');
-  require('modules/widget/heform/main');
+  require('modules/components/hecheckbox/main');
+  require('modules/components/heformitem/main');
+  require('modules/components/heform/main');
   
   require('modules/module_admin/footer/main');
   require('modules/module_admin/header/main');
@@ -13084,16 +13084,16 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/module_admin/sidemenuitem/main');
   require('modules/module_admin/sidemenu/main');
   
-  require('modules/widget/portlet/main');
-  require('modules/widget/datagriditem/main');
-  require('modules/widget/datagrid/main');
-  require('modules/widget/modal/main');
-  require('modules/widget/dropdown/main');
-  require('modules/widget/dropdowntoggle/main');
-  require('modules/widget/dropdownmenu/main');
-  require('modules/widget/linkitem/main');
-  require('modules/widget/dropdownmenulist/main');
-  require('modules/widget/notificationitem/main');
+  require('modules/components/portlet/main');
+  require('modules/components/datagriditem/main');
+  require('modules/components/datagrid/main');
+  require('modules/components/modal/main');
+  require('modules/components/dropdown/main');
+  require('modules/components/dropdowntoggle/main');
+  require('modules/components/dropdownmenu/main');
+  require('modules/components/linkitem/main');
+  require('modules/components/dropdownmenulist/main');
+  require('modules/components/notificationitem/main');
 
 });
 
@@ -13278,6 +13278,72 @@ define('modules/common/service', function(require, exports, module) {
       getArticleList: getArticleList,
       searchArticles: searchArticles,
       getArticleDetail: getArticleDetail
+  };
+
+});
+
+;/*!/modules/components/inputtext/main.js*/
+define('modules/components/inputtext/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+    template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
+    data: function data() {
+      return {
+        isShow: false,
+        type: 'danger', //danger,info,success,warning
+        msg: '' //必填
+      };
+    },
+    props: [
+    /**
+     *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
+     * user: 用户名
+     */
+    'icon',
+  
+    /**
+     * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
+     */
+    'title',
+  
+    /**
+     * 是否显示title，非必须，默认显示，即显示<lable>
+     */
+    'notitle',
+  
+    /**
+     * input 的name 值，必须
+     */
+    'name']
+  });
+
+});
+
+;/*!/modules/components/loading/main.js*/
+define('modules/components/loading/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var App = require('modules/common/app');
+  
+  function show(msg) {
+      msg = msg || '加载中...';
+      App.blockUI({
+          message: msg
+      });
+  }
+  
+  function hide() {
+      App.unblockUI();
+  }
+  
+  module.exports = {
+      show: show,
+      hide: hide
   };
 
 });
@@ -14850,31 +14916,6 @@ define('modules/login_index/header/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/loading/main.js*/
-define('modules/widget/loading/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var App = require('modules/common/app');
-  
-  function show(msg) {
-      msg = msg || '加载中...';
-      App.blockUI({
-          message: msg
-      });
-  }
-  
-  function hide() {
-      App.unblockUI();
-  }
-  
-  module.exports = {
-      show: show,
-      hide: hide
-  };
-
-});
-
 ;/*!/modules/login_index/loginpanel/main.js*/
 define('modules/login_index/loginpanel/main', function(require, exports, module) {
 
@@ -14883,8 +14924,8 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  var Loading = require('modules/widget/loading/main');
+  var Msg = require('modules/components/msg/main');
+  var Loading = require('modules/components/loading/main');
   
   module.exports = Vue.extend({
       template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\" autofocus/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
@@ -15039,7 +15080,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   /**
    * 初始默认值
@@ -15157,7 +15198,7 @@ define('modules/user_index/delete/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr>\r\n                <th>ID</th>\r\n                <td>{{id}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>用户名</th>\r\n                <td>{{name}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>状态</th>\r\n                <td>{{stateShow}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -15218,7 +15259,7 @@ define('modules/user_index/detail/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -15274,7 +15315,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/modify\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" >\r\n                <select2 name=\"state\" :value=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" >\r\n                <date name=\"birthday\" :value=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -15422,47 +15463,6 @@ define('modules/user_index/main/main', function(require, exports, module) {
           }
       },
       ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/widget/inputtext/main.js*/
-define('modules/widget/inputtext/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-    template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
-    data: function data() {
-      return {
-        isShow: false,
-        type: 'danger', //danger,info,success,warning
-        msg: '' //必填
-      };
-    },
-    props: [
-    /**
-     *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
-     * user: 用户名
-     */
-    'icon',
-  
-    /**
-     * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-     */
-    'title',
-  
-    /**
-     * 是否显示title，非必须，默认显示，即显示<lable>
-     */
-    'notitle',
-  
-    /**
-     * input 的name 值，必须
-     */
-    'name']
   });
 
 });

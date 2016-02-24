@@ -1,7 +1,7 @@
 var Vue = require('lib/vue');
 
 var validator = require('common/validator');
-var Msg = require('/modules/widget/msg/main');
+var Msg = require('components/msg/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
