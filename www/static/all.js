@@ -10859,6 +10859,8 @@ define('modules/common/crud', function(require, exports, module) {
           triggerSubmit: function triggerSubmit(modalId) {
               if (this.jqForm) {
                   this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
               }
           },
   
@@ -15482,6 +15484,9 @@ define('modules/user_index/detail/main', function(require, exports, module) {
                   value: data.updateTime,
                   title: '最后修改时间'
               }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
           }
       }
   });

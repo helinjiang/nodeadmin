@@ -41,6 +41,9 @@ define('modules/user_index/detail/main', function(require, exports, module) {
                   value: data.updateTime,
                   title: '最后修改时间'
               }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
           }
       }
   });

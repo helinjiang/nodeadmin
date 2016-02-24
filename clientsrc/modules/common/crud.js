@@ -55,6 +55,8 @@ var commonOptions = {
         triggerSubmit: function(modalId) {
             if (this.jqForm) {
                 this.jqForm.submit();
+            } else {
+                console.error('this.jqForm is undefined');
             }
         },
 

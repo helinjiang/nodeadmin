@@ -37,6 +37,9 @@ module.exports = CommonCrud.extend({
                 value: data.updateTime,
                 title: '最后修改时间'
             }];
+        },
+        triggerSubmit: function() {
+            this.hideModal();
         }
     }
 });
