@@ -27,7 +27,10 @@ module.exports = Vue.extend({
     methods: {
         showModal: function() {
             // 打开对话框时，一定要记得清空上一次填写的记录
-            this._reset();
+            this.name = defaultData.name;
+            this.pwd = defaultData.pwd;
+            this.birthday = defaultData.birthday;
+            this.state = defaultData.state;
 
             this.$children[0].show();
         },
@@ -40,12 +43,6 @@ module.exports = Vue.extend({
         saveSubmit: function(msg) {
             // 提交表单
             this.jqForm.submit();
-        },
-        _reset: function() {
-            this.name = defaultData.name;
-            this.pwd = defaultData.pwd;
-            this.birthday = defaultData.birthday;
-            this.state = defaultData.state;
         },
         handleValidator: function() {
             var self = this;

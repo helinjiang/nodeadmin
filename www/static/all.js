@@ -11202,9 +11202,9 @@ define('modules/components/date/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 初始值，默认为当前日期
+           * 初始值，yyyy-mm-dd 格式的字符串，默认为当前日期
            */
-          'value': String,
+          'value': 'null',
           /**
            * input 的name 值，必须
            */
@@ -15093,7 +15093,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   };
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\" v-ref:state>\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\" v-ref:birthday></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined,
@@ -15106,7 +15106,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
       methods: {
           showModal: function showModal() {
               // 打开对话框时，一定要记得清空上一次填写的记录
-              this._reset();
+              this.name = defaultData.name;
+              this.pwd = defaultData.pwd;
+              this.birthday = defaultData.birthday;
+              this.state = defaultData.state;
   
               this.$children[0].show();
           },
@@ -15119,12 +15122,6 @@ define('modules/user_index/add/main', function(require, exports, module) {
           saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
-          },
-          _reset: function _reset() {
-              this.name = defaultData.name;
-              this.pwd = defaultData.pwd;
-              this.birthday = defaultData.birthday;
-              this.state = defaultData.state;
           },
           handleValidator: function handleValidator() {
               var self = this;
@@ -15318,7 +15315,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
   var Msg = require('modules/components/msg/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/modify\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" >\r\n                <select2 name=\"state\" :value=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" >\r\n                <date name=\"birthday\" :value=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined,
@@ -15346,60 +15343,54 @@ define('modules/user_index/modify/main', function(require, exports, module) {
           saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.jqForm = $('form', $(this.$el));
+          },
+          handleValidator: function handleValidator() {
+              var self = this;
   
-          _init(this);
-      }
-  });
-  
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
-  
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
-              }
-          }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-  
-                          // 关闭对话框
-                          vm.hideModal();
-  
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+              validator.check(this.jqForm, {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
                       }
+                  }
+              }, {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              if (statusText !== 'success' || responseText.errno !== 0) {
+                                  // 提示失败
+                                  Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
+                              } else {
+                                  // 提示成功
+                                  Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+  
+                                  // 关闭对话框
+                                  self.hideModal();
+  
+                                  // 刷新列表
+                                  self.reportSuccess(responseText.data);
+                              }
+                          }
+                      });
                   }
               });
           }
-      });
-  }
+      },
+      ready: function ready() {
+          this.jqForm = $('form', this.$el);
+  
+          this.handleValidator();
+      }
+  });
 
 });
 

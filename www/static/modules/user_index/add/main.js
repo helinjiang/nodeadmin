@@ -18,7 +18,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   };
   
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\" v-ref:state>\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\" v-ref:birthday></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined,
@@ -31,7 +31,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
       methods: {
           showModal: function showModal() {
               // 打开对话框时，一定要记得清空上一次填写的记录
-              this._reset();
+              this.name = defaultData.name;
+              this.pwd = defaultData.pwd;
+              this.birthday = defaultData.birthday;
+              this.state = defaultData.state;
   
               this.$children[0].show();
           },
@@ -44,12 +47,6 @@ define('modules/user_index/add/main', function(require, exports, module) {
           saveSubmit: function saveSubmit(msg) {
               // 提交表单
               this.jqForm.submit();
-          },
-          _reset: function _reset() {
-              this.name = defaultData.name;
-              this.pwd = defaultData.pwd;
-              this.birthday = defaultData.birthday;
-              this.state = defaultData.state;
           },
           handleValidator: function handleValidator() {
               var self = this;

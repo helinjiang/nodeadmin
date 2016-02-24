@@ -1086,10 +1086,11 @@ Sidebar toggler(show/hide)
   margin-left: -1px;
 }
 
-/*!/modules/user_index/add/main.css*/
-.addpage{
-    display: inline-block;
+/*!/modules/user_index/add/main.scss*/
+.addpage {
+  display: inline-block;
 }
+
 /*!/pages/index_index/main.scss*/
 .row-fluid .recommended {
   width: 900px;

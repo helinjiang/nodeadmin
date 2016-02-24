@@ -29,9 +29,9 @@ Vue.component('date', {
             required: true
         },
         /**
-         * 初始值，默认为当前日期
+         * 初始值，yyyy-mm-dd 格式的字符串，默认为当前日期
          */
-        'value': String,
+        'value': 'null',
         /**
          * input 的name 值，必须
          */
