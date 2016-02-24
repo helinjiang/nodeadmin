@@ -1,9 +1,5 @@
 define('pages/index_index/main', function(require, exports, module) {
 
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
   'use strict';
   
   require('modules/common/global');

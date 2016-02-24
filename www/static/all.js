@@ -15321,8 +15321,8 @@ define('modules/test_index/testdate/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/test_index/main/main.js*/
-define('modules/test_index/main/main', function(require, exports, module) {
+;/*!/modules/test_index/main.js*/
+define('modules/test_index/main', function(require, exports, module) {
 
   'use strict';
   
@@ -15765,10 +15765,6 @@ define('pages/car_index/main', function(require, exports, module) {
 ;/*!/pages/index_index/main.js*/
 define('pages/index_index/main', function(require, exports, module) {
 
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
   'use strict';
   
   require('modules/common/global');
@@ -15845,7 +15841,7 @@ define('pages/test_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var TestMain = require('modules/test_index/main/main');
+  var TestMain = require('modules/test_index/main');
   
   window.app = new Vue({
       el: '#app',
