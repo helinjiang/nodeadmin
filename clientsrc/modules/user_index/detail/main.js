@@ -1,5 +1,7 @@
 var CommonCrud = require('common/crud');
 
+var Names = require('common/names');
+
 module.exports = CommonCrud.extend({
     template: __inline('main.html'),
     data: {
@@ -12,31 +14,16 @@ module.exports = CommonCrud.extend({
             }
 
             // 设置要展示的信息条目
-            this.items = [{
-                key: 'id',
-                value: data.id,
-                title: 'ID'
-            }, {
-                key: 'name',
-                value: data.name,
-                title: '用户名'
-            }, {
-                key: 'birthday',
-                value: data.birthday,
-                title: '生日'
-            }, {
-                key: 'stateShow',
-                value: data.stateShow,
-                title: '状态'
-            }, {
-                key: 'createTime',
-                value: data.createTime,
-                title: '创建时间'
-            }, {
-                key: 'updateTime',
-                value: data.updateTime,
-                title: '最后修改时间'
-            }];
+            var fields = ['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime'],
+                map = Names.user;
+
+            this.items = fields.map(function(field) {
+                return {
+                    key: field,
+                    value: data[field],
+                    title: map[field]
+                };
+            });
         },
         triggerSubmit: function() {
             this.hideModal();

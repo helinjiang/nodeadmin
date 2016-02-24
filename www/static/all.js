@@ -12399,18 +12399,12 @@ define('modules/components/datagriditem/main', function(require, exports, module
       /**
        * 使该列不能够排序
        */
-      'disableorder': {
-        type: Boolean,
-        'default': false
-      },
+      'disableorder': Boolean,
   
       /**
        * 使该列不显示
        */
-      'hide': {
-        type: Boolean,
-        'default': false
-      }
+      'hide': Boolean
     },
     ready: function ready() {}
   });
@@ -13332,6 +13326,45 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/components/linkitem/main');
   require('modules/components/dropdownmenulist/main');
   require('modules/components/notificationitem/main');
+
+});
+
+;/*!/modules/common/names.js*/
+define('modules/common/names', function(require, exports, module) {
+
+  // <datagrid-item name="id" title="ID"></datagrid-item>
+  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
+  // <datagrid-item name="pwd" hide></datagrid-item>
+  // <datagrid-item name="birthday" title="生日"></datagrid-item>
+  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
+  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
+  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
+  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
+  
+  'use strict';
+  
+  var common = {
+      'id': 'ID',
+      'name': '名字',
+      'createTime': '创建时间',
+      'updateTime': '更新时间',
+      'state': '状态',
+      'stateShow': '状态'
+  };
+  
+  /**
+   * /admin/user
+   */
+  var user = $.extend({}, common, {
+      'name': '用户名',
+      'pwd': '密码',
+      'birthday': '生日'
+  });
+  
+  module.exports = {
+      user: user
+  
+  };
 
 });
 
@@ -15447,6 +15480,8 @@ define('modules/user_index/detail/main', function(require, exports, module) {
   
   var CommonCrud = require('modules/common/crud');
   
+  var Names = require('modules/common/names');
+  
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
       data: {
@@ -15459,31 +15494,16 @@ define('modules/user_index/detail/main', function(require, exports, module) {
               }
   
               // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '用户名'
-              }, {
-                  key: 'birthday',
-                  value: data.birthday,
-                  title: '生日'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }, {
-                  key: 'createTime',
-                  value: data.createTime,
-                  title: '创建时间'
-              }, {
-                  key: 'updateTime',
-                  value: data.updateTime,
-                  title: '最后修改时间'
-              }];
+              var fields = ['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime'],
+                  map = Names.user;
+  
+              this.items = fields.map(function (field) {
+                  return {
+                      key: field,
+                      value: data[field],
+                      title: map[field]
+                  };
+              });
           },
           triggerSubmit: function triggerSubmit() {
               this.hideModal();

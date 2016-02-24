@@ -34,18 +34,12 @@ Vue.component('datagrid-item', {
         /**
          * 使该列不能够排序
          */
-        'disableorder': {
-            type: Boolean,
-            default: false
-        },
+        'disableorder': Boolean,
 
         /**
          * 使该列不显示
          */
-        'hide': {
-            type: Boolean,
-            default: false
-        },
+        'hide': Boolean,
     },
     ready: function() {
 
