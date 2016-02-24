@@ -9,8 +9,6 @@ define('modules/components/date/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  var Select2Render = require('modules/common/select2render');
-  
   $.fn.datepicker.dates['zh-CN'] = {
       days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
       daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
@@ -55,6 +53,23 @@ define('modules/components/date/main', function(require, exports, module) {
            * true, fase, 'linked'
            */
           'todayBtn': 'null'
+      },
+      methods: {
+          /**
+           * 对外广播：date值发生了变化
+           */
+          reportChange: function reportChange(name, val, oldVal) {
+              this.$dispatch('valuechange', name, val, oldVal);
+          }
+      },
+      watch: {
+          /**
+           * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+           * 此处检测value变化了，则将input的值进行切换。
+           */
+          'value': function value(val, oldVal) {
+              this.reportChange(this.name, val, oldVal);
+          }
       },
       ready: function ready() {
   

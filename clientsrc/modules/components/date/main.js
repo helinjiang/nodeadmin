@@ -5,8 +5,6 @@
 
 var Vue = require('lib/vue');
 
-var Select2Render = require('common/select2render');
-
 $.fn.datepicker.dates['zh-CN'] = {
     days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
     daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
@@ -52,6 +50,23 @@ Vue.component('date', {
          */
         'todayBtn': 'null'
     },
+    methods: {
+        /**
+         * 对外广播：date值发生了变化
+         */
+        reportChange: function(name, val, oldVal) {
+            this.$dispatch('valuechange', name, val, oldVal);
+        },
+    },
+    watch: {
+        /**
+         * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+         * 此处检测value变化了，则将input的值进行切换。
+         */
+        'value': function(val, oldVal) {
+            this.reportChange(this.name, val, oldVal);
+        },
+    },
     ready: function() {
 
         $(this.$el).datepicker({
@@ -65,6 +80,6 @@ Vue.component('date', {
         //     注意这里很关键，在datepicker选择完成值，要设置value的值
         //     vm.value = e.format();
         // });
-        
+
     }
 });

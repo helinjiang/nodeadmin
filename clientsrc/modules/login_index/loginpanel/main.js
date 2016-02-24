@@ -51,7 +51,6 @@ function handleValidator(vm) {
             // http://malsup.com/jquery/form/
             $(form).ajaxSubmit({
                 success: function(responseText, statusText) {
-                    console.log(responseText, statusText);
                     if (statusText !== 'success' || responseText.errno !== 0) {
                         Msg.error('登录失败，请输入正确的用户名和密码！');
                     } else {

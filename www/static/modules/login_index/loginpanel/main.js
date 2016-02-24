@@ -54,7 +54,6 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
               // http://malsup.com/jquery/form/
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
-                      console.log(responseText, statusText);
                       if (statusText !== 'success' || responseText.errno !== 0) {
                           Msg.error('登录失败，请输入正确的用户名和密码！');
                       } else {

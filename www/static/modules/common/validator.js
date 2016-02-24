@@ -1,6 +1,7 @@
 define('modules/common/validator', function(require, exports, module) {
 
   /**
+   * http://jqueryvalidation.org/
    * 基于 jquery.validate.js 修改  
    * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
    * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
@@ -153,8 +154,27 @@ define('modules/common/validator', function(require, exports, module) {
       $form.validate(validateConfig);
   }
   
+  /**
+   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
+   * @param  {object} jqForm form或者表单元素
+   * @param  {string} fieldName form中的某个表单元素的name属性值
+   * @return {boolean}          
+   */
+  function valid(jqForm, fieldName) {
+      if (!jqForm || !jqForm.length) {
+          return false;
+      }
+  
+      if (!fieldName) {
+          return jqForm.valid();
+      } else {
+          return $('[name="' + fieldName + '"]', jqForm).valid();
+      }
+  }
+  
   module.exports = {
-      check: check
+      check: check,
+      valid: valid
   };
 
 });

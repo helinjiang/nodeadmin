@@ -9442,6 +9442,7 @@ define('modules/lib/vue', function(require, exports, module) {
 define('modules/common/validator', function(require, exports, module) {
 
   /**
+   * http://jqueryvalidation.org/
    * 基于 jquery.validate.js 修改  
    * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
    * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
@@ -9594,8 +9595,27 @@ define('modules/common/validator', function(require, exports, module) {
       $form.validate(validateConfig);
   }
   
+  /**
+   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
+   * @param  {object} jqForm form或者表单元素
+   * @param  {string} fieldName form中的某个表单元素的name属性值
+   * @return {boolean}          
+   */
+  function valid(jqForm, fieldName) {
+      if (!jqForm || !jqForm.length) {
+          return false;
+      }
+  
+      if (!fieldName) {
+          return jqForm.valid();
+      } else {
+          return $('[name="' + fieldName + '"]', jqForm).valid();
+      }
+  }
+  
   module.exports = {
-      check: check
+      check: check,
+      valid: valid
   };
 
 });
@@ -11025,8 +11045,8 @@ define('modules/components/select2/main', function(require, exports, module) {
           /**
            * 对外广播：select2值发生了变化
            */
-          reportChange: function reportChange(msg) {
-              this.$dispatch('select2change', msg);
+          reportChange: function reportChange(name, val, oldVal) {
+              this.$dispatch('valuechange', name, val, oldVal);
           },
           _initLocal: function _initLocal() {
               // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
@@ -11152,7 +11172,7 @@ define('modules/components/select2/main', function(require, exports, module) {
                   this.jqSelect.val(this.value).trigger('change');
   
                   // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                 
-                  this.reportChange(this.name);
+                  this.reportChange(this.name, val, oldVal);
               }
           }
       },
@@ -11177,8 +11197,6 @@ define('modules/components/date/main', function(require, exports, module) {
   'use strict';
   
   var Vue = require('modules/lib/vue');
-  
-  var Select2Render = require('modules/common/select2render');
   
   $.fn.datepicker.dates['zh-CN'] = {
       days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
@@ -11224,6 +11242,23 @@ define('modules/components/date/main', function(require, exports, module) {
            * true, fase, 'linked'
            */
           'todayBtn': 'null'
+      },
+      methods: {
+          /**
+           * 对外广播：date值发生了变化
+           */
+          reportChange: function reportChange(name, val, oldVal) {
+              this.$dispatch('valuechange', name, val, oldVal);
+          }
+      },
+      watch: {
+          /**
+           * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+           * 此处检测value变化了，则将input的值进行切换。
+           */
+          'value': function value(val, oldVal) {
+              this.reportChange(this.name, val, oldVal);
+          }
       },
       ready: function ready() {
   
@@ -14973,7 +15008,6 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
               // http://malsup.com/jquery/form/
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
-                      console.log(responseText, statusText);
                       if (statusText !== 'success' || responseText.errno !== 0) {
                           Msg.error('登录失败，请输入正确的用户名和密码！');
                       } else {
@@ -15154,17 +15188,25 @@ define('modules/user_index/add/main', function(require, exports, module) {
                           rule: 32,
                           message: '最大长度为32'
                       }
+                  },
+                  birthday: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
+                      }
                   }
               }, {
                   submitHandler: function submitHandler(form) {
                       $(form).ajaxSubmit({
                           success: function success(responseText, statusText) {
+                              console.log(responseText, statusText);
+  
                               if (statusText !== 'success' || responseText.errno !== 0) {
                                   // 提示失败
-                                  Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
+                                  Msg.error('保存出错！失败原因为：' + JSON.stringify(responseText.errmsg));
                               } else {
                                   // 提示成功
-                                  Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
+                                  Msg.success('保存成功！');
   
                                   // 关闭对话框
                                   self.hideModal();
@@ -15172,10 +15214,24 @@ define('modules/user_index/add/main', function(require, exports, module) {
                                   // 刷新列表
                                   self.reportSuccess(responseText.data);
                               }
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('登录失败！');
+                              }
                           }
                       });
                   }
               });
+          }
+      },
+      events: {
+          valuechange: function valuechange(name, val, oldVal) {
+              validator.valid(this.jqForm, name);
           }
       },
       ready: function ready() {

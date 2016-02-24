@@ -116,8 +116,8 @@ Vue.component('select2', {
         /**
          * 对外广播：select2值发生了变化
          */
-        reportChange: function(msg) {
-            this.$dispatch('select2change', msg);
+        reportChange: function(name, val, oldVal) {
+            this.$dispatch('valuechange', name, val, oldVal);
         },
         _initLocal: function() {
             // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
@@ -246,7 +246,7 @@ Vue.component('select2', {
                 this.jqSelect.val(this.value).trigger('change');
 
                 // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                  
-                this.reportChange(this.name);
+                this.reportChange(this.name, val, oldVal);
             }
         },
     },
