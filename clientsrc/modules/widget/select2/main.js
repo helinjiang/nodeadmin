@@ -40,13 +40,13 @@ Vue.component('select2', {
              */
             data: [],
             jqSelect: undefined
-        }
+        };
     },
     props: {
         /**
          * input 的name 值，必须
          */
-        'name': {
+        name: {
             type: String,
             required: true
         },
@@ -71,24 +71,15 @@ Vue.component('select2', {
             type: String,
             'default': '请选择'
         },
-        allowClear: {
-            type: Boolean,
-            'default': false
-        },
+        allowClear: Boolean,
         /**
          * 是否懒渲染
          */
-        lazy: {
-            type: Boolean,
-            'default': false
-        },
+        lazy: Boolean,
         /**
          * 是否为ajax请求远程数据？
          */
-        ajax: {
-            type: Boolean,
-            'default': false
-        }
+        ajax: Boolean
     },
     computed: {
         options: function() {
@@ -116,6 +107,13 @@ Vue.component('select2', {
             }
         },
         init: function() {
+            if (!this.ajax) {
+                this._initLocal();
+            } else {
+                this._initAjax();
+            }
+        },
+        _initLocal: function() {
             // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
             this.lazy = false;
 
@@ -128,7 +126,7 @@ Vue.component('select2', {
                     return {
                         id: item.value,
                         text: item.title
-                    }
+                    };
                 });
 
             // 来自init-data的数据
@@ -157,7 +155,7 @@ Vue.component('select2', {
             }
 
         },
-        initAjax: function() {
+        _initAjax: function() {
             // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
             this.lazy = false;
 
@@ -201,7 +199,7 @@ Vue.component('select2', {
                     };
                 },
                 cache: true
-            }
+            };
 
             this._renderSelect2();
 
@@ -211,21 +209,14 @@ Vue.component('select2', {
             var self = this,
                 options = this.options,
                 jqSelect = $('input', this.$el)
-                .select2(options)
-                .on('change', function() {
-                    // TODO 此处有一个bug，因为watch 了 value ，导致会触发了两次change事件
-                    self.value = this.value;
-
-                    // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544
-                    self.$dispatch('select2change', self.name);
-                });
+                .select2(options);
 
             this.jqSelect = jqSelect;
 
-            // 设置默认值
-            if (this.value) {
-                this.jqSelect.val(this.value).trigger('change');
-            }
+            // 设置默认值，此处可以不再手动调用
+            // if (this.value) {
+            //     this.jqSelect.val(this.value).trigger('change');
+            // }
         }
     },
     watch: {
@@ -238,31 +229,25 @@ Vue.component('select2', {
             },
             deep: true
         },
+
+        /**
+         * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+         * 此处检测value变化了，则将input的值进行切换。
+         */
         'value': function(val, oldVal) {
             if (this.jqSelect) {
+                // 触发select2的控件中选项的选择
                 this.jqSelect.val(this.value).trigger('change');
+
+                // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                   
+                this.$dispatch('select2change', this.name);
             }
         },
     },
     ready: function() {
         // 如果不是lazy模式，则立即渲染
         if (!this.lazy) {
-            if (!this.ajax) {
-                this.init();
-            } else {
-                this.initAjax();
-            }
+            this.init();
         }
     }
 });
-
-// newData = [{
-//     id: 1,
-//     text: 'hello'
-// }, {
-//     id: 2,
-//     text: 'world'
-// }, {
-//     id: 3,
-//     text: 'what'
-// }];

@@ -36,7 +36,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Select2Render = require('modules/common/select2render');
   
   Vue.component('select2', {
-      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" v-model=\"value\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>",
       data: function data() {
           return {
               /**
@@ -50,7 +50,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
           /**
            * input 的name 值，必须
            */
-          'name': {
+          name: {
               type: String,
               required: true
           },
@@ -75,24 +75,15 @@ define('modules/widget/select2/main', function(require, exports, module) {
               type: String,
               'default': '请选择'
           },
-          allowClear: {
-              type: Boolean,
-              'default': false
-          },
+          allowClear: Boolean,
           /**
            * 是否懒渲染
            */
-          lazy: {
-              type: Boolean,
-              'default': false
-          },
+          lazy: Boolean,
           /**
            * 是否为ajax请求远程数据？
            */
-          ajax: {
-              type: Boolean,
-              'default': false
-          }
+          ajax: Boolean
       },
       computed: {
           options: function options() {
@@ -120,6 +111,13 @@ define('modules/widget/select2/main', function(require, exports, module) {
               }
           },
           init: function init() {
+              if (!this.ajax) {
+                  this._initLocal();
+              } else {
+                  this._initAjax();
+              }
+          },
+          _initLocal: function _initLocal() {
               // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
               this.lazy = false;
   
@@ -160,7 +158,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   this._renderSelect2();
               }
           },
-          initAjax: function initAjax() {
+          _initAjax: function _initAjax() {
               // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
               this.lazy = false;
   
@@ -212,20 +210,14 @@ define('modules/widget/select2/main', function(require, exports, module) {
               // select2
               var self = this,
                   options = this.options,
-                  jqSelect = $('input', this.$el).select2(options).on('change', function () {
-                  // TODO 此处有一个bug，因为watch 了 value ，导致会触发了两次change事件
-                  self.value = this.value;
-  
-                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544
-                  self.$dispatch('select2change', self.name);
-              });
+                  jqSelect = $('input', this.$el).select2(options);
   
               this.jqSelect = jqSelect;
   
-              // 设置默认值
-              if (this.value) {
-                  this.jqSelect.val(this.value).trigger('change');
-              }
+              // 设置默认值，此处可以不再手动调用
+              // if (this.value) {
+              //     this.jqSelect.val(this.value).trigger('change');
+              // }
           }
       },
       watch: {
@@ -238,33 +230,27 @@ define('modules/widget/select2/main', function(require, exports, module) {
               },
               deep: true
           },
+  
+          /**
+           * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+           * 此处检测value变化了，则将input的值进行切换。
+           */
           'value': function value(val, oldVal) {
               if (this.jqSelect) {
+                  // 触发select2的控件中选项的选择
                   this.jqSelect.val(this.value).trigger('change');
+  
+                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                  
+                  this.$dispatch('select2change', this.name);
               }
           }
       },
       ready: function ready() {
           // 如果不是lazy模式，则立即渲染
           if (!this.lazy) {
-              if (!this.ajax) {
-                  this.init();
-              } else {
-                  this.initAjax();
-              }
+              this.init();
           }
       }
   });
-  
-  // newData = [{
-  //     id: 1,
-  //     text: 'hello'
-  // }, {
-  //     id: 2,
-  //     text: 'world'
-  // }, {
-  //     id: 3,
-  //     text: 'what'
-  // }];
 
 });
