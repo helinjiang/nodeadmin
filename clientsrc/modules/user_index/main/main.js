@@ -1,17 +1,17 @@
 var Vue = require('lib/vue');
 
-var add = require('/modules/user_index/add/main');
-var modify = require('/modules/user_index/modify/main');
+var addPage = require('/modules/user_index/add/main');
+var modifyPage = require('/modules/user_index/modify/main');
 var deletePage = require('/modules/user_index/delete/main');
-var detail = require('/modules/user_index/detail/main');
+var detailPage = require('/modules/user_index/detail/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
-        'add': add,
-        'modify': modify,
+        'add': addPage,
+        'modify': modifyPage,
         'delete': deletePage,
-        'detail': detail
+        'detail': detailPage
     },
     methods: {
         operate: function(event) {
@@ -29,7 +29,7 @@ module.exports = Vue.extend({
 
             data = this.getDataById(id);
 
-            if(data){
+            if (data) {
                 this.$refs[type].showModal(data);
             }
         },
