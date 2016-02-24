@@ -25,9 +25,9 @@ define('modules/common/validator', function(require, exports, module) {
    */
   
   /**
-   * 校验form，支持checkConfig集中配置，也支持在input中进行配置
+   * 校验form，支持validatorConfig集中配置，也支持在input中进行配置
    * @param  {[type]}   $form       [description]
-   * @param  {[type]}   checkConfig [description]
+   * @param  {[type]}   validatorConfig [description]
    * @param  {[type]}   handler     [description]
    * @return {[type]}               [description]
    * @author helinjiang
@@ -35,7 +35,7 @@ define('modules/common/validator', function(require, exports, module) {
    */
   'use strict';
   
-  function check($form, checkConfig, handler) {
+  function check($form, validatorConfig, handler) {
       if (!$form.length) {
           return;
       }
@@ -82,8 +82,8 @@ define('modules/common/validator', function(require, exports, module) {
           }
       };
   
-      // 处理checkConfig
-      // var checkConfig = {
+      // 处理validatorConfig
+      // var validatorConfig = {
       //     username: {
       //         required: {
       //             rule: true,
@@ -99,14 +99,14 @@ define('modules/common/validator', function(require, exports, module) {
       //         }
       //     }
       // }
-      if (!$.isEmptyObject(checkConfig)) {
+      if (!$.isEmptyObject(validatorConfig)) {
           var rules = {},
               messages = {};
   
-          for (var k in checkConfig) {
+          for (var k in validatorConfig) {
               // k=username
-              if (checkConfig.hasOwnProperty(k)) {
-                  var v = checkConfig[k];
+              if (validatorConfig.hasOwnProperty(k)) {
+                  var v = validatorConfig[k];
                   for (var vk in v) {
                       // vk=required
                       // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串

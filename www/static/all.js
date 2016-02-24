@@ -9466,9 +9466,9 @@ define('modules/common/validator', function(require, exports, module) {
    */
   
   /**
-   * 校验form，支持checkConfig集中配置，也支持在input中进行配置
+   * 校验form，支持validatorConfig集中配置，也支持在input中进行配置
    * @param  {[type]}   $form       [description]
-   * @param  {[type]}   checkConfig [description]
+   * @param  {[type]}   validatorConfig [description]
    * @param  {[type]}   handler     [description]
    * @return {[type]}               [description]
    * @author helinjiang
@@ -9476,7 +9476,7 @@ define('modules/common/validator', function(require, exports, module) {
    */
   'use strict';
   
-  function check($form, checkConfig, handler) {
+  function check($form, validatorConfig, handler) {
       if (!$form.length) {
           return;
       }
@@ -9523,8 +9523,8 @@ define('modules/common/validator', function(require, exports, module) {
           }
       };
   
-      // 处理checkConfig
-      // var checkConfig = {
+      // 处理validatorConfig
+      // var validatorConfig = {
       //     username: {
       //         required: {
       //             rule: true,
@@ -9540,14 +9540,14 @@ define('modules/common/validator', function(require, exports, module) {
       //         }
       //     }
       // }
-      if (!$.isEmptyObject(checkConfig)) {
+      if (!$.isEmptyObject(validatorConfig)) {
           var rules = {},
               messages = {};
   
-          for (var k in checkConfig) {
+          for (var k in validatorConfig) {
               // k=username
-              if (checkConfig.hasOwnProperty(k)) {
-                  var v = checkConfig[k];
+              if (validatorConfig.hasOwnProperty(k)) {
+                  var v = validatorConfig[k];
                   for (var vk in v) {
                       // vk=required
                       // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
@@ -10796,6 +10796,172 @@ define('modules/common/app', function(require, exports, module) {
   })();
   
   module.exports = App;
+
+});
+
+;/*!/modules/common/crud.js*/
+define('modules/common/crud', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var validator = require('modules/common/validator');
+  var Msg = require('modules/components/msg/main');
+  
+  /**
+   * 用于定义Vue组件的通用的一些设置
+   * @type {Object}
+   */
+  var commonOptions = {
+      template: '<div> EMPTY </div>',
+      data: function data() {
+          return {
+              jqForm: undefined
+          };
+      },
+      methods: {
+          /**
+           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
+           */
+          beforeShowModal: function beforeShowModal() {},
+  
+          getValidatorConfig: function getValidatorConfig() {
+              return {};
+          },
+  
+          /**
+           * 弹出对话框
+           */
+          showModal: function showModal() {
+              this.beforeShowModal();
+  
+              this.$children[0].show();
+          },
+  
+          /**
+           * 关闭对话框
+           */
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+  
+          /**
+           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           */
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+  
+          /**
+           * 提交对话框中的表单
+           */
+          saveSubmit: function saveSubmit(msg) {
+              this.jqForm.submit();
+          },
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              validator.check(this.jqForm, this.getValidatorConfig(), {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              console.log(responseText, statusText);
+  
+                              if (statusText !== 'success' || responseText.errno !== 0) {
+                                  // 提示失败
+                                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+                              } else {
+                                  // 提示成功
+                                  Msg.success('^_^ 处理成功！');
+  
+                                  // 关闭对话框
+                                  self.hideModal();
+  
+                                  // 刷新列表
+                                  self.reportSuccess(responseText.data);
+                              }
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return validator.valid(this.jqForm, name);
+          }
+      },
+      ready: function ready() {
+          this.jqForm = $('form', this.$el);
+  
+          this.handleValidator();
+      }
+  };
+  
+  module.exports = {
+      extend: function extend(param) {
+          // TODO 此处合并还可以进一步优化
+  
+          var options = $.extend({}, commonOptions);
+  
+          // 如果没有参数或参数不是object，则返回默认值
+          if (typeof param !== 'object') {
+              return options;
+          }
+  
+          // template
+          if (typeof param.template === "string") {
+              options.template = param.template;
+          }
+  
+          // data       
+          if (typeof param.data === "object") {
+              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
+              var newData = $.extend(options.data(), param.data);
+  
+              options.data = function () {
+                  return newData;
+              };
+          }
+  
+          // 'methods' 和 'events'
+          ['methods', 'events'].forEach(function (p) {
+              options[p] = $.extend({}, options[p] || {}, param[p] || {});
+          });
+  
+          // ready
+          if (typeof param.ready === 'function') {
+              options.ready = param.ready;
+          }
+  
+          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
+          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
+          // });
+  
+          return Vue.extend(options);
+      }
+  };
 
 });
 
@@ -15111,10 +15277,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
+  var CommonCrud = require('modules/common/crud');
   
   /**
    * 初始默认值
@@ -15126,41 +15289,23 @@ define('modules/user_index/add/main', function(require, exports, module) {
       state: '1'
   };
   
-  module.exports = Vue.extend({
+  module.exports = CommonCrud.extend({
       template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              jqForm: undefined,
-              name: defaultData.name,
-              pwd: defaultData.pwd,
-              birthday: defaultData.birthday,
-              state: defaultData.state
-          };
+      data: {
+          name: defaultData.name,
+          pwd: defaultData.pwd,
+          birthday: defaultData.birthday,
+          state: defaultData.state
       },
       methods: {
-          showModal: function showModal() {
-              // 打开对话框时，一定要记得清空上一次填写的记录
+          beforeShowModal: function beforeShowModal() {
               this.name = defaultData.name;
               this.pwd = defaultData.pwd;
               this.birthday = defaultData.birthday;
               this.state = defaultData.state;
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
-          },
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              validator.check(this.jqForm, {
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
                   name: {
                       required: {
                           rule: true,
@@ -15195,49 +15340,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
                           message: '生日不能为空！'
                       }
                   }
-              }, {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              console.log(responseText, statusText);
+              };
   
-                              if (statusText !== 'success' || responseText.errno !== 0) {
-                                  // 提示失败
-                                  Msg.error('保存出错！失败原因为：' + JSON.stringify(responseText.errmsg));
-                              } else {
-                                  // 提示成功
-                                  Msg.success('保存成功！');
-  
-                                  // 关闭对话框
-                                  self.hideModal();
-  
-                                  // 刷新列表
-                                  self.reportSuccess(responseText.data);
-                              }
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('登录失败！');
-                              }
-                          }
-                      });
-                  }
-              });
+              return config;
           }
-      },
-      events: {
-          valuechange: function valuechange(name, val, oldVal) {
-              validator.valid(this.jqForm, name);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
-          this.handleValidator();
       }
   });
 

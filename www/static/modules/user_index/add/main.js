@@ -2,10 +2,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
+  var CommonCrud = require('modules/common/crud');
   
   /**
    * 初始默认值
@@ -17,41 +14,23 @@ define('modules/user_index/add/main', function(require, exports, module) {
       state: '1'
   };
   
-  module.exports = Vue.extend({
+  module.exports = CommonCrud.extend({
       template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              jqForm: undefined,
-              name: defaultData.name,
-              pwd: defaultData.pwd,
-              birthday: defaultData.birthday,
-              state: defaultData.state
-          };
+      data: {
+          name: defaultData.name,
+          pwd: defaultData.pwd,
+          birthday: defaultData.birthday,
+          state: defaultData.state
       },
       methods: {
-          showModal: function showModal() {
-              // 打开对话框时，一定要记得清空上一次填写的记录
+          beforeShowModal: function beforeShowModal() {
               this.name = defaultData.name;
               this.pwd = defaultData.pwd;
               this.birthday = defaultData.birthday;
               this.state = defaultData.state;
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
-          },
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              validator.check(this.jqForm, {
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
                   name: {
                       required: {
                           rule: true,
@@ -86,49 +65,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
                           message: '生日不能为空！'
                       }
                   }
-              }, {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              console.log(responseText, statusText);
+              };
   
-                              if (statusText !== 'success' || responseText.errno !== 0) {
-                                  // 提示失败
-                                  Msg.error('保存出错！失败原因为：' + JSON.stringify(responseText.errmsg));
-                              } else {
-                                  // 提示成功
-                                  Msg.success('保存成功！');
-  
-                                  // 关闭对话框
-                                  self.hideModal();
-  
-                                  // 刷新列表
-                                  self.reportSuccess(responseText.data);
-                              }
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('登录失败！');
-                              }
-                          }
-                      });
-                  }
-              });
+              return config;
           }
-      },
-      events: {
-          valuechange: function valuechange(name, val, oldVal) {
-              validator.valid(this.jqForm, name);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
-          this.handleValidator();
       }
   });
 
