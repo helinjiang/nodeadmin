@@ -3,17 +3,30 @@ var Vue = require('lib/vue');
 var validator = require('common/validator');
 var Msg = require('/modules/widget/msg/main');
 
+/**
+ * 初始默认值
+ */
+var defaultData = {
+    name: '',
+    pwd: '',
+    birthday: '2015-12-12',
+    state: '1'
+};
+
 module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
             jqForm: undefined,
-            birthday: '2015-12-12',
-            state: '1'
+            name: defaultData.name,
+            pwd: defaultData.pwd,
+            birthday: defaultData.birthday,
+            state: defaultData.state,
         };
     },
     methods: {
         showModal: function() {
+            // 打开对话框时，一定要记得清空上一次填写的记录
             this._reset();
 
             this.$children[0].show();
@@ -29,13 +42,10 @@ module.exports = Vue.extend({
             this.jqForm.submit();
         },
         _reset: function() {
-            // TODO 还有select2等组件也要恢复初始
-            $('[name="name"], [name="pwd"]', this.jqForm).val('');
-
-            console.log('_resetnow', this.state, this.$refs.state.value);
-
-            this.state = '1';
-            this.birthday = '2015-12-12';
+            this.name = defaultData.name;
+            this.pwd = defaultData.pwd;
+            this.birthday = defaultData.birthday;
+            this.state = defaultData.state;
         },
         handleValidator: function() {
             var self = this;

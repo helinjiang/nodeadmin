@@ -11022,6 +11022,12 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   this._initAjax();
               }
           },
+          /**
+           * 对外广播：select2值发生了变化
+           */
+          reportChange: function reportChange(msg) {
+              this.$dispatch('select2change', msg);
+          },
           _initLocal: function _initLocal() {
               // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
               this.lazy = false;
@@ -11145,8 +11151,8 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   // 触发select2的控件中选项的选择
                   this.jqSelect.val(this.value).trigger('change');
   
-                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                  
-                  this.$dispatch('select2change', this.name);
+                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                 
+                  this.reportChange(this.name);
               }
           }
       },
@@ -15035,17 +15041,30 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var validator = require('modules/common/validator');
   var Msg = require('modules/widget/msg/main');
   
+  /**
+   * 初始默认值
+   */
+  var defaultData = {
+      name: '',
+      pwd: '',
+      birthday: '2015-12-12',
+      state: '1'
+  };
+  
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\" v-ref:state>\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\" v-ref:birthday></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\" v-ref:state>\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\" v-ref:birthday></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: function data() {
           return {
               jqForm: undefined,
-              birthday: '2015-12-12',
-              state: '1'
+              name: defaultData.name,
+              pwd: defaultData.pwd,
+              birthday: defaultData.birthday,
+              state: defaultData.state
           };
       },
       methods: {
           showModal: function showModal() {
+              // 打开对话框时，一定要记得清空上一次填写的记录
               this._reset();
   
               this.$children[0].show();
@@ -15061,13 +15080,10 @@ define('modules/user_index/add/main', function(require, exports, module) {
               this.jqForm.submit();
           },
           _reset: function _reset() {
-              // TODO 还有select2等组件也要恢复初始
-              $('[name="name"], [name="pwd"]', this.jqForm).val('');
-  
-              console.log('_resetnow', this.state, this.$refs.state.value);
-  
-              this.state = '1';
-              this.birthday = '2015-12-12';
+              this.name = defaultData.name;
+              this.pwd = defaultData.pwd;
+              this.birthday = defaultData.birthday;
+              this.state = defaultData.state;
           },
           handleValidator: function handleValidator() {
               var self = this;
