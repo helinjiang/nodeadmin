@@ -1,30 +1,20 @@
 var CommonCrud = require('common/crud');
 
-/**
- * 初始默认值
- */
-var defaultData = {
-    name: '',
-    pwd: '',
-    birthday: '2015-12-12',
-    state: '1'
-};
-
-
 module.exports = CommonCrud.extend({
     template: __inline('main.html'),
     data: {
-        name: defaultData.name,
-        pwd: defaultData.pwd,
-        birthday: defaultData.birthday,
-        state: defaultData.state,
+        name: undefined,
+        pwd: undefined,
+        birthday: undefined,
+        state: undefined,
     },
     methods: {
         beforeShowModal: function() {
-            this.name = defaultData.name;
-            this.pwd = defaultData.pwd;
-            this.birthday = defaultData.birthday;
-            this.state = defaultData.state;
+            // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+            this.name = '';
+            this.pwd = '';
+            this.birthday = '2015-12-12';
+            this.state = '1';
         },
         getValidatorConfig: function() {
             var config = {
