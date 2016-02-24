@@ -1,4 +1,4 @@
-define('modules/car_index/main/main', function(require, exports, module) {
+define('modules/car_index/main', function(require, exports, module) {
 
   'use strict';
   

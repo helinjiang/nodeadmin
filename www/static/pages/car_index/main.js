@@ -11,7 +11,7 @@ define('pages/car_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var CarMain = require('modules/car_index/main/main');
+  var CarMain = require('modules/car_index/main');
   
   window.app = new Vue({
       el: '#app',
