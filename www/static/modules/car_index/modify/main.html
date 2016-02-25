@@ -1,23 +1,23 @@
 <div class="modifypage">
-    <modal title="修改用户信息" v-on:confirm="saveSubmit">        
-        <he-form action="/admin/car/save" horizontal noactions>
+    <modal title="修改用户信息">
+        <he-form action="/admin/car/modify" horizontal noactions>
             <he-form-item title="ID" horizontal>
-                <input type="text" name="id" :value="item.id" readonly>
+                <input type="text" name="id" v-model="id" readonly>
             </he-form-item>
             <he-form-item title="汽车名" horizontal>
-                <input type="text" name="name" :value="item.name" readonly>
+                <input type="text" name="name" v-model="name" readonly>
             </he-form-item>
             <he-form-item title="车主人" horizontal>
-                <select2 name="ownerId" url="/admin/user/getdata" convert="searchuser" lazy :value="item.ownerId" v-on:select2change="checkOwnerId"  v-ref:user></select2>
+                <select2 name="ownerId" :value.sync="ownerId" url="/admin/user/getdata" convert="searchuser" lazy v-ref:user></select2>
             </he-form-item>
             <he-form-item title="状态" horizontal>
-                <select2 name="state" :value="item.state">
+                <select2 name="state" :value.sync="state">
                     <select2-option title="有效" value="1"></select2-option>
                     <select2-option title="无效" value="-1"></select2-option>
                 </select2>
             </he-form-item>
             <he-form-item title="购买日期" horizontal>
-                <date name="buydate" :value="item.buydate"></date><!--TODO type check failed for value="item.buydate". Expected String, got Undefined.-->
+                <date name="buydate" :value.sync="buydate"></date>
             </he-form-item>
         </he-form>
     </modal>

@@ -1,7 +1,8 @@
-/*!/modules/car_index/add/main.css*/
-.addpage{
-    display: inline-block;
+/*!/modules/car_index/add/main.scss*/
+.addpage {
+  display: inline-block;
 }
+
 /*!/modules/components/datagrid/main.scss*/
 .datagrid .datagrid-table .action {
   margin-right: 10px;

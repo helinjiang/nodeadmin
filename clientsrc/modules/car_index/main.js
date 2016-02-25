@@ -1,108 +1,58 @@
 var Vue = require('lib/vue');
 
-var add = require('/modules/car_index/add/main');
-var modify = require('/modules/car_index/modify/main');
+var addPage = require('/modules/car_index/add/main');
+var modifyPage = require('/modules/car_index/modify/main');
 var deletePage = require('/modules/car_index/delete/main');
-var detail = require('/modules/car_index/detail/main');
+var detailPage = require('/modules/car_index/detail/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
-        'add': add,
-        'modify': modify,
+        'add': addPage,
+        'modify': modifyPage,
         'delete': deletePage,
-        'detail': detail
+        'detail': detailPage
     },
     methods: {
         operate: function(event) {
-            console.log('operate', event.target);
             var target = event.target,
                 $target = $(target),
-                type = $target.data('type');
+                type = $target.data('type'),
+                id,
+                data;
 
-            if (!type) {
+            if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
                 return;
             }
 
-            switch (type) {
-                case 'modify':
-                    showDlgModify(this, $target);
-                    break;
-                case 'delete':
-                    showDlgDelete(this, $target);
-                    break;
-                case 'detail':
-                    showDlgDetail(this, $target);
-                    break;
-                default:
-                    break;
+            id = $target.data('id');
+
+            data = this.getDataById(id);
+
+            if (data) {
+                this.$refs[type].showModal(data);
             }
         },
         reloadDataGrid: function() {
             this.$refs.datagrid.reload();
+        },
+        getDataById: function(id) {
+            if (!id) {
+                console.error('No ID!');
+                return;
+            }
+
+            var data = this.$refs.datagrid.getDataById('id', id);
+
+            if (!data) {
+                console.error('No data of id=' + id);
+                return;
+            }
+
+            return data;
         }
     },
     ready: function() {
 
     }
 });
-
-function showDlgModify(vm, jqTarget) {
-    var id = jqTarget.data('id'),
-        data;
-
-    if (!id) {
-        console.error('No ID!');
-        return;
-    }
-
-    data = vm.$refs.datagrid.getDataById('id', id);
-    if (!data) {
-        console.error('No data of id=' + id);
-        return;
-    }
-
-    // console.log(data);
-
-    vm.$refs.modify.showModal(data);
-}
-
-function showDlgDelete(vm, jqTarget) {
-    var id = jqTarget.data('id'),
-        data;
-
-    if (!id) {
-        console.error('No ID!');
-        return;
-    }
-
-    data = vm.$refs.datagrid.getDataById('id', id);
-    if (!data) {
-        console.error('No data of id=' + id);
-        return;
-    }
-
-    // console.log(data);
-
-    vm.$refs.delete.showModal(data);
-}
-
-function showDlgDetail(vm, jqTarget) {
-    var id = jqTarget.data('id'),
-        data;
-
-    if (!id) {
-        console.error('No ID!');
-        return;
-    }
-
-    data = vm.$refs.datagrid.getDataById('id', id);
-    if (!data) {
-        console.error('No data of id=' + id);
-        return;
-    }
-
-    // console.log(data);
-
-    vm.$refs.detail.showModal(data);
-}

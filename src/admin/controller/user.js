@@ -182,6 +182,7 @@ export default class extends Base {
             }
         } else {
             // 修改
+            // TODO 修改的时候没考虑name重名情况
             let affectedRows = await model
                 .where({
                     id: id

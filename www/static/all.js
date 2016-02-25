@@ -9665,8 +9665,8 @@ define('modules/components/msg/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/car_index/add/main.js*/
-define('modules/car_index/add/main', function(require, exports, module) {
+;/*!/modules/common/crud.js*/
+define('modules/common/crud', function(require, exports, module) {
 
   'use strict';
   
@@ -9675,88 +9675,238 @@ define('modules/car_index/add/main', function(require, exports, module) {
   var validator = require('modules/common/validator');
   var Msg = require('modules/components/msg/main');
   
-  module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\"  v-on:select2change=\"checkOwnerId\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+  /**
+   * 用于定义Vue组件的通用的一些设置
+   * @type {Object}
+   */
+  var commonOptions = {
+      template: '<div> EMPTY </div>',
       data: function data() {
           return {
               jqForm: undefined
           };
       },
       methods: {
-          showModal: function showModal() {
-              this._reset();
-              this.$refs.user.init();
+          /**
+           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
+           */
+          beforeShowModal: function beforeShowModal(data) {},
+  
+          getValidatorConfig: function getValidatorConfig() {
+              return {};
+          },
+  
+          /**
+           * 弹出对话框
+           */
+          showModal: function showModal(data) {
+              this.beforeShowModal(data);
   
               this.$children[0].show();
           },
+  
+          /**
+           * 关闭对话框
+           */
           hideModal: function hideModal() {
               this.$children[0].hide();
           },
+  
+          /**
+           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           */
           reportSuccess: function reportSuccess(data) {
               this.$dispatch('savesuccess', data);
           },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
+              }
           },
-          checkOwnerId: function checkOwnerId(name) {
-              this.jqForm.valid();
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              validator.check(this.jqForm, this.getValidatorConfig(), {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              self.dealSuccessRes(responseText, statusText);
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
           },
-          _reset: function _reset() {
-              // TODO select2 的初始化
-              $('[name="name"]', this.jqForm).val('');
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return validator.valid(this.jqForm, name);
+          },
+  
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
           }
       },
       ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('jqForm', $('form', $(this.$el)));
+          this.jqForm = $('form', this.$el);
   
-          _init(this);
+          this.handleValidator();
       }
-  });
+  };
   
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
+  module.exports = {
+      extend: function extend(param) {
+          // TODO 此处合并还可以进一步优化
   
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '汽车名字不能为空！'
-              }
-          },
-          ownerId: {
-              required: {
-                  rule: true,
-                  message: '车主人不能为空！'
-              }
+          var options = $.extend({}, commonOptions);
+  
+          // 如果没有参数或参数不是object，则返回默认值
+          if (typeof param !== 'object') {
+              return options;
           }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
   
-                          // 关闭对话框
-                          vm.hideModal();
+          // template
+          if (typeof param.template === "string") {
+              options.template = param.template;
+          }
   
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+          // data       
+          if (typeof param.data === "object") {
+              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
+              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
+              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
+              // var newData = $.extend(options.data(), param.data);
+              // var newData = Object.assign(options.data(), param.data);
+              var newData = options.data(),
+                  keys = Object.keys(param.data);
+  
+              keys.forEach(function (key) {
+                  newData[key] = param.data[key];
+              });
+  
+              options.data = function () {
+                  return newData;
+              };
+          }
+  
+          // 'methods' 和 'events'
+          ['methods', 'events'].forEach(function (p) {
+              options[p] = $.extend({}, options[p] || {}, param[p] || {});
+          });
+  
+          // ready
+          if (typeof param.ready === 'function') {
+              options.ready = param.ready;
+          }
+  
+          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
+          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
+          // });
+  
+          return Vue.extend(options);
+      }
+  };
+
+});
+
+;/*!/modules/car_index/add/main.js*/
+define('modules/car_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增汽车信息\">\r\n        <he-form action=\"/admin/car/add\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          name: undefined,
+          ownerId: undefined,
+          buydate: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              this.name = '';
+              this.ownerId = undefined;
+              this.buydate = '2016-02-25'; // TODO today
+              this.state = '1';
+  
+              this.$refs.user.init();
+          },
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '汽车名字不能为空！'
+                      }
+                  },
+                  ownerId: {
+                      required: {
+                          rule: true,
+                          message: '车主人不能为空！'
+                      }
+                  },
+                  buydate: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
                       }
                   }
-              });
+              };
+  
+              return config;
           }
-      });
-  }
+      }
+  });
 
 });
 
@@ -9765,23 +9915,24 @@ define('modules/car_index/delete/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              id: undefined,
-              items: []
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除汽车信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
               this.id = data.id;
   
+              // 设置要展示的信息条目
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -9803,40 +9954,57 @@ define('modules/car_index/delete/main', function(require, exports, module) {
                   value: data.stateShow,
                   title: '状态'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
+          triggerSubmit: function triggerSubmit() {
               var self = this;
   
               $.post('/admin/car/delete', {
                   id: this.id
               }, function (responseText, statusText) {
-                  console.log(responseText, statusText);
-                  if (statusText !== 'success' || responseText.errno !== 0) {
-                      // 提示失败
-                      Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
-                  } else {
-                      // 提示成功
-                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
-  
-                      // 关闭对话框
-                      self.hideModal();
-  
-                      // 刷新列表
-                      self.reportSuccess(responseText.data);
-                  }
+                  self.dealSuccessRes(responseText, statusText);
               });
           }
-      },
-      ready: function ready() {}
+      }
   });
+
+});
+
+;/*!/modules/common/names.js*/
+define('modules/common/names', function(require, exports, module) {
+
+  // <datagrid-item name="id" title="ID"></datagrid-item>
+  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
+  // <datagrid-item name="pwd" hide></datagrid-item>
+  // <datagrid-item name="birthday" title="生日"></datagrid-item>
+  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
+  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
+  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
+  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
+  
+  'use strict';
+  
+  var common = {
+      'id': 'ID',
+      'name': '名字',
+      'createTime': '创建时间',
+      'updateTime': '更新时间',
+      'state': '状态',
+      'stateShow': '状态'
+  };
+  
+  /**
+   * /admin/user
+   */
+  var user = $.extend({}, common, {
+      'name': '用户名',
+      'pwd': '密码',
+      'birthday': '生日'
+  });
+  
+  module.exports = {
+      user: user
+  
+  };
 
 });
 
@@ -9845,20 +10013,21 @@ define('modules/car_index/detail/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
+  var Names = require('modules/common/names');
   
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: []
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"汽车信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -9880,14 +10049,11 @@ define('modules/car_index/detail/main', function(require, exports, module) {
                   value: data.stateShow,
                   title: '状态'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
           }
-      },
-      ready: function ready() {}
+      }
   });
 
 });
@@ -9897,95 +10063,52 @@ define('modules/car_index/modify/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  //Vue.config.debug = true;
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">        \r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" :value=\"item.id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" :value=\"item.name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy :value=\"item.ownerId\" v-on:select2change=\"checkOwnerId\"  v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value=\"item.state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value=\"item.buydate\"></date><!--TODO type check failed for value=\"item.buydate\". Expected String, got Undefined.-->\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              jqForm: undefined,
-              item: undefined
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/car/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          name: undefined,
+          ownerId: undefined,
+          state: undefined,
+          buydate: undefined
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
   
-              this.item = data;
+              // 初始化数据
+              this.id = data.id;
+              this.name = data.name;
+              this.ownerId = data.ownerId;
+              this.state = data.state;
+              this.buydate = data.buydate;
   
               this.$refs.user.init();
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          checkOwnerId: function checkOwnerId(name) {
-              this.jqForm.valid();
-          },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.jqForm = $('form', $(this.$el));
-  
-          _init(this);
-      }
-  });
-  
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
-  
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
-              }
-          }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-  
-                          // 关闭对话框
-                          vm.hideModal();
-  
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
+                  ownerId: {
+                      required: {
+                          rule: true,
+                          message: '车主人不能为空！'
+                      }
+                  },
+                  buydate: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
                       }
                   }
-              });
+              };
+  
+              return config;
           }
-      });
-  }
+      }
+  });
 
 });
 
@@ -9996,110 +10119,60 @@ define('modules/car_index/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  var add = require('modules/car_index/add/main');
-  var modify = require('modules/car_index/modify/main');
+  var addPage = require('modules/car_index/add/main');
+  var modifyPage = require('modules/car_index/modify/main');
   var deletePage = require('modules/car_index/delete/main');
-  var detail = require('modules/car_index/detail/main');
+  var detailPage = require('modules/car_index/detail/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n            <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
-          'add': add,
-          'modify': modify,
+          'add': addPage,
+          'modify': modifyPage,
           'delete': deletePage,
-          'detail': detail
+          'detail': detailPage
       },
       methods: {
           operate: function operate(event) {
-              console.log('operate', event.target);
               var target = event.target,
                   $target = $(target),
-                  type = $target.data('type');
+                  type = $target.data('type'),
+                  id,
+                  data;
   
-              if (!type) {
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
                   return;
               }
   
-              switch (type) {
-                  case 'modify':
-                      showDlgModify(this, $target);
-                      break;
-                  case 'delete':
-                      showDlgDelete(this, $target);
-                      break;
-                  case 'detail':
-                      showDlgDetail(this, $target);
-                      break;
-                  default:
-                      break;
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
               }
           },
           reloadDataGrid: function reloadDataGrid() {
               this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
           }
       },
       ready: function ready() {}
   });
-  
-  function showDlgModify(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.modify.showModal(data);
-  }
-  
-  function showDlgDelete(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs['delete'].showModal(data);
-  }
-  
-  function showDlgDetail(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.detail.showModal(data);
-  }
 
 });
 
@@ -10796,198 +10869,6 @@ define('modules/common/app', function(require, exports, module) {
   })();
   
   module.exports = App;
-
-});
-
-;/*!/modules/common/crud.js*/
-define('modules/common/crud', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
-  
-  /**
-   * 用于定义Vue组件的通用的一些设置
-   * @type {Object}
-   */
-  var commonOptions = {
-      template: '<div> EMPTY </div>',
-      data: function data() {
-          return {
-              jqForm: undefined
-          };
-      },
-      methods: {
-          /**
-           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
-           */
-          beforeShowModal: function beforeShowModal(data) {},
-  
-          getValidatorConfig: function getValidatorConfig() {
-              return {};
-          },
-  
-          /**
-           * 弹出对话框
-           */
-          showModal: function showModal(data) {
-              this.beforeShowModal(data);
-  
-              this.$children[0].show();
-          },
-  
-          /**
-           * 关闭对话框
-           */
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-  
-          /**
-           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-           */
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-  
-          /**
-           * 对话框确定按钮点击之后的回调函数
-           */
-          triggerSubmit: function triggerSubmit(modalId) {
-              if (this.jqForm) {
-                  this.jqForm.submit();
-              } else {
-                  console.error('this.jqForm is undefined');
-              }
-          },
-  
-          /**
-           * 表单校验
-           */
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              validator.check(this.jqForm, this.getValidatorConfig(), {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              self.dealSuccessRes(responseText, statusText);
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
-                              }
-                          }
-                      });
-                  }
-              });
-          },
-          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
-              console.log(responseText, statusText);
-  
-              if (statusText !== 'success' || responseText.errno !== 0) {
-                  // 提示失败
-                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-              } else {
-                  // 提示成功
-                  Msg.success('^_^ 处理成功！');
-  
-                  // 关闭对话框
-                  this.hideModal();
-  
-                  // 刷新列表
-                  this.reportSuccess(responseText.data);
-              }
-          }
-      },
-      events: {
-          /**
-           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
-           * 
-           * @param  {string} name   表单中某一表单元素的name属性值
-           * @param  {string} val    新值
-           * @param  {string} oldVal 旧值
-           * @return {boolean}        校验结果
-           */
-          valuechange: function valuechange(name, val, oldVal) {
-              return validator.valid(this.jqForm, name);
-          },
-  
-          /**
-           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-           * 
-           * @param  {string} modalId   当前modal的id
-           */
-          confirm: function confirm(modalId) {
-              this.triggerSubmit(modalId);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
-          this.handleValidator();
-      }
-  };
-  
-  module.exports = {
-      extend: function extend(param) {
-          // TODO 此处合并还可以进一步优化
-  
-          var options = $.extend({}, commonOptions);
-  
-          // 如果没有参数或参数不是object，则返回默认值
-          if (typeof param !== 'object') {
-              return options;
-          }
-  
-          // template
-          if (typeof param.template === "string") {
-              options.template = param.template;
-          }
-  
-          // data       
-          if (typeof param.data === "object") {
-              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
-              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
-              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
-              // var newData = $.extend(options.data(), param.data);
-              // var newData = Object.assign(options.data(), param.data);
-              var newData = options.data(),
-                  keys = Object.keys(param.data);
-  
-              keys.forEach(function (key) {
-                  newData[key] = param.data[key];
-              });
-  
-              options.data = function () {
-                  return newData;
-              };
-          }
-  
-          // 'methods' 和 'events'
-          ['methods', 'events'].forEach(function (p) {
-              options[p] = $.extend({}, options[p] || {}, param[p] || {});
-          });
-  
-          // ready
-          if (typeof param.ready === 'function') {
-              options.ready = param.ready;
-          }
-  
-          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
-          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
-          // });
-  
-          return Vue.extend(options);
-      }
-  };
 
 });
 
@@ -11750,7 +11631,7 @@ define('modules/module_admin/header/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('admin-header', {
-      template: "<div class=\"header navbar navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>\r\n",
+      template: "<div class=\"header navbar navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>",
       props: {
           /**
            * 登录用户的用户名
@@ -13326,45 +13207,6 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/components/linkitem/main');
   require('modules/components/dropdownmenulist/main');
   require('modules/components/notificationitem/main');
-
-});
-
-;/*!/modules/common/names.js*/
-define('modules/common/names', function(require, exports, module) {
-
-  // <datagrid-item name="id" title="ID"></datagrid-item>
-  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
-  // <datagrid-item name="pwd" hide></datagrid-item>
-  // <datagrid-item name="birthday" title="生日"></datagrid-item>
-  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
-  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
-  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
-  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
-  
-  'use strict';
-  
-  var common = {
-      'id': 'ID',
-      'name': '名字',
-      'createTime': '创建时间',
-      'updateTime': '更新时间',
-      'state': '状态',
-      'stateShow': '状态'
-  };
-  
-  /**
-   * /admin/user
-   */
-  var user = $.extend({}, common, {
-      'name': '用户名',
-      'pwd': '密码',
-      'birthday': '生日'
-  });
-  
-  module.exports = {
-      user: user
-  
-  };
 
 });
 

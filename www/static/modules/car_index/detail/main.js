@@ -2,20 +2,21 @@ define('modules/car_index/detail/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
+  var Names = require('modules/common/names');
   
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: []
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"汽车信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -37,14 +38,11 @@ define('modules/car_index/detail/main', function(require, exports, module) {
                   value: data.stateShow,
                   title: '状态'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
           }
-      },
-      ready: function ready() {}
+      }
   });
 
 });
