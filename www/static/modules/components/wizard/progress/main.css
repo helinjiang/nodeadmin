@@ -1,0 +1,184 @@
+/***
+Header and header elements.
+***/
+.header {
+  width: 100%;
+  padding: 0 20px 0 20px;
+  margin: 0;
+  border: 0px;
+  padding: 0px;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  height: 45px;
+  min-height: 45px;
+  /***
+  Top bar menu
+  ***/
+  /* enable arrow for dropdown menu */
+}
+
+.header .navbar-fixed-top {
+  z-index: 9995 !important;
+}
+
+.header .navbar-brand {
+  display: inline-block;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  width: 215px;
+  height: 45px;
+}
+
+.header .page-logo {
+  float: left;
+  display: block;
+  width: 225px;
+  height: 45px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.header .page-logo img {
+  margin: 16px 0 0 0;
+}
+
+.header .navbar-toggle {
+  margin: 10px 6px 9px 6px;
+  padding: 0;
+  padding-top: 2px;
+  padding-bottom: 6px;
+  background-image: none;
+  -webkit-filter: none;
+          filter: none;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  color: #fff;
+  border: 0;
+}
+
+.header .navbar-toggle:hover {
+  text-decoration: none;
+  background: none;
+}
+
+.header .navbar-nav {
+  height: 45px;
+  margin-right: 20px;
+  display: block;
+}
+
+.header .navbar-nav > li {
+  margin: 0px !important;
+  padding: 0px !important;
+}
+
+.header .navbar-nav > li.devider {
+  margin-left: 10px !important;
+  margin-right: 5px !important;
+  height: 45px;
+  width: 1px !important;
+}
+
+.header .navbar-nav > li.dropdown {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.header .navbar-nav > li.dropdown:last-child {
+  padding-right: 2px;
+}
+
+.header .navbar-nav > li.dropdown .dropdown-toggle {
+  padding: 14px 12px 10px 12px;
+  margin: 0 2px;
+}
+
+.header .navbar-nav > li.dropdown .dropdown-toggle > i {
+  font-size: 18px;
+}
+
+.header .navbar-nav > li.dropdown .dropdown-menu > li > a > i {
+  font-size: 14px;
+}
+
+.header .navbar-nav > li.dropdown.user .dropdown-toggle {
+  margin: 0 !important;
+  padding: 12px 8px 12px 8px;
+}
+
+.header .navbar-nav > li.dropdown.user .dropdown-toggle .username {
+  display: inline-block;
+}
+
+.header .navbar-nav > li.dropdown.user .dropdown-toggle:hover {
+  text-decoration: none;
+}
+
+.header .navbar-nav > li.dropdown > a {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.header .navbar-nav > li.dropdown > a:last-child {
+  padding-right: 0;
+}
+
+.header .navbar-nav li.dropdown.user .dropdown-toggle img {
+  float: left;
+  display: inline-block;
+  margin-top: -4px;
+  margin-right: 5px;
+}
+
+.header .navbar-nav li.dropdown.user .dropdown-toggle i {
+  display: inline-block;
+  margin-top: 5px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.header .navbar-nav li.dropdown.user .dropdown-menu i {
+  display: inline-block;
+}
+
+.header .navbar-nav li.dropdown.user img {
+  border-radius: 50%;
+}
+
+.header .navbar-nav li.dropdown .dropdown-toggle .badge {
+  position: absolute;
+  top: 10px;
+  right: 2px;
+  border-radius: 2px  !important;
+  font-weight: 300px;
+  padding: 1px 4px 0px 4px;
+  height: 14px;
+}
+
+.header .navbar-nav .dropdown-menu {
+  margin-top: 3px;
+}
+
+.header .nav > li > .dropdown-menu:before {
+  position: absolute;
+  top: -7px;
+  right: 9px;
+  display: inline-block !important;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #ccc;
+  border-left: 7px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  content: '';
+}
+
+.header .nav > li > .dropdown-menu:after {
+  position: absolute;
+  top: -6px;
+  right: 10px;
+  display: inline-block !important;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #fff;
+  border-left: 6px solid transparent;
+  content: '';
+}

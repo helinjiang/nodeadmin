@@ -12,6 +12,6 @@ Vue.component('admin-header', {
         },
     },
     ready: function() {
-
+        
     }
 });

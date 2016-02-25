@@ -1,0 +1,101 @@
+<div class="portlet" id="form_wizard_1">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-reorder"></i> Form Wizard - <span class="step-title">
+            Step 1 of 4 </span>
+        </div>
+    </div>
+    <div class="portlet-body form">
+        <form action="#" class="form-horizontal" id="submit_form">
+            <div class="form-wizard">
+                <wizard-body>
+                    <wizard-steps></wizard-steps>
+                    <wizard-progress></wizard-progress>
+                    <wizard-tab-content>                        
+                        
+                        <wizard-tab-pane css="active" id="tab1" title="Provide your account details">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Username <span class="required">
+                                * </span>
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="username"/>
+                                    <span class="help-block">
+                                    Provide your username </span>
+                                </div>
+                            </div>
+                        </wizard-tab-pane>
+
+                        <wizard-tab-pane id="tab2" title="Provide your profile details">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Fullname <span class="required">
+                                * </span>
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="fullname"/>
+                                    <span class="help-block">
+                                    Provide your fullname </span>
+                                </div>
+                            </div>                            
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Remarks</label>
+                                <div class="col-md-4">
+                                    <textarea class="form-control" rows="3" name="remarks"></textarea>
+                                </div>
+                            </div>
+                        </wizard-tab-pane>
+
+                        <wizard-tab-pane id="tab3" title="Provide your billing and credit card details">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Card Holder Name <span class="required">
+                                * </span>
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="card_name"/>
+                                    <span class="help-block">
+                                    </span>
+                                </div>
+                            </div>
+                        </wizard-tab-pane>
+
+                        <wizard-tab-pane id="tab4" title="Confirm your account">
+                            <h4 class="form-section">Account</h4>
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Username:</label>
+                                <div class="col-md-4">
+                                    <p class="form-control-static" data-display="username">
+                                    </p>
+                                </div>
+                            </div>                            
+                            <h4 class="form-section">Profile</h4>
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Fullname:</label>
+                                <div class="col-md-4">
+                                    <p class="form-control-static" data-display="fullname">
+                                    </p>
+                                </div>
+                            </div>                            
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Remarks:</label>
+                                <div class="col-md-4">
+                                    <p class="form-control-static" data-display="remarks">
+                                    </p>
+                                </div>
+                            </div>
+                            <h4 class="form-section">Billing</h4>
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Card Holder Name:</label>
+                                <div class="col-md-4">
+                                    <p class="form-control-static" data-display="card_name">
+                                    </p>
+                                </div>
+                            </div> 
+                        </wizard-tab-pane>
+                        
+                    </wizard-tab-content>
+                </wizard-body>
+                <wizard-actions></wizard-actions>
+            </div>
+        </form>
+    </div>
+</div>
