@@ -5,7 +5,7 @@ define('modules/components/heform/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form', {
-      template: "<form :action=\"action\" :class=\"horizontal?'form-horizontal':''\" role=\"form\" :method=\"method\">\r\n    <div class=\"form-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"form-actions\" v-if=\"!noactions\">\r\n        <slot name=\"actions\"></slot>\r\n    </div>\r\n</form>\r\n",
+      template: "<form :action=\"action\" :class=\"{ 'form-horizontal': horizontal }\" role=\"form\" :method=\"method\">\r\n    <div class=\"form-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"form-actions\" v-if=\"!noactions\">\r\n        <slot name=\"actions\"></slot>\r\n    </div>\r\n</form>\r\n",
       props: {
           /**
            * 
