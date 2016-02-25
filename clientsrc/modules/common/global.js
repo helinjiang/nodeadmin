@@ -18,6 +18,7 @@ require('/modules/module_admin/sidemenuitem/main');
 require('/modules/module_admin/sidemenu/main');
 
 require('components/portlet/main');
+require('components/wizard/main');
 require('components/datagriditem/main');
 require('components/datagrid/main');
 require('components/modal/main');

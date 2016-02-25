@@ -22,6 +22,7 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/module_admin/sidemenu/main');
   
   require('modules/components/portlet/main');
+  require('modules/components/wizard/main');
   require('modules/components/datagriditem/main');
   require('modules/components/datagrid/main');
   require('modules/components/modal/main');
