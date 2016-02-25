@@ -14,48 +14,25 @@
                     <wizard-tab-content>                        
                         
                         <wizard-tab-pane css="active" id="tab1" title="Provide your account details">
-                            <div class="form-group">
-                                <label class="control-label col-md-3">Username <span class="required">
-                                * </span>
-                                </label>
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" name="username"/>
-                                    <span class="help-block">
-                                    Provide your username </span>
-                                </div>
-                            </div>
+                            <he-form-item title="用户名" col="3-4" help="Provide your username" required horizontal>
+                                <input type="text" name="username">
+                            </he-form-item>
                         </wizard-tab-pane>
 
-                        <wizard-tab-pane id="tab2" title="Provide your profile details">
-                            <div class="form-group">
-                                <label class="control-label col-md-3">Fullname <span class="required">
-                                * </span>
-                                </label>
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" name="fullname"/>
-                                    <span class="help-block">
-                                    Provide your fullname </span>
-                                </div>
-                            </div>                            
-                            <div class="form-group">
-                                <label class="control-label col-md-3">Remarks</label>
-                                <div class="col-md-4">
-                                    <textarea class="form-control" rows="3" name="remarks"></textarea>
-                                </div>
-                            </div>
+                        <wizard-tab-pane id="tab2" title="Provide your profile details">           
+                            <he-form-item title="Fullname" col="3-4" help="Provide your fullname" required horizontal>
+                                <input type="text" name="fullname">
+                            </he-form-item> 
+
+                            <he-form-item title="Remarks" col="3-4" help="Provide your fullname"  horizontal>
+                                <textarea rows="3" name="remarks"></textarea>
+                            </he-form-item>
                         </wizard-tab-pane>
 
                         <wizard-tab-pane id="tab3" title="Provide your billing and credit card details">
-                            <div class="form-group">
-                                <label class="control-label col-md-3">Card Holder Name <span class="required">
-                                * </span>
-                                </label>
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" name="card_name"/>
-                                    <span class="help-block">
-                                    </span>
-                                </div>
-                            </div>
+                            <he-form-item title="Card Holder Name" col="3-4" required horizontal>
+                                <input type="text" name="card_name">
+                            </he-form-item> 
                         </wizard-tab-pane>
 
                         <wizard-tab-pane id="tab4" title="Confirm your account">

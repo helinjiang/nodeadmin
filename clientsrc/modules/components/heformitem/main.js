@@ -19,7 +19,11 @@ Vue.component('he-form-item', {
         'col': {
             type: String,
             'default': '3-9'
-        }
+        },
+
+        required: Boolean,
+
+        help: String
 
     },
     computed: {
@@ -57,6 +61,6 @@ Vue.component('he-form-item', {
         }
     },
     ready: function() {
-        $('input', this.$el).addClass('form-control');
+        $('input, textarea', this.$el).addClass('form-control');
     }
 });

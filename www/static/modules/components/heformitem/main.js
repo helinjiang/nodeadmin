@@ -5,7 +5,7 @@ define('modules/components/heformitem/main', function(require, exports, module) 
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form-item', {
-      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>",
+      template: "<div class=\"form-group\" :class=\"{ 'errwrap': horizontal }\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }} <span class=\"required\" v-if=\"required\"> * </span></label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n            <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n        <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n    </template>\r\n</div>",
       props: {
           /**
            * 
@@ -23,7 +23,11 @@ define('modules/components/heformitem/main', function(require, exports, module) 
           'col': {
               type: String,
               'default': '3-9'
-          }
+          },
+  
+          required: Boolean,
+  
+          help: String
   
       },
       computed: {
@@ -61,7 +65,7 @@ define('modules/components/heformitem/main', function(require, exports, module) 
           }
       },
       ready: function ready() {
-          $('input', this.$el).addClass('form-control');
+          $('input, textarea', this.$el).addClass('form-control');
       }
   });
 
