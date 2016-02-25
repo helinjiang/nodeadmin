@@ -42,7 +42,7 @@ export default class extends Base {
         let result = await this.model('car')
             .alias("c")
             .join({
-                table: "select id as user_id, name as user_name from think_car",
+                table: "select id as user_id, name as user_name from think_user",
                 as: "u", // 表别名
                 on: ["ownerId", "user_id"] //ON 条件
             })
@@ -180,7 +180,7 @@ export default class extends Base {
             id, name
         } = record;
 
-        let model = this.model('user');
+        let model = this.model('car');
 
 
         if (!id) {
