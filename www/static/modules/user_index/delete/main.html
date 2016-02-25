@@ -1,21 +1,13 @@
 <div class="deletepage">
-    <modal title="删除用户信息" v-on:confirm="saveSubmit">
+    <modal title="删除用户信息">
         <div class="alert alert-warning alert-dismissable">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
             <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！
         </div>
         <table class="table table-bordered">
-            <tr>
-                <th>ID</th>
-                <td>{{id}}</td>
-            </tr>
-            <tr>
-                <th>用户名</th>
-                <td>{{name}}</td>
-            </tr>
-            <tr>
-                <th>状态</th>
-                <td>{{stateShow}}</td>
+            <tr v-for="item in items">
+                <th>{{ item.title}}</th>
+                <td>{{ item.value}}</td>
             </tr>
         </table>
     </modal>

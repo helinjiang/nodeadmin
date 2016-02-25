@@ -1,3 +1,8 @@
+/**
+ * 本文件用于select2控件时，转义CGI接口返回的数据格式的。
+ * 在select2中，key值name为'id'，value值name为'text'
+ */
+
 function getgroup(res) {
     if (res.errno !== 0) {
         return [];
@@ -11,7 +16,7 @@ function searchuser(res) {
         return [];
     }
 
-    return _convert(res.data,'id','name');
+    return _convert(res.data, 'id', 'name');
 }
 
 function _convert(arr, idName, textName) {
@@ -23,11 +28,11 @@ function _convert(arr, idName, textName) {
         return {
             id: item[idName],
             text: item[textName]
-        }
+        };
     });
 }
 
 module.exports = {
     getgroup: getgroup,
-    searchuser:searchuser
+    searchuser: searchuser
 };

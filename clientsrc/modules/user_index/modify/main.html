@@ -1,20 +1,20 @@
 <div class="modifypage">
-    <modal title="修改用户信息" v-on:confirm="saveSubmit">
-        <he-form action="/admin/user/save" noactions>
-            <he-form-item title="ID">
-                <input type="text" name="id" :value="id" readonly>
+    <modal title="修改用户信息">
+        <he-form action="/admin/user/modify" horizontal noactions>
+            <he-form-item title="ID" horizontal>
+                <input type="text" name="id" v-model="id" readonly>
             </he-form-item>
-            <he-form-item title="用户名">
-                <input type="text" name="name" :value="name" readonly>
+            <he-form-item title="用户名" horizontal>
+                <input type="text" name="name" v-model="name" readonly>
             </he-form-item>
-            <he-form-item title="状态" >
-                <select2 name="state" :value="state">
+            <he-form-item title="状态" horizontal>
+                <select2 name="state" :value.sync="state">
                     <select2-option title="有效" value="1"></select2-option>
                     <select2-option title="无效" value="-1"></select2-option>
                 </select2>
             </he-form-item>
-            <he-form-item title="生日" >
-                <date name="birthday" :value="birthday"></date>
+            <he-form-item title="生日" horizontal>
+                <date name="birthday" :value.sync="birthday"></date>
             </he-form-item>
         </he-form>
     </modal>

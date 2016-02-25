@@ -13,40 +13,34 @@ export default class extends Base {
     }
 
     /**
-     * 获得列表中的数据
+     * 获得数据库表 think_car 中所有的用户信息
+     * 
      * @return {object} JSON 格式数据
      */
     async getdataAction() {
-        // console.log(this.model('car').getSchema());
-        if (this.isGet()) {
-            return this.fail('Not Post');
-        }
-        // datatables的第几次渲染，从1递增，可用于在异步请求下，区分当前返回的数据是第几次请求返回的。
-        let draw = this.post('draw');
+        // 获取参数
+        let {
+            // datatables的第几次渲染，从1递增，可用于在异步请求下，区分当前返回的数据是第几次请求返回的。
+            draw, 
 
-        // 第几条数据开始
-        let start = this.post('start');
+            // 第几条数据开始
+            start, 
 
-        // 一次请求多少条记录
-        let length = this.post('length');
+            // 一次请求多少条记录
+            length
+        } = this.post();
 
         // 快速搜索框中的值
+        // TODO 还未实现
         let searchValue = this.post('search[value]');
 
         // 由于thinkjs中是以页为单位的，因此在此进行换算
         // https://thinkjs.org/zh-cn/doc/2.1/model_crud.html#toc-6ce
         let page = start / length + 1;
 
-
+        // 查询数据库，获取所有的汽车信息
         let result = await this.model('car')
-            // .join("think_user ON think_car.ownerId=think_user.id")
             .alias("c")
-            // .join({
-            //     table: "user",
-            //     join: "left", //join 方式，有 left, right, inner 3 种方式
-            //     as: "u", // 表别名
-            //     on: ["ownerId", "id"] //ON 条件
-            // })
             .join({
                 table: "select id as user_id, name as user_name from think_user",
                 as: "u", // 表别名
@@ -58,11 +52,8 @@ export default class extends Base {
             .page(page, length)
             .countSelect();
 
-        console.log(result);
-
-        let data = result.data;
-
-        data = data.map(item => {
+        // 为了最后的显示，进行数据处理
+        let data = result.data.map(item => {
             // 转义时间
             item.buydate = this.getCurDateStr(item.buydate);
 
@@ -90,18 +81,16 @@ export default class extends Base {
         });
     }
 
-    async saveAction() {
-        if (this.isGet()) {
-            return this.fail('Not Post');
-        }
-
-        // return this.success(this.post());
-
+    /**
+     * 新增数据到数据库表 think_car 中
+     * 
+     * @return {object} JSON 格式数据
+     */
+    addAction() {
+        // 获取参数
         let {
-            id, name, ownerId, state, buydate
+            name, ownerId, state, buydate
         } = this.post();
-
-        let model = this.model("car");
 
         let record = {
             name: name,
@@ -109,74 +98,139 @@ export default class extends Base {
             state: state,
             buydate: buydate
         };
-        console.log(record);
-        // return this.success('test');
 
-        if (!id) {
-            // 新增
-            // result returns {id: 1000, type: "add"} or {id: 1000, type: "exist"} } }
-            let result = await model
-                .thenAdd(record, {
-                    name: name
-                })
-                .catch(err => this.fail(err.message || 'error'));
+        // 参数校验，在logic中已完成
 
-            console.log(result);
+        // 保存
+        return this._save(record);
 
-            if (result.type === 'add') {
-                return this.success({
-                    _type: 'add',
-                    id: result.id,
-                    name: name
-                });
-            } else {
-                return this.fail(100, 'fail', {
-                    _type: 'exist',
-                    id: result.id,
-                    name: name
-                });
-            }
-        } else {
-            // 修改
-            let affectedRows = await model
-                .where({
-                    id: id
-                })
-                .update(record)
-                .catch(err => this.fail(err.message || 'error'));
-
-            if (affectedRows) {
-                return this.success({
-                    _type: 'modify',
-                    id: id,
-                    name: name
-                });
-            }
-        }
     }
 
+    /**
+     * 修改数据到数据库表 think_car 中
+     * 
+     * @return {object} JSON 格式数据
+     */
+    modifyAction() {
+        // 获取参数
+        let {
+            id, ownerId, state, buydate
+        } = this.post();
 
+        let datetime = this.getCurTimeStr();
+
+        let record = {
+            id: id,
+            ownerId: ownerId,
+            state: state,
+            buydate: buydate
+        };
+
+        // 参数校验，在logic中已完成
+
+        // 保存
+        return this._save(record);
+
+    }
+
+    /**
+     * 从数据库表 think_car 中删除一条记录
+     *
+     * @return {object} JSON 格式数据
+     */
     async deleteAction() {
-        if (this.isGet()) {
-            return this.fail('Not Post');
-        }
-
+        // 获取参数
         let id = this.post('id');
         let model = this.model("car");
 
+        // 参数校验，在logic中已完成
+
+        // TODO 检查外键情况，查询是否有其他的数据表有用到该数据
+
+        // 删除
         let affectedRows = await model
             .where({
                 id: id
             })
             .delete()
-            .catch(err => this.fail(err.message || 'error'));
+            .catch(err => {
+                return this.fail(err.message || 'error')
+            });
 
+        // 处理返回结果
         if (affectedRows) {
             return this.success({
                 _type: 'delete',
-                id: id,
-                affectedRows: affectedRows
+                affectedRows: affectedRows,
+                id: id
             });
+        } else {
+            return this.fail('delete failed!', {
+                _type: 'delete',
+                id: id
+            });
+        }
+    }
+
+    /**
+     * 保存数据
+     */
+    async _save(record) {
+        let {
+            id, name
+        } = record;
+
+        let model = this.model('car');
+
+
+        if (!id) {
+            // 新增，同时保证 name 值不重复
+            let result = await model
+                .thenAdd(record, {
+                    name: name
+                })
+                .catch(err => {
+                    return this.fail(err.message || 'error');
+                });
+
+            // 处理返回结果
+            if (result.type === 'add') {
+
+                return this.success({
+                    _type: result.type,
+                    record
+                });
+            } else {
+                return this.fail('already exist same name!', {
+                    _type: result.type,
+                    record
+                });
+            }
+        } else {
+            // 修改
+            // TODO 修改的时候没考虑name重名情况
+            let affectedRows = await model
+                .where({
+                    id: id
+                })
+                .update(record)
+                .catch(err => {
+                    return this.fail(err.message || 'error');
+                });
+
+            // 处理返回结果
+            if (affectedRows) {
+                return this.success({
+                    _type: 'modify',
+                    affectedRows: affectedRows,
+                    record
+                });
+            } else {
+                return this.fail('modify failed!', {
+                    _type: 'modify',
+                    record
+                });
+            }
         }
     }
 

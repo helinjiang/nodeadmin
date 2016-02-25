@@ -13,14 +13,19 @@ export default class extends Base {
     }
 
     /**
-     * 获得列表中的数据
+     * 获得数据库表 think_user 中所有的用户信息
+     * 
      * @return {object} JSON 格式数据
      */
     async getdataAction() {
-        let data = await this.model('user').getAllUser();
+        // 查询数据库，获取所有的用户信息
+        let data = await this.model('user').order({
+            id: "DESC",
+        }).select();
 
+        // 为了最后的显示，进行数据处理
         data = data.map(item => {
-            // 转义时间
+            // 转义时间显示
             item.createTime = this.getCurTimeStr(item.createTime);
             item.updateTime = this.getCurTimeStr(item.updateTime);
             item.birthday = this.getCurDateStr(item.birthday);
@@ -39,19 +44,21 @@ export default class extends Base {
             return item;
         });
 
+        // 成功返回
         return this.success(data);
     }
 
-    async saveAction() {
-        if (this.isGet()) {
-            return this.fail('Not Post');
-        }
-
+    /**
+     * 新增数据到数据库表 think_user 中
+     * 
+     * @return {object} JSON 格式数据
+     */
+    addAction() {
+        // 获取参数
         let {
-            id, name, pwd, state, birthday
+            name, pwd, state, birthday
         } = this.post();
 
-        let model = this.model("user");
         let datetime = this.getCurTimeStr();
 
         pwd = think.md5('think_' + pwd);
@@ -59,135 +66,146 @@ export default class extends Base {
         let record = {
             name: name,
             pwd: pwd,
+            createTime: datetime,
             updateTime: datetime,
             state: state,
             birthday: birthday
         };
-        console.log(record);
-        // return this.success('test');
 
-        if (!id) {
-            // 新增
-            record.createTime = datetime;
+        // 参数校验，在logic中已完成
 
-            // result returns {id: 1000, type: "add"} or {id: 1000, type: "exist"} } }
-            let result = await model
-                .thenAdd(record, {
-                    name: name
-                })
-                .catch(err => this.fail(err.message || 'error'));
+        // 保存
+        return this._save(record);
 
-            console.log(result);
-
-            if (result.type === 'add') {
-                return this.success({
-                    _type: 'add',
-                    id: result.id,
-                    name: name
-                });
-            } else {
-                return this.fail(100, 'fail', {
-                    _type: 'exist',
-                    id: result.id,
-                    name: name
-                });
-            }
-        } else {
-            // 修改
-            let affectedRows = await model
-                .where({
-                    id: id
-                })
-                .update(record)
-                .catch(err => this.fail(err.message || 'error'));
-
-            if (affectedRows) {
-                return this.success({
-                    _type: 'modify',
-                    id: id,
-                    name: name
-                });
-            }
-        }
     }
 
-    async deleteAction() {        
-        if (this.isGet()) {
-            return this.fail('Not Post');
-        }
+    /**
+     * 修改数据到数据库表 think_user 中
+     * 
+     * @return {object} JSON 格式数据
+     */
+    modifyAction() {
+        // 获取参数
+        let {
+            id, name, state, birthday
+        } = this.post();
 
+        let datetime = this.getCurTimeStr();
+
+        let record = {
+            id: id,
+            name: name,
+            updateTime: datetime,
+            state: state,
+            birthday: birthday
+        };
+
+        // 参数校验，在logic中已完成
+
+        // 保存
+        return this._save(record);
+
+    }
+
+    /**
+     * 从数据库表 think_user 中删除一条记录
+     *
+     * @return {object} JSON 格式数据
+     */
+    async deleteAction() {
+        // 获取参数
         let id = this.post('id');
         let model = this.model("user");
 
+        // 参数校验，在logic中已完成
+
+        // TODO 检查外键情况，查询是否有其他的数据表有用到该数据
+
+        // 删除
         let affectedRows = await model
             .where({
                 id: id
             })
             .delete()
-            // .catch(err => this.fail(err.message || 'error'));
             .catch(err => {
-                // TODO 由于它是外键，因此如果存在记录情况下，直接删除的话SQL会报错
-                console.error('===',err);
-                console.error('===',err.message);
-                console.error('===',err.errno);
-                this.fail(err.message || 'error')
+                return this.fail(err.message || 'error')
             });
 
-
-        // console.log('--', affectedRows);
-
+        // 处理返回结果
         if (affectedRows) {
             return this.success({
                 _type: 'delete',
-                id: id,
-                affectedRows: affectedRows
+                affectedRows: affectedRows,
+                id: id
+            });
+        } else {
+            return this.fail('delete failed!', {
+                _type: 'delete',
+                id: id
             });
         }
     }
 
     /**
-     * 获得用户组值
+     * 保存数据
      */
-    getgroupAction() {
-        let data = [{
-            id: 1,
-            name: '管理员'
-        }, {
-            id: 2,
-            name: '普通用户'
-        }, {
-            id: 3,
-            name: '游客'
-        }];
-
-        // 可以在后台直接返回select2的数据，也可以前端再转化
-        data = data.map(function(item) {
-            return {
-                id: item.id,
-                text: item.name
-            }
-        });
-
-        return this.success(data);
-    }
-
-    /**
-     * 搜索用户
-     */
-    async searchuserAction() {
+    async _save(record) {
         let {
-            q
-        } = this.get();
+            id, name
+        } = record;
 
-        //console.log(title, theme, slide_content); 
-        let model = this.model("user");
+        let model = this.model('user');
 
-        let data = await model.where({
-            'name': ["like", "%" + q + "%"]
-        }).select();
 
-        console.log(data);
+        if (!id) {
+            // 新增，同时保证 name 值不重复
+            let result = await model
+                .thenAdd(record, {
+                    name: name
+                })
+                .catch(err => {
+                    return this.fail(err.message || 'error');
+                });
 
-        return this.success(data);
+            // 处理返回结果
+            if (result.type === 'add') {
+
+                return this.success({
+                    _type: result.type,
+                    record
+                });
+            } else {
+                return this.fail('already exist same name!', {
+                    _type: result.type,
+                    record
+                });
+            }
+        } else {
+            // 修改
+            // TODO 修改的时候没考虑name重名情况
+            let affectedRows = await model
+                .where({
+                    id: id
+                })
+                .update(record)
+                .catch(err => {
+                    return this.fail(err.message || 'error');
+                });
+
+            // 处理返回结果
+            if (affectedRows) {
+                return this.success({
+                    _type: 'modify',
+                    affectedRows: affectedRows,
+                    record
+                });
+            } else {
+                return this.fail('modify failed!', {
+                    _type: 'modify',
+                    record
+                });
+            }
+        }
     }
+
 }

@@ -1,90 +1,46 @@
-var Vue = require('lib/vue');
-//Vue.config.debug = true;
+var CommonCrud = require('common/crud');
 
-var validator = require('common/validator');
-var Msg = require('/modules/widget/msg/main');
-
-module.exports = Vue.extend({
+module.exports = CommonCrud.extend({
     template: __inline('main.html'),
-    data: function() {
-        return {
-            jqForm: undefined,
-            item:undefined
-        };
+    data: {
+        id: undefined,
+        name: undefined,
+        ownerId: undefined,
+        state: undefined,
+        buydate: undefined
     },
     methods: {
-        showModal: function(data) {
+        beforeShowModal: function(data) {
+            if (!data) {
+                return;
+            }
 
-            this.item = data;
+            // 初始化数据
+            this.id = data.id;
+            this.name = data.name;
+            this.ownerId = data.ownerId;
+            this.state = data.state;
+            this.buydate = data.buydate;
 
             this.$refs.user.init();
-
-            this.$children[0].show();
         },
-        hideModal: function() {
-            this.$children[0].hide();
-        },
-        reportSuccess: function(data) {
-            this.$dispatch('savesuccess', data);
-        },
-        checkOwnerId: function(name) {
-            this.jqForm.valid();
-        },
-        saveSubmit: function(msg) {
-            // 提交表单
-            this.jqForm.submit();
-        }
-    },
-    ready: function() {
-        // 缓存该值，避免重复获取
-        this.jqForm = $('form', $(this.$el));
-
-        _init(this);
-    }
-});
-
-function _init(vm) {
-    $(function() {
-        handleValidator(vm);
-    });
-}
-
-
-function handleValidator(vm) {
-    validator.check(vm.jqForm, {
-        name: {
-            required: {
-                rule: true,
-                message: '用户名不能为空！'
-            },
-            minlength: {
-                rule: 2,
-                message: '最小长度为2'
-            },
-            maxlength: {
-                rule: 6,
-                message: '最大长度为6'
-            }
-        }
-    }, {
-        submitHandler: function(form) {
-            $(form).ajaxSubmit({
-                success: function(responseText, statusText) {
-                    if (statusText !== 'success' || responseText.errno !== 0) {
-                        // 提示失败
-                        Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                    } else {
-                        // 提示成功
-                        Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-
-                        // 关闭对话框
-                        vm.hideModal();
-
-                        // 刷新列表
-                        vm.reportSuccess(responseText.data);
+        getValidatorConfig: function() {
+            var config = {
+                ownerId: {
+                    required: {
+                        rule: true,
+                        message: '车主人不能为空！'
+                    }
+                },
+                buydate: {
+                    required: {
+                        rule: true,
+                        message: '生日不能为空！'
                     }
                 }
-            });
+            };
+
+            return config;
         }
-    });
-}
+    }
+});

@@ -1,101 +1,52 @@
 <!DOCTYPE html>
-<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
-<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
-<!--[if !IE]><!-->
-<html lang="en" class="no-js">
-<!--<![endif]-->
 
-<head>
-    <meta charset="utf-8" />
-    <title>用户信息管理</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <meta content="" name="description" />
-    <meta content="" name="author" />
-    <meta name="MobileOptimized" content="320">
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="http://fonts.useso.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/plugins/font-awesome/css/font-awesome.min.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/simple-line-icons/simple-line-icons.min.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.min.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/uniform/css/uniform.default.min.css" /><!--ignore-->
-    <!-- END GLOBAL MANDATORY STYLES -->
-    <!-- BEGIN PAGE LEVEL STYLES -->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css"/><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal.css"/><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/select2/select2.css"/><!--ignore-->
-    <!-- <link rel="stylesheet" href="/static/plugins/select2/css/select2.min.css"/> --><!--ignore-->
-    <!-- <link rel="stylesheet" href="/static/plugins/select2/css/select2-bootstrap.min.css"/> --><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-toastr/toastr.min.css"/><!--ignore-->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-datepicker/css/datepicker.css"/><!--ignore-->
-    <!-- END PAGE LEVEL SCRIPTS -->
-    <!-- BEGIN THEME STYLES -->
-    <link rel="stylesheet" href="/static/css/style-conquer.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/css/style.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/css/style-responsive.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/css/plugins.css" /><!--ignore-->
-    <link rel="stylesheet" href="/static/css/themes/default.css" /><!--ignore-->
-    <!-- END THEME STYLES -->
-    <link rel="stylesheet" href="./main.scss">
-    
-</head>
+<html lang="zh-CN">
 
+    <head>
+        <!--inline[modules/common_htmls/meta.html]-->
+        <title>NodeAdmin 后台管理系统</title>    
 
-<body class="page-header-fixed page-sidebar-fixed page-test">
-    <div id="app">
-        <admin-header username="<%=user.name%>"></admin-header>
+        <!--inline[modules/common_htmls/css_global.html]-->
+        <!--inline[modules/common_htmls/css_plugins.html]-->    
+        <!--inline[modules/common_htmls/css_theme.html]-->
 
-        <div class="clearfix"></div>
+        <link rel="stylesheet" href="./main.scss">
+    </head>
 
-        <admin-main> 
-            <admin-side-menu slot="menu" menu-id="menuIndex"></admin-side-menu>
-            <admin-main-title slot="title" title="Dashboard" desc="" items="首页|/admin|home;Dashboard"></admin-main-title>
-            <index-main></index-main>
-        </admin-main>
+    <body class="page-header-fixed page-sidebar-fixed index_index">
+        
+        <div id="app">
 
-        <div class="clearfix"></div>
+            <admin-header username="<%=user.name%>"></admin-header>
 
-        <admin-footer></admin-footer>
-    </div>
+            <clearfix></clearfix>
 
+            <admin-container> 
 
+                <admin-side-menu slot="menu" menu-id="menuIndex"></admin-side-menu>
 
-    <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
-    <!-- BEGIN CORE PLUGINS -->
-    <script src="/static/plugins/jquery-1.11.0.min.js"></script><!--ignore-->
-    <script src="/static/plugins/jquery-migrate-1.2.1.min.js"></script><!--ignore-->
-    <!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
-    <!-- <script src="/static/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js"></script> -->
-    <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script><!--ignore-->
-    <script src="/static/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script><!--ignore-->
-    <script src="/static/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script><!--ignore-->
-    <script src="/static/plugins/jquery.blockui.min.js"></script><!--ignore-->
-    <script src="/static/plugins/uniform/jquery.uniform.min.js"></script><!--ignore-->
-    <!-- END CORE PLUGINS -->
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script src="/static/plugins/bootstrap-modal/js/bootstrap-modalmanager.js"></script><!--ignore-->
-    <script src="/static/plugins/bootstrap-modal/js/bootstrap-modal.js"></script><!--ignore-->
-    <script src="/static/plugins/jquery-validation/js/jquery.validate.min.js"></script><!--ignore-->
-    <script src="/static/plugins/select2/select2.min.js"></script><!--ignore-->
-    <!--<script src="/static/plugins/select2/js/select2.min.js"></script>--> <!--ignore--> 
-    <script src="/static/plugins/jquery.form.min.js"></script><!--ignore-->
-    <script src="/static/plugins/datatables/media/js/jquery.dataTables.min.js"></script><!--ignore-->
-    <script src="/static/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script><!--ignore-->
-    <script src="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script><!--ignore-->
-    <script src="/static/plugins/bootstrap-toastr/toastr.min.js"></script><!--ignore-->
-    <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!--ignore-->
-    <!-- END PAGE LEVEL PLUGINS -->
+                <admin-main-title slot="title" title="Dashboard" desc="" items="首页|/admin|home;Dashboard"></admin-main-title>
 
-    <script src="/static/modules/lib/mod.js"></script>
+                <index-main></index-main>
 
-    <script src="./main.js"></script>
+            </admin-container>
 
-    <script type="text/javascript">
-        require(['./main']);
-    </script>
-    <!-- END JAVASCRIPTS -->
-</body>
-<!-- END BODY -->
+            <clearfix></clearfix>
+
+            <admin-footer></admin-footer>
+            
+        </div>
+
+        <!--inline[modules/common_htmls/js_global.html]-->
+        <!--inline[modules/common_htmls/js_plugins.html]-->  
+
+        <script src="/static/modules/lib/mod.js"></script>
+
+        <script src="./main.js"></script>
+        <script type="text/javascript">
+            require(['./main']);
+        </script>
+
+    </body>
 
 </html>

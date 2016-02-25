@@ -1,0 +1,80 @@
+/***
+Page container
+***/
+.page-container {
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+
+  &:before,
+  &:after {
+    display: table;
+    content: " ";
+  }
+
+  &:after {
+    clear: both;
+  }
+
+}
+
+.page-header-fixed .page-container {
+  margin-top: 45px;  
+}
+
+
+/***
+Page content
+***/
+.page-content {  
+}
+
+.page-sidebar-reversed .page-content {
+  border-radius: 0 0 4px 0;
+}
+
+.page-content-no-pattern .page-content {
+  background-image: none !important;
+}
+
+.page-sidebar-reversed.page-boxed .page-content,
+.page-boxed .page-content,
+.page-sidebar-fixed .page-content {
+  border-radius: 0 0 0 4px;
+}
+
+.ie8 .page-content { 
+    padding: 20px;
+    margin-left: 215px; 
+    margin-top: 0;
+    min-height: 760px;
+}
+
+.ie8 .page-sidebar-fixed .page-content {
+    min-height: 600px; 
+}
+
+.ie8 .page-content.no-min-height {
+    min-height: auto;
+  }
+
+.page-full-width .page-content {
+    margin-left: 0 !important;
+}
+
+
+/***
+Page content
+***/
+.ie8 .page-content-wrapper {
+    float: left;
+    width: 100%;
+  }
+
+.ie8 .page-content { 
+    margin-left: 225px; 
+    margin-top: 0;
+    min-height: 760px; 
+    padding: 25px 20px 20px 20px;
+ }
+/*** IE 8 Fixes ***/

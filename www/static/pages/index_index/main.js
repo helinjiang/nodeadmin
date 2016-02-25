@@ -1,9 +1,5 @@
 define('pages/index_index/main', function(require, exports, module) {
 
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
   'use strict';
   
   require('modules/common/global');
@@ -11,7 +7,7 @@ define('pages/index_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var IndexMain = require('modules/index_index/main/main');
+  var IndexMain = require('modules/index_index/main');
   
   window.app = new Vue({
       el: '#app',

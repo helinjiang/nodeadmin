@@ -1,42 +1,97 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>New ThinkJS Application</title>
-<style>
-*{padding: 0;margin: 0;font-size: 16px;line-height: 20px;font-family: arial;}
-a, a:visited{color:#337ab7;text-decoration: none;}
-header{padding: 70px 0 70px 0;background-color: #4A6495}
-h1{font-size: 36px;color:#fff;font-weight: normal;}
-code{  padding: 2px 4px;font-size: 90%;color: #c7254e;background-color: #f9f2f4;border-radius: 4px;}
-.content{width: 1000px;margin: auto}
-.wrap{width: 1000px;margin: auto}
-.content{margin-top: 80px;}
-.list{width: 800px;}
-.list .item{position: relative;padding-left: 70px;margin-top: 50px;}
-.list .item .step{position: absolute;width: 36px;height: 36px;top:-3px;left:0;border: 5px solid #4A6495;border-radius: 23px;text-align: center;line-height: 36px;}
-.list .item h2{font-size: 24px;font-weight: normal;}
-.list .item p{line-height: 30px;margin-top: 10px}
-</style>
+
+<html lang="zh-CN">
+
+    <head>
+            <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <meta name="MobileOptimized" content="320">
+        <title>测试专用</title>    
+
+            <!-- BEGIN GLOBAL MANDATORY STYLES -->    <link rel="stylesheet" href="/static/plugins/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/static/plugins/simple-line-icons/simple-line-icons.min.css" />
+    <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/plugins/uniform/css/uniform.default.min.css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+            <!-- BEGIN PAGE LEVEL STYLES -->
+    <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css"/>
+    <link rel="stylesheet" href="/static/plugins/bootstrap-modal/css/bootstrap-modal.css"/>
+    <link rel="stylesheet" href="/static/plugins/select2/select2.css"/>
+    <link rel="stylesheet" href="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/>
+    <link rel="stylesheet" href="/static/plugins/bootstrap-toastr/toastr.min.css"/>
+    <link rel="stylesheet" href="/static/plugins/bootstrap-datepicker/css/datepicker.css"/>
+    <!-- END PAGE LEVEL SCRIPTS -->    
+            <!-- BEGIN THEME STYLES -->
+    <link rel="stylesheet" href="/static/css/style-conquer.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/style-responsive.css" />
+    <link rel="stylesheet" href="/static/css/plugins.css" />
+    <link rel="stylesheet" href="/static/css/themes/default.css" />
+    <!-- END THEME STYLES -->
+    
+    <link rel="stylesheet" href="http://fonts.useso.com/css?family=Open+Sans:400,300,600,700&subset=all" />
+    <link rel="stylesheet" href="/static/all.css" />
 </head>
-<body>
-  <header>
-    <div class="wrap">
-      <h1>I am test index </h1>
-    </div>
-  </header>  
-  <div class="content">
-    <ul>
-      <li><a href="./showme">调用模版进行渲染</a></li>
-      <li><a href="./param/key/value">返回表示成功的JSON格式数据</a></li>
-    </ul>
-    <p>以下的路径都是绝对路径：</p>
-    <ul>
-      <li>think.ROOT_PATH: <%= think.ROOT_PATH %></li>
-      <li>think.RESOURCE_PATH: <%= think.RESOURCE_PATH %></li>
-      <li>think.APP_PATH: <%= think.APP_PATH %></li>
-      <li>showme: <%= think.getPath("admin", "model") %></li>
-    </ul>
-  </div>
+
+    <body class="page-header-fixed page-sidebar-fixed user_index">
+        
+        <div id="app">
+
+            <admin-header username="<%=user.name%>"></admin-header>
+
+            <clearfix></clearfix>
+
+            <admin-container> 
+
+                <admin-side-menu slot="menu" menu-id="menuTest"></admin-side-menu>
+
+                <admin-main-title slot="title" title="测试专用" desc="测试ThinkJs用法和UI组件" items="首页|/admin|home;测试专用"></admin-main-title>
+
+                <test-main></test-main>
+
+            </admin-container>
+
+            <clearfix></clearfix>
+
+            <admin-footer></admin-footer>
+            
+        </div>
+
+            <!-- BEGIN CORE PLUGINS -->
+    <script src="/static/plugins/jquery-1.11.0.min.js"></script>
+    <script src="/static/plugins/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+    <!-- <script src="/static/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js"></script> -->
+    
+    <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script>
+    <script src="/static/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/static/plugins/jquery.blockui.min.js"></script>
+    <script src="/static/plugins/uniform/jquery.uniform.min.js"></script>
+    <!-- END CORE PLUGINS -->
+            <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="/static/plugins/bootstrap-modal/js/bootstrap-modalmanager.js"></script>
+    <script src="/static/plugins/bootstrap-modal/js/bootstrap-modal.js"></script>
+    <script src="/static/plugins/jquery-validation/js/jquery.validate.min.js"></script>
+    <script src="/static/plugins/select2/select2.min.js"></script>
+    <script src="/static/plugins/jquery.form.min.js"></script>
+    <script src="/static/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="/static/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
+    <script src="/static/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
+    <script src="/static/plugins/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+
+    
+<script src="/static/modules/lib/mod.js"></script>
+<script type="text/javascript" src="/static/all.js"></script>
+<script type="text/javascript">
+            require(['pages/test_index/main']);
+        </script>
 </body>
+
 </html>

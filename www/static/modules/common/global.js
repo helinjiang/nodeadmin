@@ -2,32 +2,34 @@ define('modules/common/global', function(require, exports, module) {
 
   'use strict';
   
-  require('modules/widget/tipalert/main');
-  require('modules/widget/select2option/main');
-  require('modules/widget/select2/main');
-  require('modules/widget/date/main');
+  require('modules/components/tipalert/main');
+  require('modules/components/select2option/main');
+  require('modules/components/select2/main');
+  require('modules/components/date/main');
   
-  require('modules/widget/hecheckbox/main');
-  require('modules/widget/heformitem/main');
-  require('modules/widget/heform/main');
+  require('modules/components/clearfix/main');
   
-  require('modules/widget/adminfooter/main');
-  require('modules/widget/adminheader/main');
-  require('modules/widget/adminheadersearch/main');
-  require('modules/widget/adminmain/main');
-  require('modules/widget/adminmaintitle/main');
-  require('modules/widget/adminmaintoolbar/main');
-  require('modules/widget/adminsidemenuitem/main');
-  require('modules/widget/adminsidemenu/main');
-  require('modules/widget/portlet/main');
-  require('modules/widget/datagriditem/main');
-  require('modules/widget/datagrid/main');
-  require('modules/widget/modal/main');
-  require('modules/widget/dropdown/main');
-  require('modules/widget/dropdowntoggle/main');
-  require('modules/widget/dropdownmenu/main');
-  require('modules/widget/linkitem/main');
-  require('modules/widget/dropdownmenulist/main');
-  require('modules/widget/notificationitem/main');
+  require('modules/components/hecheckbox/main');
+  require('modules/components/heformitem/main');
+  require('modules/components/heform/main');
+  
+  require('modules/module_admin/footer/main');
+  require('modules/module_admin/header/main');
+  require('modules/module_admin/container/main');
+  require('modules/module_admin/maintitle/main');
+  require('modules/module_admin/maintoolbar/main');
+  require('modules/module_admin/sidemenuitem/main');
+  require('modules/module_admin/sidemenu/main');
+  
+  require('modules/components/portlet/main');
+  require('modules/components/datagriditem/main');
+  require('modules/components/datagrid/main');
+  require('modules/components/modal/main');
+  require('modules/components/dropdown/main');
+  require('modules/components/dropdowntoggle/main');
+  require('modules/components/dropdownmenu/main');
+  require('modules/components/linkitem/main');
+  require('modules/components/dropdownmenulist/main');
+  require('modules/components/notificationitem/main');
 
 });

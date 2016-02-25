@@ -1,0 +1,98 @@
+/* extended dropdowns */
+.dropdown-menu.extended {
+  padding: 0 0 4px 0;
+  border-radius: 4px !important;
+  min-width: 160px !important;
+  max-width: 300px !important;
+  width: 233px !important;
+  background-color: #ffffff !important;
+}
+
+.dropdown-menu.extended:before,
+.dropdown-menu.extended:after {
+  border-bottom-color: #eee !important;
+}
+
+.dropdown-menu.extended li a {
+  display: block;
+  padding: 5px 10px !important;
+  clear: both;
+  font-weight: normal;
+  line-height: 20px;
+  white-space: normal !important;
+}
+
+.dropdown-menu.extended li i {
+  margin-right: 3px;
+}
+
+.dropdown-menu.extended li a {
+  font-size: 13px;
+  padding: 10px !important;
+  background-color: #ffffff;
+}
+
+.dropdown-menu.extended li a:hover {
+  background-image: none;
+  background-color: #f5f5f5;
+  color: #000;
+  -webkit-filter: none;
+          filter: none;
+}
+
+.dropdown-menu.extended li p {
+  border-radius: 4px 4px 0px 0px !important;
+  padding: 10px;
+  background-color: #eee;
+  margin: 0px;
+  font-size: 14px;
+  font-weight: 300;
+  color: #333;
+}
+
+.dropdown-menu.extended li a {
+  padding: 7px 0 5px 0px;
+  list-style: none;
+  border-bottom: 1px solid #f4f4f4 !important;
+  font-size: 12px;
+  text-shadow: none;
+}
+
+.dropdown-menu.extended li:first-child a {
+  border-top: none;
+  border-bottom: 1px solid #f4f4f4 !important;
+}
+
+.dropdown-menu.extended li:last-child a {
+  border-top: 1px solid white !important;
+  border-bottom: 1px solid #f4f4f4 !important;
+}
+
+.dropdown-menu.extended li.external > a {
+  font-size: 13px;
+  font-weight: 400;
+  border-bottom: 0 !important;
+}
+
+/* header notifications dropdowns */
+.dropdown-menu .dropdown-menu-list.scroller {
+  padding-right: 0 !important;
+  padding-left: 0;
+  list-style: none;
+}
+
+.dropdown-menu.notification li > a .time {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  font-style: italic;
+}
+
+.dropdown-menu.notification li > a > .label-icon {
+  padding: 4px 5px 4px 5px;
+}
+
+.dropdown-menu.notification li > a > .label-icon > i {
+  margin: 0;
+  color: #fff;
+}

@@ -1,17 +1,18 @@
-var Vue = require('lib/vue');
+var CommonCrud = require('common/crud');
 
-var validator = require('common/validator');
-var Msg = require('/modules/widget/msg/main');
+var Names = require('common/names');
 
-module.exports = Vue.extend({
+module.exports = CommonCrud.extend({
     template: __inline('main.html'),
-    data: function() {
-        return {
-            items: []
-        };
+    data: {
+        items: []
     },
     methods: {
-        showModal: function(data) {
+        beforeShowModal: function(data) {
+            if (!data) {
+                return;
+            }
+	    
             this.items = [{
                 key: 'id',
                 value: data.id,
@@ -33,14 +34,9 @@ module.exports = Vue.extend({
                 value: data.stateShow,
                 title: '状态'
             }];
-
-            this.$children[0].show();
         },
-        hideModal: function() {
-            this.$children[0].hide();
+        triggerSubmit: function() {
+            this.hideModal();
         }
-    },
-    ready: function() {
-
     }
 });

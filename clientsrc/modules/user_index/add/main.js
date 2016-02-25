@@ -1,96 +1,60 @@
-var Vue = require('lib/vue');
+var CommonCrud = require('common/crud');
 
-var validator = require('common/validator');
-var Msg = require('/modules/widget/msg/main');
-
-module.exports = Vue.extend({
+module.exports = CommonCrud.extend({
     template: __inline('main.html'),
-    data: function() {
-        return {
-            jqForm: undefined
-        };
+    data: {
+        name: undefined,
+        pwd: undefined,
+        birthday: undefined,
+        state: undefined,
     },
     methods: {
-        showModal: function() {
-            this._reset();
-
-            this.$children[0].show();
+        beforeShowModal: function() {
+            // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+            this.name = '';
+            this.pwd = '';
+            this.birthday = '2015-12-12';
+            this.state = '1';
         },
-        hideModal: function() {
-            this.$children[0].hide();
-        },
-        reportSuccess: function(data) {
-            this.$dispatch('savesuccess', data);
-        },
-        saveSubmit: function(msg) {
-            // 提交表单
-            this.jqForm.submit();
-        },
-        _reset: function(){
-            // TODO 还有select2等组件也要恢复初始
-            $('[name="name"], [name="pwd"]', this.jqForm).val('');
-        }
-    },
-    ready: function() {
-        // 缓存该值，避免重复获取
-        this.$set('jqForm', $('form', $(this.$el)));
-
-        _init(this);
-    }
-});
-
-function _init(vm) {
-    $(function() {
-        handleValidator(vm);
-    });
-}
-
-
-function handleValidator(vm) {
-    validator.check(vm.jqForm, {
-        name: {
-            required: {
-                rule: true,
-                message: '用户名不能为空！'
-            },
-            minlength: {
-                rule: 2,
-                message: '最小长度为2'
-            },
-            maxlength: {
-                rule: 6,
-                message: '最大长度为6'
-            }
-        },
-        pwd: {
-            required: {
-                rule: true,
-                message: '密码不能为空！'
-            },
-            minlength: {
-                rule: 6,
-                message: '最小长度为6'
-            }
-        }
-    }, {
-        submitHandler: function(form) {
-            $(form).ajaxSubmit({
-                success: function(responseText, statusText) {
-                    if (statusText !== 'success' || responseText.errno !== 0) {
-                        // 提示失败
-                        Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                    } else {
-                        // 提示成功
-                        Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-
-                        // 关闭对话框
-                        vm.hideModal();
-
-                        // 刷新列表
-                        vm.reportSuccess(responseText.data);
+        getValidatorConfig: function() {
+            var config = {
+                name: {
+                    required: {
+                        rule: true,
+                        message: '用户名不能为空！'
+                    },
+                    minlength: {
+                        rule: 3,
+                        message: '最小长度为3'
+                    },
+                    maxlength: {
+                        rule: 64,
+                        message: '最大长度为64'
+                    }
+                },
+                pwd: {
+                    required: {
+                        rule: true,
+                        message: '密码不能为空！'
+                    },
+                    minlength: {
+                        rule: 6,
+                        message: '最小长度为6'
+                    },
+                    maxlength: {
+                        rule: 32,
+                        message: '最大长度为32'
+                    }
+                },
+                birthday: {
+                    required: {
+                        rule: true,
+                        message: '生日不能为空！'
                     }
                 }
-            });
+            };
+
+            return config;
         }
-    });
-}
+    }
+});

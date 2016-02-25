@@ -9442,6 +9442,7 @@ define('modules/lib/vue', function(require, exports, module) {
 define('modules/common/validator', function(require, exports, module) {
 
   /**
+   * http://jqueryvalidation.org/
    * 基于 jquery.validate.js 修改  
    * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
    * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
@@ -9465,9 +9466,9 @@ define('modules/common/validator', function(require, exports, module) {
    */
   
   /**
-   * 校验form，支持checkConfig集中配置，也支持在input中进行配置
+   * 校验form，支持validatorConfig集中配置，也支持在input中进行配置
    * @param  {[type]}   $form       [description]
-   * @param  {[type]}   checkConfig [description]
+   * @param  {[type]}   validatorConfig [description]
    * @param  {[type]}   handler     [description]
    * @return {[type]}               [description]
    * @author helinjiang
@@ -9475,7 +9476,7 @@ define('modules/common/validator', function(require, exports, module) {
    */
   'use strict';
   
-  function check($form, checkConfig, handler) {
+  function check($form, validatorConfig, handler) {
       if (!$form.length) {
           return;
       }
@@ -9522,8 +9523,8 @@ define('modules/common/validator', function(require, exports, module) {
           }
       };
   
-      // 处理checkConfig
-      // var checkConfig = {
+      // 处理validatorConfig
+      // var validatorConfig = {
       //     username: {
       //         required: {
       //             rule: true,
@@ -9539,14 +9540,14 @@ define('modules/common/validator', function(require, exports, module) {
       //         }
       //     }
       // }
-      if (!$.isEmptyObject(checkConfig)) {
+      if (!$.isEmptyObject(validatorConfig)) {
           var rules = {},
               messages = {};
   
-          for (var k in checkConfig) {
+          for (var k in validatorConfig) {
               // k=username
-              if (checkConfig.hasOwnProperty(k)) {
-                  var v = checkConfig[k];
+              if (validatorConfig.hasOwnProperty(k)) {
+                  var v = validatorConfig[k];
                   for (var vk in v) {
                       // vk=required
                       // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
@@ -9594,14 +9595,33 @@ define('modules/common/validator', function(require, exports, module) {
       $form.validate(validateConfig);
   }
   
+  /**
+   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
+   * @param  {object} jqForm form或者表单元素
+   * @param  {string} fieldName form中的某个表单元素的name属性值
+   * @return {boolean}          
+   */
+  function valid(jqForm, fieldName) {
+      if (!jqForm || !jqForm.length) {
+          return false;
+      }
+  
+      if (!fieldName) {
+          return jqForm.valid();
+      } else {
+          return $('[name="' + fieldName + '"]', jqForm).valid();
+      }
+  }
+  
   module.exports = {
-      check: check
+      check: check,
+      valid: valid
   };
 
 });
 
-;/*!/modules/widget/msg/main.js*/
-define('modules/widget/msg/main', function(require, exports, module) {
+;/*!/modules/components/msg/main.js*/
+define('modules/components/msg/main', function(require, exports, module) {
 
   'use strict';
   
@@ -9645,98 +9665,248 @@ define('modules/widget/msg/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/car_index/add/main.js*/
-define('modules/car_index/add/main', function(require, exports, module) {
+;/*!/modules/common/crud.js*/
+define('modules/common/crud', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Msg = require('modules/components/msg/main');
   
-  module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\"  v-on:select2change=\"checkOwnerId\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+  /**
+   * 用于定义Vue组件的通用的一些设置
+   * @type {Object}
+   */
+  var commonOptions = {
+      template: '<div> EMPTY </div>',
       data: function data() {
           return {
               jqForm: undefined
           };
       },
       methods: {
-          showModal: function showModal() {
-              this._reset();
-              this.$refs.user.init();
+          /**
+           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
+           */
+          beforeShowModal: function beforeShowModal(data) {},
+  
+          getValidatorConfig: function getValidatorConfig() {
+              return {};
+          },
+  
+          /**
+           * 弹出对话框
+           */
+          showModal: function showModal(data) {
+              this.beforeShowModal(data);
   
               this.$children[0].show();
           },
+  
+          /**
+           * 关闭对话框
+           */
           hideModal: function hideModal() {
               this.$children[0].hide();
           },
+  
+          /**
+           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           */
           reportSuccess: function reportSuccess(data) {
               this.$dispatch('savesuccess', data);
           },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
+              }
           },
-          checkOwnerId: function checkOwnerId(name) {
-              this.jqForm.valid();
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              validator.check(this.jqForm, this.getValidatorConfig(), {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              self.dealSuccessRes(responseText, statusText);
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
           },
-          _reset: function _reset() {
-              // TODO select2 的初始化
-              $('[name="name"]', this.jqForm).val('');
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return validator.valid(this.jqForm, name);
+          },
+  
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
           }
       },
       ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('jqForm', $('form', $(this.$el)));
+          this.jqForm = $('form', this.$el);
   
-          _init(this);
+          this.handleValidator();
       }
-  });
+  };
   
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
+  module.exports = {
+      extend: function extend(param) {
+          // TODO 此处合并还可以进一步优化
   
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '汽车名字不能为空！'
-              }
-          },
-          ownerId: {
-              required: {
-                  rule: true,
-                  message: '车主人不能为空！'
-              }
+          var options = $.extend({}, commonOptions);
+  
+          // 如果没有参数或参数不是object，则返回默认值
+          if (typeof param !== 'object') {
+              return options;
           }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
   
-                          // 关闭对话框
-                          vm.hideModal();
+          // template
+          if (typeof param.template === "string") {
+              options.template = param.template;
+          }
   
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+          // data       
+          if (typeof param.data === "object") {
+              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
+              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
+              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
+              // var newData = $.extend(options.data(), param.data);
+              // var newData = Object.assign(options.data(), param.data);
+              var newData = options.data(),
+                  keys = Object.keys(param.data);
+  
+              keys.forEach(function (key) {
+                  newData[key] = param.data[key];
+              });
+  
+              options.data = function () {
+                  return newData;
+              };
+          }
+  
+          // 'methods' 和 'events'
+          ['methods', 'events'].forEach(function (p) {
+              options[p] = $.extend({}, options[p] || {}, param[p] || {});
+          });
+  
+          // ready
+          if (typeof param.ready === 'function') {
+              options.ready = param.ready;
+          }
+  
+          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
+          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
+          // });
+  
+          return Vue.extend(options);
+      }
+  };
+
+});
+
+;/*!/modules/car_index/add/main.js*/
+define('modules/car_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增汽车信息\">\r\n        <he-form action=\"/admin/car/add\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          name: undefined,
+          ownerId: undefined,
+          buydate: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              this.name = '';
+              this.ownerId = undefined;
+              this.buydate = '2016-02-25'; // TODO today
+              this.state = '1';
+  
+              this.$refs.user.init();
+          },
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '汽车名字不能为空！'
+                      }
+                  },
+                  ownerId: {
+                      required: {
+                          rule: true,
+                          message: '车主人不能为空！'
+                      }
+                  },
+                  buydate: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
                       }
                   }
-              });
+              };
+  
+              return config;
           }
-      });
-  }
+      }
+  });
 
 });
 
@@ -9745,23 +9915,24 @@ define('modules/car_index/delete/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              id: undefined,
-              items: []
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除汽车信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
               this.id = data.id;
   
+              // 设置要展示的信息条目
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -9783,40 +9954,57 @@ define('modules/car_index/delete/main', function(require, exports, module) {
                   value: data.stateShow,
                   title: '状态'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
+          triggerSubmit: function triggerSubmit() {
               var self = this;
   
               $.post('/admin/car/delete', {
                   id: this.id
               }, function (responseText, statusText) {
-                  console.log(responseText, statusText);
-                  if (statusText !== 'success' || responseText.errno !== 0) {
-                      // 提示失败
-                      Msg.error('删除' + JSON.stringify(responseText.data) + '出错！');
-                  } else {
-                      // 提示成功
-                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
-  
-                      // 关闭对话框
-                      self.hideModal();
-  
-                      // 刷新列表
-                      self.reportSuccess(responseText.data);
-                  }
+                  self.dealSuccessRes(responseText, statusText);
               });
           }
-      },
-      ready: function ready() {}
+      }
   });
+
+});
+
+;/*!/modules/common/names.js*/
+define('modules/common/names', function(require, exports, module) {
+
+  // <datagrid-item name="id" title="ID"></datagrid-item>
+  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
+  // <datagrid-item name="pwd" hide></datagrid-item>
+  // <datagrid-item name="birthday" title="生日"></datagrid-item>
+  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
+  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
+  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
+  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
+  
+  'use strict';
+  
+  var common = {
+      'id': 'ID',
+      'name': '名字',
+      'createTime': '创建时间',
+      'updateTime': '更新时间',
+      'state': '状态',
+      'stateShow': '状态'
+  };
+  
+  /**
+   * /admin/user
+   */
+  var user = $.extend({}, common, {
+      'name': '用户名',
+      'pwd': '密码',
+      'birthday': '生日'
+  });
+  
+  module.exports = {
+      user: user
+  
+  };
 
 });
 
@@ -9825,20 +10013,21 @@ define('modules/car_index/detail/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
+  var Names = require('modules/common/names');
   
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: []
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"汽车信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -9860,14 +10049,11 @@ define('modules/car_index/detail/main', function(require, exports, module) {
                   value: data.stateShow,
                   title: '状态'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
           }
-      },
-      ready: function ready() {}
+      }
   });
 
 });
@@ -9877,209 +10063,116 @@ define('modules/car_index/modify/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  //Vue.config.debug = true;
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">        \r\n        <he-form action=\"/admin/car/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" :value=\"item.id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" :value=\"item.name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy :value=\"item.ownerId\" v-on:select2change=\"checkOwnerId\"  v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value=\"item.state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value=\"item.buydate\"></date><!--TODO type check failed for value=\"item.buydate\". Expected String, got Undefined.-->\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              jqForm: undefined,
-              item: undefined
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/car/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          name: undefined,
+          ownerId: undefined,
+          state: undefined,
+          buydate: undefined
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
   
-              this.item = data;
+              // 初始化数据
+              this.id = data.id;
+              this.name = data.name;
+              this.ownerId = data.ownerId;
+              this.state = data.state;
+              this.buydate = data.buydate;
   
               this.$refs.user.init();
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          checkOwnerId: function checkOwnerId(name) {
-              this.jqForm.valid();
-          },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.jqForm = $('form', $(this.$el));
-  
-          _init(this);
-      }
-  });
-  
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
-  
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
-              }
-          }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-  
-                          // 关闭对话框
-                          vm.hideModal();
-  
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
+                  ownerId: {
+                      required: {
+                          rule: true,
+                          message: '车主人不能为空！'
+                      }
+                  },
+                  buydate: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
                       }
                   }
-              });
+              };
+  
+              return config;
           }
-      });
-  }
+      }
+  });
 
 });
 
-;/*!/modules/car_index/main/main.js*/
-define('modules/car_index/main/main', function(require, exports, module) {
+;/*!/modules/car_index/main.js*/
+define('modules/car_index/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
-  var add = require('modules/car_index/add/main');
-  var modify = require('modules/car_index/modify/main');
+  var addPage = require('modules/car_index/add/main');
+  var modifyPage = require('modules/car_index/modify/main');
   var deletePage = require('modules/car_index/delete/main');
-  var detail = require('modules/car_index/detail/main');
+  var detailPage = require('modules/car_index/detail/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n        <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n            <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
-          'add': add,
-          'modify': modify,
+          'add': addPage,
+          'modify': modifyPage,
           'delete': deletePage,
-          'detail': detail
+          'detail': detailPage
       },
       methods: {
           operate: function operate(event) {
-              console.log('operate', event.target);
               var target = event.target,
                   $target = $(target),
-                  type = $target.data('type');
+                  type = $target.data('type'),
+                  id,
+                  data;
   
-              if (!type) {
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
                   return;
               }
   
-              switch (type) {
-                  case 'modify':
-                      showDlgModify(this, $target);
-                      break;
-                  case 'delete':
-                      showDlgDelete(this, $target);
-                      break;
-                  case 'detail':
-                      showDlgDetail(this, $target);
-                      break;
-                  default:
-                      break;
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
               }
           },
           reloadDataGrid: function reloadDataGrid() {
               this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
           }
       },
       ready: function ready() {}
   });
-  
-  function showDlgModify(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.modify.showModal(data);
-  }
-  
-  function showDlgDelete(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs['delete'].showModal(data);
-  }
-  
-  function showDlgDetail(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.detail.showModal(data);
-  }
 
 });
 
@@ -10779,8 +10872,8 @@ define('modules/common/app', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/tipalert/main.js*/
-define('modules/widget/tipalert/main', function(require, exports, module) {
+;/*!/modules/components/tipalert/main.js*/
+define('modules/components/tipalert/main', function(require, exports, module) {
 
   'use strict';
   
@@ -10824,8 +10917,8 @@ define('modules/widget/tipalert/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/select2option/main.js*/
-define('modules/widget/select2option/main', function(require, exports, module) {
+;/*!/modules/components/select2option/main.js*/
+define('modules/components/select2option/main', function(require, exports, module) {
 
   'use strict';
   
@@ -10859,6 +10952,11 @@ define('modules/widget/select2option/main', function(require, exports, module) {
 ;/*!/modules/common/select2render.js*/
 define('modules/common/select2render', function(require, exports, module) {
 
+  /**
+   * 本文件用于select2控件时，转义CGI接口返回的数据格式的。
+   * 在select2中，key值name为'id'，value值name为'text'
+   */
+  
   'use strict';
   
   function getgroup(res) {
@@ -10897,8 +10995,8 @@ define('modules/common/select2render', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/select2/main.js*/
-define('modules/widget/select2/main', function(require, exports, module) {
+;/*!/modules/components/select2/main.js*/
+define('modules/components/select2/main', function(require, exports, module) {
 
   /**
    * 有两种，一种是ajax请求的，一种是现成的
@@ -10936,7 +11034,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
   var Select2Render = require('modules/common/select2render');
   
   Vue.component('select2', {
-      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>\r\n",
+      template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" v-model=\"value\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>",
       data: function data() {
           return {
               /**
@@ -10950,7 +11048,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
           /**
            * input 的name 值，必须
            */
-          'name': {
+          name: {
               type: String,
               required: true
           },
@@ -10975,24 +11073,15 @@ define('modules/widget/select2/main', function(require, exports, module) {
               type: String,
               'default': '请选择'
           },
-          allowClear: {
-              type: Boolean,
-              'default': false
-          },
+          allowClear: Boolean,
           /**
            * 是否懒渲染
            */
-          lazy: {
-              type: Boolean,
-              'default': false
-          },
+          lazy: Boolean,
           /**
            * 是否为ajax请求远程数据？
            */
-          ajax: {
-              type: Boolean,
-              'default': false
-          }
+          ajax: Boolean
       },
       computed: {
           options: function options() {
@@ -11020,6 +11109,19 @@ define('modules/widget/select2/main', function(require, exports, module) {
               }
           },
           init: function init() {
+              if (!this.ajax) {
+                  this._initLocal();
+              } else {
+                  this._initAjax();
+              }
+          },
+          /**
+           * 对外广播：select2值发生了变化
+           */
+          reportChange: function reportChange(name, val, oldVal) {
+              this.$dispatch('valuechange', name, val, oldVal);
+          },
+          _initLocal: function _initLocal() {
               // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
               this.lazy = false;
   
@@ -11060,7 +11162,7 @@ define('modules/widget/select2/main', function(require, exports, module) {
                   this._renderSelect2();
               }
           },
-          initAjax: function initAjax() {
+          _initAjax: function _initAjax() {
               // 调用Init之后，要将lazy标志给取消，否则他将被隐藏
               this.lazy = false;
   
@@ -11112,20 +11214,14 @@ define('modules/widget/select2/main', function(require, exports, module) {
               // select2
               var self = this,
                   options = this.options,
-                  jqSelect = $('input', this.$el).select2(options).on('change', function () {
-                  // TODO 此处有一个bug，因为watch 了 value ，导致会触发了两次change事件
-                  self.value = this.value;
-  
-                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544
-                  self.$dispatch('select2change', self.name);
-              });
+                  jqSelect = $('input', this.$el).select2(options);
   
               this.jqSelect = jqSelect;
   
-              // 设置默认值
-              if (this.value) {
-                  this.jqSelect.val(this.value).trigger('change');
-              }
+              // 设置默认值，此处可以不再手动调用
+              // if (this.value) {
+              //     this.jqSelect.val(this.value).trigger('change');
+              // }
           }
       },
       watch: {
@@ -11138,39 +11234,33 @@ define('modules/widget/select2/main', function(require, exports, module) {
               },
               deep: true
           },
+  
+          /**
+           * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+           * 此处检测value变化了，则将input的值进行切换。
+           */
           'value': function value(val, oldVal) {
               if (this.jqSelect) {
+                  // 触发select2的控件中选项的选择
                   this.jqSelect.val(this.value).trigger('change');
+  
+                  // 冒泡一个事件，通知值发生了变化，主要是为了解决jquery validate 和 select2 的问题 http://fanshuyao.iteye.com/blog/2243544                 
+                  this.reportChange(this.name, val, oldVal);
               }
           }
       },
       ready: function ready() {
           // 如果不是lazy模式，则立即渲染
           if (!this.lazy) {
-              if (!this.ajax) {
-                  this.init();
-              } else {
-                  this.initAjax();
-              }
+              this.init();
           }
       }
   });
-  
-  // newData = [{
-  //     id: 1,
-  //     text: 'hello'
-  // }, {
-  //     id: 2,
-  //     text: 'world'
-  // }, {
-  //     id: 3,
-  //     text: 'what'
-  // }];
 
 });
 
-;/*!/modules/widget/date/main.js*/
-define('modules/widget/date/main', function(require, exports, module) {
+;/*!/modules/components/date/main.js*/
+define('modules/components/date/main', function(require, exports, module) {
 
   /**
    * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#autoclose
@@ -11180,8 +11270,6 @@ define('modules/widget/date/main', function(require, exports, module) {
   'use strict';
   
   var Vue = require('modules/lib/vue');
-  
-  var Select2Render = require('modules/common/select2render');
   
   $.fn.datepicker.dates['zh-CN'] = {
       days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
@@ -11195,7 +11283,12 @@ define('modules/widget/date/main', function(require, exports, module) {
   };
   
   Vue.component('date', {
-      template: "<div class=\"input-group date \" :data-date=\"value\" :data-date-format=\"format\" :data-date-start-date=\"startDate\" :data-date-today-btn=\"todayBtn\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" :value=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      template: "<div class=\"input-group date \" :data-date=\"value\">\r\n    <input type=\"text\" :name=\"name\" class=\"form-control\" v-model=\"value\" readonly>\r\n    <span class=\"input-group-btn\">\r\n        <button class=\"btn btn-info\" type=\"button\"><i class=\"fa fa-calendar\"></i></button>\r\n    </span>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              jqDate: undefined
+          };
+      },
       props: {
           /**
            * input 的name 值，必须
@@ -11205,9 +11298,9 @@ define('modules/widget/date/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 初始值，默认为当前日期
+           * 初始值，yyyy-mm-dd 格式的字符串，默认为当前日期
            */
-          'value': String,
+          'value': 'null',
           /**
            * input 的name 值，必须
            */
@@ -11228,28 +11321,72 @@ define('modules/widget/date/main', function(require, exports, module) {
            */
           'todayBtn': 'null'
       },
+      methods: {
+          /**
+           * 对外广播：date值发生了变化
+           */
+          reportChange: function reportChange(name, val, oldVal) {
+              this.$dispatch('valuechange', name, val, oldVal);
+          }
+      },
+      watch: {
+          /**
+           * 由于在input中设置了v-model="vaule"，因此value值会双向绑定
+           * 此处检测value变化了，则将input的值进行切换。
+           */
+          'value': function value(val, oldVal) {
+              // 触发date面板上的选择，尤其是初始值为undefined时，日期面板上是没有高亮选中态的
+              this.jqDate.datepicker('update');
+  
+              this.reportChange(this.name, val, oldVal);
+          }
+      },
       ready: function ready() {
-          _init(this);
+          this.jqDate = $(this.$el);
+  
+          var options = {
+              autoclose: true,
+              language: 'zh-CN',
+              format: this.format
+          };
+  
+          if (this.startDate) {
+              options.startDate = this.startDate;
+          }
+  
+          if (typeof this.todayBtn == 'boolean' || this.todayBtn && this.todayBtn === 'linked') {
+              options.todayBtn = this.todayBtn;
+          }
+  
+          this.jqDate.datepicker(options);
+  
+          // 如果input标签使用:value="value",则需要在下面事件时人为处理值，但如果设置了v-model="value"之后，已经是双向绑定了，则不需要再如此处理了
+          // $(this.$el).on('changeDate', function(e) {
+          //     `e` here contains the extra attributes
+          //     注意这里很关键，在datepicker选择完成值，要设置value的值
+          //     vm.value = e.format();
+          // });
       }
   });
-  
-  function _init(vm) {
-      $(function () {
-          _initDatePicker(vm);
-      });
-  }
-  
-  function _initDatePicker(vm) {
-      $(vm.$el).datepicker({
-          autoclose: true,
-          language: 'zh-CN'
-      });
-  }
 
 });
 
-;/*!/modules/widget/hecheckbox/main.js*/
-define('modules/widget/hecheckbox/main', function(require, exports, module) {
+;/*!/modules/components/clearfix/main.js*/
+define('modules/components/clearfix/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('clearfix', {
+      template: " <div class=\"clearfix\"></div>",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/components/hecheckbox/main.js*/
+define('modules/components/hecheckbox/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11300,15 +11437,15 @@ define('modules/widget/hecheckbox/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/heformitem/main.js*/
-define('modules/widget/heformitem/main', function(require, exports, module) {
+;/*!/modules/components/heformitem/main.js*/
+define('modules/components/heformitem/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form-item', {
-      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>\r\n",
+      template: "<div :class=\"horizontal?'form-group':'form-group errwrap'\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }}</label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n    </template>\r\n</div>",
       props: {
           /**
            * 
@@ -11370,8 +11507,8 @@ define('modules/widget/heformitem/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/heform/main.js*/
-define('modules/widget/heform/main', function(require, exports, module) {
+;/*!/modules/components/heform/main.js*/
+define('modules/components/heform/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11454,8 +11591,8 @@ define('modules/widget/heform/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminfooter/main.js*/
-define('modules/widget/adminfooter/main', function(require, exports, module) {
+;/*!/modules/module_admin/footer/main.js*/
+define('modules/module_admin/footer/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11463,41 +11600,41 @@ define('modules/widget/adminfooter/main', function(require, exports, module) {
   var App = require('modules/common/app');
   
   Vue.component('admin-footer', {
-      template: "<div class=\"footer\">\r\n\r\n    <div class=\"footer-inner\">\r\n         2016 &copy; Hello, world!\r\n    </div>\r\n    <div class=\"footer-tools\">\r\n        <span class=\"go-top\">\r\n        <i class=\"fa fa-angle-up\"></i>\r\n        </span>\r\n    </div>\r\n\r\n</div>",
+      template: "<div class=\"footer\">\r\n\r\n    <div class=\"footer-inner\">\r\n         {{year}} &copy; Hello, world!\r\n    </div>\r\n\r\n    <div class=\"footer-tools\">\r\n        <span class=\"go-top\" v-on:click=\"goTop\">\r\n            <i class=\"fa fa-angle-up\"></i>\r\n        </span>\r\n    </div>\r\n\r\n</div>",
+      data: function data() {
+          return {
+              year: ''
+          };
+      },
+      methods: {
+          goTop: function goTop(event) {
+              App.scrollTo();
+  
+              // 如果该方法可能被手工调用，则event不一定存在
+              if (event) {
+                  event.preventDefault();
+              }
+          }
+      },
       ready: function ready() {
-          _init();
+          this.year = new Date().getFullYear();
       }
   });
-  
-  function _init() {
-      $(function () {
-          handleGoTop(); //handles scroll to top functionality in the footer
-      });
-  }
-  
-  // Handles the go to top button at the footer
-  var handleGoTop = function handleGoTop() {
-      /* set variables locally for increased performance */
-      jQuery('.footer').on('click', '.go-top', function (e) {
-          App.scrollTo();
-          e.preventDefault();
-      });
-  };
 
 });
 
-;/*!/modules/widget/adminheader/main.js*/
-define('modules/widget/adminheader/main', function(require, exports, module) {
+;/*!/modules/module_admin/header/main.js*/
+define('modules/module_admin/header/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
   Vue.component('admin-header', {
-      template: "<!-- BEGIN HEADER -->\r\n<div class=\"header navbar  navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>\r\n<!-- END HEADER -->",
+      template: "<div class=\"header navbar navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>",
       props: {
           /**
-           * 登录的用户名
+           * 登录用户的用户名
            */
           'username': {
               type: String,
@@ -11509,53 +11646,14 @@ define('modules/widget/adminheader/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/adminheadersearch/main.js*/
-define('modules/widget/adminheadersearch/main', function(require, exports, module) {
+;/*!/modules/module_admin/container/main.js*/
+define('modules/module_admin/container/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
-  Vue.component('admin-header-search', {
-      template: "<form class=\"search-form search-form-header\" role=\"form\" action=\"index.html\">\r\n    <div class=\"input-icon right\">\r\n        <i class=\"icon-magnifier\"></i>\r\n        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n    </div>\r\n</form>\r\n",
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          handleQuickSearch(); // handles quick search
-      });
-  }
-  
-  var handleQuickSearch = function handleQuickSearch() {
-  
-      // handle search for header search input on enter press
-      $('.search-form-header').on('keypress', 'input.form-control', function (e) {
-          if (e.which == 13) {
-              $('.search-form-header').submit();
-              return false;
-          }
-      });
-  
-      // handle search for header search input on icon click
-      $('.search-form-header').on('click', '.icon-search', function (e) {
-          $('.search-form-header').submit();
-          return false;
-      });
-  };
-
-});
-
-;/*!/modules/widget/adminmain/main.js*/
-define('modules/widget/adminmain/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  Vue.component('admin-main', {
+  Vue.component('admin-container', {
       template: "<div class=\"page-container\">\r\n    <slot name=\"menu\"></slot>\r\n    <div class=\"page-content-wrapper\">\r\n        <div class=\"page-content\">              \r\n            <slot name=\"title\"></slot>\r\n            <div class=\"row\">\r\n                <div class=\"col-md-12\">\r\n                    <slot></slot>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
       ready: function ready() {}
   });
@@ -11596,111 +11694,118 @@ define('modules/common/menudata', function(require, exports, module) {
               icon: 'pin',
               active: false
           }]
-      }]
+      }, {
+          id: 'menuTest',
+          name: '测试专用',
+          url: '/admin/test',
+          icon: 'pin',
+          active: false
+      }
+      // {
+      //     id:'2',
+      //     name: 'Page Layouts',
+      //     icon: 'home',
+      //     active: false,
+      //     children: [{
+      //         id:'21',
+      //         name: 'Sidebar Fixed Page',
+      //         url: 'layout_sidebar_fixed.html',
+      //         icon: 'anchor',
+      //         active: false,
+      //         badge: {
+      //             type: 'warning',
+      //             value: 'new'
+      //         }
+      //     }, {
+      //         id:'test',
+      //         name: 'Sidebar Closed Page',
+      //         url: 'test.html',
+      //         icon: 'anchor',
+      //         active: false,
+      //         badge: 'new'
+      //     }, {
+      //         id:'23',
+      //         name: 'Boxed Page',
+      //         url: 'layout_sidebar_fixed.html',
+      //         icon: 'pin',
+      //         active: false
+      //     }]
+      // }, {
+      //     id:'3',
+      //     name: '4 Level Menu',
+      //     icon: 'share',
+      //     active: false,
+      //     children: [{
+      //         id:'31',
+      //         name: 'Item 1',
+      //         icon: 'anchor',
+      //         active: false,
+      //         children: [{
+      //             id:'311',
+      //             name: ' Sample Link 1',
+      //             url: 'layout_sidebar_fixed.html',
+      //             icon: 'anchor',
+      //             active: false,
+      //             children: [{
+      //                 id:'3111',
+      //                 name: 'sub-4',
+      //                 url: 'layout_sidebar_fixed.html',
+      //                 icon: 'anchor',
+      //                 active: false
+      //             }, {
+      //                 id:'3112',
+      //                 name: 'sub-4',
+      //                 url: 'layout_sidebar_closed.html',
+      //                 icon: 'anchor',
+      //                 active: false
+      //             }, {
+      //                 id:'3113',
+      //                 name: 'sub-4',
+      //                 url: 'layout_sidebar_closed.html',
+      //                 icon: 'anchor',
+      //                 active: false
+      //             }]
+      //         }, {
+      //             id:'312',
+      //             name: ' Sample Link 2',
+      //             url: 'layout_sidebar_closed.html',
+      //             icon: 'anchor',
+      //             active: false
+      //         }, {
+      //             id:'313',
+      //             name: ' Sample Link 2',
+      //             url: 'layout_sidebar_closed.html',
+      //             icon: 'anchor',
+      //             active: false
+      //         }]
+      //     }, {
+      //         id:'32',
+      //         name: 'Item 2',
+      //         icon: 'anchor',
+      //         active: false
+      //     }, {
+      //         id:'33',
+      //         name: 'Item 3',
+      //         url: 'layout_sidebar_fixed.html',
+      //         icon: 'pin',
+      //         active: false
+      //     }]
+      // }, {
+      //     id:'4',
+      //     name: 'Login',
+      //     url: 'login.html',
+      //     icon: 'user',
+      //     active: false
+      // }
+      ]
   };
   
-  // {
-  //     id:'2',
-  //     name: 'Page Layouts',
-  //     icon: 'home',
-  //     active: false,
-  //     children: [{
-  //         id:'21',
-  //         name: 'Sidebar Fixed Page',
-  //         url: 'layout_sidebar_fixed.html',
-  //         icon: 'anchor',
-  //         active: false,
-  //         badge: {
-  //             type: 'warning',
-  //             value: 'new'
-  //         }
-  //     }, {
-  //         id:'test',
-  //         name: 'Sidebar Closed Page',
-  //         url: 'test.html',
-  //         icon: 'anchor',
-  //         active: false,
-  //         badge: 'new'
-  //     }, {
-  //         id:'23',
-  //         name: 'Boxed Page',
-  //         url: 'layout_sidebar_fixed.html',
-  //         icon: 'pin',
-  //         active: false
-  //     }]
-  // }, {
-  //     id:'3',
-  //     name: '4 Level Menu',
-  //     icon: 'share',
-  //     active: false,
-  //     children: [{
-  //         id:'31',
-  //         name: 'Item 1',
-  //         icon: 'anchor',
-  //         active: false,
-  //         children: [{
-  //             id:'311',
-  //             name: ' Sample Link 1',
-  //             url: 'layout_sidebar_fixed.html',
-  //             icon: 'anchor',
-  //             active: false,
-  //             children: [{
-  //                 id:'3111',
-  //                 name: 'sub-4',
-  //                 url: 'layout_sidebar_fixed.html',
-  //                 icon: 'anchor',
-  //                 active: false
-  //             }, {
-  //                 id:'3112',
-  //                 name: 'sub-4',
-  //                 url: 'layout_sidebar_closed.html',
-  //                 icon: 'anchor',
-  //                 active: false
-  //             }, {
-  //                 id:'3113',
-  //                 name: 'sub-4',
-  //                 url: 'layout_sidebar_closed.html',
-  //                 icon: 'anchor',
-  //                 active: false
-  //             }]
-  //         }, {
-  //             id:'312',
-  //             name: ' Sample Link 2',
-  //             url: 'layout_sidebar_closed.html',
-  //             icon: 'anchor',
-  //             active: false
-  //         }, {
-  //             id:'313',
-  //             name: ' Sample Link 2',
-  //             url: 'layout_sidebar_closed.html',
-  //             icon: 'anchor',
-  //             active: false
-  //         }]
-  //     }, {
-  //         id:'32',
-  //         name: 'Item 2',
-  //         icon: 'anchor',
-  //         active: false
-  //     }, {
-  //         id:'33',
-  //         name: 'Item 3',
-  //         url: 'layout_sidebar_fixed.html',
-  //         icon: 'pin',
-  //         active: false
-  //     }]
-  // }, {
-  //     id:'4',
-  //     name: 'Login',
-  //     url: 'login.html',
-  //     icon: 'user',
-  //     active: false
-  // }
   module.exports = menus;
 
 });
 
-;/*!/modules/widget/adminmaintitle/main.js*/
-define('modules/widget/adminmaintitle/main', function(require, exports, module) {
+;/*!/modules/module_admin/maintitle/main.js*/
+define('modules/module_admin/maintitle/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11716,10 +11821,12 @@ define('modules/widget/adminmaintitle/main', function(require, exports, module) 
               required: true
           },
           'desc': String,
+  
+          /**
+           * 面包屑设置，格式为 name|url|icon;name|url|icon
+           */
           'items': {
               coerce: function coerce(val) {
-                  // name|url|icon;name|url|icon
-  
                   if (!val) {
                       return [{
                           name: 'Home',
@@ -11756,8 +11863,8 @@ define('modules/widget/adminmaintitle/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/widget/adminmaintoolbar/main.js*/
-define('modules/widget/adminmaintoolbar/main', function(require, exports, module) {
+;/*!/modules/module_admin/maintoolbar/main.js*/
+define('modules/module_admin/maintoolbar/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11770,8 +11877,8 @@ define('modules/widget/adminmaintoolbar/main', function(require, exports, module
 
 });
 
-;/*!/modules/widget/adminsidemenuitem/main.js*/
-define('modules/widget/adminsidemenuitem/main', function(require, exports, module) {
+;/*!/modules/module_admin/sidemenuitem/main.js*/
+define('modules/module_admin/sidemenuitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11811,8 +11918,8 @@ define('modules/widget/adminsidemenuitem/main', function(require, exports, modul
 
 });
 
-;/*!/modules/widget/adminsidemenu/main.js*/
-define('modules/widget/adminsidemenu/main', function(require, exports, module) {
+;/*!/modules/module_admin/sidemenu/main.js*/
+define('modules/module_admin/sidemenu/main', function(require, exports, module) {
 
   'use strict';
   
@@ -11822,8 +11929,11 @@ define('modules/widget/adminsidemenu/main', function(require, exports, module) {
   var menuData = require('modules/common/menudata');
   
   Vue.component('admin-side-menu', {
-      template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n            <li class=\"sidebar-search-wrapper\">\r\n                <form class=\"search-form\" role=\"form\" action=\"index.html\" method=\"get\">\r\n                    <div class=\"input-icon right\">\r\n                        <i class=\"fa fa-search\"></i>\r\n                        <input type=\"text\" class=\"form-control input-sm\" name=\"query\" placeholder=\"Search...\">\r\n                    </div>\r\n                </form>\r\n            </li>\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
+      template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
       props: {
+          /**
+           * menuId对应common/menudata.js中的菜单数据，用以指示当前菜单该高亮的是哪个菜单。
+           */
           'menuId': {
               type: String,
               required: true
@@ -11875,7 +11985,6 @@ define('modules/widget/adminsidemenu/main', function(require, exports, module) {
           handleFixedSidebar(); // handles fixed sidebar menu
           handleFixedSidebarHoverable(); // handles fixed sidebar on hover effect
           handleSidebarMenu(); // handles main menu
-          handleQuickSearch(); // handles quick search
           handleSidebarToggler(); // handles sidebar hide/show   
       });
   }
@@ -12110,27 +12219,11 @@ define('modules/widget/adminsidemenu/main', function(require, exports, module) {
           App.runResponsiveHandlers();
       });
   };
-  
-  var handleQuickSearch = function handleQuickSearch() {
-      // handle search for sidebar search input on enter press
-      $('.search-form-sidebar').on('keypress', 'input.form-control', function (e) {
-          if (e.which == 13) {
-              $('.search-form-sidebar').submit();
-              return false;
-          }
-      });
-  
-      // handle search for sidebar search input on icon click
-      $('.search-form-sidebar').on('click', '.icon-search', function (e) {
-          $('.search-form-sidebar').submit();
-          return false;
-      });
-  };
 
 });
 
-;/*!/modules/widget/portlet/main.js*/
-define('modules/widget/portlet/main', function(require, exports, module) {
+;/*!/modules/components/portlet/main.js*/
+define('modules/components/portlet/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12147,8 +12240,8 @@ define('modules/widget/portlet/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/datagriditem/main.js*/
-define('modules/widget/datagriditem/main', function(require, exports, module) {
+;/*!/modules/components/datagriditem/main.js*/
+define('modules/components/datagriditem/main', function(require, exports, module) {
 
   /**
    * 
@@ -12187,18 +12280,12 @@ define('modules/widget/datagriditem/main', function(require, exports, module) {
       /**
        * 使该列不能够排序
        */
-      'disableorder': {
-        type: Boolean,
-        'default': false
-      },
+      'disableorder': Boolean,
   
       /**
        * 使该列不显示
        */
-      'hide': {
-        type: Boolean,
-        'default': false
-      }
+      'hide': Boolean
     },
     ready: function ready() {}
   });
@@ -12267,8 +12354,8 @@ define('modules/common/render', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/datagrid/main.js*/
-define('modules/widget/datagrid/main', function(require, exports, module) {
+;/*!/modules/components/datagrid/main.js*/
+define('modules/components/datagrid/main', function(require, exports, module) {
 
   /**
    * 需要支持：
@@ -12697,8 +12784,8 @@ define('modules/widget/datagrid/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/modal/main.js*/
-define('modules/widget/modal/main', function(require, exports, module) {
+;/*!/modules/components/modal/main.js*/
+define('modules/components/modal/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12707,23 +12794,14 @@ define('modules/widget/modal/main', function(require, exports, module) {
   Vue.component('modal', {
       template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
       props: {
-          'id': {
-              type: String,
-              'default': ''
-          },
-          'css': {
-              type: String,
-              'default': ''
-          },
+          'id': String,
+          'css': String,
           'tabindex': {
               type: Number,
               'default': -1
           },
           'title': String,
-          'fullwidth': {
-              type: Boolean,
-              'default': false
-          }
+          'fullwidth': Boolean
       },
       computed: {
           'className': function className() {
@@ -12800,8 +12878,8 @@ define('modules/widget/modal/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/dropdown/main.js*/
-define('modules/widget/dropdown/main', function(require, exports, module) {
+;/*!/modules/components/dropdown/main.js*/
+define('modules/components/dropdown/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12824,8 +12902,8 @@ define('modules/widget/dropdown/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/dropdowntoggle/main.js*/
-define('modules/widget/dropdowntoggle/main', function(require, exports, module) {
+;/*!/modules/components/dropdowntoggle/main.js*/
+define('modules/components/dropdowntoggle/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12918,8 +12996,8 @@ define('modules/widget/dropdowntoggle/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/widget/dropdownmenu/main.js*/
-define('modules/widget/dropdownmenu/main', function(require, exports, module) {
+;/*!/modules/components/dropdownmenu/main.js*/
+define('modules/components/dropdownmenu/main', function(require, exports, module) {
 
   'use strict';
   
@@ -12942,8 +13020,8 @@ define('modules/widget/dropdownmenu/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/linkitem/main.js*/
-define('modules/widget/linkitem/main', function(require, exports, module) {
+;/*!/modules/components/linkitem/main.js*/
+define('modules/components/linkitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13039,8 +13117,8 @@ define('modules/widget/linkitem/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/dropdownmenulist/main.js*/
-define('modules/widget/dropdownmenulist/main', function(require, exports, module) {
+;/*!/modules/components/dropdownmenulist/main.js*/
+define('modules/components/dropdownmenulist/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13063,8 +13141,8 @@ define('modules/widget/dropdownmenulist/main', function(require, exports, module
 
 });
 
-;/*!/modules/widget/notificationitem/main.js*/
-define('modules/widget/notificationitem/main', function(require, exports, module) {
+;/*!/modules/components/notificationitem/main.js*/
+define('modules/components/notificationitem/main', function(require, exports, module) {
 
   'use strict';
   
@@ -13100,33 +13178,35 @@ define('modules/common/global', function(require, exports, module) {
 
   'use strict';
   
-  require('modules/widget/tipalert/main');
-  require('modules/widget/select2option/main');
-  require('modules/widget/select2/main');
-  require('modules/widget/date/main');
+  require('modules/components/tipalert/main');
+  require('modules/components/select2option/main');
+  require('modules/components/select2/main');
+  require('modules/components/date/main');
   
-  require('modules/widget/hecheckbox/main');
-  require('modules/widget/heformitem/main');
-  require('modules/widget/heform/main');
+  require('modules/components/clearfix/main');
   
-  require('modules/widget/adminfooter/main');
-  require('modules/widget/adminheader/main');
-  require('modules/widget/adminheadersearch/main');
-  require('modules/widget/adminmain/main');
-  require('modules/widget/adminmaintitle/main');
-  require('modules/widget/adminmaintoolbar/main');
-  require('modules/widget/adminsidemenuitem/main');
-  require('modules/widget/adminsidemenu/main');
-  require('modules/widget/portlet/main');
-  require('modules/widget/datagriditem/main');
-  require('modules/widget/datagrid/main');
-  require('modules/widget/modal/main');
-  require('modules/widget/dropdown/main');
-  require('modules/widget/dropdowntoggle/main');
-  require('modules/widget/dropdownmenu/main');
-  require('modules/widget/linkitem/main');
-  require('modules/widget/dropdownmenulist/main');
-  require('modules/widget/notificationitem/main');
+  require('modules/components/hecheckbox/main');
+  require('modules/components/heformitem/main');
+  require('modules/components/heform/main');
+  
+  require('modules/module_admin/footer/main');
+  require('modules/module_admin/header/main');
+  require('modules/module_admin/container/main');
+  require('modules/module_admin/maintitle/main');
+  require('modules/module_admin/maintoolbar/main');
+  require('modules/module_admin/sidemenuitem/main');
+  require('modules/module_admin/sidemenu/main');
+  
+  require('modules/components/portlet/main');
+  require('modules/components/datagriditem/main');
+  require('modules/components/datagrid/main');
+  require('modules/components/modal/main');
+  require('modules/components/dropdown/main');
+  require('modules/components/dropdowntoggle/main');
+  require('modules/components/dropdownmenu/main');
+  require('modules/components/linkitem/main');
+  require('modules/components/dropdownmenulist/main');
+  require('modules/components/notificationitem/main');
 
 });
 
@@ -13315,8 +13395,74 @@ define('modules/common/service', function(require, exports, module) {
 
 });
 
-;/*!/modules/index_index/main/main.js*/
-define('modules/index_index/main/main', function(require, exports, module) {
+;/*!/modules/components/inputtext/main.js*/
+define('modules/components/inputtext/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+    template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
+    data: function data() {
+      return {
+        isShow: false,
+        type: 'danger', //danger,info,success,warning
+        msg: '' //必填
+      };
+    },
+    props: [
+    /**
+     *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
+     * user: 用户名
+     */
+    'icon',
+  
+    /**
+     * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
+     */
+    'title',
+  
+    /**
+     * 是否显示title，非必须，默认显示，即显示<lable>
+     */
+    'notitle',
+  
+    /**
+     * input 的name 值，必须
+     */
+    'name']
+  });
+
+});
+
+;/*!/modules/components/loading/main.js*/
+define('modules/components/loading/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var App = require('modules/common/app');
+  
+  function show(msg) {
+      msg = msg || '加载中...';
+      App.blockUI({
+          message: msg
+      });
+  }
+  
+  function hide() {
+      App.unblockUI();
+  }
+  
+  module.exports = {
+      show: show,
+      hide: hide
+  };
+
+});
+
+;/*!/modules/index_index/main.js*/
+define('modules/index_index/main', function(require, exports, module) {
 
   'use strict';
   
@@ -14883,31 +15029,6 @@ define('modules/login_index/header/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/widget/loading/main.js*/
-define('modules/widget/loading/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var App = require('modules/common/app');
-  
-  function show(msg) {
-      msg = msg || '加载中...';
-      App.blockUI({
-          message: msg
-      });
-  }
-  
-  function hide() {
-      App.unblockUI();
-  }
-  
-  module.exports = {
-      show: show,
-      hide: hide
-  };
-
-});
-
 ;/*!/modules/login_index/loginpanel/main.js*/
 define('modules/login_index/loginpanel/main', function(require, exports, module) {
 
@@ -14916,11 +15037,11 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   var Vue = require('modules/lib/vue');
   
   var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  var Loading = require('modules/widget/loading/main');
+  var Msg = require('modules/components/msg/main');
+  var Loading = require('modules/components/loading/main');
   
   module.exports = Vue.extend({
-      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\"/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
+      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>\r\n    \r\n    <tip-alert v-ref:alert></tip-alert>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\" autofocus/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
       data: function data() {
           return {
               jqForm: undefined
@@ -14965,7 +15086,6 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
               // http://malsup.com/jquery/form/
               $(form).ajaxSubmit({
                   success: function success(responseText, statusText) {
-                      console.log(responseText, statusText);
                       if (statusText !== 'success' || responseText.errno !== 0) {
                           Msg.error('登录失败，请输入正确的用户名和密码！');
                       } else {
@@ -15001,106 +15121,134 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
 
 });
 
-;/*!/modules/user_index/add/main.js*/
-define('modules/user_index/add/main', function(require, exports, module) {
+;/*!/modules/test_index/testselect2/main.js*/
+define('modules/test_index/testselect2/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
   module.exports = Vue.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" value=\"1\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"test-select2\">\r\n\r\n    <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/searchuser\" convert=\"searchuser\" ajax></select2> \r\n\r\n</div>\r\n",
       data: function data() {
           return {
-              jqForm: undefined
+              select2data: [{
+                  id: 1,
+                  text: 'hello'
+              }, {
+                  id: 2,
+                  text: 'world'
+              }, {
+                  id: 3,
+                  text: 'what'
+              }]
           };
       },
-      methods: {
-          showModal: function showModal() {
-              this._reset();
-  
-              this.$children[0].show();
-          },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
-          },
-          _reset: function _reset() {
-              // TODO 还有select2等组件也要恢复初始
-              $('[name="name"], [name="pwd"]', this.jqForm).val('');
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.$set('jqForm', $('form', $(this.$el)));
-  
-          _init(this);
-      }
+      ready: function ready() {}
   });
+
+});
+
+;/*!/modules/test_index/testdate/main.js*/
+define('modules/test_index/testdate/main', function(require, exports, module) {
+
+  'use strict';
   
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
+  var Vue = require('modules/lib/vue');
   
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
-              }
+  module.exports = Vue.extend({
+      template: "<div class=\"test-date\">\r\n\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n\r\n    <date name=\"birthday2\" value=\"2016-12-12\" start-date=\"+0d\"></date>\r\n\r\n    <date name=\"birthday3\" value=\"2015-12-12\" start-date=\"2015-12-10\"></date>\r\n    \r\n    <date name=\"birthday4\" today-btn=\"linked\"></date>\r\n\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/test_index/main.js*/
+define('modules/test_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var TestSelect2 = require('modules/test_index/testselect2/main');
+  var TestDate = require('modules/test_index/testdate/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"test_index-main\">\r\n\r\n    <div class=\"row\">\r\n\r\n        <div class=\"col-md-6\">\r\n            <test-select2></test-select2>\r\n        </div>   \r\n        \r\n        <div class=\"col-md-6\">\r\n             <test-date></test-date>  \r\n        </div>  \r\n\r\n    </div>  \r\n    \r\n</div>",
+      components: {
+          TestSelect2: TestSelect2,
+          TestDate: TestDate
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/user_index/add/main.js*/
+define('modules/user_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          name: undefined,
+          pwd: undefined,
+          birthday: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+              this.name = '';
+              this.pwd = '';
+              this.birthday = '2015-12-12';
+              this.state = '1';
           },
-          pwd: {
-              required: {
-                  rule: true,
-                  message: '密码不能为空！'
-              },
-              minlength: {
-                  rule: 6,
-                  message: '最小长度为6'
-              }
-          }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-  
-                          // 关闭对话框
-                          vm.hideModal();
-  
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  },
+                  pwd: {
+                      required: {
+                          rule: true,
+                          message: '密码不能为空！'
+                      },
+                      minlength: {
+                          rule: 6,
+                          message: '最小长度为6'
+                      },
+                      maxlength: {
+                          rule: 32,
+                          message: '最大长度为32'
+                      }
+                  },
+                  birthday: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
                       }
                   }
-              });
+              };
+  
+              return config;
           }
-      });
-  }
+      }
+  });
 
 });
 
@@ -15109,81 +15257,24 @@ define('modules/user_index/delete/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr>\r\n                <th>ID</th>\r\n                <td>{{id}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>用户名</th>\r\n                <td>{{name}}</td>\r\n            </tr>\r\n            <tr>\r\n                <th>状态</th>\r\n                <td>{{stateShow}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              id: undefined,
-              name: undefined,
-              stateShow: undefined
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
               this.id = data.id;
-              this.name = data.name;
-              this.stateShow = data.stateShow;
   
-              this.$children[0].show();
-          },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
-              var self = this;
-  
-              $.post('/admin/user/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  console.log(responseText, statusText);
-                  if (statusText !== 'success' || responseText.errno !== 0) {
-                      // 提示失败
-                      Msg.error('删除' + self.name + '(' + self.id + ')出错！' + JSON.stringify(responseText));
-                  } else {
-                      // 提示成功
-                      Msg.success('删除' + JSON.stringify(responseText.data) + '成功！');
-  
-                      // 关闭对话框
-                      self.hideModal();
-  
-                      // 刷新列表
-                      self.reportSuccess(responseText.data);
-                  }
-              });
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/user_index/detail/main.js*/
-define('modules/user_index/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\" v-on:confirm=\"hideModal\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: []
-          };
-      },
-      methods: {
-          showModal: function showModal(data) {
+              // 设置要展示的信息条目
               this.items = [{
                   key: 'id',
                   value: data.id,
@@ -15209,47 +15300,57 @@ define('modules/user_index/detail/main', function(require, exports, module) {
                   value: data.updateTime,
                   title: '最后修改时间'
               }];
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
+          triggerSubmit: function triggerSubmit() {
+              var self = this;
+  
+              $.post('/admin/user/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  self.dealSuccessRes(responseText, statusText);
+              });
           }
-      },
-      ready: function ready() {}
+      }
   });
 
 });
 
-;/*!/modules/user_index/justtest/main.js*/
-define('modules/user_index/justtest/main', function(require, exports, module) {
+;/*!/modules/user_index/detail/main.js*/
+define('modules/user_index/detail/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  module.exports = Vue.extend({
-      template: "<div v-if=\"debug\">\r\n<!--     <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/getgroup\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n    <select2 url=\"/admin/user/searchuser\" convert=\"searchuser\" ajax></select2> -->\r\n\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n    <date name=\"birthday2\" value=\"2016-12-12\" start-date=\"+0d\"></date>\r\n    <date name=\"birthday3\" value=\"2015-12-12\" start-date=\"2015-12-10\"></date>\r\n    <date name=\"birthday4\" today-btn=\"linked\"></date>\r\n\r\n</div>\r\n",
-      data: function data() {
-          return {
-              select2data: [{
-                  id: 1,
-                  text: 'hello'
-              }, {
-                  id: 2,
-                  text: 'world'
-              }, {
-                  id: 3,
-                  text: 'what'
-              }]
-          };
+  var Names = require('modules/common/names');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
       },
-      props: {
-          debug: {
-              type: Boolean
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 设置要展示的信息条目
+              var fields = ['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime'],
+                  map = Names.user;
+  
+              this.items = fields.map(function (field) {
+                  return {
+                      key: field,
+                      value: data[field],
+                      title: map[field]
+                  };
+              });
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
           }
-      },
-      ready: function ready() {}
+      }
   });
 
 });
@@ -15259,260 +15360,213 @@ define('modules/user_index/modify/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('modules/common/crud');
   
-  var validator = require('modules/common/validator');
-  var Msg = require('modules/widget/msg/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\" v-on:confirm=\"saveSubmit\">\r\n        <he-form action=\"/admin/user/save\" noactions>\r\n            <he-form-item title=\"ID\">\r\n                <input type=\"text\" name=\"id\" :value=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\">\r\n                <input type=\"text\" name=\"name\" :value=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" >\r\n                <select2 name=\"state\" :value=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" >\r\n                <date name=\"birthday\" :value=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              jqForm: undefined,
-              id: undefined,
-              name: undefined,
-              state: undefined,
-              birthday: undefined
-          };
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          name: undefined,
+          state: undefined,
+          birthday: undefined
       },
       methods: {
-          showModal: function showModal(data) {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
               this.id = data.id;
               this.name = data.name;
               this.state = data.state;
               this.birthday = data.birthday;
-  
-              this.$children[0].show();
           },
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-          saveSubmit: function saveSubmit(msg) {
-              // 提交表单
-              this.jqForm.submit();
-          }
-      },
-      ready: function ready() {
-          // 缓存该值，避免重复获取
-          this.jqForm = $('form', $(this.$el));
-  
-          _init(this);
-      }
-  });
-  
-  function _init(vm) {
-      $(function () {
-          handleValidator(vm);
-      });
-  }
-  
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          name: {
-              required: {
-                  rule: true,
-                  message: '用户名不能为空！'
-              },
-              minlength: {
-                  rule: 2,
-                  message: '最小长度为2'
-              },
-              maxlength: {
-                  rule: 6,
-                  message: '最大长度为6'
-              }
-          }
-      }, {
-          submitHandler: function submitHandler(form) {
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          // 提示失败
-                          Msg.error('保存' + JSON.stringify(responseText.data) + '出错！');
-                      } else {
-                          // 提示成功
-                          Msg.success('保存' + JSON.stringify(responseText.data) + '成功！');
-  
-                          // 关闭对话框
-                          vm.hideModal();
-  
-                          // 刷新列表
-                          vm.reportSuccess(responseText.data);
+          getValidatorConfig: function getValidatorConfig() {
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  },
+                  birthday: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
                       }
                   }
-              });
+              };
+  
+              return config;
           }
-      });
-  }
+      }
+  });
 
 });
 
-;/*!/modules/user_index/main/main.js*/
-define('modules/user_index/main/main', function(require, exports, module) {
+;/*!/modules/user_index/main.js*/
+define('modules/user_index/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
-  var add = require('modules/user_index/add/main');
-  var modify = require('modules/user_index/modify/main');
+  var addPage = require('modules/user_index/add/main');
+  var modifyPage = require('modules/user_index/modify/main');
   var deletePage = require('modules/user_index/delete/main');
-  var detail = require('modules/user_index/detail/main');
-  var justtest = require('modules/user_index/justtest/main');
+  var detailPage = require('modules/user_index/detail/main');
   
   module.exports = Vue.extend({
-      template: "<admin-main-toolbar>\r\n    <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n</admin-main-toolbar>\r\n\r\n<!-- <justtest debug></justtest> -->\r\n\r\n<portlet title=\"用户列表\" icon=\"globe\">    \r\n    <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n        <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n        <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n        <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n        <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n        <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n        <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n        <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n        <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n    </datagrid>\r\n</portlet>",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
-          'add': add,
-          'modify': modify,
+          'add': addPage,
+          'modify': modifyPage,
           'delete': deletePage,
-          'detail': detail,
-          'justtest': justtest
+          'detail': detailPage
       },
       methods: {
           operate: function operate(event) {
-              console.log('operate', event.target);
               var target = event.target,
                   $target = $(target),
-                  type = $target.data('type');
+                  type = $target.data('type'),
+                  id,
+                  data;
   
-              if (!type) {
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
                   return;
               }
   
-              switch (type) {
-                  case 'modify':
-                      showDlgModify(this, $target);
-                      break;
-                  case 'delete':
-                      showDlgDelete(this, $target);
-                      break;
-                  case 'detail':
-                      showDlgDetail(this, $target);
-                      break;
-                  default:
-                      break;
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
               }
           },
           reloadDataGrid: function reloadDataGrid() {
               this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
           }
       },
       ready: function ready() {}
   });
-  
-  function showDlgModify(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.modify.showModal({
-          id: data.id,
-          name: data.name,
-          state: data.state,
-          birthday: data.birthday
-      });
-  }
-  
-  function showDlgDelete(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs['delete'].showModal({
-          id: data.id,
-          name: data.name,
-          stateShow: data.stateShow
-      });
-  }
-  
-  function showDlgDetail(vm, jqTarget) {
-      var id = jqTarget.data('id'),
-          data;
-  
-      if (!id) {
-          console.error('No ID!');
-          return;
-      }
-  
-      data = vm.$refs.datagrid.getDataById('id', id);
-      if (!data) {
-          console.error('No data of id=' + id);
-          return;
-      }
-  
-      // console.log(data);
-  
-      vm.$refs.detail.showModal(data);
-  }
 
 });
 
-;/*!/modules/widget/inputtext/main.js*/
-define('modules/widget/inputtext/main', function(require, exports, module) {
+;/*!/modules/user_index/model.js*/
+define('modules/user_index/model', function(require, exports, module) {
 
+  
+  /**
+   * 描述定义
+   * @type {Object}
+   */
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var user = [{
+      name: 'id', // 字段名
+      title: 'ID', // 显示的名字
+      isDbTableField: true, // 是否为数据库中表字段
+      isPrimaryKey: true, // 是否为数据表中的主键
+      require: true, // 是否是必须的
+      type: 'number', // 类型
+      length: 11,
   
-  module.exports = Vue.extend({
-    template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
-    data: function data() {
-      return {
-        isShow: false,
-        type: 'danger', //danger,info,success,warning
-        msg: '' //必填
-      };
-    },
-    props: [
-    /**
-     *是否使用icon，非必须，在输入框前面显示图标，会自动生成类似<i class="fa fa-user"></i>，其中的icon就是user
-     * user: 用户名
-     */
-    'icon',
+      isShowInIndex: true, // 是否在首页的表格中展示
+      isShowInDetail: true, // 是否在详情页面展示
+      isShowInDelete: true, // 是否在删除页面展示
+      isShowInAdd: false, // 是否在新增页面展示
+      isShowInModify: true, // 是否在修改页面展示
   
-    /**
-     * 字段的解释，非必须，会自动生成类似<label class="control-label">用户名</label>
-     */
-    'title',
+      /**
+       * autoincrement: 自增长
+       * readonly: 只读不能修改
+       * inputtext: <input type="text"></input>
+       */
+      howToAdd: 'autoincrement', // 如何新增
+      howToModify: 'readonly', // 如何修改
   
-    /**
-     * 是否显示title，非必须，默认显示，即显示<lable>
-     */
-    'notitle',
+      // 首页表格的配置
+      indexDatagridOptions: {
+          // index: 0, // 在列表中的位置，越小则越靠前
+          // title:'ID', // 如果不设置则默认获取通用的title
+          // css:'idCss',
+          // disableOrder:false
+          // render:'xxx'       
+      }
+  }, {
+      name: 'name',
+      title: '用户名',
+      isDbTableField: true,
+      isPrimaryKey: false,
+      require: true,
+      type: 'string',
+      length: 64,
   
-    /**
-     * input 的name 值，必须
-     */
-    'name']
+      isShowInIndex: true,
+      isShowInDetail: true,
+      isShowInDelete: true,
+      isShowInAdd: true,
+      isShowInModify: true,
+  
+      howToAdd: 'inputtext',
+      howToModify: 'readonly',
+  
+      indexDatagridOptions: {
+          // index: 0, // 在列表中的位置，越小则越靠前
+          // title:'ID', // 如果不设置则默认获取通用的title
+          // css:'idCss',
+          // disableOrder:false
+          // render:'xxx'       
+      }
+  }];
+  
+  var common = {
+      'id': 'ID',
+      'name': '名字',
+      'createTime': '创建时间',
+      'updateTime': '更新时间',
+      'state': '状态',
+      'stateShow': '状态'
+  };
+  
+  /**
+   * /admin/user
+   */
+  var userw = $.extend({}, common, {
+      'name': '用户名',
+      'pwd': '密码',
+      'birthday': '生日'
   });
+  
+  module.exports = {
+      user: user
+  
+  };
 
 });
 
@@ -15530,7 +15584,7 @@ define('pages/car_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var CarMain = require('modules/car_index/main/main');
+  var CarMain = require('modules/car_index/main');
   
   window.app = new Vue({
       el: '#app',
@@ -15553,10 +15607,6 @@ define('pages/car_index/main', function(require, exports, module) {
 ;/*!/pages/index_index/main.js*/
 define('pages/index_index/main', function(require, exports, module) {
 
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
   'use strict';
   
   require('modules/common/global');
@@ -15564,7 +15614,7 @@ define('pages/index_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var IndexMain = require('modules/index_index/main/main');
+  var IndexMain = require('modules/index_index/main');
   
   window.app = new Vue({
       el: '#app',
@@ -15623,6 +15673,36 @@ define('pages/login_index/main', function(require, exports, module) {
 
 });
 
+;/*!/pages/test_index/main.js*/
+define('pages/test_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var TestMain = require('modules/test_index/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          TestMain: TestMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
 ;/*!/pages/user_index/main.js*/
 define('pages/user_index/main', function(require, exports, module) {
 
@@ -15637,7 +15717,7 @@ define('pages/user_index/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   var App = require('modules/common/app');
-  var UserMain = require('modules/user_index/main/main');
+  var UserMain = require('modules/user_index/main');
   
   window.app = new Vue({
       el: '#app',

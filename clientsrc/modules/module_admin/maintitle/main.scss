@@ -1,0 +1,100 @@
+
+/***
+Page title
+***/
+.page-title {
+  padding: 0;
+  font-size: 26px;
+  letter-spacing: -1px;
+  display: block;
+  color: #666;
+  margin: 0 0 15px 0;
+  font-weight: 300;
+  font-family: 'Open Sans', sans-serif;
+
+  small {
+    font-size: 14px;
+    letter-spacing: 0;
+    font-weight: 300;
+    color: #888;
+  }
+}
+
+/***
+Page breadcrumb
+***/
+
+/* Page breadcrumb */
+.page-bar {
+  border: 0;
+  padding: 0;
+  background-color: #eee;
+  margin-bottom: 25px;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 10px;
+  padding-right: 20px;
+
+  &:before, 
+  &:after {
+    content: " ";
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
+
+  .page-breadcrumb {
+    display: inline-block;
+    float: left;
+    padding: 8px;
+    margin: 0;
+    list-style: none;
+
+    & > li {
+      display: inline-block;
+
+      & > a,
+      & > span {
+        color: #666;
+        font-size: 14px;
+        text-shadow: none;
+      }
+
+      & > i {
+        color: #999;
+        font-size: 14px;
+        text-shadow: none;
+      }
+
+      & > i[class^="icon-"],
+      & > i[class*="icon-"] {
+        color: gray;
+      }
+
+    }
+  }
+
+  .page-toolbar {
+    display: inline-block;
+    float: right;
+    padding: 0;
+    background-color: #ddd;
+
+    .btn-fit-height {
+      padding-top: 8px;
+      padding-bottom: 8px;
+      border-radius: 0;
+    }
+
+    .btn.default {  
+      background-color: #ddd;
+    }
+
+  }
+}
+
+.page-boxed .page-bar {
+  margin-right: -19px;
+} 

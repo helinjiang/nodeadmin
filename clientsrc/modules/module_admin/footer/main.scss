@@ -1,0 +1,45 @@
+.footer {
+  padding: 10px 20px 5px 20px; 
+  font-size: 12px;
+
+  &:after,
+  &:before {
+    content: "";
+    display: table;
+    line-height: 0;
+  }
+
+  &:after {
+    clear: both;
+  }
+
+  .footer-inner {
+    float: left;
+    display: inline-block;
+  }
+
+  .footer-tools {
+    float: right;
+    display: inline-block;
+
+    .go-top { 
+      display: block;
+      text-decoration: none;
+      cursor: pointer;
+      margin-top: -4px;
+      margin-right: 0px;
+      margin-bottom: 0px;
+      font-size: 16px;
+      padding: 2px 6px 0px 6px;
+      height: 25px;
+      width: 25px;
+      border-radius: 50%;
+
+      i {
+        font-size: 22px;
+        margin-bottom: 7px; 
+      }
+
+    }
+  }
+}
