@@ -1,11 +1,6 @@
-<div class="portlet" id="form_wizard_1">
-    <div class="portlet-title">
-        <div class="caption">
-            <i class="fa fa-reorder"></i> Form Wizard - <span class="step-title">
-            Step 1 of 4 </span>
-        </div>
-    </div>
-    <div class="portlet-body form">
+<div class="wizard">
+    <portlet title="Form Wizard - " icon="reorder" id="form_wizard_1" bodycss="form"> 
+        <wizard-title slot="title"></wizard-title>
 
         <he-form id="submit_form" inner="form-wizard" actionscss="fluid" horizontal>
 
@@ -74,5 +69,5 @@
            
             <wizard-actions slot="actions"></wizard-actions>
         </he-form>
-    </div>
+    </portlet>   
 </div>

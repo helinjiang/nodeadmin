@@ -1,6 +1,7 @@
 var Vue = require('lib/vue');
 var App = require('common/app');
 
+var WizardTitle = require('./title/main');
 var WizardSteps = require('./steps/main');
 var WizardProgress = require('./progress/main');
 var WizardTabPane = require('./tabpane/main');
@@ -10,6 +11,7 @@ var WizardActions = require('./actions/main');
 Vue.component('wizard', {
     template: __inline('main.html'),
     components: {
+        WizardTitle,
         WizardSteps,
         WizardProgress,
         WizardTabPane,
