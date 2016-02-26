@@ -37,7 +37,6 @@ Vue.component('wizard', {
             return ' - Step ' + (this.stepIndex + 1) + ' of ' + this.stepTotal;
         }
     },
-
     props: {
         'title': String,
         'icon': String,

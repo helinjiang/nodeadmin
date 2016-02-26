@@ -41,7 +41,6 @@ define('modules/components/wizard/main', function(require, exports, module) {
               return ' - Step ' + (this.stepIndex + 1) + ' of ' + this.stepTotal;
           }
       },
-  
       props: {
           'title': String,
           'icon': String
