@@ -4,6 +4,7 @@ module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
+            doneClass:'done',
             items: [{
                 target: '#tab1',
                 title: 'Account Setup'
@@ -28,6 +29,6 @@ module.exports = Vue.extend({
         }
     },
     ready: function() {
-        
+
     }
 });

@@ -133,11 +133,12 @@ Vue.component('wizard', {
                 // set wizard title
                 self.stepIndex = index;
                 // set done steps
-                jQuery('li', $('#form_wizard_1')).removeClass("done");
-                var li_list = navigation.find('li');
-                for (var i = 0; i < index; i++) {
-                    jQuery(li_list[i]).addClass("done");
-                }
+                
+                // jQuery('li', $('#form_wizard_1')).removeClass("done");
+                // var li_list = navigation.find('li');
+                // for (var i = 0; i < index; i++) {
+                //     jQuery(li_list[i]).addClass("done");
+                // }
 
                 if (current == 1) {
                     $('#form_wizard_1').find('.button-previous').hide();
