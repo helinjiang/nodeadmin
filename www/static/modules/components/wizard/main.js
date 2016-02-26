@@ -13,7 +13,7 @@ define('modules/components/wizard/main', function(require, exports, module) {
   var WizardActions = require('modules/components/wizard/actions/main');
   
   Vue.component('wizard', {
-      template: "<div class=\"wizard\">\r\n    <portlet title=\"Form Wizard - \" icon=\"reorder\" id=\"form_wizard_1\" bodycss=\"form\"> \r\n        <wizard-title slot=\"title\"></wizard-title>\r\n\r\n        <he-form id=\"submit_form\" inner=\"form-wizard\" actionscss=\"fluid\" horizontal>\r\n\r\n            <wizard-steps></wizard-steps>\r\n            <wizard-progress></wizard-progress>\r\n\r\n            <wizard-tab-content>                        \r\n                \r\n                <wizard-tab-pane css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n                    <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                        <input type=\"text\" name=\"username\" v-model=\"username\">\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab2\" title=\"Provide your profile details\">           \r\n                    <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                        <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n                    </he-form-item> \r\n\r\n                    <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                        <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n                    <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                        <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n                    </he-form-item> \r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab4\" title=\"Confirm your account\">\r\n                \r\n                    <h4 class=\"form-section\">Account</h4>\r\n                    <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{username}} </p>\r\n                    </he-form-item>     \r\n\r\n                    <h4 class=\"form-section\">Profile</h4>     \r\n                    <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{fullname}} </p>\r\n                    </he-form-item>     \r\n                    <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{remarks}} </p>\r\n                    </he-form-item>      \r\n\r\n                    <h4 class=\"form-section\">Billing</h4>\r\n                    <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{card_name}} </p>\r\n                    </he-form-item>      \r\n\r\n                </wizard-tab-pane>\r\n                \r\n            </wizard-tab-content>\r\n           \r\n            <wizard-actions slot=\"actions\"></wizard-actions>\r\n        </he-form>\r\n    </portlet>   \r\n</div>",
+      template: "<div class=\"wizard\">\r\n    <portlet :title=\"title\" icon=\"reorder\" id=\"form_wizard_1\" bodycss=\"form\"> \r\n        <wizard-title slot=\"title\" :value=\"stepTitle\"></wizard-title>\r\n\r\n        <he-form id=\"submit_form\" inner=\"form-wizard\" actionscss=\"fluid\" horizontal>\r\n\r\n            <wizard-steps v-ref:steps></wizard-steps>\r\n            <wizard-progress></wizard-progress>\r\n\r\n            <wizard-tab-content>                        \r\n                \r\n                <wizard-tab-pane css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n                    <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                        <input type=\"text\" name=\"username\" v-model=\"username\">\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab2\" title=\"Provide your profile details\">           \r\n                    <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                        <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n                    </he-form-item> \r\n\r\n                    <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                        <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n                    <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                        <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n                    </he-form-item> \r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab4\" title=\"Confirm your account\">\r\n\r\n                    <h4 class=\"form-section\">Account</h4>\r\n                    <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{username}} </p>\r\n                    </he-form-item>     \r\n\r\n                    <h4 class=\"form-section\">Profile</h4>     \r\n                    <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{fullname}} </p>\r\n                    </he-form-item>     \r\n                    <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{remarks}} </p>\r\n                    </he-form-item>      \r\n\r\n                    <h4 class=\"form-section\">Billing</h4>\r\n                    <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{card_name}} </p>\r\n                    </he-form-item>      \r\n\r\n                </wizard-tab-pane>\r\n                \r\n            </wizard-tab-content>\r\n           \r\n            <wizard-actions slot=\"actions\"></wizard-actions>\r\n        </he-form>\r\n    </portlet>   \r\n</div>",
       components: {
           WizardTitle: WizardTitle,
           WizardSteps: WizardSteps,
@@ -25,12 +25,23 @@ define('modules/components/wizard/main', function(require, exports, module) {
       data: function data() {
           return {
               jqForm: undefined,
+              stepIndex: 0,
+              stepTotal: 0,
               username: '',
               fullname: '',
               remarks: '',
               card_name: ''
           };
       },
+      computed: {
+          /**
+           * 在导航中显示的进度文字
+           */
+          stepTitle: function stepTitle() {
+              return ' - Step ' + (this.stepIndex + 1) + ' of ' + this.stepTotal;
+          }
+      },
+  
       props: {
           'title': String,
           'icon': String
@@ -41,6 +52,9 @@ define('modules/components/wizard/main', function(require, exports, module) {
               if (!jQuery().bootstrapWizard) {
                   return;
               }
+  
+              // 获得所有步骤数目
+              this.stepTotal = this.$refs.steps.getLength();
   
               var self = this;
   
@@ -120,10 +134,10 @@ define('modules/components/wizard/main', function(require, exports, module) {
               });
   
               var handleTitle = function handleTitle(tab, navigation, index) {
-                  var total = navigation.find('li').length;
+                  var total = self.stepTotal;
                   var current = index + 1;
                   // set wizard title
-                  $('.step-title', $('#form_wizard_1')).text('Step ' + (index + 1) + ' of ' + total);
+                  self.stepIndex = index;
                   // set done steps
                   jQuery('li', $('#form_wizard_1')).removeClass("done");
                   var li_list = navigation.find('li');

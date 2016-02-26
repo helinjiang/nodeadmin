@@ -1,10 +1,10 @@
 <div class="wizard">
-    <portlet title="Form Wizard - " icon="reorder" id="form_wizard_1" bodycss="form"> 
-        <wizard-title slot="title"></wizard-title>
+    <portlet :title="title" icon="reorder" id="form_wizard_1" bodycss="form"> 
+        <wizard-title slot="title" :value="stepTitle"></wizard-title>
 
         <he-form id="submit_form" inner="form-wizard" actionscss="fluid" horizontal>
 
-            <wizard-steps></wizard-steps>
+            <wizard-steps v-ref:steps></wizard-steps>
             <wizard-progress></wizard-progress>
 
             <wizard-tab-content>                        
@@ -32,7 +32,7 @@
                 </wizard-tab-pane>
 
                 <wizard-tab-pane id="tab4" title="Confirm your account">
-                
+
                     <h4 class="form-section">Account</h4>
                     <he-form-item title="Username:" col="3-4" horizontal>
                         <p class="form-control-static" > {{username}} </p>

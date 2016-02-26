@@ -21,12 +21,23 @@ Vue.component('wizard', {
     data: function() {
         return {
             jqForm: undefined,
+            stepIndex: 0,
+            stepTotal: 0,
             username: '',
             fullname: '',
             remarks: '',
             card_name: '',
         };
     },
+    computed: {
+        /**
+         * 在导航中显示的进度文字
+         */
+        stepTitle: function() {
+            return ' - Step ' + (this.stepIndex + 1) + ' of ' + this.stepTotal;
+        }
+    },
+
     props: {
         'title': String,
         'icon': String,
@@ -39,6 +50,9 @@ Vue.component('wizard', {
             if (!jQuery().bootstrapWizard) {
                 return;
             }
+
+            // 获得所有步骤数目
+            this.stepTotal = this.$refs.steps.getLength();
 
             var self = this;
 
@@ -115,10 +129,10 @@ Vue.component('wizard', {
 
 
             var handleTitle = function(tab, navigation, index) {
-                var total = navigation.find('li').length;
+                var total = self.stepTotal;
                 var current = index + 1;
                 // set wizard title
-                $('.step-title', $('#form_wizard_1')).text('Step ' + (index + 1) + ' of ' + total);
+                self.stepIndex = index;
                 // set done steps
                 jQuery('li', $('#form_wizard_1')).removeClass("done");
                 var li_list = navigation.find('li');
