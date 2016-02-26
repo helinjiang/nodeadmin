@@ -6,7 +6,6 @@ var WizardProgress = require('./progress/main');
 var WizardTabPane = require('./tabpane/main');
 var WizardTabContent = require('./tabcontent/main');
 var WizardActions = require('./actions/main');
-var WizardBody = require('./body/main');
 
 Vue.component('wizard', {
     template: __inline('main.html'),
@@ -15,7 +14,6 @@ Vue.component('wizard', {
         WizardProgress,
         WizardTabPane,
         WizardTabContent,
-        WizardBody,
         WizardActions
     },
     data: function() {

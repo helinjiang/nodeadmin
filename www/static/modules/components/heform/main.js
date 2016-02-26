@@ -5,12 +5,16 @@ define('modules/components/heform/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form', {
-      template: "<form :action=\"action\" :class=\"{ 'form-horizontal': horizontal }\" role=\"form\" :method=\"method\">\r\n    <div class=\"form-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"form-actions\" v-if=\"!noactions\">\r\n        <slot name=\"actions\"></slot>\r\n    </div>\r\n</form>\r\n",
+      template: "<form :id=\"id\" :action=\"action\" :class=\"{ 'form-horizontal': horizontal }\" role=\"form\" :method=\"method\">\r\n    <template v-if=\"inner\">\r\n        <div :class=\"inner\">\r\n            <div class=\"form-body\" :class=\"bodycss\">\r\n                <slot></slot>\r\n            </div>\r\n            <div class=\"form-actions\" :class=\"actionscss\" v-if=\"!noactions\">\r\n                <slot name=\"actions\"></slot>\r\n            </div>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <div class=\"form-body\" :class=\"bodycss\">\r\n            <slot></slot>\r\n        </div>\r\n        <div class=\"form-actions\" :class=\"actionscss\" v-if=\"!noactions\">\r\n            <slot name=\"actions\"></slot>\r\n        </div>\r\n    </template>\r\n</form>\r\n",
       props: {
+          id: String,
           /**
            * 
            */
-          'action': String,
+          'action': {
+              type: String,
+              'default': '#'
+          },
   
           /**
            * 默认为post请求
@@ -20,18 +24,12 @@ define('modules/components/heform/main', function(require, exports, module) {
               'default': 'post'
           },
   
-          'horizontal': {
-              type: Boolean,
-              'default': false
-          },
+          'horizontal': Boolean,
   
           /**
            * 默认是有actions
            */
-          'noactions': {
-              type: Boolean,
-              'default': false
-          },
+          'noactions': Boolean,
   
           /**
            * 如果是水平排列的话，则需要定义左右的宽度，格式为x-x，其中x值为1到12
@@ -39,7 +37,18 @@ define('modules/components/heform/main', function(require, exports, module) {
           'col': {
               type: String,
               'default': '3-9'
-          }
+          },
+  
+          /**
+           * form中的内容再包裹一层div，此处为inner的css样式
+           */
+          'inner': String,
+  
+          // body 附加的css
+          'bodycss': String,
+  
+          // actions 附加的css
+          'actionscss': String
   
       },
       computed: {
