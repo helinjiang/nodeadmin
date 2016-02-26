@@ -21,7 +21,10 @@ Vue.component('wizard', {
     data: function() {
         return {
             jqForm: undefined,
-            isError: false
+            username: '',
+            fullname: '',
+            remarks: '',
+            card_name: '',
         };
     },
     props: {
@@ -36,6 +39,8 @@ Vue.component('wizard', {
             if (!jQuery().bootstrapWizard) {
                 return;
             }
+
+            var self = this;
 
             var form = this.jqForm;
             var error = $('.alert-danger', form);
@@ -108,24 +113,6 @@ Vue.component('wizard', {
 
             });
 
-            var displayConfirm = function() {
-                $('#tab4 .form-control-static', form).each(function() {
-                    var input = $('[name="' + $(this).attr("data-display") + '"]', form);
-                    if (input.is(":text") || input.is("textarea")) {
-                        $(this).html(input.val());
-                    } else if (input.is("select")) {
-                        $(this).html(input.find('option:selected').text());
-                    } else if (input.is(":radio") && input.is(":checked")) {
-                        $(this).html(input.attr("data-title"));
-                    } else if ($(this).attr("data-display") == 'payment') {
-                        var payment = [];
-                        $('[name="payment[]"]').each(function() {
-                            payment.push($(this).attr('data-title'));
-                        });
-                        $(this).html(payment.join("<br>"));
-                    }
-                });
-            }
 
             var handleTitle = function(tab, navigation, index) {
                 var total = navigation.find('li').length;
@@ -148,7 +135,6 @@ Vue.component('wizard', {
                 if (current >= total) {
                     $('#form_wizard_1').find('.button-next').hide();
                     $('#form_wizard_1').find('.button-submit').show();
-                    displayConfirm();
                 } else {
                     $('#form_wizard_1').find('.button-next').show();
                     $('#form_wizard_1').find('.button-submit').hide();
