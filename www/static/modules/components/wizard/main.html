@@ -7,7 +7,8 @@
             <wizard-steps :index="stepIndex" v-ref:steps></wizard-steps>
             <wizard-progress></wizard-progress>
 
-            <wizard-tab-content>                        
+            <wizard-tab-content>            
+                <tip-alert :type="msgType" :msg="msgContent" :hide="msgHide"></tip-alert>
                 
                 <wizard-tab-pane css="active" id="tab1" title="Provide your account details">
                     <he-form-item title="用户名" col="3-4" help="Provide your username" required horizontal>

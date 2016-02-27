@@ -5,13 +5,14 @@ define('modules/components/tipalert/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('tip-alert', {
-      template: "<div class=\"alert alert-{{type}}\" v-show=\"isShow\">\r\n    <button class=\"close\" v-on:click=\"hide\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              isShow: false,
-              type: 'danger', //danger,info,success,warning
-              msg: '' //必填
-          };
+      template: "<div class=\"alert alert-{{type}}\" v-show=\"!hide\">\r\n    <button class=\"close\" v-on:click=\"hideIt\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
+      props: {
+          'type': {
+              type: String,
+              'default': 'danger' },
+          //danger,info,success,warning
+          msg: String,
+          hide: Boolean
       },
       methods: {
           show: function show(msg, type) {
@@ -26,10 +27,10 @@ define('modules/components/tipalert/main', function(require, exports, module) {
                   this.type = type;
               }
   
-              this.isShow = true;
+              this.hide = false;
           },
-          hide: function hide(event) {
-              this.isShow = false;
+          hideIt: function hideIt(event) {
+              this.hide = true;
   
               // 这里非常重要，因为如果在表单里面，它会触发submit提交，必须要阻止
               // 且由于该方法可能也会被手工调用，因此event不一定存在

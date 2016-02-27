@@ -2,12 +2,13 @@ var Vue = require('lib/vue');
 
 Vue.component('tip-alert', {
     template: __inline('main.html'),
-    data: function() {
-        return {
-            isShow: false,
-            type: 'danger', //danger,info,success,warning
-            msg: '' //必填
-        };
+    props: {
+        'type': {
+            type: String,
+            'default': 'danger', //danger,info,success,warning
+        },
+        msg: String,
+        hide: Boolean
     },
     methods: {
         show: function(msg, type) {
@@ -22,10 +23,10 @@ Vue.component('tip-alert', {
                 this.type = type;
             }
 
-            this.isShow = true;
+            this.hide = false;
         },
-        hide: function(event) {
-            this.isShow = false;
+        hideIt: function(event) {
+            this.hide = true;
 
             // 这里非常重要，因为如果在表单里面，它会触发submit提交，必须要阻止
             // 且由于该方法可能也会被手工调用，因此event不一定存在

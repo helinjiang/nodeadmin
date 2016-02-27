@@ -8,6 +8,9 @@ var WizardTabPane = require('./tabpane/main');
 var WizardTabContent = require('./tabcontent/main');
 var WizardActions = require('./actions/main');
 
+var MSG_SUCCESS = 'TEST: Your form validation is successful!';
+var MSG_ERROR = 'TEST: You have some form errors. Please check below.';
+
 Vue.component('wizard', {
     template: __inline('main.html'),
     components: {
@@ -23,6 +26,9 @@ Vue.component('wizard', {
             jqForm: undefined,
             stepIndex: 0,
             stepTotal: 0,
+            msgContent: '',
+            msgType: '',
+            msgHide: true,
             username: '',
             fullname: '',
             remarks: '',
@@ -43,7 +49,17 @@ Vue.component('wizard', {
     },
     methods: {
         showError: function(msg) {
-
+            this.msgContent = msg || MSG_ERROR;
+            this.msgType = 'danger';
+            this.msgHide = false;
+        },
+        showSuccess: function(msg) {
+            this.msgContent = msg || MSG_SUCCESS;
+            this.msgType = 'success';
+            this.msgHide = false;
+        },
+        clearMsg: function() {
+            this.msgHide = true;
         },
         init: function() {
             if (!jQuery().bootstrapWizard) {
@@ -56,8 +72,6 @@ Vue.component('wizard', {
             var self = this;
 
             var form = this.jqForm;
-            var error = $('.alert-danger', form);
-            var success = $('.alert-success', form);
 
             form.validate({
                 doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
@@ -91,9 +105,9 @@ Vue.component('wizard', {
                 },
 
                 invalidHandler: function(event, validator) { //display error alert on form submit   
-                    success.hide();
-                    error.show();
-                    App.scrollTo(error, -200);
+                    self.showError(MSG_ERROR);
+
+                    App.scrollTo($('.alert-danger', form), -200);
                 },
 
                 highlight: function(element) { // hightlight error inputs
@@ -119,8 +133,7 @@ Vue.component('wizard', {
                 },
 
                 submitHandler: function(form) {
-                    success.show();
-                    error.hide();
+                    self.showSuccess(MSG_SUCCESS);
                     //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
                 }
 
@@ -138,16 +151,16 @@ Vue.component('wizard', {
                 'nextSelector': '.button-next',
                 'previousSelector': '.button-previous',
                 onTabClick: function(tab, navigation, index, clickedIndex) {
-                    success.hide();
-                    error.hide();
+                    self.clearMsg();
+
                     if (form.valid() == false) {
                         return false;
                     }
+
                     handleTitle(tab, navigation, clickedIndex);
                 },
                 onNext: function(tab, navigation, index) {
-                    success.hide();
-                    error.hide();
+                    self.clearMsg();
 
                     if (form.valid() == false) {
                         return false;
@@ -156,8 +169,7 @@ Vue.component('wizard', {
                     handleTitle(tab, navigation, index);
                 },
                 onPrevious: function(tab, navigation, index) {
-                    success.hide();
-                    error.hide();
+                    self.clearMsg();
 
                     handleTitle(tab, navigation, index);
                 },
