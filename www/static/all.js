@@ -12367,7 +12367,16 @@ define('modules/components/wizard/actions/main', function(require, exports, modu
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"col-md-offset-3 col-md-9\">\r\n            <a href=\"javascript:;\" class=\"btn btn-default button-previous\">\r\n                <i class=\"m-icon-swapleft\"></i> 后退 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-info button-next\">\r\n                继续 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-success button-submit\">\r\n                提交 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
+      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"col-md-offset-3 col-md-9\">\r\n            <a href=\"javascript:;\" class=\"btn btn-default button-previous\" v-show=\"index > 0\">\r\n                <i class=\"m-icon-swapleft\"></i> 后退 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-info button-next\"  v-show=\"index < total-1\">\r\n                继续 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-success button-submit\" v-on:click=\"triggerSubmit\" v-else>\r\n                提交 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
+      props: {
+          index: Number,
+          total: Number
+      },
+      methods: {
+          triggerSubmit: function triggerSubmit() {
+              alert('Finished! Hope you like it :) 111');
+          }
+      },
       ready: function ready() {}
   });
 
@@ -12389,7 +12398,7 @@ define('modules/components/wizard/main', function(require, exports, module) {
   var WizardActions = require('modules/components/wizard/actions/main');
   
   Vue.component('wizard', {
-      template: "<div class=\"wizard\">\r\n    <portlet :title=\"title\" icon=\"reorder\" id=\"form_wizard_1\" bodycss=\"form\"> \r\n        <wizard-title slot=\"title\" :value=\"stepTitle\"></wizard-title>\r\n\r\n        <he-form id=\"submit_form\" inner=\"form-wizard\" actionscss=\"fluid\" horizontal>\r\n\r\n            <wizard-steps :index=\"stepIndex\" v-ref:steps></wizard-steps>\r\n            <wizard-progress></wizard-progress>\r\n\r\n            <wizard-tab-content>                        \r\n                \r\n                <wizard-tab-pane css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n                    <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                        <input type=\"text\" name=\"username\" v-model=\"username\">\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab2\" title=\"Provide your profile details\">           \r\n                    <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                        <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n                    </he-form-item> \r\n\r\n                    <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                        <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n                    <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                        <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n                    </he-form-item> \r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab4\" title=\"Confirm your account\">\r\n\r\n                    <h4 class=\"form-section\">Account</h4>\r\n                    <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{username}} </p>\r\n                    </he-form-item>     \r\n\r\n                    <h4 class=\"form-section\">Profile</h4>     \r\n                    <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{fullname}} </p>\r\n                    </he-form-item>     \r\n                    <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{remarks}} </p>\r\n                    </he-form-item>      \r\n\r\n                    <h4 class=\"form-section\">Billing</h4>\r\n                    <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{card_name}} </p>\r\n                    </he-form-item>      \r\n\r\n                </wizard-tab-pane>\r\n                \r\n            </wizard-tab-content>\r\n           \r\n            <wizard-actions slot=\"actions\"></wizard-actions>\r\n        </he-form>\r\n    </portlet>   \r\n</div>",
+      template: "<div class=\"wizard\">\r\n    <portlet :title=\"title\" icon=\"reorder\" id=\"form_wizard_1\" bodycss=\"form\"> \r\n        <wizard-title slot=\"title\" :value=\"stepTitle\"></wizard-title>\r\n\r\n        <he-form id=\"submit_form\" inner=\"form-wizard\" actionscss=\"fluid\" horizontal>\r\n\r\n            <wizard-steps :index=\"stepIndex\" v-ref:steps></wizard-steps>\r\n            <wizard-progress></wizard-progress>\r\n\r\n            <wizard-tab-content>                        \r\n                \r\n                <wizard-tab-pane css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n                    <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                        <input type=\"text\" name=\"username\" v-model=\"username\">\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab2\" title=\"Provide your profile details\">           \r\n                    <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                        <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n                    </he-form-item> \r\n\r\n                    <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                        <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n                    <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                        <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n                    </he-form-item> \r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab4\" title=\"Confirm your account\">\r\n\r\n                    <h4 class=\"form-section\">Account</h4>\r\n                    <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{username}} </p>\r\n                    </he-form-item>     \r\n\r\n                    <h4 class=\"form-section\">Profile</h4>     \r\n                    <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{fullname}} </p>\r\n                    </he-form-item>     \r\n                    <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{remarks}} </p>\r\n                    </he-form-item>      \r\n\r\n                    <h4 class=\"form-section\">Billing</h4>\r\n                    <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{card_name}} </p>\r\n                    </he-form-item>      \r\n\r\n                </wizard-tab-pane>\r\n                \r\n            </wizard-tab-content>\r\n           \r\n            <wizard-actions slot=\"actions\" :index=\"stepIndex\" :total=\"stepTotal\"></wizard-actions>\r\n        </he-form>\r\n    </portlet>   \r\n</div>",
       components: {
           WizardTitle: WizardTitle,
           WizardSteps: WizardSteps,
@@ -12509,31 +12518,8 @@ define('modules/components/wizard/main', function(require, exports, module) {
               });
   
               var handleTitle = function handleTitle(tab, navigation, index) {
-                  var total = self.stepTotal;
-                  var current = index + 1;
-                  // set wizard title
                   self.stepIndex = index;
-                  // set done steps
   
-                  // jQuery('li', $('#form_wizard_1')).removeClass("done");
-                  // var li_list = navigation.find('li');
-                  // for (var i = 0; i < index; i++) {
-                  //     jQuery(li_list[i]).addClass("done");
-                  // }
-  
-                  if (current == 1) {
-                      $('#form_wizard_1').find('.button-previous').hide();
-                  } else {
-                      $('#form_wizard_1').find('.button-previous').show();
-                  }
-  
-                  if (current >= total) {
-                      $('#form_wizard_1').find('.button-next').hide();
-                      $('#form_wizard_1').find('.button-submit').show();
-                  } else {
-                      $('#form_wizard_1').find('.button-next').show();
-                      $('#form_wizard_1').find('.button-submit').hide();
-                  }
                   App.scrollTo($('.page-title'));
               };
   
@@ -12574,11 +12560,6 @@ define('modules/components/wizard/main', function(require, exports, module) {
                       });
                   }
               });
-  
-              $('#form_wizard_1').find('.button-previous').hide();
-              $('#form_wizard_1 .button-submit').click(function () {
-                  alert('Finished! Hope you like it :)');
-              }).hide();
           }
       },
       ready: function ready() {
