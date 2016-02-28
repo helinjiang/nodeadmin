@@ -12,7 +12,10 @@ define('modules/components/tipalert/main', function(require, exports, module) {
               'default': 'danger' },
           //danger,info,success,warning
           msg: String,
-          hide: Boolean
+          hide: {
+              type: Boolean,
+              'default': true
+          }
       },
       methods: {
           show: function show(msg, type) {

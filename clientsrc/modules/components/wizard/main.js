@@ -174,12 +174,7 @@ Vue.component('wizard', {
                     handleTitle(tab, navigation, index);
                 },
                 onTabShow: function(tab, navigation, index) {
-                    var total = navigation.find('li').length;
-                    var current = index + 1;
-                    var $percent = (current / total) * 100;
-                    $('#form_wizard_1').find('.progress-bar').css({
-                        width: $percent + '%'
-                    });
+                    self.index = index;
                 }
             });
 

@@ -8,7 +8,10 @@ Vue.component('tip-alert', {
             'default': 'danger', //danger,info,success,warning
         },
         msg: String,
-        hide: Boolean
+        hide: {
+            type: Boolean,
+            'default': true,
+        }
     },
     methods: {
         show: function(msg, type) {
