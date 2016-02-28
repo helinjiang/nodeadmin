@@ -16,13 +16,13 @@ define('modules/common/menudata', function(require, exports, module) {
       }, {
           id: 'menuSystem',
           name: '系统管理',
-          icon: 'share',
+          icon: 'settings',
           active: false,
           children: [{
               id: 'menuUser',
               name: '用户管理',
               url: '/admin/user',
-              icon: 'anchor',
+              icon: 'users',
               active: false
           }, {
               id: 'menuCar',
@@ -32,10 +32,16 @@ define('modules/common/menudata', function(require, exports, module) {
               active: false
           }]
       }, {
+          id: 'menuProduce',
+          name: '代码生成器',
+          url: '/admin/produce',
+          icon: 'doc',
+          active: false
+      }, {
           id: 'menuTest',
           name: '测试专用',
           url: '/admin/test',
-          icon: 'pin',
+          icon: 'bag',
           active: false
       }
       // {
