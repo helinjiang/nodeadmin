@@ -97,11 +97,7 @@ Vue.component('wizard', {
                 }
             };
         },
-        init: function() {
-            if (!jQuery().bootstrapWizard) {
-                return;
-            }
-
+        handleValidator: function() {
             var self = this,
                 form = this.jqForm;
 
@@ -116,15 +112,9 @@ Vue.component('wizard', {
                 },
 
                 success: function(label) {
-                    if (label.attr("for") == "gender" || label.attr("for") == "payment[]") { // for checkboxes and radio buttons, no need to show OK icon
-                        label
-                            .closest('.form-group').removeClass('has-error').addClass('has-success');
-                        label.remove(); // remove error label here
-                    } else { // display success icon for other inputs
-                        label
-                            .addClass('valid') // mark the current input as valid and display OK icon
-                            .closest('.form-group').removeClass('has-error').addClass('has-success'); // set success class to the control group
-                    }
+                    label
+                        .addClass('valid') // mark the current input as valid and display OK icon
+                        .closest('.form-group').removeClass('has-error').addClass('has-success'); // set success class to the control group
                 },
 
                 submitHandler: function(form) {
@@ -132,12 +122,12 @@ Vue.component('wizard', {
                     //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
                 }
             });
-
-            // default form wizard
-            this._bootstrapWizard();
-
         },
-        _bootstrapWizard: function() {
+        handleWizard: function() {
+            if (!jQuery().bootstrapWizard) {
+                return;
+            }
+
             var self = this,
                 form = this.jqForm;
 
@@ -181,6 +171,11 @@ Vue.component('wizard', {
     },
     ready: function() {
         this.jqForm = $('form', this.$el);
-        this.init();
+
+        // 参数校验
+        this.handleValidator();
+
+        // default form wizard
+        this.handleWizard();
     }
 });

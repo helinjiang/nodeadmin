@@ -101,11 +101,7 @@ define('modules/components/wizard/main', function(require, exports, module) {
                   }
               };
           },
-          init: function init() {
-              if (!jQuery().bootstrapWizard) {
-                  return;
-              }
-  
+          handleValidator: function handleValidator() {
               var self = this,
                   form = this.jqForm;
   
@@ -121,15 +117,8 @@ define('modules/components/wizard/main', function(require, exports, module) {
                   },
   
                   success: function success(label) {
-                      if (label.attr("for") == "gender" || label.attr("for") == "payment[]") {
-                          // for checkboxes and radio buttons, no need to show OK icon
-                          label.closest('.form-group').removeClass('has-error').addClass('has-success');
-                          label.remove(); // remove error label here
-                      } else {
-                              // display success icon for other inputs
-                              label.addClass('valid') // mark the current input as valid and display OK icon
-                              .closest('.form-group').removeClass('has-error').addClass('has-success'); // set success class to the control group
-                          }
+                      label.addClass('valid') // mark the current input as valid and display OK icon
+                      .closest('.form-group').removeClass('has-error').addClass('has-success'); // set success class to the control group
                   },
   
                   submitHandler: function submitHandler(form) {
@@ -137,11 +126,12 @@ define('modules/components/wizard/main', function(require, exports, module) {
                       //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
                   }
               });
-  
-              // default form wizard
-              this._bootstrapWizard();
           },
-          _bootstrapWizard: function _bootstrapWizard() {
+          handleWizard: function handleWizard() {
+              if (!jQuery().bootstrapWizard) {
+                  return;
+              }
+  
               var self = this,
                   form = this.jqForm;
   
@@ -185,7 +175,12 @@ define('modules/components/wizard/main', function(require, exports, module) {
       },
       ready: function ready() {
           this.jqForm = $('form', this.$el);
-          this.init();
+  
+          // 参数校验
+          this.handleValidator();
+  
+          // default form wizard
+          this.handleWizard();
       }
   });
 
