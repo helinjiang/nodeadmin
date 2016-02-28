@@ -4,7 +4,7 @@
 
         <he-form id="submit_form" inner="form-wizard" actionscss="fluid" horizontal>
 
-            <wizard-steps :index="stepIndex" v-ref:steps></wizard-steps>
+            <wizard-steps :index="stepIndex" :items="stepItems"></wizard-steps>
             <wizard-progress :index="stepIndex" :total="stepTotal"></wizard-progress>
 
             <wizard-tab-content>            

@@ -4,24 +4,22 @@ module.exports = Vue.extend({
     template: __inline('main.html'),
     data: function() {
         return {
-            doneClass:'done',
-            items: [{
-                target: '#tab1',
-                title: 'Account Setup'
-            }, {
-                target: '#tab2',
-                title: 'Profile Setup'
-            }, {
-                target: '#tab3',
-                title: 'Billing Setup'
-            }, {
-                target: '#tab4',
-                title: 'Confirm'
-            }]
+            doneClass: 'done'
         };
     },
     props: {
-        index: Number
+        /**
+         * 当前是第几步，从0开始
+         */
+        index: Number,
+
+        /**
+         * 步骤的配置
+         */
+        items: {
+            type: Array,
+            required: true
+        }
     },
     methods: {
         getLength: function() {

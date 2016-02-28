@@ -25,7 +25,19 @@ Vue.component('wizard', {
         return {
             jqForm: undefined,
             stepIndex: 0,
-            stepTotal: 0,
+            stepItems: [{
+                target: '#tab1',
+                title: 'Account Setup'
+            }, {
+                target: '#tab2',
+                title: 'Profile Setup'
+            }, {
+                target: '#tab3',
+                title: 'Billing Setup'
+            }, {
+                target: '#tab4',
+                title: 'Confirm'
+            }],
             msgContent: '',
             msgType: '',
             msgHide: true,
@@ -36,6 +48,12 @@ Vue.component('wizard', {
         };
     },
     computed: {
+        /**
+         * 一共有几个步骤
+         */
+        stepTotal: function() {
+            return this.stepItems.length;
+        },
         /**
          * 在导航中显示的进度文字
          */
@@ -66,12 +84,8 @@ Vue.component('wizard', {
                 return;
             }
 
-            // 获得所有步骤数目
-            this.stepTotal = this.$refs.steps.getLength();
-
-            var self = this;
-
-            var form = this.jqForm;
+            var self = this,
+                form = this.jqForm;
 
             form.validate({
                 doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
