@@ -139,6 +139,13 @@ Vue.component('wizard', {
 
             });
 
+            // default form wizard
+            this._bootstrapWizard();
+
+        },
+        _bootstrapWizard: function() {
+            var self = this,
+                form = this.jqForm;
 
             var handleTitle = function(tab, navigation, index) {
                 self.stepIndex = index;
@@ -146,8 +153,7 @@ Vue.component('wizard', {
                 App.scrollTo($('.page-title'));
             }
 
-            // default form wizard
-            $('#form_wizard_1').bootstrapWizard({
+            $(this.$el).bootstrapWizard({
                 'nextSelector': '.button-next',
                 'previousSelector': '.button-previous',
                 onTabClick: function(tab, navigation, index, clickedIndex) {
@@ -177,7 +183,6 @@ Vue.component('wizard', {
                     self.index = index;
                 }
             });
-
         }
     },
     ready: function() {

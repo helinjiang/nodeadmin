@@ -12548,14 +12548,20 @@ define('modules/components/wizard/main', function(require, exports, module) {
   
               });
   
+              // default form wizard
+              this._bootstrapWizard();
+          },
+          _bootstrapWizard: function _bootstrapWizard() {
+              var self = this,
+                  form = this.jqForm;
+  
               var handleTitle = function handleTitle(tab, navigation, index) {
                   self.stepIndex = index;
   
                   App.scrollTo($('.page-title'));
               };
   
-              // default form wizard
-              $('#form_wizard_1').bootstrapWizard({
+              $(this.$el).bootstrapWizard({
                   'nextSelector': '.button-next',
                   'previousSelector': '.button-previous',
                   onTabClick: function onTabClick(tab, navigation, index, clickedIndex) {
