@@ -4,6 +4,7 @@ define('modules/components/wizard/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   var App = require('modules/common/app');
+  var Validator = require('modules/common/validator');
   
   var WizardTitle = require('modules/components/wizard/title/main');
   var WizardSteps = require('modules/components/wizard/steps/main');
@@ -83,6 +84,23 @@ define('modules/components/wizard/main', function(require, exports, module) {
           clearMsg: function clearMsg() {
               this.msgHide = true;
           },
+          getRulesOptions: function getRulesOptions() {
+              return {
+                  //account
+                  username: {
+                      minlength: 5,
+                      required: true
+                  },
+                  //profile
+                  fullname: {
+                      required: true
+                  },
+                  //payment
+                  card_name: {
+                      required: true
+                  }
+              };
+          },
           init: function init() {
               if (!jQuery().bootstrapWizard) {
                   return;
@@ -91,55 +109,15 @@ define('modules/components/wizard/main', function(require, exports, module) {
               var self = this,
                   form = this.jqForm;
   
-              form.validate({
+              Validator.check(this.jqForm, this.getRulesOptions(), {
                   doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
-                  errorElement: 'span', //default input error message container
-                  errorClass: 'help-block', // default input error message class
-                  focusInvalid: false, // do not focus the last invalid input
-                  rules: {
-                      //account
-                      username: {
-                          minlength: 5,
-                          required: true
-                      },
-                      //profile
-                      fullname: {
-                          required: true
-                      },
-                      //payment
-                      card_name: {
-                          required: true
-                      }
-                  },
-  
-                  errorPlacement: function errorPlacement(error, element) {
-                      // render error placement for each input type
-                      if (element.attr("name") == "gender") {
-                          // for uniform radio buttons, insert the after the given container
-                          error.insertAfter("#form_gender_error");
-                      } else if (element.attr("name") == "payment[]") {
-                          // for uniform radio buttons, insert the after the given container
-                          error.insertAfter("#form_payment_error");
-                      } else {
-                          error.insertAfter(element); // for other inputs, just perform default behavior
-                      }
-                  },
+                  ignore: ':hidden',
   
                   invalidHandler: function invalidHandler(event, validator) {
                       //display error alert on form submit  
                       self.showError(MSG_ERROR);
   
                       App.scrollTo($('.alert-danger', form), -200);
-                  },
-  
-                  highlight: function highlight(element) {
-                      // hightlight error inputs
-                      $(element).closest('.form-group').removeClass('has-success').addClass('has-error'); // set error class to the control group
-                  },
-  
-                  unhighlight: function unhighlight(element) {
-                      // revert the change done by hightlight
-                      $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
                   },
   
                   success: function success(label) {
@@ -158,7 +136,6 @@ define('modules/components/wizard/main', function(require, exports, module) {
                       self.showSuccess(MSG_SUCCESS);
                       //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
                   }
-  
               });
   
               // default form wizard

@@ -20,7 +20,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
               this.birthday = '2015-12-12';
               this.state = '1';
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   name: {
                       required: {

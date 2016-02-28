@@ -21,7 +21,7 @@ define('modules/car_index/add/main', function(require, exports, module) {
   
               this.$refs.user.init();
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   name: {
                       required: {

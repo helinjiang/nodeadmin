@@ -4,7 +4,7 @@ define('modules/common/crud', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  var validator = require('modules/common/validator');
+  var Validator = require('modules/common/validator');
   var Msg = require('modules/components/msg/main');
   
   /**
@@ -24,7 +24,7 @@ define('modules/common/crud', function(require, exports, module) {
            */
           beforeShowModal: function beforeShowModal(data) {},
   
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               return {};
           },
   
@@ -68,7 +68,7 @@ define('modules/common/crud', function(require, exports, module) {
           handleValidator: function handleValidator() {
               var self = this;
   
-              validator.check(this.jqForm, this.getValidatorConfig(), {
+              Validator.check(this.jqForm, this.getRulesOptions(), {
                   submitHandler: function submitHandler(form) {
                       $(form).ajaxSubmit({
                           success: function success(responseText, statusText) {

@@ -24,7 +24,7 @@ module.exports = CommonCrud.extend({
 
             this.$refs.user.init();
         },
-        getValidatorConfig: function() {
+        getRulesOptions: function() {
             var config = {
                 ownerId: {
                     required: {

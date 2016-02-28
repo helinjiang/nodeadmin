@@ -7,151 +7,175 @@ define('modules/common/validator', function(require, exports, module) {
    * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
    * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
    * 也可以两者同时使用。
-   *
-      username: {
-          required: {
-              rule: true,
-              message: '用户名不能为空！'
-          },
-          minlength: {
-              rule: 2,
-              message: '最小长度为2'
-          },
-          maxlength: {
-              rule: 6,
-              message: '最大长度为6'
-          }
-      }
    */
   
-  /**
-   * 校验form，支持validatorConfig集中配置，也支持在input中进行配置
-   * @param  {[type]}   $form       [description]
-   * @param  {[type]}   validatorConfig [description]
-   * @param  {[type]}   handler     [description]
-   * @return {[type]}               [description]
-   * @author helinjiang
-   * @date   2016-01-17
-   */
+  // http://jqueryvalidation.org/category/plugin/
   'use strict';
   
-  function check($form, validatorConfig, handler) {
-      if (!$form.length) {
+  var defaultOptions = {
+      errorElement: 'span', //default input error message container
+      errorClass: 'help-block', // default input error message class
+      focusInvalid: false, // do not focus the last invalid input
+      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+  
+      /**
+       * hightlight error inputs  
+       * @param  {object}   element Dom元素input
+       */
+      highlight: function highlight(element) {
+          // set error class to the control group
+          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+      },
+  
+      /**
+       * revert the change done by hightlight
+       * @param  {object}   element Dom元素input
+       */
+      unhighlight: function unhighlight(element) {
+          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
+      },
+  
+      /**
+       * display error alert on form submit   
+       * @param  {[type]}   event     [description]
+       * @param  {[type]}   validator [description]
+       */
+      // invalidHandler: function(event, validator) {
+      // },
+  
+      success: function success(label) {
+          label.closest('.form-group').removeClass('has-error');
+          label.remove();
+      },
+  
+      /**
+       * render error placement for each input type
+       * @param  {object}   error   Dom元素
+       * @param  {object}   element [description]
+       */
+      errorPlacement: function errorPlacement(error, element) {
+          var errwrap = element.closest('.errwrap');
+          if (errwrap.length) {
+              error.appendTo(element.closest('.errwrap'));
+          } else {
+              // 默认，element为input元素
+              error.insertAfter(element);
+          }
+      },
+  
+      /**
+       * 提交操作
+       * @param  {object}   form Dom元素
+       * @author helinjiang
+       * @date   2016-02-28
+       */
+      submitHandler: function submitHandler(form) {
+          // 默认是提交表单，如果是ajax提交，则请覆盖之
+          form.submit();
+      }
+  };
+  
+  /**
+   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
+   * @param  {object}   jqForm       form的jQuery对象
+   * @param  {object}   rulesOptions 校验对象定义
+   * @param  {object}   validatorOptions     validator的配置参数
+   * @param  {object}   handler     自定义的一些处理方法
+   */
+  function check(jqForm, rulesOptions, validatorOptions, handler) {
+      if (!jqForm.length || typeof rulesOptions !== "object") {
           return;
       }
   
-      // 处理handler
-      // var handler = {
-      //     invalidHandler: function(event, validator) { },
-      //     submitHandler: function(form) { }
-      // }
+      if (typeof validatorOptions !== "object") {
+          validatorOptions = {};
+      }
   
-      var validateConfig = {
-          errorElement: 'span', //default input error message container
-          errorClass: 'help-block', // default input error message class
-          focusInvalid: false, // do not focus the last invalid input
-          ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+      if (typeof handler !== "object") {
+          handler = {};
+      }
   
-          invalidHandler: function invalidHandler(event, validator) {
-              //display error alert on form submit  
-              if (handler && handler.invalidHandler) {
-                  handler.invalidHandler(event, validator);
-              }
-          },
+      // 从 rulesOptions 中获得 rules 和 messages
+      var rulesAndMessages = getRulesAndMessages(rulesOptions);
   
-          highlight: function highlight(element) {
-              // hightlight error inputs
-              $(element).closest('.form-group').addClass('has-error'); // set error class to the control group
-          },
+      // 获得options
+      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
   
-          success: function success(label) {
-              label.closest('.form-group').removeClass('has-error');
-              label.remove();
-          },
+      // 如果还有 handler，相对于钩子，则再追加操作。
   
-          errorPlacement: function errorPlacement(error, element) {
-              error.appendTo(element.closest('.errwrap'));
-          },
+      jqForm.validate(options);
+  }
   
-          submitHandler: function submitHandler(form) {
-              if (handler && handler.submitHandler) {
-                  handler.submitHandler(form);
-              } else {
-                  form.submit();
-              }
-          }
-      };
+  function getRulesAndMessages(rulesOptions) {
+      if ($.isEmptyObject(rulesOptions)) {
+          return {};
+      }
   
-      // 处理validatorConfig
-      // var validatorConfig = {
-      //     username: {
-      //         required: {
-      //             rule: true,
-      //             message: '用户名不能为空！'
-      //         },
-      //         minlength: {
-      //             rule: 2,
-      //             message: '最小长度为2'
-      //         },
-      //         maxlength: {
-      //             rule: 6,
-      //             // message: '最大长度为6'
-      //         }
+      // username: {
+      //     required: {
+      //         rule: true,
+      //         message: '用户名不能为空！'
+      //     },
+      //     minlength: {
+      //         rule: 2,
+      //         message: '最小长度为2'
+      //     },
+      //     maxlength: {
+      //         rule: 6,
+      //         message: '最大长度为6'
       //     }
       // }
-      if (!$.isEmptyObject(validatorConfig)) {
-          var rules = {},
-              messages = {};
   
-          for (var k in validatorConfig) {
-              // k=username
-              if (validatorConfig.hasOwnProperty(k)) {
-                  var v = validatorConfig[k];
-                  for (var vk in v) {
-                      // vk=required
-                      // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
-                      var vv = v[vk];
+      var options = {},
+          rules = {},
+          messages = {};
   
-                      if (typeof vv === 'object') {
-                          // 如果校验器对应的值不是对象，则要解析其中的rule和message
-                          // 校验器的传值 rule
-                          if (vv.rule) {
-                              if (!rules[k]) {
-                                  rules[k] = {};
-                              }
-                              rules[k][vk] = vv.rule;
-                          }
+      for (var k in rulesOptions) {
+          // k=username
+          if (rulesOptions.hasOwnProperty(k)) {
+              var v = rulesOptions[k];
+              for (var vk in v) {
+                  // vk=required
+                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
+                  var vv = v[vk];
   
-                          // 校验器失败之后的提示 message
-                          if (vv.message) {
-                              if (!messages[k]) {
-                                  messages[k] = {};
-                              }
-                              messages[k][vk] = vv.message;
-                          }
-                      } else {
-                          // 如果校验器对应的值不是对象，则将其当作 rule
+                  if (typeof vv === 'object') {
+                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
+                      // 校验器的传值 rule
+                      if (vv.rule) {
                           if (!rules[k]) {
                               rules[k] = {};
                           }
-                          rules[k][vk] = vv;
+                          rules[k][vk] = vv.rule;
                       }
+  
+                      // 校验器失败之后的提示 message
+                      if (vv.message) {
+                          if (!messages[k]) {
+                              messages[k] = {};
+                          }
+                          messages[k][vk] = vv.message;
+                      }
+                  } else {
+                      // 如果校验器对应的值不是对象，则将其当作 rule
+                      if (!rules[k]) {
+                          rules[k] = {};
+                      }
+                      rules[k][vk] = vv;
                   }
               }
           }
-  
-          if (!$.isEmptyObject(rules)) {
-              validateConfig.rules = rules;
-          }
-  
-          if (!$.isEmptyObject(messages)) {
-              validateConfig.messages = messages;
-          }
       }
   
-      // console.log(validateConfig);
+      if (!$.isEmptyObject(rules)) {
+          options.rules = rules;
+      }
   
-      $form.validate(validateConfig);
+      if (!$.isEmptyObject(messages)) {
+          options.messages = messages;
+      }
+  
+      return options;
   }
   
   /**

@@ -1,4 +1,4 @@
-<div class="form-group" :class="{ 'errwrap': horizontal }">
+<div class="form-group" :class="{ 'errwrap': !horizontal }">
     <template v-if="horizontal">
         <label class="col-md-{{colLeft}} control-label">{{ title }} <span class="required" v-if="required"> * </span></label>
         <div class="col-md-{{colRight}} errwrap">

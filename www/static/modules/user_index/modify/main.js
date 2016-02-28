@@ -24,7 +24,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
               this.state = data.state;
               this.birthday = data.birthday;
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   name: {
                       required: {

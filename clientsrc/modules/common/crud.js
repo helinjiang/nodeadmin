@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 
-var validator = require('common/validator');
+var Validator = require('common/validator');
 var Msg = require('components/msg/main');
 
 /**
@@ -22,7 +22,7 @@ var commonOptions = {
 
         },
 
-        getValidatorConfig: function() {
+        getRulesOptions: function() {
             return {};
         },
 
@@ -66,7 +66,7 @@ var commonOptions = {
         handleValidator: function() {
             var self = this;
 
-            validator.check(this.jqForm, this.getValidatorConfig(), {
+            Validator.check(this.jqForm, this.getRulesOptions(), {
                 submitHandler: function(form) {
                     $(form).ajaxSubmit({
                         success: function(responseText, statusText) {
@@ -82,7 +82,6 @@ var commonOptions = {
                             }
                         }
                     });
-
                 }
             });
         },

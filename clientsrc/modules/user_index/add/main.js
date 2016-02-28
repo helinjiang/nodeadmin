@@ -16,7 +16,7 @@ module.exports = CommonCrud.extend({
             this.birthday = '2015-12-12';
             this.state = '1';
         },
-        getValidatorConfig: function() {
+        getRulesOptions: function() {
             var config = {
                 name: {
                     required: {

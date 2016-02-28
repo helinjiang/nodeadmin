@@ -9448,151 +9448,175 @@ define('modules/common/validator', function(require, exports, module) {
    * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
    * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
    * 也可以两者同时使用。
-   *
-      username: {
-          required: {
-              rule: true,
-              message: '用户名不能为空！'
-          },
-          minlength: {
-              rule: 2,
-              message: '最小长度为2'
-          },
-          maxlength: {
-              rule: 6,
-              message: '最大长度为6'
-          }
-      }
    */
   
-  /**
-   * 校验form，支持validatorConfig集中配置，也支持在input中进行配置
-   * @param  {[type]}   $form       [description]
-   * @param  {[type]}   validatorConfig [description]
-   * @param  {[type]}   handler     [description]
-   * @return {[type]}               [description]
-   * @author helinjiang
-   * @date   2016-01-17
-   */
+  // http://jqueryvalidation.org/category/plugin/
   'use strict';
   
-  function check($form, validatorConfig, handler) {
-      if (!$form.length) {
+  var defaultOptions = {
+      errorElement: 'span', //default input error message container
+      errorClass: 'help-block', // default input error message class
+      focusInvalid: false, // do not focus the last invalid input
+      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+  
+      /**
+       * hightlight error inputs  
+       * @param  {object}   element Dom元素input
+       */
+      highlight: function highlight(element) {
+          // set error class to the control group
+          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+      },
+  
+      /**
+       * revert the change done by hightlight
+       * @param  {object}   element Dom元素input
+       */
+      unhighlight: function unhighlight(element) {
+          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
+      },
+  
+      /**
+       * display error alert on form submit   
+       * @param  {[type]}   event     [description]
+       * @param  {[type]}   validator [description]
+       */
+      // invalidHandler: function(event, validator) {
+      // },
+  
+      success: function success(label) {
+          label.closest('.form-group').removeClass('has-error');
+          label.remove();
+      },
+  
+      /**
+       * render error placement for each input type
+       * @param  {object}   error   Dom元素
+       * @param  {object}   element [description]
+       */
+      errorPlacement: function errorPlacement(error, element) {
+          var errwrap = element.closest('.errwrap');
+          if (errwrap.length) {
+              error.appendTo(element.closest('.errwrap'));
+          } else {
+              // 默认，element为input元素
+              error.insertAfter(element);
+          }
+      },
+  
+      /**
+       * 提交操作
+       * @param  {object}   form Dom元素
+       * @author helinjiang
+       * @date   2016-02-28
+       */
+      submitHandler: function submitHandler(form) {
+          // 默认是提交表单，如果是ajax提交，则请覆盖之
+          form.submit();
+      }
+  };
+  
+  /**
+   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
+   * @param  {object}   jqForm       form的jQuery对象
+   * @param  {object}   rulesOptions 校验对象定义
+   * @param  {object}   validatorOptions     validator的配置参数
+   * @param  {object}   handler     自定义的一些处理方法
+   */
+  function check(jqForm, rulesOptions, validatorOptions, handler) {
+      if (!jqForm.length || typeof rulesOptions !== "object") {
           return;
       }
   
-      // 处理handler
-      // var handler = {
-      //     invalidHandler: function(event, validator) { },
-      //     submitHandler: function(form) { }
-      // }
+      if (typeof validatorOptions !== "object") {
+          validatorOptions = {};
+      }
   
-      var validateConfig = {
-          errorElement: 'span', //default input error message container
-          errorClass: 'help-block', // default input error message class
-          focusInvalid: false, // do not focus the last invalid input
-          ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+      if (typeof handler !== "object") {
+          handler = {};
+      }
   
-          invalidHandler: function invalidHandler(event, validator) {
-              //display error alert on form submit  
-              if (handler && handler.invalidHandler) {
-                  handler.invalidHandler(event, validator);
-              }
-          },
+      // 从 rulesOptions 中获得 rules 和 messages
+      var rulesAndMessages = getRulesAndMessages(rulesOptions);
   
-          highlight: function highlight(element) {
-              // hightlight error inputs
-              $(element).closest('.form-group').addClass('has-error'); // set error class to the control group
-          },
+      // 获得options
+      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
   
-          success: function success(label) {
-              label.closest('.form-group').removeClass('has-error');
-              label.remove();
-          },
+      // 如果还有 handler，相对于钩子，则再追加操作。
   
-          errorPlacement: function errorPlacement(error, element) {
-              error.appendTo(element.closest('.errwrap'));
-          },
+      jqForm.validate(options);
+  }
   
-          submitHandler: function submitHandler(form) {
-              if (handler && handler.submitHandler) {
-                  handler.submitHandler(form);
-              } else {
-                  form.submit();
-              }
-          }
-      };
+  function getRulesAndMessages(rulesOptions) {
+      if ($.isEmptyObject(rulesOptions)) {
+          return {};
+      }
   
-      // 处理validatorConfig
-      // var validatorConfig = {
-      //     username: {
-      //         required: {
-      //             rule: true,
-      //             message: '用户名不能为空！'
-      //         },
-      //         minlength: {
-      //             rule: 2,
-      //             message: '最小长度为2'
-      //         },
-      //         maxlength: {
-      //             rule: 6,
-      //             // message: '最大长度为6'
-      //         }
+      // username: {
+      //     required: {
+      //         rule: true,
+      //         message: '用户名不能为空！'
+      //     },
+      //     minlength: {
+      //         rule: 2,
+      //         message: '最小长度为2'
+      //     },
+      //     maxlength: {
+      //         rule: 6,
+      //         message: '最大长度为6'
       //     }
       // }
-      if (!$.isEmptyObject(validatorConfig)) {
-          var rules = {},
-              messages = {};
   
-          for (var k in validatorConfig) {
-              // k=username
-              if (validatorConfig.hasOwnProperty(k)) {
-                  var v = validatorConfig[k];
-                  for (var vk in v) {
-                      // vk=required
-                      // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
-                      var vv = v[vk];
+      var options = {},
+          rules = {},
+          messages = {};
   
-                      if (typeof vv === 'object') {
-                          // 如果校验器对应的值不是对象，则要解析其中的rule和message
-                          // 校验器的传值 rule
-                          if (vv.rule) {
-                              if (!rules[k]) {
-                                  rules[k] = {};
-                              }
-                              rules[k][vk] = vv.rule;
-                          }
+      for (var k in rulesOptions) {
+          // k=username
+          if (rulesOptions.hasOwnProperty(k)) {
+              var v = rulesOptions[k];
+              for (var vk in v) {
+                  // vk=required
+                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
+                  var vv = v[vk];
   
-                          // 校验器失败之后的提示 message
-                          if (vv.message) {
-                              if (!messages[k]) {
-                                  messages[k] = {};
-                              }
-                              messages[k][vk] = vv.message;
-                          }
-                      } else {
-                          // 如果校验器对应的值不是对象，则将其当作 rule
+                  if (typeof vv === 'object') {
+                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
+                      // 校验器的传值 rule
+                      if (vv.rule) {
                           if (!rules[k]) {
                               rules[k] = {};
                           }
-                          rules[k][vk] = vv;
+                          rules[k][vk] = vv.rule;
                       }
+  
+                      // 校验器失败之后的提示 message
+                      if (vv.message) {
+                          if (!messages[k]) {
+                              messages[k] = {};
+                          }
+                          messages[k][vk] = vv.message;
+                      }
+                  } else {
+                      // 如果校验器对应的值不是对象，则将其当作 rule
+                      if (!rules[k]) {
+                          rules[k] = {};
+                      }
+                      rules[k][vk] = vv;
                   }
               }
           }
-  
-          if (!$.isEmptyObject(rules)) {
-              validateConfig.rules = rules;
-          }
-  
-          if (!$.isEmptyObject(messages)) {
-              validateConfig.messages = messages;
-          }
       }
   
-      // console.log(validateConfig);
+      if (!$.isEmptyObject(rules)) {
+          options.rules = rules;
+      }
   
-      $form.validate(validateConfig);
+      if (!$.isEmptyObject(messages)) {
+          options.messages = messages;
+      }
+  
+      return options;
   }
   
   /**
@@ -9672,7 +9696,7 @@ define('modules/common/crud', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   
-  var validator = require('modules/common/validator');
+  var Validator = require('modules/common/validator');
   var Msg = require('modules/components/msg/main');
   
   /**
@@ -9692,7 +9716,7 @@ define('modules/common/crud', function(require, exports, module) {
            */
           beforeShowModal: function beforeShowModal(data) {},
   
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               return {};
           },
   
@@ -9736,7 +9760,7 @@ define('modules/common/crud', function(require, exports, module) {
           handleValidator: function handleValidator() {
               var self = this;
   
-              validator.check(this.jqForm, this.getValidatorConfig(), {
+              Validator.check(this.jqForm, this.getRulesOptions(), {
                   submitHandler: function submitHandler(form) {
                       $(form).ajaxSubmit({
                           success: function success(responseText, statusText) {
@@ -9881,7 +9905,7 @@ define('modules/car_index/add/main', function(require, exports, module) {
   
               this.$refs.user.init();
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   name: {
                       required: {
@@ -10089,7 +10113,7 @@ define('modules/car_index/modify/main', function(require, exports, module) {
   
               this.$refs.user.init();
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   ownerId: {
                       required: {
@@ -11449,7 +11473,7 @@ define('modules/components/heformitem/main', function(require, exports, module) 
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-form-item', {
-      template: "<div class=\"form-group\" :class=\"{ 'errwrap': horizontal }\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }} <span class=\"required\" v-if=\"required\"> * </span></label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n            <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n        <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n    </template>\r\n</div>",
+      template: "<div class=\"form-group\" :class=\"{ 'errwrap': !horizontal }\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }} <span class=\"required\" v-if=\"required\"> * </span></label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n            <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n        <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n    </template>\r\n</div>",
       props: {
           /**
            * 
@@ -12403,6 +12427,7 @@ define('modules/components/wizard/main', function(require, exports, module) {
   
   var Vue = require('modules/lib/vue');
   var App = require('modules/common/app');
+  var Validator = require('modules/common/validator');
   
   var WizardTitle = require('modules/components/wizard/title/main');
   var WizardSteps = require('modules/components/wizard/steps/main');
@@ -12482,6 +12507,23 @@ define('modules/components/wizard/main', function(require, exports, module) {
           clearMsg: function clearMsg() {
               this.msgHide = true;
           },
+          getRulesOptions: function getRulesOptions() {
+              return {
+                  //account
+                  username: {
+                      minlength: 5,
+                      required: true
+                  },
+                  //profile
+                  fullname: {
+                      required: true
+                  },
+                  //payment
+                  card_name: {
+                      required: true
+                  }
+              };
+          },
           init: function init() {
               if (!jQuery().bootstrapWizard) {
                   return;
@@ -12490,55 +12532,15 @@ define('modules/components/wizard/main', function(require, exports, module) {
               var self = this,
                   form = this.jqForm;
   
-              form.validate({
+              Validator.check(this.jqForm, this.getRulesOptions(), {
                   doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
-                  errorElement: 'span', //default input error message container
-                  errorClass: 'help-block', // default input error message class
-                  focusInvalid: false, // do not focus the last invalid input
-                  rules: {
-                      //account
-                      username: {
-                          minlength: 5,
-                          required: true
-                      },
-                      //profile
-                      fullname: {
-                          required: true
-                      },
-                      //payment
-                      card_name: {
-                          required: true
-                      }
-                  },
-  
-                  errorPlacement: function errorPlacement(error, element) {
-                      // render error placement for each input type
-                      if (element.attr("name") == "gender") {
-                          // for uniform radio buttons, insert the after the given container
-                          error.insertAfter("#form_gender_error");
-                      } else if (element.attr("name") == "payment[]") {
-                          // for uniform radio buttons, insert the after the given container
-                          error.insertAfter("#form_payment_error");
-                      } else {
-                          error.insertAfter(element); // for other inputs, just perform default behavior
-                      }
-                  },
+                  ignore: ':hidden',
   
                   invalidHandler: function invalidHandler(event, validator) {
                       //display error alert on form submit  
                       self.showError(MSG_ERROR);
   
                       App.scrollTo($('.alert-danger', form), -200);
-                  },
-  
-                  highlight: function highlight(element) {
-                      // hightlight error inputs
-                      $(element).closest('.form-group').removeClass('has-success').addClass('has-error'); // set error class to the control group
-                  },
-  
-                  unhighlight: function unhighlight(element) {
-                      // revert the change done by hightlight
-                      $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
                   },
   
                   success: function success(label) {
@@ -12557,7 +12559,6 @@ define('modules/components/wizard/main', function(require, exports, module) {
                       self.showSuccess(MSG_SUCCESS);
                       //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
                   }
-  
               });
   
               // default form wizard
@@ -15410,7 +15411,7 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   
   var Vue = require('modules/lib/vue');
   
-  var validator = require('modules/common/validator');
+  var Validator = require('modules/common/validator');
   var Msg = require('modules/components/msg/main');
   var Loading = require('modules/components/loading/main');
   
@@ -15421,77 +15422,75 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
               jqForm: undefined
           };
       },
-      ready: function ready() {
-          this.jqForm = $(this.$el);
-  
-          _init(this);
-      }
-  });
-  
-  function _init(vm) {
-      $(function () {
-  
-          handleValidator(vm);
-  
-          handleEnter(vm);
-      });
-  }
-  
-  function handleValidator(vm) {
-      validator.check(vm.jqForm, {
-          username: {
-              required: {
-                  rule: true,
-                  message: '用户名不能为空！'
-              }
-          },
-          password: {
-              required: {
-                  rule: true,
-                  message: '密码不能为空！'
-              },
-              minlength: {
-                  rule: 3,
-                  message: '最小长度为3'
-              }
-          }
-      }, {
-          submitHandler: function submitHandler(form) {
-              // http://malsup.com/jquery/form/
-              $(form).ajaxSubmit({
-                  success: function success(responseText, statusText) {
-                      if (statusText !== 'success' || responseText.errno !== 0) {
-                          Msg.error('登录失败，请输入正确的用户名和密码！');
-                      } else {
-                          Loading.show('登录成功，正在跳转...');
-  
-                          // 跳转到主页面
-                          window.location.href = '/admin/';
+      methods: {
+          getRulesOptions: function getRulesOptions() {
+              return {
+                  username: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
                       }
                   },
-                  error: function error(err) {
-                      // {readyState: 4, responseText: "{"errno":500,"errmsg":"Connection refused, mysql:/…thinkjs.org/doc/error_message.html#econnrefused"}", responseJSON: Object, status: 500, statusText: "Internal Server Error"}
-                      if (err.status === 500) {
-                          Msg.error('内部错误，请联系管理员！');
-                      } else {
-                          Msg.error('登录失败！');
+                  password: {
+                      required: {
+                          rule: true,
+                          message: '密码不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
                       }
+                  }
+              };
+          },
+  
+          handleValidator: function handleValidator() {
+              Validator.check(this.jqForm, this.getRulesOptions(), {
+                  submitHandler: function submitHandler(form) {
+                      // http://malsup.com/jquery/form/
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              if (statusText !== 'success' || responseText.errno !== 0) {
+                                  Msg.error('登录失败，请输入正确的用户名和密码！');
+                              } else {
+                                  Loading.show('登录成功，正在跳转...');
+  
+                                  // 跳转到主页面
+                                  window.location.href = '/admin/';
+                              }
+                          },
+                          error: function error(err) {
+                              // {readyState: 4, responseText: "{"errno":500,"errmsg":"Connection refused, mysql:/…thinkjs.org/doc/error_message.html#econnrefused"}", responseJSON: Object, status: 500, statusText: "Internal Server Error"}
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('登录失败！');
+                              }
+                          }
+                      });
+                  }
+              });
+          },
+  
+          handleEnter: function handleEnter() {
+              $('input', vm.jqForm).keypress(function (e) {
+                  if (e.which == 13) {
+                      if (vm.jqForm.validate().form()) {
+                          vm.jqForm.submit();
+                      }
+                      return false;
                   }
               });
           }
-      });
-  }
+      },
+      ready: function ready() {
+          this.jqForm = $(this.$el);
   
-  function handleEnter(vm) {
-      $('input', vm.jqForm).keypress(function (e) {
-          if (e.which == 13) {
-              if (vm.jqForm.validate().form()) {
-                  vm.jqForm.submit();
-              }
-              return false;
-          }
-      });
-  }
+          this.handleValidator();
+  
+          this.handleEnter();
+      }
+  });
 
 });
 
@@ -15597,7 +15596,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
               this.birthday = '2015-12-12';
               this.state = '1';
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   name: {
                       required: {
@@ -15772,7 +15771,7 @@ define('modules/user_index/modify/main', function(require, exports, module) {
               this.state = data.state;
               this.birthday = data.birthday;
           },
-          getValidatorConfig: function getValidatorConfig() {
+          getRulesOptions: function getRulesOptions() {
               var config = {
                   name: {
                       required: {
