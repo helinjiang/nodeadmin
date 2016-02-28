@@ -8,16 +8,16 @@ module.exports = Vue.extend({
             fullname: '',
             remarks: '',
             card_name: '',
-            title: 'TEST Form Wizard ',
+            title: '代码生成器',
             stepItems: [{
                 target: '#tab1',
-                title: 'Account Setup'
+                title: '数据库配置'
             }, {
                 target: '#tab2',
-                title: 'Profile Setup'
+                title: '列表页'
             }, {
                 target: '#tab3',
-                title: 'Billing Setup'
+                title: '新增页'
             }, {
                 target: '#tab4',
                 title: 'Confirm'
