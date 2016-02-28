@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 
-module.exports = Vue.extend({
+Vue.component('wizard-item', {
     template: __inline('main.html'),
     props: {
         'id': String,

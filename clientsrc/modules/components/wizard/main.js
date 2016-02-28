@@ -5,7 +5,6 @@ var Validator = require('common/validator');
 var WizardTitle = require('./title/main');
 var WizardSteps = require('./steps/main');
 var WizardProgress = require('./progress/main');
-var WizardTabPane = require('./tabpane/main');
 var WizardTabContent = require('./tabcontent/main');
 var WizardActions = require('./actions/main');
 
@@ -18,7 +17,6 @@ Vue.component('wizard', {
         WizardTitle,
         WizardSteps,
         WizardProgress,
-        WizardTabPane,
         WizardTabContent,
         WizardActions
     },
@@ -26,26 +24,9 @@ Vue.component('wizard', {
         return {
             jqForm: undefined,
             stepIndex: 0,
-            stepItems: [{
-                target: '#tab1',
-                title: 'Account Setup'
-            }, {
-                target: '#tab2',
-                title: 'Profile Setup'
-            }, {
-                target: '#tab3',
-                title: 'Billing Setup'
-            }, {
-                target: '#tab4',
-                title: 'Confirm'
-            }],
             msgContent: '',
             msgType: '',
-            msgHide: true,
-            username: '',
-            fullname: '',
-            remarks: '',
-            card_name: '',
+            msgHide: true
         };
     },
     computed: {
@@ -63,8 +44,12 @@ Vue.component('wizard', {
         }
     },
     props: {
-        'title': String,
-        'icon': String,
+        title: String,
+        stepItems: {
+            type: Array,
+            required: true
+        },
+        rulesOptions: Object
     },
     methods: {
         showError: function(msg) {
@@ -79,29 +64,12 @@ Vue.component('wizard', {
         },
         clearMsg: function() {
             this.msgHide = true;
-        },
-        getRulesOptions: function() {
-            return {
-                //account
-                username: {
-                    minlength: 5,
-                    required: true
-                },
-                //profile
-                fullname: {
-                    required: true
-                },
-                //payment
-                card_name: {
-                    required: true
-                }
-            };
-        },
+        },       
         handleValidator: function() {
             var self = this,
                 form = this.jqForm;
 
-            Validator.check(this.jqForm, this.getRulesOptions(), {
+            Validator.check(this.jqForm, this.rulesOptions, {
                 doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
                 ignore: ':hidden',
 

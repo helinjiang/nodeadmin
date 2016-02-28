@@ -12283,6 +12283,25 @@ define('modules/components/portlet/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/components/wizard/item/main.js*/
+define('modules/components/wizard/item/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('wizard-item', {
+      template: "<div class=\"tab-pane\" :class=\"css\" :id=\"id\">\r\n    <h3 class=\"block\" v-text=\"title\"></h3>\r\n    <slot></slot>\r\n</div>\r\n",
+      props: {
+          'id': String,
+          'css': String,
+          'title': String
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/components/wizard/title/main.js*/
 define('modules/components/wizard/title/main', function(require, exports, module) {
 
@@ -12364,25 +12383,6 @@ define('modules/components/wizard/progress/main', function(require, exports, mod
 
 });
 
-;/*!/modules/components/wizard/tabpane/main.js*/
-define('modules/components/wizard/tabpane/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"tab-pane\" :class=\"css\" :id=\"id\">\r\n    <h3 class=\"block\" v-text=\"title\"></h3>\r\n    <slot></slot>\r\n</div>\r\n",
-      props: {
-          'id': String,
-          'css': String,
-          'title': String
-      },
-      ready: function ready() {}
-  });
-
-});
-
 ;/*!/modules/components/wizard/tabcontent/main.js*/
 define('modules/components/wizard/tabcontent/main', function(require, exports, module) {
 
@@ -12432,7 +12432,6 @@ define('modules/components/wizard/main', function(require, exports, module) {
   var WizardTitle = require('modules/components/wizard/title/main');
   var WizardSteps = require('modules/components/wizard/steps/main');
   var WizardProgress = require('modules/components/wizard/progress/main');
-  var WizardTabPane = require('modules/components/wizard/tabpane/main');
   var WizardTabContent = require('modules/components/wizard/tabcontent/main');
   var WizardActions = require('modules/components/wizard/actions/main');
   
@@ -12440,12 +12439,11 @@ define('modules/components/wizard/main', function(require, exports, module) {
   var MSG_ERROR = 'TEST: You have some form errors. Please check below.';
   
   Vue.component('wizard', {
-      template: "<div class=\"wizard\">\r\n    <portlet :title=\"title\" icon=\"reorder\" id=\"form_wizard_1\" bodycss=\"form\"> \r\n        <wizard-title slot=\"title\" :value=\"stepTitle\"></wizard-title>\r\n\r\n        <he-form id=\"submit_form\" inner=\"form-wizard\" actionscss=\"fluid\" horizontal>\r\n\r\n            <wizard-steps :index=\"stepIndex\" :items=\"stepItems\"></wizard-steps>\r\n            <wizard-progress :index=\"stepIndex\" :total=\"stepTotal\"></wizard-progress>\r\n\r\n            <wizard-tab-content>            \r\n                <tip-alert :type=\"msgType\" :msg=\"msgContent\" :hide=\"msgHide\"></tip-alert>\r\n                \r\n                <wizard-tab-pane css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n                    <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                        <input type=\"text\" name=\"username\" v-model=\"username\">\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab2\" title=\"Provide your profile details\">           \r\n                    <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                        <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n                    </he-form-item> \r\n\r\n                    <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                        <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n                    </he-form-item>\r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n                    <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                        <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n                    </he-form-item> \r\n                </wizard-tab-pane>\r\n\r\n                <wizard-tab-pane id=\"tab4\" title=\"Confirm your account\">\r\n\r\n                    <h4 class=\"form-section\">Account</h4>\r\n                    <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{username}} </p>\r\n                    </he-form-item>     \r\n\r\n                    <h4 class=\"form-section\">Profile</h4>     \r\n                    <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{fullname}} </p>\r\n                    </he-form-item>     \r\n                    <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{remarks}} </p>\r\n                    </he-form-item>      \r\n\r\n                    <h4 class=\"form-section\">Billing</h4>\r\n                    <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                        <p class=\"form-control-static\" > {{card_name}} </p>\r\n                    </he-form-item>      \r\n\r\n                </wizard-tab-pane>\r\n                \r\n            </wizard-tab-content>\r\n           \r\n            <wizard-actions slot=\"actions\" :index=\"stepIndex\" :total=\"stepTotal\"></wizard-actions>\r\n        </he-form>\r\n    </portlet>   \r\n</div>",
+      template: "<div class=\"wizard\">\r\n    <portlet :title=\"title\" icon=\"reorder\" id=\"form_wizard_1\" bodycss=\"form\"> \r\n        <wizard-title slot=\"title\" :value=\"stepTitle\"></wizard-title>\r\n\r\n        <he-form id=\"submit_form\" inner=\"form-wizard\" actionscss=\"fluid\" horizontal>\r\n\r\n            <wizard-steps :index=\"stepIndex\" :items=\"stepItems\"></wizard-steps>\r\n            <wizard-progress :index=\"stepIndex\" :total=\"stepTotal\"></wizard-progress>\r\n\r\n            <wizard-tab-content>            \r\n                <tip-alert :type=\"msgType\" :msg=\"msgContent\" :hide=\"msgHide\"></tip-alert>\r\n\r\n                <slot></slot>                \r\n                \r\n            </wizard-tab-content>\r\n           \r\n            <wizard-actions slot=\"actions\" :index=\"stepIndex\" :total=\"stepTotal\"></wizard-actions>\r\n        </he-form>\r\n    </portlet>   \r\n</div>",
       components: {
           WizardTitle: WizardTitle,
           WizardSteps: WizardSteps,
           WizardProgress: WizardProgress,
-          WizardTabPane: WizardTabPane,
           WizardTabContent: WizardTabContent,
           WizardActions: WizardActions
       },
@@ -12453,26 +12451,9 @@ define('modules/components/wizard/main', function(require, exports, module) {
           return {
               jqForm: undefined,
               stepIndex: 0,
-              stepItems: [{
-                  target: '#tab1',
-                  title: 'Account Setup'
-              }, {
-                  target: '#tab2',
-                  title: 'Profile Setup'
-              }, {
-                  target: '#tab3',
-                  title: 'Billing Setup'
-              }, {
-                  target: '#tab4',
-                  title: 'Confirm'
-              }],
               msgContent: '',
               msgType: '',
-              msgHide: true,
-              username: '',
-              fullname: '',
-              remarks: '',
-              card_name: ''
+              msgHide: true
           };
       },
       computed: {
@@ -12490,8 +12471,12 @@ define('modules/components/wizard/main', function(require, exports, module) {
           }
       },
       props: {
-          'title': String,
-          'icon': String
+          title: String,
+          stepItems: {
+              type: Array,
+              required: true
+          },
+          rulesOptions: Object
       },
       methods: {
           showError: function showError(msg) {
@@ -12507,28 +12492,11 @@ define('modules/components/wizard/main', function(require, exports, module) {
           clearMsg: function clearMsg() {
               this.msgHide = true;
           },
-          getRulesOptions: function getRulesOptions() {
-              return {
-                  //account
-                  username: {
-                      minlength: 5,
-                      required: true
-                  },
-                  //profile
-                  fullname: {
-                      required: true
-                  },
-                  //payment
-                  card_name: {
-                      required: true
-                  }
-              };
-          },
           handleValidator: function handleValidator() {
               var self = this,
                   form = this.jqForm;
   
-              Validator.check(this.jqForm, this.getRulesOptions(), {
+              Validator.check(this.jqForm, this.rulesOptions, {
                   doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
                   ignore: ':hidden',
   
@@ -13567,6 +13535,7 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/module_admin/sidemenu/main');
   
   require('modules/components/portlet/main');
+  require('modules/components/wizard/item/main');
   require('modules/components/wizard/main');
   require('modules/components/datagriditem/main');
   require('modules/components/datagrid/main');
@@ -15539,7 +15508,44 @@ define('modules/test_index/testwizard/main', function(require, exports, module) 
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"test-wizard\">\r\n\r\n    <wizard title=\"Form Wizard TEST\"></wizard>\r\n\r\n</div>\r\n",
+      template: "<div class=\"test-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n            <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                <input type=\"text\" name=\"username\" v-model=\"username\">\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"Provide your profile details\">           \r\n            <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n            </he-form-item> \r\n\r\n            <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n            <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n            </he-form-item> \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              username: '',
+              fullname: '',
+              remarks: '',
+              card_name: '',
+              title: 'TEST Form Wizard ',
+              stepItems: [{
+                  target: '#tab1',
+                  title: 'Account Setup'
+              }, {
+                  target: '#tab2',
+                  title: 'Profile Setup'
+              }, {
+                  target: '#tab3',
+                  title: 'Billing Setup'
+              }, {
+                  target: '#tab4',
+                  title: 'Confirm'
+              }],
+              rulesOptions: {
+                  //account
+                  username: {
+                      minlength: 5,
+                      required: true
+                  },
+                  //profile
+                  fullname: {
+                      required: true
+                  },
+                  //payment
+                  card_name: {
+                      required: true
+                  }
+              }
+          };
+      },
       ready: function ready() {}
   });
 
