@@ -1,3 +1,7 @@
+/**
+ * 后期再提供解析当前数据库结构，根据sql语句反解析
+ */
+
 var Vue = require('lib/vue');
 
 module.exports = Vue.extend({
@@ -11,10 +15,10 @@ module.exports = Vue.extend({
             title: '代码生成器',
             stepItems: [{
                 target: '#tab1',
-                title: '数据库配置'
+                title: '基础配置'
             }, {
                 target: '#tab2',
-                title: '列表页'
+                title: '数据库配置'
             }, {
                 target: '#tab3',
                 title: '新增页'
