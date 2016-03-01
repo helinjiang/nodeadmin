@@ -1087,6 +1087,11 @@ Sidebar toggler(show/hide)
   margin-left: -1px;
 }
 
+/*!/modules/produce_index/add/main.scss*/
+.addpage {
+  display: inline-block;
+}
+
 /*!/modules/user_index/add/main.scss*/
 .addpage {
   display: inline-block;

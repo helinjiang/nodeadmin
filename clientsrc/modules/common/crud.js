@@ -113,7 +113,7 @@ var commonOptions = {
          * @return {boolean}        校验结果
          */
         valuechange: function(name, val, oldVal) {
-            return validator.valid(this.jqForm, name);
+            return Validator.valid(this.jqForm, name);
         },
 
         /**

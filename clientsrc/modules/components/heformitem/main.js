@@ -21,6 +21,7 @@ Vue.component('he-form-item', {
             'default': '3-9'
         },
 
+        // TODO 如果是required，则还需要将这个属性放入到input中，可以利用h5特有的来校验
         required: Boolean,
 
         help: String

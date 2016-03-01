@@ -1,0 +1,21 @@
+<div class="modifypage">
+    <modal title="修改代码生成器信息">
+        <he-form action="/admin/produce/modify" horizontal noactions>
+            <he-form-item title="ID" required horizontal>
+                <input type="text" name="id" v-model="id" readonly>
+            </he-form-item>
+            <he-form-item title="用户名" horizontal>
+                <input type="text" name="name" v-model="name" readonly>
+            </he-form-item>
+            <he-form-item title="状态" horizontal>
+                <select2 name="state" :value.sync="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+            <he-form-item title="生日" horizontal>
+                <date name="birthday" :value.sync="birthday"></date>
+            </he-form-item>
+        </he-form>
+    </modal>
+</div>
