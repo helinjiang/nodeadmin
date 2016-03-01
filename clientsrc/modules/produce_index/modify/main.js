@@ -4,9 +4,12 @@ module.exports = CommonCrud.extend({
     template: __inline('main.html'),
     data: {
         id: undefined,
-        name: undefined,
+        tableName: undefined,
+        targetName: undefined,
+        targetDesc: undefined,
+        menuId: undefined,
+        breadcrumb: undefined,
         state: undefined,
-        birthday: undefined
     },
     methods: {
         beforeShowModal: function(data) {
@@ -16,31 +19,26 @@ module.exports = CommonCrud.extend({
 
             // 初始化数据
             this.id = data.id;
-            this.name = data.name;
+            this.tableName = data.tableName;
+            this.targetName =data.targetName;
+            this.targetDesc =data.targetDesc;
+            this.menuId =data.menuId;
+            this.breadcrumb =data.breadcrumb;
             this.state = data.state;
-            this.birthday = data.birthday;
         },
         getRulesOptions: function() {
             var config = {
-                name: {
-                    required: {
-                        rule: true,
-                        message: '用户名不能为空！'
-                    },
-                    minlength: {
-                        rule: 3,
-                        message: '最小长度为3'
-                    },
-                    maxlength: {
-                        rule: 64,
-                        message: '最大长度为64'
-                    }
+                targetName: {
+                    required: true
                 },
-                birthday: {
-                    required: {
-                        rule: true,
-                        message: '生日不能为空！'
-                    }
+                menuId: {
+                    required: true
+                },
+                breadcrumb: {
+                    required: true
+                },
+                state: {
+                    required: true
                 }
             };
 

@@ -79,19 +79,18 @@ export default class extends Base {
     modifyAction() {
         // 获取参数
         let {
-            id, tableName, state, birthday
+            id, tableName, targetName, targetDesc, menuId, breadcrumb, state
         } = this.post();
 
-        let datetime = this.getCurTimeStr();
-
-        // TODO 不能修改的值则这里就不需要赋值了。
 
         let record = {
             id: id,
-            tableName: tableName,
-            updateTime: datetime,
+            // tableName: tableName, // TODO 不能修改的值则这里就不需要赋值了。
+            targetName: targetName,
+            targetDesc: targetDesc,
+            menuId: menuId,
             state: state,
-            birthday: birthday
+            breadcrumb: breadcrumb
         };
 
         // 参数校验，在logic中已完成
