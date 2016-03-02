@@ -62,10 +62,11 @@ module.exports = Vue.extend({
         },
 
         handleEnter: function() {
-            $('input', vm.jqForm).keypress(function(e) {
+            var self = this;
+            $('input', this.jqForm).keypress(function(e) {
                 if (e.which == 13) {
-                    if (vm.jqForm.validate().form()) {
-                        vm.jqForm.submit();
+                    if (self.jqForm.validate().form()) {
+                        self.jqForm.submit();
                     }
                     return false;
                 }
