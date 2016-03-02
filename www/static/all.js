@@ -15806,6 +15806,291 @@ define('modules/produce_index/wizard/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/produceitem_index/add/main.js*/
+define('modules/produceitem_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器信息\">\r\n        <he-form action=\"/admin/produce/add\" horizontal noactions>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          tableName: undefined,
+          targetName: undefined,
+          targetDesc: undefined,
+          menuId: undefined,
+          breadcrumb: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+              this.tableName = '';
+              this.targetName = '';
+              this.targetDesc = '';
+              this.menuId = '';
+              this.breadcrumb = '';
+              this.state = '1';
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  tableName: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  },
+                  targetName: {
+                      required: true
+                  },
+                  menuId: {
+                      required: true
+                  },
+                  breadcrumb: {
+                      required: true
+                  },
+                  state: {
+                      required: true
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/modules/produceitem_index/delete/main.js*/
+define('modules/produceitem_index/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
+              this.id = data.id;
+  
+              // 设置要展示的信息条目
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'tableName',
+                  value: data.tableName,
+                  title: '数据库表名'
+              }, {
+                  key: 'targetName',
+                  value: data.targetName,
+                  title: '目标名字'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              var self = this;
+  
+              $.post('/admin/produce/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  self.dealSuccessRes(responseText, statusText);
+              });
+          }
+      }
+  });
+
+});
+
+;/*!/modules/produceitem_index/detail/main.js*/
+define('modules/produceitem_index/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  var Names = require('modules/common/names');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'tableName',
+                  value: data.tableName,
+                  title: '数据库表名'
+              }, {
+                  key: 'targetName',
+                  value: data.targetName,
+                  title: '目标名字'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
+          }
+      }
+  });
+
+});
+
+;/*!/modules/produceitem_index/modify/main.js*/
+define('modules/produceitem_index/modify/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('modules/common/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/produce/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          tableName: undefined,
+          targetName: undefined,
+          targetDesc: undefined,
+          menuId: undefined,
+          breadcrumb: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.tableName = data.tableName;
+              this.targetName = data.targetName;
+              this.targetDesc = data.targetDesc;
+              this.menuId = data.menuId;
+              this.breadcrumb = data.breadcrumb;
+              this.state = data.state;
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  targetName: {
+                      required: true
+                  },
+                  menuId: {
+                      required: true
+                  },
+                  breadcrumb: {
+                      required: true
+                  },
+                  state: {
+                      required: true
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/modules/produceitem_index/main.js*/
+define('modules/produceitem_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var addPage = require('modules/produceitem_index/add/main');
+  var modifyPage = require('modules/produceitem_index/modify/main');
+  var deletePage = require('modules/produceitem_index/delete/main');
+  var detailPage = require('modules/produceitem_index/detail/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"produce_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/produceitem/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"produceId\" title=\"代码生成器\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"enName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      components: {
+          'add': addPage,
+          'modify': modifyPage,
+          'delete': deletePage,
+          'detail': detailPage
+      },
+      methods: {
+          operate: function operate(event) {
+              var target = event.target,
+                  $target = $(target),
+                  type = $target.data('type'),
+                  id,
+                  data;
+  
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
+                  return;
+              }
+  
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
+              }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/test_index/testselect2/main.js*/
 define('modules/test_index/testselect2/main', function(require, exports, module) {
 
@@ -16542,6 +16827,36 @@ define('pages/produce_index/main', function(require, exports, module) {
       el: '#app',
       components: {
           ProduceMain: ProduceMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/produceitem_index/main.js*/
+define('pages/produceitem_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  require('modules/common/global');
+  
+  var Vue = require('modules/lib/vue');
+  
+  var App = require('modules/common/app');
+  var ProduceitemMain = require('modules/produceitem_index/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          ProduceitemMain: ProduceitemMain
       },
       ready: function ready() {
           _init();

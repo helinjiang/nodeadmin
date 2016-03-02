@@ -1092,6 +1092,11 @@ Sidebar toggler(show/hide)
   display: inline-block;
 }
 
+/*!/modules/produceitem_index/add/main.scss*/
+.addpage {
+  display: inline-block;
+}
+
 /*!/modules/user_index/add/main.scss*/
 .addpage {
   display: inline-block;
