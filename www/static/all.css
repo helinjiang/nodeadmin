@@ -112,6 +112,10 @@ select {
   color: #fff;
 }
 
+/*!/modules/components/editormd/main.css*/
+select {
+  min-width: 300px;
+}
 /*!/modules/components/portlet/main.scss*/
 /***
 Portlets

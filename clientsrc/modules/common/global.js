@@ -3,6 +3,8 @@ require('components/select2option/main');
 require('components/select2/main');
 require('components/date/main');
 
+require('components/editormd/main');
+
 require('components/clearfix/main');
 
 require('components/hecheckbox/main');

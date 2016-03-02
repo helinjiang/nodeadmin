@@ -7,6 +7,8 @@ define('modules/common/global', function(require, exports, module) {
   require('modules/components/select2/main');
   require('modules/components/date/main');
   
+  require('modules/components/editormd/main');
+  
   require('modules/components/clearfix/main');
   
   require('modules/components/hecheckbox/main');
