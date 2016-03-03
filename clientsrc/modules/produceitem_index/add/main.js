@@ -3,46 +3,33 @@ var CommonCrud = require('common/crud');
 module.exports = CommonCrud.extend({
     template: __inline('main.html'),
     data: {
-        tableName: undefined,
-        targetName: undefined,
-        targetDesc: undefined,
-        menuId: undefined,
-        breadcrumb: undefined,
+        produceId: undefined,
+        fieldName: undefined,
+        cnName: undefined,
+        enName: undefined,
         state: undefined,
     },
     methods: {
         beforeShowModal: function() {
             // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
-            this.tableName = '';
-            this.targetName = '';
-            this.targetDesc = '';
-            this.menuId = '';
-            this.breadcrumb = '';
+            this.produceId = '';
+            this.fieldName = '';
+            this.cnName = '';
+            this.enName = '';
             this.state = '1';
         },
         getRulesOptions: function() {
             var config = {
-                tableName: {
+                produceId: {
                     required: {
                         rule: true,
-                        message: '用户名不能为空！'
-                    },
-                    minlength: {
-                        rule: 3,
-                        message: '最小长度为3'
-                    },
-                    maxlength: {
-                        rule: 64,
-                        message: '最大长度为64'
+                        message: 'produceId不能为空！'
                     }
                 },
-                targetName: {
+                fieldName: {
                     required: true
                 },
-                menuId: {
-                    required: true
-                },
-                breadcrumb: {
+                enName: {
                     required: true
                 },
                 state: {

@@ -18,13 +18,13 @@ module.exports = CommonCrud.extend({
                 value: data.id,
                 title: 'ID'
             }, {
-                key: 'tableName',
-                value: data.tableName,
-                title: '数据库表名'
+                key: 'produceId',
+                value: data.produceId,
+                title: '代码生成器'
             }, {
-                key: 'targetName',
-                value: data.targetName,
-                title: '目标名字'
+                key: 'fieldName',
+                value: data.fieldName,
+                title: '字段名称'
             }, {
                 key: 'stateShow',
                 value: data.stateShow,

@@ -4,11 +4,10 @@ module.exports = CommonCrud.extend({
     template: __inline('main.html'),
     data: {
         id: undefined,
-        tableName: undefined,
-        targetName: undefined,
-        targetDesc: undefined,
-        menuId: undefined,
-        breadcrumb: undefined,
+        produceId: undefined,
+        fieldName: undefined,
+        cnName: undefined,
+        enName: undefined,
         state: undefined,
     },
     methods: {
@@ -19,22 +18,21 @@ module.exports = CommonCrud.extend({
 
             // 初始化数据
             this.id = data.id;
-            this.tableName = data.tableName;
-            this.targetName =data.targetName;
-            this.targetDesc =data.targetDesc;
-            this.menuId =data.menuId;
-            this.breadcrumb =data.breadcrumb;
+            this.produceId = data.produceId;
+            this.fieldName =data.fieldName;
+            this.cnName =data.cnName;
+            this.enName =data.enName;
             this.state = data.state;
         },
         getRulesOptions: function() {
             var config = {
-                targetName: {
+                fieldName: {
                     required: true
                 },
-                menuId: {
+                cnName: {
                     required: true
                 },
-                breadcrumb: {
+                enName: {
                     required: true
                 },
                 state: {

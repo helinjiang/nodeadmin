@@ -20,10 +20,10 @@ export default class extends think.logic.base {
         // 其他规则
         // TODO 发现这个貌似没有起效果
         this.rules = {
-            tableName: "required",
-            targetName: "required",
-            menuId: "required",
-            breadcrumb: "required",
+            produceId: "required",
+            fieldName: "required",
+            cnName: "required",
+            enName: "required",
             state: "required"
         };
     }
@@ -35,9 +35,10 @@ export default class extends think.logic.base {
         // 其他规则
         this.rules = {
             id: "required",
-            targetName: "required",
-            menuId: "required",
-            breadcrumb: "required",
+            produceId: "required",
+            fieldName: "required",
+            cnName: "required",
+            enName: "required",
             state: "required"
         };
     }

@@ -52,16 +52,15 @@ export default class extends Base {
     addAction() {
         // 获取参数
         let {
-            tableName, targetName, targetDesc, menuId, breadcrumb, state
+            produceId, fieldName, cnName, enName, state
         } = this.post();
 
         let record = {
-            tableName: tableName,
-            targetName: targetName,
-            targetDesc: targetDesc,
-            menuId: menuId,
-            state: state,
-            breadcrumb: breadcrumb
+            produceId: produceId,
+            fieldName: fieldName,
+            cnName: cnName,
+            enName: enName,
+            state: state
         };
 
         // 参数校验，在logic中已完成
@@ -79,18 +78,17 @@ export default class extends Base {
     modifyAction() {
         // 获取参数
         let {
-            id, tableName, targetName, targetDesc, menuId, breadcrumb, state
+            id, produceId, fieldName, cnName, enName, state
         } = this.post();
 
 
         let record = {
             id: id,
-            // tableName: tableName, // TODO 不能修改的值则这里就不需要赋值了。
-            targetName: targetName,
-            targetDesc: targetDesc,
-            menuId: menuId,
-            state: state,
-            breadcrumb: breadcrumb
+            // produceId: produceId, // TODO 不能修改的值则这里就不需要赋值了。
+            fieldName: fieldName,
+            cnName: cnName,
+            enName: enName,
+            state: state
         };
 
         // 参数校验，在logic中已完成
@@ -144,17 +142,18 @@ export default class extends Base {
      */
     async _save(record) {
         let {
-            id, tableName
+            id, produceId, fieldName
         } = record;
 
         let model = this.model('produceitem');
 
 
         if (!id) {
-            // 新增，同时保证 tableName 值不重复
+            // 新增，同时保证 id 值不重复
             let result = await model
                 .thenAdd(record, {
-                    tableName: tableName
+                    produceId: produceId,
+                    fieldName: fieldName
                 })
                 .catch(err => {
                     return this.fail(err.message || 'error');
@@ -168,14 +167,14 @@ export default class extends Base {
                     record
                 });
             } else {
-                return this.fail('already exist same tableName!', {
+                return this.fail('already exist same produceId!', {
                     _type: result.type,
                     record
                 });
             }
         } else {
             // 修改
-            // TODO 修改的时候没考虑tableName重名情况，注意可以和自己重名，但不能和其他人重名
+            // TODO 修改的时候没考虑produceId重名情况，注意可以和自己重名，但不能和其他人重名
             let affectedRows = await model
                 .where({
                     id: id
