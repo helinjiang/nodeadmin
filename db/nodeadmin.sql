@@ -71,7 +71,31 @@ CREATE TABLE IF NOT EXISTS `think_coding` (
 --
 
 INSERT INTO `think_coding` (`id`, `tableName`, `targetName`, `targetDesc`, `menuId`, `breadcrumb`, `state`) VALUES
-(1, 'think_user', '用户', '管理登录用户de信息', 'menuUser', '首页|/admin|home;系统管理;用户管理', 1);
+(1, 'think_user', '用户', '管理登录用户de信息', 'menuUser', '首页|/admin|home;系统管理;用户管理', 1),
+(4, 'think_car', '汽车', '汽车管理', 'menuCar', '管理汽车信息" items="首页|/admin|home;系统管理;汽车管理', 1);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `think_codingitem`
+--
+
+CREATE TABLE `think_codingitem` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `codingId` int(11) UNSIGNED NOT NULL,
+  `fieldName` varchar(32) NOT NULL,
+  `cnName` varchar(32) NOT NULL,
+  `enName` varchar(32) NOT NULL,
+  `state` int(1) NOT NULL DEFAULT '-1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `think_codingitem`
+--
+
+INSERT INTO `think_codingitem` (`id`, `codingId`, `fieldName`, `cnName`, `enName`, `state`) VALUES
+(1, 1, 'name', '姓名', 'name', 1),
+(3, 4, 'pwd', '密码', 'pwd', 1);
 
 -- --------------------------------------------------------
 
@@ -133,6 +157,31 @@ INSERT INTO `think_user` (`id`, `name`, `pwd`, `birthday`, `createTime`, `update
 (39, 'aaas1', 'ef1570f9b7e885b1395e66fd8172c896', '2015-12-12', '2016-02-21 17:37:42', '2016-02-21 17:37:42', 1);
 
 --
+
+--
+-- Indexes for table `think_coding`
+--
+ALTER TABLE `think_coding`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `tableName` (`tableName`);
+
+--
+-- Indexes for table `think_codingitem`
+--
+ALTER TABLE `think_codingitem`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `produceId` (`codingId`),
+  ADD KEY `produceId_2` (`codingId`);
+--
+-- 使用表AUTO_INCREMENT `think_coding`
+--
+ALTER TABLE `think_coding`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- 使用表AUTO_INCREMENT `think_codingitem`
+--
+ALTER TABLE `think_codingitem`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 -- 限制导出的表
 --
 
@@ -141,6 +190,12 @@ INSERT INTO `think_user` (`id`, `name`, `pwd`, `birthday`, `createTime`, `update
 --
 ALTER TABLE `think_car`
   ADD CONSTRAINT `carownerid` FOREIGN KEY (`ownerId`) REFERENCES `think_user` (`id`);
+
+--
+-- 限制表 `think_codingitem`
+--
+ALTER TABLE `think_codingitem`
+  ADD CONSTRAINT `produceId` FOREIGN KEY (`codingId`) REFERENCES `think_coding` (`id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
