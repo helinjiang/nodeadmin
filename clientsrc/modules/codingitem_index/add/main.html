@@ -4,51 +4,67 @@
     </button>
     <modal title="新增代码生成器item信息" fullwidth longmodal>
         <he-form action="/admin/codingitem/add" horizontal noactions>
-            <he-form-item title="代码生成器" required horizontal>
-                <input type="text" name="codingId" readonly v-model="codingId">
-            </he-form-item>
-            <he-form-item title="字段名称" required horizontal>
-                <input type="text" name="fieldName" v-model="fieldName">
-            </he-form-item>
-            <he-form-item title="中文名称" horizontal>
-                <input type="text" name="cnName" v-model="cnName">
-            </he-form-item>
-            <he-form-item title="英文名称" required horizontal>
-                <input type="text" name="enName" v-model="enName">
-            </he-form-item>
-            <he-form-item title="类型" col="3-9" help="可选可输入。时间用什么存储呢？" required horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="长度" col="3-9" help="int、char、varchar才需要定义长度" required horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="默认值" col="3-9" help="可选可输入" horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="属性" col="3-9" help="下拉选择，比如UNSIGINED" required horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="是否非空" col="3-9" horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="索引" col="3-9" help="定义主键或唯一信息" required horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="是否自增" col="3-9" horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="注释" col="3-9" help="备注和解释" required horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="外键配置" col="3-9" help="此处可能有多个" horizontal>
-                <input type="text" name="targetName" v-model="targetName">
-            </he-form-item>
-            <he-form-item title="状态" required horizontal>
-                <select2 name="state" :value.sync="state">
-                    <select2-option title="有效" value="1"></select2-option>
-                    <select2-option title="无效" value="-1"></select2-option>
-                </select2>
-            </he-form-item>
+            <div class="row">
+
+                <div class="col-md-6">
+                    <he-form-item title="代码生成器" required horizontal>
+                        <input type="text" name="codingId" readonly v-model="codingId">
+                    </he-form-item>
+                    <he-form-item title="字段名称" required horizontal>
+                        <input type="text" name="fieldName" v-model="fieldName">
+                    </he-form-item>
+                    <he-form-item title="中文名称" horizontal>
+                        <input type="text" name="cnName" v-model="cnName">
+                    </he-form-item>
+                    <he-form-item title="英文名称" required horizontal>
+                        <input type="text" name="enName" v-model="enName">
+                    </he-form-item>
+                    <he-form-item title="类型" col="3-9" help="可选可输入。时间用什么存储呢？" required horizontal>
+                        <select2 name="state" :value.sync="state">
+                            <select2-option title="字符串 varchar" value="varchar"></select2-option>
+                            <select2-option title="字符串 char" value="char"></select2-option>
+                            <select2-option title="整型 int" value="int"></select2-option>
+                            <select2-option title="日期 date" value="date"></select2-option>
+                            <select2-option title="时间 datetime" value="datetime"></select2-option>
+                            <select2-option title="文本 text" value="text"></select2-option>
+                        </select2>
+                    </he-form-item>
+                    <he-form-item title="长度" col="3-9" help="int、char、varchar才需要定义长度" required horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="默认值" col="3-9" help="可选可输入" horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="属性" col="3-9" help="下拉选择，比如UNSIGINED" required horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                </div>
+
+                <div class="col-md-6">
+                    <he-form-item title="是否非空" col="3-9" horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="索引" col="3-9" help="定义主键或唯一信息" required horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="是否自增" col="3-9" horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="注释" col="3-9" help="备注和解释" required horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="外键配置" col="3-9" help="此处可能有多个" horizontal>
+                        <input type="text" name="targetName" v-model="targetName">
+                    </he-form-item>
+                    <he-form-item title="状态" required horizontal>
+                        <select2 name="state" :value.sync="state">
+                            <select2-option title="有效" value="1"></select2-option>
+                            <select2-option title="无效" value="-1"></select2-option>
+                        </select2>
+                    </he-form-item>
+                </div>
+            </div>           
+            
         </he-form>
     </modal>
 </div>
