@@ -5,7 +5,7 @@ define('modules/codingitem_index/codinginfo/main', function(require, exports, mo
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">{{assign.targetName}}({{assign.id}})</div>\r\n</div>",
+      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">{{assign.tableName}}-{{assign.targetName}}({{assign.id}})</div>\r\n</div>",
       props: {
           'assign': {
               type: Object,

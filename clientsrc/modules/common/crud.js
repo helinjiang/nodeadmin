@@ -148,6 +148,11 @@ module.exports = {
             options.template = param.template;
         }
 
+        // props
+        if (typeof param.props === "object") {
+            options.props =  $.extend({}, param.props);
+        }
+
         // data        
         if (typeof param.data === "object") {
             // 注意，这里的data要和commonOptions中的合并，而不是覆盖

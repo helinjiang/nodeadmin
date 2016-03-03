@@ -9,10 +9,16 @@ module.exports = CommonCrud.extend({
         enName: undefined,
         state: undefined,
     },
+    props: {
+        'assign': {
+            type: Object,
+            required: true
+        }
+    },
     methods: {
         beforeShowModal: function() {
             // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
-            this.codingId = '';
+            this.codingId = this.assign.id;
             this.fieldName = '';
             this.cnName = '';
             this.enName = '';

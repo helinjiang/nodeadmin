@@ -9842,6 +9842,11 @@ define('modules/common/crud', function(require, exports, module) {
               options.template = param.template;
           }
   
+          // props
+          if (typeof param.props === "object") {
+              options.props = $.extend({}, param.props);
+          }
+  
           // data       
           if (typeof param.data === "object") {
               // 注意，这里的data要和commonOptions中的合并，而不是覆盖
@@ -10548,7 +10553,7 @@ define('modules/codingitem_index/add/main', function(require, exports, module) {
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器item信息\">\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"enName\" v-model=\"enName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器item信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" readonly v-model=\"codingId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"enName\" v-model=\"enName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"类型\" col=\"3-9\" help=\"可选可输入。时间用什么存储呢？\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"长度\" col=\"3-9\" help=\"int、char、varchar才需要定义长度\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"默认值\" col=\"3-9\" help=\"可选可输入\" horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"属性\" col=\"3-9\" help=\"下拉选择，比如UNSIGINED\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"是否非空\" col=\"3-9\" horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"索引\" col=\"3-9\" help=\"定义主键或唯一信息\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"是否自增\" col=\"3-9\" horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"注释\" col=\"3-9\" help=\"备注和解释\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"外键配置\" col=\"3-9\" help=\"此处可能有多个\" horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: {
           codingId: undefined,
           fieldName: undefined,
@@ -10556,10 +10561,16 @@ define('modules/codingitem_index/add/main', function(require, exports, module) {
           enName: undefined,
           state: undefined
       },
+      props: {
+          'assign': {
+              type: Object,
+              required: true
+          }
+      },
       methods: {
           beforeShowModal: function beforeShowModal() {
               // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
-              this.codingId = '';
+              this.codingId = this.assign.id;
               this.fieldName = '';
               this.cnName = '';
               this.enName = '';
@@ -10599,7 +10610,7 @@ define('modules/codingitem_index/codinginfo/main', function(require, exports, mo
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">{{assign.targetName}}({{assign.id}})</div>\r\n</div>",
+      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">{{assign.tableName}}-{{assign.targetName}}({{assign.id}})</div>\r\n</div>",
       props: {
           'assign': {
               type: Object,
@@ -10780,7 +10791,7 @@ define('modules/codingitem_index/main', function(require, exports, module) {
   var codinginfoPage = require('modules/codingitem_index/codinginfo/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"codingitem_index-main\">\r\n\r\n    <codinginfo :assign=\"assign\"></codinginfo>\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器item列表\" icon=\"globe\">    \r\n        <datagrid :url=\"getdataurl\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"enName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"codingitem_index-main\">\r\n\r\n    <codinginfo :assign=\"assign\"></codinginfo>\r\n\r\n    <admin-main-toolbar>\r\n        <add :assign=\"assign\" v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器item列表\" icon=\"globe\">    \r\n        <datagrid :url=\"getdataurl\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"enName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'add': addPage,
           'modify': modifyPage,
@@ -13913,7 +13924,8 @@ define('modules/components/modal/main', function(require, exports, module) {
               'default': -1
           },
           'title': String,
-          'fullwidth': Boolean
+          'fullwidth': Boolean,
+          'longmodal': Boolean
       },
       computed: {
           'className': function className() {
@@ -13921,6 +13933,10 @@ define('modules/components/modal/main', function(require, exports, module) {
   
               if (this.fullwidth) {
                   arr.push('container');
+              }
+  
+              if (this.longmodal) {
+                  arr.push('modal-scroll');
               }
   
               if (this.css) {
@@ -13933,11 +13949,19 @@ define('modules/components/modal/main', function(require, exports, module) {
       methods: {
           show: function show() {
               // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
-  
               $(this.$el).modal();
+  
+              // TODO 此处还需要优化
+              // 如果是longmodal形式，则在body中增加page-overflow
+              if (this.longmodal) {
+                  $('body').addClass('page-overflow');
+              }
           },
           hide: function hide() {
               $(this.$el).modal('hide');
+              if (this.longmodal) {
+                  $('body').removeClass('page-overflow');
+              }
           },
           confirm: function confirm() {
               // 自定义事件，使用方式为v-on:confirm="save"

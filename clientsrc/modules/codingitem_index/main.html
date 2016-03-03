@@ -3,7 +3,7 @@
     <codinginfo :assign="assign"></codinginfo>
 
     <admin-main-toolbar>
-        <add v-on:savesuccess="reloadDataGrid"></add>
+        <add :assign="assign" v-on:savesuccess="reloadDataGrid"></add>
         <modify v-ref:modify v-on:savesuccess="reloadDataGrid"></modify>
         <delete v-ref:delete v-on:savesuccess="reloadDataGrid"></delete>
         <detail v-ref:detail></detail>

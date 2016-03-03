@@ -14,7 +14,8 @@ define('modules/components/modal/main', function(require, exports, module) {
               'default': -1
           },
           'title': String,
-          'fullwidth': Boolean
+          'fullwidth': Boolean,
+          'longmodal': Boolean
       },
       computed: {
           'className': function className() {
@@ -22,6 +23,10 @@ define('modules/components/modal/main', function(require, exports, module) {
   
               if (this.fullwidth) {
                   arr.push('container');
+              }
+  
+              if (this.longmodal) {
+                  arr.push('modal-scroll');
               }
   
               if (this.css) {
@@ -34,11 +39,19 @@ define('modules/components/modal/main', function(require, exports, module) {
       methods: {
           show: function show() {
               // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
-  
               $(this.$el).modal();
+  
+              // TODO 此处还需要优化
+              // 如果是longmodal形式，则在body中增加page-overflow
+              if (this.longmodal) {
+                  $('body').addClass('page-overflow');
+              }
           },
           hide: function hide() {
               $(this.$el).modal('hide');
+              if (this.longmodal) {
+                  $('body').removeClass('page-overflow');
+              }
           },
           confirm: function confirm() {
               // 自定义事件，使用方式为v-on:confirm="save"
