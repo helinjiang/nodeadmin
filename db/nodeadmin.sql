@@ -51,10 +51,10 @@ INSERT INTO `think_car` (`id`, `ownerId`, `name`, `buydate`, `state`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `think_produce`
+-- 表的结构 `think_coding`
 --
 
-CREATE TABLE IF NOT EXISTS `think_produce` (
+CREATE TABLE IF NOT EXISTS `think_coding` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `tableName` varchar(64) NOT NULL,
   `targetName` varchar(64) NOT NULL,
@@ -67,10 +67,10 @@ CREATE TABLE IF NOT EXISTS `think_produce` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
--- 转存表中的数据 `think_produce`
+-- 转存表中的数据 `think_coding`
 --
 
-INSERT INTO `think_produce` (`id`, `tableName`, `targetName`, `targetDesc`, `menuId`, `breadcrumb`, `state`) VALUES
+INSERT INTO `think_coding` (`id`, `tableName`, `targetName`, `targetDesc`, `menuId`, `breadcrumb`, `state`) VALUES
 (1, 'think_user', '用户', '管理登录用户de信息', 'menuUser', '首页|/admin|home;系统管理;用户管理', 1);
 
 -- --------------------------------------------------------

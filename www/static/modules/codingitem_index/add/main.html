@@ -1,0 +1,27 @@
+<div class="addpage">
+    <button class="btn btn-success" v-on:click="showModal">
+        新增 <i class="fa fa-plus"></i>
+    </button>
+    <modal title="新增代码生成器item信息">
+        <he-form action="/admin/codingitem/add" horizontal noactions>
+            <he-form-item title="代码生成器" required horizontal>
+                <input type="text" name="codingId" v-model="codingId">
+            </he-form-item>
+            <he-form-item title="字段名称" required horizontal>
+                <input type="text" name="fieldName" v-model="fieldName">
+            </he-form-item>
+            <he-form-item title="中文名称" horizontal>
+                <input type="text" name="cnName" v-model="cnName">
+            </he-form-item>
+            <he-form-item title="英文名称" required horizontal>
+                <input type="text" name="enName" v-model="enName">
+            </he-form-item>
+            <he-form-item title="状态" required horizontal>
+                <select2 name="state" :value.sync="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+        </he-form>
+    </modal>
+</div>

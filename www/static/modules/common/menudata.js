@@ -32,9 +32,9 @@ define('modules/common/menudata', function(require, exports, module) {
               active: false
           }]
       }, {
-          id: 'menuProduce',
+          id: 'menuCoding',
           name: '代码生成器',
-          url: '/admin/produce',
+          url: '/admin/coding',
           icon: 'doc',
           active: false
       }, {

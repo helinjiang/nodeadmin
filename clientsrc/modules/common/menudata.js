@@ -29,9 +29,9 @@ var menus = {
             }]
         },
         {
-            id: 'menuProduce',
+            id: 'menuCoding',
             name: '代码生成器',
-            url: '/admin/produce',
+            url: '/admin/coding',
             icon: 'doc',
             active: false
         },

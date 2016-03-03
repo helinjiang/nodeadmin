@@ -3,6 +3,16 @@
   display: inline-block;
 }
 
+/*!/modules/coding_index/add/main.scss*/
+.addpage {
+  display: inline-block;
+}
+
+/*!/modules/codingitem_index/add/main.scss*/
+.addpage {
+  display: inline-block;
+}
+
 /*!/modules/components/datagrid/main.scss*/
 .datagrid .datagrid-table .action {
   margin-right: 10px;
@@ -1089,16 +1099,6 @@ Sidebar toggler(show/hide)
 
 .ie .page-sidebar-reversed .sidebar-toggler {
   margin-left: -1px;
-}
-
-/*!/modules/produce_index/add/main.scss*/
-.addpage {
-  display: inline-block;
-}
-
-/*!/modules/produceitem_index/add/main.scss*/
-.addpage {
-  display: inline-block;
 }
 
 /*!/modules/user_index/add/main.scss*/
