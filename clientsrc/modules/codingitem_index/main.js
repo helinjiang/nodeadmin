@@ -4,6 +4,7 @@ var addPage = require('./add/main');
 var modifyPage = require('./modify/main');
 var deletePage = require('./delete/main');
 var detailPage = require('./detail/main');
+var codinginfoPage = require('./codinginfo/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
@@ -11,7 +12,26 @@ module.exports = Vue.extend({
         'add': addPage,
         'modify': modifyPage,
         'delete': deletePage,
-        'detail': detailPage
+        'detail': detailPage,
+        'codinginfo': codinginfoPage
+    },
+    props: {
+        /**
+         * thinkjs后台设置过来的值，由于无法传递对象，因此此处需要进行一些转义
+         */
+        'assign': {
+            required: true,
+            coerce: function(val) {
+                return JSON.parse(val);
+            }
+        }
+    },
+    computed: {
+        // 一个计算属性的 getter
+        getdataurl: function() {
+            // `this` 指向 vm 实例
+            return '/admin/codingitem/getdata/codingid/' + this.assign.id;
+        }
     },
     methods: {
         operate: function(event) {

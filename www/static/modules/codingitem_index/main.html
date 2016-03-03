@@ -1,5 +1,7 @@
 <div class="codingitem_index-main">
 
+    <codinginfo :assign="assign"></codinginfo>
+
     <admin-main-toolbar>
         <add v-on:savesuccess="reloadDataGrid"></add>
         <modify v-ref:modify v-on:savesuccess="reloadDataGrid"></modify>
@@ -8,9 +10,8 @@
     </admin-main-toolbar>
 
     <portlet title="代码生成器item列表" icon="globe">    
-        <datagrid url="/admin/codingitem/getdata" pagelength="4" v-on:click="operate" v-ref:datagrid>
+        <datagrid :url="getdataurl" pagelength="4" v-on:click="operate" v-ref:datagrid>
             <datagrid-item name="id" title="ID"></datagrid-item>
-            <datagrid-item name="codingId" title="代码生成器"></datagrid-item>
             <datagrid-item name="fieldName" title="字段名称"></datagrid-item>
             <datagrid-item name="cnName" title="中文名称"></datagrid-item>
             <datagrid-item name="enName" title="英文名称"></datagrid-item>

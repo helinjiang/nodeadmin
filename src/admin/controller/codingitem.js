@@ -7,14 +7,27 @@ export default class extends Base {
      * index action
      * @return {Promise} []
      */
-    indexAction() {
+    async indexAction() {
         //auto render template file index_index.html
 
         var codingId = this.get('codingid');
-        if(!codingId){
+        if (!codingId) {
             // 如果没有传递特定的codingId，则返回到coding页面
             return this.redirect('/admin/coding');
         }
+
+        let data = await this.model("coding").where({
+            id: codingId
+        }).find();
+
+        // 如果没有这个id的记录，则返回到coding页面
+        if (think.isEmpty(data)) {
+            return this.redirect('/admin/coding');
+        }
+
+        this.assign({
+            coding: data
+        });
 
         return this.display();
     }
@@ -25,9 +38,17 @@ export default class extends Base {
      * @return {object} JSON 格式数据
      */
     async getdataAction() {
+        var codingId = this.get('codingid');
+        if (!codingId) {
+            // 如果没有传递特定的codingId，则返回到coding页面
+            return this.fail('unknown codingid!');
+        }
+
         // 查询数据库，获取所有的用户信息
-        let data = await this.model('codingitem').order({
-            id: "DESC",
+        let data = await this.model('codingitem').where({
+            codingId: codingId
+        }).order({
+            id: "DESC"
         }).select();
 
         // 为了最后的显示，进行数据处理
