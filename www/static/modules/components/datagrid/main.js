@@ -302,6 +302,7 @@ define('modules/components/datagrid/main', function(require, exports, module) {
           };
   
           // 如果有自定义的render方法，则需要进行处理
+          // TODO 考虑下此处是否有必要支持不同的render
           if (item.render) {
               var arr = item.render.split('|'),
                   renderFn = arr[0].trim(),

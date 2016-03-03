@@ -10434,7 +10434,7 @@ define('modules/coding_index/main', function(require, exports, module) {
   var detailPage = require('modules/coding_index/detail/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"coding_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/coding/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"tableName\" title=\"数据库表名\"></datagrid-item>\r\n            <datagrid-item name=\"targetName\" title=\"目标名字\"></datagrid-item>\r\n            <datagrid-item name=\"targetDesc\" title=\"目标描述\"></datagrid-item>\r\n            <datagrid-item name=\"menuId\" title=\"菜单ID\"></datagrid-item>\r\n            <datagrid-item name=\"breadcrumb\" title=\"面包屑导航\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"coding_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/coding/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"tableName\" title=\"数据库表名\"></datagrid-item>\r\n            <datagrid-item name=\"targetName\" title=\"目标名字\"></datagrid-item>\r\n            <datagrid-item name=\"targetDesc\" title=\"目标描述\"></datagrid-item>\r\n            <datagrid-item name=\"menuId\" title=\"菜单ID\"></datagrid-item>\r\n            <datagrid-item name=\"breadcrumb\" title=\"面包屑导航\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | codingitem detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'add': addPage,
           'modify': modifyPage,
@@ -13373,6 +13373,10 @@ define('modules/common/render', function(require, exports, module) {
       return '<button class="btn btn-info action" data-type="detail" data-id="' + id + '"> 详情 </button>';
   }
   
+  function _getRenderGoCodingitemPage(id) {
+      return '<a class="btn btn-info action" href="/admin/codingitem/index/codingid/' + id + '"> 去详情页 </a>';
+  }
+  
   /**
    * 用在datagriditem组件中的render属性，用法例如：render="commonOperate | detail modify delete"
    * 其中的detail、modify、delete是按钮的名称，整个含义就是返回这三个按钮
@@ -13403,6 +13407,9 @@ define('modules/common/render', function(require, exports, module) {
                   break;
               case 'detail':
                   result.push(_getRenderDetail(data));
+                  break;
+              case 'codingitem':
+                  result.push(_getRenderGoCodingitemPage(data));
                   break;
               default:
                   break;
@@ -13723,6 +13730,7 @@ define('modules/components/datagrid/main', function(require, exports, module) {
           };
   
           // 如果有自定义的render方法，则需要进行处理
+          // TODO 考虑下此处是否有必要支持不同的render
           if (item.render) {
               var arr = item.render.split('|'),
                   renderFn = arr[0].trim(),

@@ -10,6 +10,11 @@ function _getRenderDetail(id) {
     return '<button class="btn btn-info action" data-type="detail" data-id="' + id + '"> 详情 </button>';
 }
 
+function _getRenderGoCodingitemPage(id) {
+    return '<a class="btn btn-info action" href="/admin/codingitem/index/codingid/' + id + '"> 去详情页 </a>';
+}
+
+
 /**
  * 用在datagriditem组件中的render属性，用法例如：render="commonOperate | detail modify delete"
  * 其中的detail、modify、delete是按钮的名称，整个含义就是返回这三个按钮
@@ -40,6 +45,9 @@ function commonOperate(renderParam, data, type, full) {
                 break;
             case 'detail':
                 result.push(_getRenderDetail(data));
+                break;
+            case 'codingitem':
+                result.push(_getRenderGoCodingitemPage(data));
                 break;
             default:
                 break;

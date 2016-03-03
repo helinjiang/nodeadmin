@@ -9,11 +9,13 @@ export default class extends Base {
      */
     indexAction() {
         //auto render template file index_index.html
-        console.log('==', this.get('codingid'));
+
         var codingId = this.get('codingid');
         if(!codingId){
-            // 如果p
+            // 如果没有传递特定的codingId，则返回到coding页面
+            return this.redirect('/admin/coding');
         }
+
         return this.display();
     }
 
