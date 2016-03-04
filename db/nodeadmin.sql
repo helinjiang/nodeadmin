@@ -86,8 +86,9 @@ CREATE TABLE `think_codingitem` (
   `fieldName` varchar(32) NOT NULL,
   `cnName` varchar(32) NOT NULL,
   `enName` varchar(32) NOT NULL,
-  `state` int(1) NOT NULL DEFAULT '-1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `state` int(1) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- 转存表中的数据 `think_codingitem`
@@ -156,33 +157,6 @@ INSERT INTO `think_user` (`id`, `name`, `pwd`, `birthday`, `createTime`, `update
 (38, 'aaas', '37f36c46f72ab0aa4eb210c2bf7a4650', '2016-02-01', '2016-02-21 10:45:32', '2016-02-21 17:15:40', 1),
 (39, 'aaas1', 'ef1570f9b7e885b1395e66fd8172c896', '2015-12-12', '2016-02-21 17:37:42', '2016-02-21 17:37:42', 1);
 
---
-
---
--- Indexes for table `think_coding`
---
-ALTER TABLE `think_coding`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `tableName` (`tableName`);
-
---
--- Indexes for table `think_codingitem`
---
-ALTER TABLE `think_codingitem`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `produceId` (`codingId`),
-  ADD KEY `produceId_2` (`codingId`);
---
--- 使用表AUTO_INCREMENT `think_coding`
---
-ALTER TABLE `think_coding`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
---
--- 使用表AUTO_INCREMENT `think_codingitem`
---
-ALTER TABLE `think_codingitem`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
--- 限制导出的表
 --
 
 --
