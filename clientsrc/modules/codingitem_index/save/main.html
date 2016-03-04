@@ -5,13 +5,13 @@
         <wizard-item css="active" id="tab1" title="配置数据库中的字段及含义">   
             <input type="hidden" name="codingId" v-model="codingId">  
             <he-form-item title="字段名称" required horizontal>
-                <input type="text" name="enName" v-model="enName">
+                <input type="text" name="fieldName" v-model="fieldName">
             </he-form-item>            
             <he-form-item title="中文名称" horizontal>
                 <input type="text" name="cnName" v-model="cnName">
             </he-form-item>          
             <he-form-item title="是否数据库字段" required horizontal>
-                <input type="text" name="fieldName" v-model="fieldName">
+                <input type="text" name="dbName" v-model="dbName">
             </he-form-item>             
             
             <he-form-item title="长度" col="3-9" horizontal v-show="['varchar', 'char', 'int'].indexOf(type) > -1">

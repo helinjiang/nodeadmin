@@ -7,7 +7,7 @@ module.exports = CommonCrud.extend({
         codingId: undefined, // 所属的代码生成器ID
         fieldName: undefined, // 数据库中字段名称
         cnName: undefined, // 中文名称
-        enName: undefined, // 英文名称，用于代码中逻辑实现
+        dbName: undefined, // 英文名称，用于代码中逻辑实现
         state: undefined, // 状态
         type: undefined, // 类型
         length: undefined, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
@@ -33,7 +33,7 @@ module.exports = CommonCrud.extend({
             this.codingId = this.assign.id;
             this.fieldName = '';
             this.cnName = '';
-            this.enName = '';
+            this.dbName = '';
             this.state = '1';
             this.type = 'varchar';
             this.length = 0;
@@ -57,7 +57,7 @@ module.exports = CommonCrud.extend({
                 fieldName: {
                     required: true
                 },
-                enName: {
+                dbName: {
                     required: true
                 },
                 state: {

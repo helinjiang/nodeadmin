@@ -26,7 +26,7 @@ module.exports = Vue.extend({
                     minlength: 2,
                     required: true
                 },
-                enName: {
+                dbName: {
                     required: true
                 },
                 type: {
@@ -35,7 +35,7 @@ module.exports = Vue.extend({
             },
             fieldName: '', // 数据库中字段名称
             cnName: '', // 中文名称
-            enName: '', // 英文名称，用于代码中逻辑实现
+            dbName: '', // 英文名称，用于代码中逻辑实现
             state: '1', // 状态
             type: 'varchar', // 类型
             length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化

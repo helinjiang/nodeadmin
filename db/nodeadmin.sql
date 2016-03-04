@@ -85,7 +85,7 @@ CREATE TABLE `think_codingitem` (
   `codingId` int(11) UNSIGNED NOT NULL,
   `fieldName` varchar(32) NOT NULL,
   `cnName` varchar(32) NOT NULL,
-  `enName` varchar(32) NOT NULL,
+  `dbName` varchar(32) NOT NULL,
   `state` int(1) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
@@ -94,7 +94,7 @@ CREATE TABLE `think_codingitem` (
 -- 转存表中的数据 `think_codingitem`
 --
 
-INSERT INTO `think_codingitem` (`id`, `codingId`, `fieldName`, `cnName`, `enName`, `state`) VALUES
+INSERT INTO `think_codingitem` (`id`, `codingId`, `fieldName`, `cnName`, `dbName`, `state`) VALUES
 (1, 1, 'name', '姓名', 'name', 1),
 (3, 4, 'pwd', '密码', 'pwd', 1);
 

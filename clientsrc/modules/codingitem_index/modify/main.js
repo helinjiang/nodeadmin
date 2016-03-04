@@ -7,7 +7,7 @@ module.exports = CommonCrud.extend({
         codingId: undefined,
         fieldName: undefined,
         cnName: undefined,
-        enName: undefined,
+        dbName: undefined,
         state: undefined,
     },
     methods: {
@@ -21,7 +21,7 @@ module.exports = CommonCrud.extend({
             this.codingId = data.codingId;
             this.fieldName =data.fieldName;
             this.cnName =data.cnName;
-            this.enName =data.enName;
+            this.dbName =data.dbName;
             this.state = data.state;
         },
         getRulesOptions: function() {
@@ -32,7 +32,7 @@ module.exports = CommonCrud.extend({
                 cnName: {
                     required: true
                 },
-                enName: {
+                dbName: {
                     required: true
                 },
                 state: {
