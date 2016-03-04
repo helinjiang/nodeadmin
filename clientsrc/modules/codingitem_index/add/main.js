@@ -12,6 +12,13 @@ module.exports = CommonCrud.extend({
         type: undefined, // 类型
         length: undefined, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
         defaultVal: undefined, // 默认值
+        property: undefined, // 属性，如果是id，需要定义为UNSIGNED
+        isNotNull: false, // 是否非空
+        isAutoIncrease: false, // 是否自增
+        isKey: false, // 是否主键
+        isUnique: false, // 是否唯一
+        isForeignKey: false, // 是否外键
+        comment: undefined, // 注释
     },
     props: {
         'assign': {
@@ -31,6 +38,13 @@ module.exports = CommonCrud.extend({
             this.type = 'varchar';
             this.length = 0;
             this.defaultVal = '';
+            this.property = '';
+            this.isNotNull = true;
+            this.isAutoIncrease = false;
+            this.isKey = false;
+            this.isUnique = false;
+            this.isForeignKey = false;
+            this.comment = '';
         },
         getRulesOptions: function() {
             var config = {
