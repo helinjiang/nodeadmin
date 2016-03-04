@@ -18,6 +18,14 @@ Vue.component('he-checkbox', {
         checked: Boolean,
         title: String,
     },
+    watch: {
+        /**
+         * 此处一定要注意，当checked值变化时，要重新uniform一下，否则会不渲染
+         */
+        checked: function(val, oldVal) {
+            this.handleUniform();
+        }
+    },
     methods: {
         isChecked: function() {
             return checked;
