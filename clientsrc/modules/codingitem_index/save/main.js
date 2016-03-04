@@ -54,8 +54,7 @@ module.exports = Vue.extend({
         'codingId': {
             required: true,
             type: Number
-        },
-        'codingName': String,
+        }
     },
     methods: {
         /**
