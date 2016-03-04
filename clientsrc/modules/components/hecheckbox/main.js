@@ -15,31 +15,24 @@ Vue.component('he-checkbox', {
             type: String,
             required: true
         },
-        value: String,
+        checked: Boolean,
         title: String,
     },
     methods: {
         isChecked: function() {
-            return this.checkboxElem.attr('checked') === 'checked';
+            return checked;
         },
-        getVal: function() {
-            if (this.isChecked()) {
-                return this.checkboxElem.val();
+        handleUniform: function() {
+            if (!jQuery().uniform) {
+                return;
             }
+
+            this.checkboxElem.uniform();
         }
     },
     ready: function() {
-        this.checkboxElem = $('input', $(this.$el));
+        this.checkboxElem = $('input', this.$el);
 
-        handleUniform(this);
+        this.handleUniform();
     }
 });
-
-
-function handleUniform(vm) {
-    if (!jQuery().uniform) {
-        return;
-    }
-
-    vm.checkboxElem.uniform();
-}
