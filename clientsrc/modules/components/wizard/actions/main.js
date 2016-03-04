@@ -6,8 +6,12 @@ module.exports = Vue.extend({
         index: Number,
         total: Number
     },
-    methods:{
-        triggerSubmit: function(){
+    methods: {
+        triggerCancel: function() {
+            alert('canceled!');
+            this.$dispatch('wizardcancel');
+        },
+        triggerSubmit: function() {
             alert('Finished! Hope you like it :) 111');
         }
     },
