@@ -23,7 +23,6 @@ module.exports = Vue.extend({
             }],
             rulesOptions: {
                 fieldName: {
-                    minlength: 2,
                     required: true
                 },
                 dbName: {
@@ -33,9 +32,10 @@ module.exports = Vue.extend({
                     required: true
                 }
             },
-            fieldName: '', // 数据库中字段名称
+            fieldName: '', // 字段名称
             cnName: '', // 中文名称
-            dbName: '', // 英文名称，用于代码中逻辑实现
+            isDb: true, // 是否为数据库字段
+            dbName: '', //  数据库中字段名称
             state: '1', // 状态
             type: 'varchar', // 类型
             length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
