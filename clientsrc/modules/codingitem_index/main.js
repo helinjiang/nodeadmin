@@ -8,8 +8,15 @@ var codinginfoPage = require('./codinginfo/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
+    data: function() {
+        return {
+            isShowToolbar: true,
+            isShowAddPage: false,
+            isShowDatagrid: true,
+        };
+    },
     components: {
-        'add': addPage,
+        addPage,
         'modify': modifyPage,
         'delete': deletePage,
         'detail': detailPage,
@@ -27,13 +34,25 @@ module.exports = Vue.extend({
         }
     },
     computed: {
-        // 一个计算属性的 getter
-        getdataurl: function() {
+        getDataUrl: function() {
             // `this` 指向 vm 实例
             return '/admin/codingitem/getdata/codingid/' + this.assign.id;
         }
     },
     methods: {
+        /**
+         * 打开新增页面
+         */
+        showAddPage: function() {
+            this.isShowToolbar = false;
+            this.isShowAddPage = true;
+            this.isShowDatagrid = false;
+        },
+        backToInit: function() {
+            this.isShowToolbar = true;
+            this.isShowAddPage = false;
+            this.isShowDatagrid = true;
+        },
         operate: function(event) {
             var target = event.target,
                 $target = $(target),
