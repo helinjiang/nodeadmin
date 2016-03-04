@@ -79,7 +79,12 @@ Vue.component('select2', {
         /**
          * 是否为ajax请求远程数据？
          */
-        ajax: Boolean
+        ajax: Boolean,
+        /**
+         * 是否支持可输入
+         * 不支持ajax模式，如果是该模式依然需要这种功能，则建议在data中直接返回请求的数据
+         */
+        includeInput: Boolean
     },
     computed: {
         options: function() {
@@ -92,6 +97,47 @@ Vue.component('select2', {
             }
 
             result.placeholder = this.placeholder;
+
+            if (this.includeInput && !this.ajax) {
+                result.query = function(query) {
+                    var data = {
+                        results: []
+                    };
+
+                    // 必须是非空场景再增加
+                    if (query.term) {
+                        data.results.push({
+                            id: query.term,
+                            text: query.term
+                        });
+                    }
+
+                    data.results = data.results.concat(result.data);
+
+                    query.callback(data);
+                }
+
+                // TODO 此处可能还有更优化的写法，后面再修改
+                result.initSelection = function(element, callback) {
+                    var initValue = element.val(),
+                        initText = initValue;
+
+                    $.each(result.data, function() {
+                        if (this.id == initValue) {
+                            initText = this.text;
+                            return false;
+                        }
+                    });
+
+                    var data = {
+                        id: initValue,
+                        text: initText
+                    };
+
+                    callback(data);
+                }
+
+            }
 
             return result;
         }
