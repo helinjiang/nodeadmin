@@ -10545,22 +10545,136 @@ define('modules/coding_index/wizard/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/codingitem_index/save/main.js*/
+define('modules/codingitem_index/save/main', function(require, exports, module) {
+
+  /**
+   * 后期再提供解析当前数据库结构，根据sql语句反解析
+   */
+  
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"test-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\" v-on:wizardcancel=\"backToInit\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"配置数据库中的字段及含义\">   \r\n            <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">  \r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>            \r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>             \r\n            <he-form-item title=\"长度\" col=\"3-9\" horizontal v-show=\"['varchar', 'char', 'int'].indexOf(type) > -1\">\r\n                <input type=\"text\" name=\"length\" v-model=\"length\">\r\n            </he-form-item>\r\n            <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n            </he-form-item>\r\n             <he-form-item title=\"字段状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n                              \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"基础信息配置\">  \r\n            <he-form-item title=\"是否数据库字段\" horizontal>\r\n                <input type=\"text\" name=\"isDb\" v-model=\"isDb\">\r\n            </he-form-item>             \r\n            <he-form-item title=\"数据库字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>        \r\n            <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                <select2 name=\"type\" :value.sync=\"type\">\r\n                    <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                    <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                    <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                    <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                    <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                    <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                </select2>\r\n            </he-form-item> \r\n            <he-form-item title=\"更多选项\" col=\"3-9\" horizontal>\r\n                <div class=\"checkbox-list\">\r\n                    <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                    <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                    <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                    <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                    <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                </div>\r\n            </he-form-item>\r\n            <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n            </he-form-item>\r\n            <he-form-item title=\"字段注释\" col=\"3-9\" horizontal>\r\n                <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n            </he-form-item>                    \r\n           \r\n            <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                    <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                </select2>\r\n            </he-form-item>   \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n            <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n            </he-form-item> \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              stepItems: [{
+                  target: '#tab1',
+                  title: '基础配置'
+              }, {
+                  target: '#tab2',
+                  title: '数据库配置'
+              }, {
+                  target: '#tab3',
+                  title: '新增页'
+              }, {
+                  target: '#tab4',
+                  title: 'Confirm'
+              }],
+              rulesOptions: {
+                  fieldName: {
+                      required: true
+                  },
+                  dbName: {
+                      required: true
+                  },
+                  type: {
+                      required: true
+                  }
+              },
+              fieldName: '', // 字段名称
+              cnName: '', // 中文名称
+              isDb: true, // 是否为数据库字段
+              dbName: '', //  数据库中字段名称
+              state: '1', // 状态
+              type: 'varchar', // 类型
+              length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
+              defaultVal: '', // 默认值
+              property: '', // 属性，如果是id，需要定义为UNSIGNED
+              isNotNull: true, // 是否非空
+              isAutoIncrease: false, // 是否自增
+              isKey: false, // 是否主键
+              isUnique: false, // 是否唯一
+              isForeignKey: false, // 是否外键
+              comment: '' };
+      },
+      // 注释
+      props: {
+          'title': String,
+          'codingId': {
+              required: true,
+              type: Number
+          }
+      },
+      methods: {
+          /**
+           * 点击取消按钮后，触发的一个事件，用于通知父组件关闭本页面，恢复初始状态
+           */
+          backToInit: function backToInit() {
+              this.$dispatch('backtoinit');
+          }
+      },
+      ready: function ready() {
+          console.log('save... ready!');
+      }
+  });
+
+});
+
 ;/*!/modules/codingitem_index/add/main.js*/
 define('modules/codingitem_index/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  var savePage = require('modules/codingitem_index/save/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"addpage\">   \r\n   <save-page title=\"新增代码生成器字段信息\" :coding-id=\"assign.id\" ></save-page>\r\n</div>\r\n",
+      components: {
+          savePage: savePage
+      },
+      props: {
+          assign: {
+              required: true,
+              type: Object
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/modules/codingitem_index/add2/main.js*/
+define('modules/codingitem_index/add2/main', function(require, exports, module) {
 
   'use strict';
   
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器item信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <div class=\"row\">\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"代码生成器\" required horizontal>\r\n                        <input type=\"text\" name=\"codingId\" readonly v-model=\"codingId\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"字段名称\" required horizontal>\r\n                        <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" horizontal>\r\n                        <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"英文名称\" required horizontal>\r\n                        <input type=\"text\" name=\"enName\" v-model=\"enName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"类型\" col=\"3-9\" help=\"可选可输入。时间用什么存储呢？\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                            <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                            <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                            <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                            <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                            <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" help=\"int、char、varchar才需要定义长度\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" help=\"可选可输入\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" help=\"下拉选择，比如UNSIGINED\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                </div>\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"是否非空\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"索引\" col=\"3-9\" help=\"定义主键或唯一信息\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"是否自增\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" help=\"备注和解释\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"此处可能有多个\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"状态\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n            </div>           \r\n            \r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器字段信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <div class=\"row\">\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"代码生成器\" required horizontal>\r\n                        <input type=\"text\" name=\"codingName\" readonly v-model=\"codingName\">\r\n                        <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"字段名称\" required horizontal>\r\n                        <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" horizontal>\r\n                        <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"英文名称\" required horizontal>\r\n                        <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                        <select2 name=\"type\" :value.sync=\"type\">\r\n                            <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                            <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                            <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                            <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                            <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                            <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" horizontal v-show=\"['varchar', 'char', 'int'].indexOf(type) > -1\">\r\n                        <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                        <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                            <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"选项\" col=\"3-9\" horizontal>\r\n                        <div class=\"checkbox-list\">\r\n                            <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                            <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                            <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                            <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                            <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                        </div>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                        <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" horizontal>\r\n                        <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"状态\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n            </div>           \r\n            \r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: {
-          codingId: undefined,
-          fieldName: undefined,
-          cnName: undefined,
-          enName: undefined,
-          state: undefined
-      },
+          codingName: undefined, // 所属的代码生成器展示名字
+          codingId: undefined, // 所属的代码生成器ID
+          fieldName: undefined, // 数据库中字段名称
+          cnName: undefined, // 中文名称
+          dbName: undefined, // 英文名称，用于代码中逻辑实现
+          state: undefined, // 状态
+          type: undefined, // 类型
+          length: undefined, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
+          defaultVal: undefined, // 默认值
+          property: undefined, // 属性，如果是id，需要定义为UNSIGNED
+          isNotNull: false, // 是否非空
+          isAutoIncrease: false, // 是否自增
+          isKey: false, // 是否主键
+          isUnique: false, // 是否唯一
+          isForeignKey: false, // 是否外键
+          comment: undefined },
+      // 注释
       props: {
           'assign': {
               type: Object,
@@ -10570,11 +10684,22 @@ define('modules/codingitem_index/add/main', function(require, exports, module) {
       methods: {
           beforeShowModal: function beforeShowModal() {
               // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+              this.codingName = this.assign.tableName + '-' + this.assign.targetName + '(' + this.assign.id + ')';
               this.codingId = this.assign.id;
               this.fieldName = '';
               this.cnName = '';
-              this.enName = '';
+              this.dbName = '';
               this.state = '1';
+              this.type = 'varchar';
+              this.length = 0;
+              this.defaultVal = '';
+              this.property = '';
+              this.isNotNull = true;
+              this.isAutoIncrease = false;
+              this.isKey = false;
+              this.isUnique = false;
+              this.isForeignKey = false;
+              this.comment = '';
           },
           getRulesOptions: function getRulesOptions() {
               var config = {
@@ -10587,7 +10712,7 @@ define('modules/codingitem_index/add/main', function(require, exports, module) {
                   fieldName: {
                       required: true
                   },
-                  enName: {
+                  dbName: {
                       required: true
                   },
                   state: {
@@ -10731,13 +10856,13 @@ define('modules/codingitem_index/modify/main', function(require, exports, module
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/codingitem/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"enName\" v-model=\"enName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/codingitem/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
       data: {
           id: undefined,
           codingId: undefined,
           fieldName: undefined,
           cnName: undefined,
-          enName: undefined,
+          dbName: undefined,
           state: undefined
       },
       methods: {
@@ -10751,7 +10876,7 @@ define('modules/codingitem_index/modify/main', function(require, exports, module
               this.codingId = data.codingId;
               this.fieldName = data.fieldName;
               this.cnName = data.cnName;
-              this.enName = data.enName;
+              this.dbName = data.dbName;
               this.state = data.state;
           },
           getRulesOptions: function getRulesOptions() {
@@ -10762,7 +10887,7 @@ define('modules/codingitem_index/modify/main', function(require, exports, module
                   cnName: {
                       required: true
                   },
-                  enName: {
+                  dbName: {
                       required: true
                   },
                   state: {
@@ -10791,9 +10916,16 @@ define('modules/codingitem_index/main', function(require, exports, module) {
   var codinginfoPage = require('modules/codingitem_index/codinginfo/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"codingitem_index-main\">\r\n\r\n    <codinginfo :assign=\"assign\"></codinginfo>\r\n\r\n    <admin-main-toolbar>\r\n        <add :assign=\"assign\" v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器item列表\" icon=\"globe\">    \r\n        <datagrid :url=\"getdataurl\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"enName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"codingitem_index-main\">\r\n\r\n    <codinginfo :assign=\"assign\"></codinginfo>\r\n\r\n    <admin-main-toolbar v-if=\"isShowToolbar\">\r\n         <button class=\"btn btn-success\" v-on:click=\"showAddPage\">\r\n            新增 <i class=\"fa fa-plus\"></i>\r\n        </button>\r\n    </admin-main-toolbar>\r\n\r\n    <add-page v-if=\"isShowAddPage\" :assign=\"assign\" v-on:backtoinit=\"backToInit\"></add-page>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n\r\n    <portlet v-if=\"isShowDatagrid\" title=\"代码生成器字段列表\" icon=\"globe\">    \r\n        <datagrid :url=\"getDataUrl\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"dbName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              isShowToolbar: true,
+              isShowAddPage: false,
+              isShowDatagrid: true
+          };
+      },
       components: {
-          'add': addPage,
+          addPage: addPage,
           'modify': modifyPage,
           'delete': deletePage,
           'detail': detailPage,
@@ -10811,13 +10943,25 @@ define('modules/codingitem_index/main', function(require, exports, module) {
           }
       },
       computed: {
-          // 一个计算属性的 getter
-          getdataurl: function getdataurl() {
+          getDataUrl: function getDataUrl() {
               // `this` 指向 vm 实例
               return '/admin/codingitem/getdata/codingid/' + this.assign.id;
           }
       },
       methods: {
+          /**
+           * 打开新增页面
+           */
+          showAddPage: function showAddPage() {
+              this.isShowToolbar = false;
+              this.isShowAddPage = true;
+              this.isShowDatagrid = false;
+          },
+          backToInit: function backToInit() {
+              this.isShowToolbar = true;
+              this.isShowAddPage = false;
+              this.isShowDatagrid = true;
+          },
           operate: function operate(event) {
               var target = event.target,
                   $target = $(target),
@@ -11770,7 +11914,12 @@ define('modules/components/select2/main', function(require, exports, module) {
           /**
            * 是否为ajax请求远程数据？
            */
-          ajax: Boolean
+          ajax: Boolean,
+          /**
+           * 是否支持可输入
+           * 不支持ajax模式，如果是该模式依然需要这种功能，则建议在data中直接返回请求的数据
+           */
+          includeInput: Boolean
       },
       computed: {
           options: function options() {
@@ -11783,6 +11932,46 @@ define('modules/components/select2/main', function(require, exports, module) {
               }
   
               result.placeholder = this.placeholder;
+  
+              if (this.includeInput && !this.ajax) {
+                  result.query = function (query) {
+                      var data = {
+                          results: []
+                      };
+  
+                      // 必须是非空场景再增加
+                      if (query.term) {
+                          data.results.push({
+                              id: query.term,
+                              text: query.term
+                          });
+                      }
+  
+                      data.results = data.results.concat(result.data);
+  
+                      query.callback(data);
+                  };
+  
+                  // TODO 此处可能还有更优化的写法，后面再修改
+                  result.initSelection = function (element, callback) {
+                      var initValue = element.val(),
+                          initText = initValue;
+  
+                      $.each(result.data, function () {
+                          if (this.id == initValue) {
+                              initText = this.text;
+                              return false;
+                          }
+                      });
+  
+                      var data = {
+                          id: initValue,
+                          text: initText
+                      };
+  
+                      callback(data);
+                  };
+              }
   
               return result;
           }
@@ -12192,7 +12381,7 @@ define('modules/components/hecheckbox/main', function(require, exports, module) 
   var Vue = require('modules/lib/vue');
   
   Vue.component('he-checkbox', {
-      template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" value=\"{{ value }}\" /> \r\n    {{ title }} \r\n</label>",
+      template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" v-model=\"checked\" /> \r\n    {{ title }} \r\n</label>",
       data: function data() {
           return {
               checkboxElem: undefined
@@ -12206,33 +12395,35 @@ define('modules/components/hecheckbox/main', function(require, exports, module) 
               type: String,
               required: true
           },
-          value: String,
+          checked: Boolean,
           title: String
+      },
+      watch: {
+          /**
+           * 此处一定要注意，当checked值变化时，要重新uniform一下，否则会不渲染
+           */
+          checked: function checked(val, oldVal) {
+              this.handleUniform();
+          }
       },
       methods: {
           isChecked: function isChecked() {
-              return this.checkboxElem.attr('checked') === 'checked';
+              return checked;
           },
-          getVal: function getVal() {
-              if (this.isChecked()) {
-                  return this.checkboxElem.val();
+          handleUniform: function handleUniform() {
+              if (!jQuery().uniform) {
+                  return;
               }
+  
+              this.checkboxElem.uniform();
           }
       },
       ready: function ready() {
-          this.checkboxElem = $('input', $(this.$el));
+          this.checkboxElem = $('input', this.$el);
   
-          handleUniform(this);
+          this.handleUniform();
       }
   });
-  
-  function handleUniform(vm) {
-      if (!jQuery().uniform) {
-          return;
-      }
-  
-      vm.checkboxElem.uniform();
-  }
 
 });
 
@@ -12444,7 +12635,7 @@ define('modules/module_admin/header/main', function(require, exports, module) {
   var Vue = require('modules/lib/vue');
   
   Vue.component('admin-header', {
-      template: "<div class=\"header navbar navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>",
+      template: "<div class=\"header navbar navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>\r\n",
       props: {
           /**
            * 登录用户的用户名
@@ -12690,7 +12881,7 @@ define('modules/module_admin/maintoolbar/main', function(require, exports, modul
   var Vue = require('modules/lib/vue');
   
   Vue.component('admin-main-toolbar', {
-      template: "<div class=\"table-toolbar\">\r\n    <div class=\"row\">\r\n        <div class=\"col-md-6\">  \r\n            <slot></slot>\r\n        </div>      \r\n    </div>\r\n</div>",
+      template: "<div class=\"table-toolbar\">\r\n    <div class=\"row\">\r\n        <div class=\"col-md-12 toolbarbtns\">  \r\n            <slot></slot>\r\n        </div>      \r\n    </div>\r\n</div>",
       ready: function ready() {}
   });
 
@@ -13183,12 +13374,16 @@ define('modules/components/wizard/actions/main', function(require, exports, modu
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"col-md-offset-3 col-md-9\">\r\n            <a href=\"javascript:;\" class=\"btn btn-default button-previous\" v-show=\"index > 0\">\r\n                <i class=\"m-icon-swapleft\"></i> 后退 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-info button-next\"  v-show=\"index < total-1\">\r\n                继续 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-success button-submit\" v-on:click=\"triggerSubmit\" v-else>\r\n                提交 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
+      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"col-md-offset-3 col-md-9\">\r\n            <a href=\"javascript:;\" class=\"btn btn-default \" v-on:click=\"triggerCancel\">\r\n                <i class=\"m-icon-swapleft\"></i> 取消 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-default button-previous\" v-show=\"index > 0\">\r\n                <i class=\"m-icon-swapleft\"></i> 后退 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-info button-next\"  v-show=\"index < total-1\">\r\n                继续 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-success button-submit\" v-on:click=\"triggerSubmit\" v-else>\r\n                提交 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
       props: {
           index: Number,
           total: Number
       },
       methods: {
+          triggerCancel: function triggerCancel() {
+              alert('canceled!');
+              this.$dispatch('wizardcancel');
+          },
           triggerSubmit: function triggerSubmit() {
               alert('Finished! Hope you like it :) 111');
           }
@@ -16181,7 +16376,7 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
   var Loading = require('modules/components/loading/main');
   
   module.exports = Vue.extend({
-      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>  \r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\" autofocus/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" value=\"1\"></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
+      template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>  \r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\" autofocus/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" checked></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
       data: function data() {
           return {
               jqForm: undefined
@@ -16268,7 +16463,7 @@ define('modules/test_index/testselect2/main', function(require, exports, module)
   var Vue = require('modules/lib/vue');
   
   module.exports = Vue.extend({
-      template: "<div class=\"test-select2\">\r\n\r\n    <select2 value=\"1\">\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 :init-data=\"select2data\" value=\"2\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" convert=\"getgroup\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" lazy>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/searchuser\" convert=\"searchuser\" ajax></select2> \r\n\r\n</div>\r\n",
+      template: "<div class=\"test-select2\">\r\n\r\n    <select2 value=\"1\" name=\"test\" include-input>\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 :init-data=\"select2data\" value=\"2\" name=\"test\" include-input>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" convert=\"getgroup\" name=\"test\" >\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" lazy name=\"test\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/searchuser\" convert=\"searchuser\" ajax name=\"test\"></select2> \r\n\r\n</div>\r\n",
       data: function data() {
           return {
               select2data: [{

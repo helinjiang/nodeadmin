@@ -1,4 +1,4 @@
-define('modules/components/hecheckbox/main', function(require, exports, module) {
+define('modules/components/hecheckbox - 副本/main', function(require, exports, module) {
 
   'use strict';
   

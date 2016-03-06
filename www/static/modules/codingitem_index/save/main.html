@@ -1,0 +1,98 @@
+<div class="test-wizard">
+
+    <wizard :title="title" :step-items="stepItems" :rules-options="rulesOptions" v-on:wizardcancel="backToInit">
+        
+        <wizard-item css="active" id="tab1" title="配置数据库中的字段及含义">   
+            <input type="hidden" name="codingId" v-model="codingId">  
+            <he-form-item title="字段名称" required horizontal>
+                <input type="text" name="fieldName" v-model="fieldName">
+            </he-form-item>            
+            <he-form-item title="中文名称" horizontal>
+                <input type="text" name="cnName" v-model="cnName">
+            </he-form-item>             
+            <he-form-item title="长度" col="3-9" horizontal v-show="['varchar', 'char', 'int'].indexOf(type) > -1">
+                <input type="text" name="length" v-model="length">
+            </he-form-item>
+            <he-form-item title="默认值" col="3-9" horizontal>
+                <input type="text" name="defaultVal" v-model="defaultVal">
+            </he-form-item>
+             <he-form-item title="字段状态" required horizontal>
+                <select2 name="state" :value.sync="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+                              
+        </wizard-item>
+
+        <wizard-item id="tab2" title="基础信息配置">  
+            <he-form-item title="是否数据库字段" horizontal>
+                <input type="text" name="isDb" v-model="isDb">
+            </he-form-item>             
+            <he-form-item title="数据库字段名称" required horizontal>
+                <input type="text" name="fieldName" v-model="fieldName">
+            </he-form-item>        
+            <he-form-item title="类型" col="3-9" required horizontal>
+                <select2 name="type" :value.sync="type">
+                    <select2-option title="字符串 varchar" value="varchar"></select2-option>
+                    <select2-option title="字符串 char" value="char"></select2-option>
+                    <select2-option title="整型 int" value="int"></select2-option>
+                    <select2-option title="日期 date" value="date"></select2-option>
+                    <select2-option title="时间 datetime" value="datetime"></select2-option>
+                    <select2-option title="文本 text" value="text"></select2-option>
+                </select2>
+            </he-form-item> 
+            <he-form-item title="更多选项" col="3-9" horizontal>
+                <div class="checkbox-list">
+                    <he-checkbox name="isNotNull" title="是否非空" :checked.sync="isNotNull"></he-checkbox>
+                    <he-checkbox name="isAutoIncrease" title="是否自增" :checked.sync="isAutoIncrease"></he-checkbox>
+                    <he-checkbox name="isKey" title="是否主键" :checked.sync="isKey"></he-checkbox>
+                    <he-checkbox name="isUnique" title="是否唯一" :checked.sync="isUnique"></he-checkbox>
+                    <he-checkbox name="isForeignKey" title="是否外键" :checked.sync="isForeignKey"></he-checkbox>
+                </div>
+            </he-form-item>
+            <he-form-item title="外键配置" col="3-9" help="格式： tableName-key" horizontal v-show="isForeignKey">
+                <input type="text" name="foreignConfig" v-model="foreignConfig">
+            </he-form-item>
+            <he-form-item title="字段注释" col="3-9" horizontal>
+                <textarea name="comment" v-model="comment" rows="3"></textarea>
+            </he-form-item>                    
+           
+            <he-form-item title="属性" col="3-9" horizontal>
+                <select2 name="property" allow-clear  :value.sync="property">
+                    <select2-option title="UNSIGNED" value="UNSIGINED"></select2-option>
+                </select2>
+            </he-form-item>   
+        </wizard-item>
+
+        <wizard-item id="tab3" title="Provide your billing and credit card details">
+            <he-form-item title="Card Holder Name" col="3-4" required horizontal>
+                <input type="text" name="card_name" v-model="card_name">
+            </he-form-item> 
+        </wizard-item>
+
+        <wizard-item id="tab4" title="Confirm your account">
+
+            <h4 class="form-section">Account</h4>
+            <he-form-item title="Username:" col="3-4" horizontal>
+                <p class="form-control-static" > {{username}} </p>
+            </he-form-item>     
+
+            <h4 class="form-section">Profile</h4>     
+            <he-form-item title="Fullname:" col="3-4" horizontal>
+                <p class="form-control-static" > {{fullname}} </p>
+            </he-form-item>     
+            <he-form-item title="Remarks:" col="3-4" horizontal>
+                <p class="form-control-static" > {{remarks}} </p>
+            </he-form-item>      
+
+            <h4 class="form-section">Billing</h4>
+            <he-form-item title="Card Holder Name:" col="3-4" horizontal>
+                <p class="form-control-static" > {{card_name}} </p>
+            </he-form-item>      
+
+        </wizard-item>
+
+    </wizard>
+
+</div>

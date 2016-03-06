@@ -8,7 +8,7 @@
   display: inline-block;
 }
 
-/*!/modules/codingitem_index/add/main.scss*/
+/*!/modules/codingitem_index/add2/main.scss*/
 .addpage {
   display: inline-block;
 }
@@ -1176,4 +1176,10 @@ Login page
 ***/
 .login_index {
   background-color: #515255 !important;
+}
+
+/*!/modules/module_admin/maintoolbar/main.scss*/
+.toolbarbtns {
+  float: left;
+  margin-right: 5px;
 }

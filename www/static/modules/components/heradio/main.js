@@ -1,19 +1,19 @@
-define('modules/components/hecheckbox/main', function(require, exports, module) {
+define('modules/components/heradio/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('modules/lib/vue');
   
-  Vue.component('he-checkbox', {
-      template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" v-model=\"checked\" /> \r\n    {{ title }} \r\n</label>",
+  Vue.component('he-radio', {
+      template: "<label class=\"radio\">\r\n    <input type=\"radio\" name=\"{{ name }}\" v-model=\"checked\" /> \r\n    {{ title }} \r\n</label>\r\n\r\n<!-- <label>\r\n<input type=\"radio\" name=\"optionsRadios\" id=\"optionsRadios22\" value=\"option1\" checked> Option 1 </label>\r\n -->\r\n\r\n<!-- <label class=\"radio-inline\">\r\n<input type=\"radio\" name=\"optionsRadios\" id=\"optionsRadios25\" value=\"option1\" checked> Option 1 </label> -->",
       data: function data() {
           return {
-              checkboxElem: undefined
+              radioElem: undefined
           };
       },
       props: {
           /**
-           * checkbox 的 name 值，必须
+           * radio 的 name 值，必须
            */
           name: {
               type: String,
@@ -39,11 +39,11 @@ define('modules/components/hecheckbox/main', function(require, exports, module) 
                   return;
               }
   
-              this.checkboxElem.uniform();
+              this.radioElem.uniform();
           }
       },
       ready: function ready() {
-          this.checkboxElem = $('input', this.$el);
+          this.radioElem = $('input', this.$el);
   
           this.handleUniform();
       }
