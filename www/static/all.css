@@ -805,6 +805,12 @@ Page breadcrumb
   margin-right: -19px;
 }
 
+/*!/modules/module_admin/maintoolbar/main.scss*/
+.toolbarbtns {
+  float: left;
+  margin-right: 5px;
+}
+
 /*!/modules/module_admin/sidemenu/main.scss*/
 /*** IE 8 Fixes ***/
 /***
@@ -1176,10 +1182,4 @@ Login page
 ***/
 .login_index {
   background-color: #515255 !important;
-}
-
-/*!/modules/module_admin/maintoolbar/main.scss*/
-.toolbarbtns {
-  float: left;
-  margin-right: 5px;
 }

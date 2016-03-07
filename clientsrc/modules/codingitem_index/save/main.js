@@ -34,9 +34,10 @@ module.exports = Vue.extend({
             },
             fieldName: '', // 字段名称
             cnName: '', // 中文名称
+            state: '1', // 字段状态
+            remark: '', // 备注
             isDb: true, // 是否为数据库字段
             dbName: '', //  数据库中字段名称
-            state: '1', // 状态
             type: 'varchar', // 类型
             length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
             defaultVal: '', // 默认值
@@ -46,7 +47,7 @@ module.exports = Vue.extend({
             isKey: false, // 是否主键
             isUnique: false, // 是否唯一
             isForeignKey: false, // 是否外键
-            comment: '', // 注释
+            comment: '', // 数据库注释
         };
     },
     props: {
