@@ -37,7 +37,8 @@ module.exports = Vue.extend({
             state: '1', // 字段状态
             remark: '', // 备注
             isDb: true, // 是否为数据库字段
-            dbName: '', //  数据库中字段名称
+            dbName: '', // 数据库中字段名称
+            dbTemplate: '', // 数据库字段模版，用于快速设定常用的字段
             type: 'varchar', // 类型
             length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
             defaultVal: '', // 默认值
@@ -48,6 +49,11 @@ module.exports = Vue.extend({
             isUnique: false, // 是否唯一
             isForeignKey: false, // 是否外键
             comment: '', // 数据库注释
+            isInList: true, // 是否在列表页中出现
+            isInAdd: false, // 是否在新增页中出现
+            isInModify: false, // 是否在修改页中出现
+            isInDetail: false, // 是否在详情页中出现
+            isInDelete: false, // 是否在删除页中出现
         };
     },
     props: {

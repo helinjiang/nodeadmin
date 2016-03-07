@@ -26,9 +26,15 @@
                 <he-checkbox name="isDb" title="是否数据库字段" :checked.sync="isDb"></he-checkbox>                   
             </he-form-item>     
             <template v-if="isDb">
+                <he-form-item title="数据库字段模版" help="预置了常用的字段配置，注意改变本字段会导致数据被覆盖。" horizontal>
+                    <select2 name="dbTemplate" :value.sync="dbTemplate">
+                        <select2-option title="ID" value="id"></select2-option>
+                        <select2-option title="名字" value="name"></select2-option>                        
+                    </select2>
+                </he-form-item>     
                 <he-form-item title="数据库字段名称" required horizontal>
-                    <input type="text" name="fieldName" v-model="fieldName">
-                </he-form-item>        
+                    <input type="text" name="dbName" v-model="dbName">
+                </he-form-item>     
                 <he-form-item title="类型" col="3-9" required horizontal>
                     <select2 name="type" :value.sync="type">
                         <select2-option title="字符串 varchar" value="varchar"></select2-option>
@@ -69,10 +75,16 @@
             </template>  
         </wizard-item>
 
-        <wizard-item id="tab3" title="Provide your billing and credit card details">
-            <he-form-item title="Card Holder Name" col="3-4" required horizontal>
-                <input type="text" name="card_name" v-model="card_name">
-            </he-form-item> 
+        <wizard-item id="tab3" title="配置在页面中的展示和校验">
+            <he-form-item title="在这些页面中出现" col="3-9" horizontal>
+                <div class="checkbox-list">
+                    <he-checkbox name="isForeignKey" title="列表页" :checked.sync="isForeignKey"></he-checkbox>
+                    <he-checkbox name="isNotNull" title="新增页" :checked.sync="isNotNull"></he-checkbox>
+                    <he-checkbox name="isAutoIncrease" title="编辑页" :checked.sync="isAutoIncrease"></he-checkbox>
+                    <he-checkbox name="isKey" title="详情页" :checked.sync="isKey"></he-checkbox>
+                    <he-checkbox name="isUnique" title="删除页" :checked.sync="isUnique"></he-checkbox>
+                </div>
+            </he-form-item>
         </wizard-item>
 
         <wizard-item id="tab4" title="Confirm your account">
