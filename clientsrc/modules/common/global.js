@@ -7,6 +7,7 @@ require('components/editormd/main');
 
 require('components/clearfix/main');
 
+require('components/hebutton/main');
 require('components/hecheckbox/main');
 require('components/heformitem/main');
 require('components/heform/main');

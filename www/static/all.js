@@ -12380,6 +12380,27 @@ define('modules/components/clearfix/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/components/hebutton/main.js*/
+define('modules/components/hebutton/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('modules/lib/vue');
+  
+  Vue.component('he-button', {
+      template: "<button class=\"btn btn-{{type}}\">\r\n    <slot></slot> <i class=\"fa fa-{{icon}}\" v-if=\"icon\"></i>\r\n</button>",
+      props: {
+          type: {
+              type: String,
+              'default': 'default'
+          },
+          icon: String
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/modules/components/hecheckbox/main.js*/
 define('modules/components/hecheckbox/main', function(require, exports, module) {
 
@@ -14525,6 +14546,7 @@ define('modules/common/global', function(require, exports, module) {
   
   require('modules/components/clearfix/main');
   
+  require('modules/components/hebutton/main');
   require('modules/components/hecheckbox/main');
   require('modules/components/heformitem/main');
   require('modules/components/heform/main');
@@ -16616,7 +16638,7 @@ define('modules/user_index/add/main', function(require, exports, module) {
   var CommonCrud = require('modules/common/crud');
   
   module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增用户信息\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      template: "<div class=\"addpage\">\r\n    \r\n    \r\n    <modal title=\"新增用户信息\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>   \r\n\r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showModal\">新增</he-button> \r\n\r\n</div>\r\n",
       data: {
           name: undefined,
           pwd: undefined,

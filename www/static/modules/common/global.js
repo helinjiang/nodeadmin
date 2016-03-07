@@ -11,6 +11,7 @@ define('modules/common/global', function(require, exports, module) {
   
   require('modules/components/clearfix/main');
   
+  require('modules/components/hebutton/main');
   require('modules/components/hecheckbox/main');
   require('modules/components/heformitem/main');
   require('modules/components/heform/main');
