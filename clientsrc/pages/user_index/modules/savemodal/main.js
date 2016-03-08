@@ -13,6 +13,14 @@ module.exports = Vue.extend({
             state: undefined,
         };
     },
+    computed: {
+        cgiUrl: function() {
+            return this.isAdd ? '/admin/user/add' : '/admin/user/modify';
+        },
+        modalTitle: function() {
+            return this.isAdd ? '新增用户信息' : '修改用户信息';
+        }
+    },
     mixins: [mixinsSaveModal],
     methods: {
         setFormData: function(data) {
@@ -68,9 +76,6 @@ module.exports = Vue.extend({
 
             return config;
         },
-
-    },
-    ready: function() {
 
     }
 });

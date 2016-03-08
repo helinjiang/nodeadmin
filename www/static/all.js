@@ -15533,7 +15533,7 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
   var mixinsSaveModal = require('mixins/savemodal');
   
   module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"modalTitle\">\r\n        <he-form :action=\"cgiUrl\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
       data: function data() {
           return {
               id: undefined,
@@ -15542,6 +15542,14 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
               birthday: undefined,
               state: undefined
           };
+      },
+      computed: {
+          cgiUrl: function cgiUrl() {
+              return this.isAdd ? '/admin/user/add' : '/admin/user/modify';
+          },
+          modalTitle: function modalTitle() {
+              return this.isAdd ? '新增用户信息' : '修改用户信息';
+          }
       },
       mixins: [mixinsSaveModal],
       methods: {
@@ -15599,8 +15607,7 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
               return config;
           }
   
-      },
-      ready: function ready() {}
+      }
   });
 
 });
@@ -15661,7 +15668,7 @@ define('pages/user_index/modules/main', function(require, exports, module) {
                   id: undefined,
                   name: '',
                   pwd: '',
-                  birthday: '2015-12-13',
+                  birthday: '2016-03-08',
                   state: '1'
               };
   

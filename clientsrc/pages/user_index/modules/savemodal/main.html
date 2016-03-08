@@ -1,6 +1,6 @@
 <div class="savemodal">
-    <modal title="修改用户信息">
-        <he-form action="/admin/user/save" horizontal noactions>
+    <modal :title="modalTitle">
+        <he-form :action="cgiUrl" horizontal noactions>
             <he-form-item title="ID" horizontal v-if="!isAdd">
                 <input type="text" name="id" v-model="id" readonly>
             </he-form-item>

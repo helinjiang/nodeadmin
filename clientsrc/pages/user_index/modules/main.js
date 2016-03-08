@@ -49,7 +49,7 @@ module.exports = Vue.extend({
                 id: undefined,
                 name: '',
                 pwd: '',
-                birthday: '2015-12-13',
+                birthday: '2016-03-08',
                 state: '1',
             };
 
