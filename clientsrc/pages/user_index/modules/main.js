@@ -16,8 +16,12 @@ module.exports = Vue.extend({
         return {
             isShowSaveModal: false,
             isShowDetailModal: false,
+            isShowDeleteModal: false,
             initData: {},
-            detailField: {}
+            detailField: {},
+            deleteField: {},
+            deleteParam: {},
+            deleteUrl:''
         };
     },
     methods: {
@@ -68,7 +72,6 @@ module.exports = Vue.extend({
             this.isShowSaveModal = true;
         },
         showDetailPage: function(data) {
-            
             this.initData = $.extend({}, data);
             this.detailField = {
                 id: 'ID',
@@ -82,17 +85,32 @@ module.exports = Vue.extend({
             this.isShowDetailModal = true;
         },
         showDeletePage: function(data) {
-            this.initData = $.extend({}, data, {
-                _isDelete: true
-            });
+            this.initData = $.extend({}, data);
+            this.deleteField = {
+                id: 'ID',
+                name: '用户名',
+                stateShow: '状态',
+                createTime: '创建时间',
+                updateTime: '最后修改时间',
+            };
 
-            this.isShowDetailModal = true;
+            this.deleteParam = [{
+                key: 'id',
+                fieldName: 'id'
+            }];
+
+            this.deleteUrl = '/admin/user/delete';
+
+            this.isShowDeleteModal = true;
         },
         hideSaveModal: function() {
             this.isShowSaveModal = false;
         },
         hideDetailModal: function() {
             this.isShowDetailModal = false;
+        },
+        hideDeleteModal: function() {
+            this.isShowDeleteModal = false;
         },
         getDataById: function(id) {
             if (!id) {

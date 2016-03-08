@@ -12246,6 +12246,99 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
 
 });
 
+;/*!/modules/crudmodal/delete/main.js*/
+define('modules/crudmodal/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  var Msg = require('components/msg/main');
+  var mixinsBasicModal = require('mixins/basic_modal');
+  
+  Vue.component('crud-modal-delete', {
+      template: "<div class=\"crudmodal-detail\">\r\n    <modal title=\"删除\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              items: [],
+              requestParam: {}
+          };
+      },
+      props: {
+          /**
+           * 数据
+           */
+          initData: {
+              type: Object,
+              required: true
+          },
+          /**
+           * 字段定义字典，key为字段名，value为其显示的中文名
+           */
+          field: {
+              type: Object,
+              required: true
+          },
+          param: Array,
+          url: {
+              type: String,
+              required: true
+          }
+      },
+      mixins: [mixinsBasicModal],
+      methods: {
+          beforeModal: function beforeModal() {
+              var _this = this;
+  
+              var items = [],
+                  requestParam = {};
+  
+              Object.keys(this.field).map(function (key) {
+                  items.push({
+                      key: key,
+                      value: _this.initData[key],
+                      title: _this.field[key]
+                  });
+              });
+  
+              this.items = items;
+  
+              if (this.param) {
+                  this.param.map(function (item) {
+                      requestParam[item.key] = _this.initData[item.fieldName];
+                  });
+              }
+  
+              this.requestParam = requestParam;
+          },
+          triggerSubmit: function triggerSubmit(modalId) {
+              var self = this;
+  
+              $.post(this.url, this.requestParam, function (responseText, statusText) {
+                  self.dealSuccessRes(responseText, statusText);
+              });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      }
+  });
+
+});
+
 ;/*!/components/portlet/main.js*/
 define('components/portlet/main', function(require, exports, module) {
 
@@ -13561,6 +13654,7 @@ define('common/scripts/global', function(require, exports, module) {
   require('modules/admin/sidemenu/main');
   
   require('modules/crudmodal/detail/main');
+  require('modules/crudmodal/delete/main');
   
   require('components/portlet/main');
   require('components/wizard/item/main');
@@ -15572,7 +15666,7 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var saveModal = require('pages/user_index/modules/savemodal/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </crud-modal-detail>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" @click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                @modalhidden=\"hideDeleteModal\"\r\n                @savesuccess=\"reloadDataGrid\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" @click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'delete': deletePage,
   
@@ -15582,8 +15676,12 @@ define('pages/user_index/modules/main', function(require, exports, module) {
           return {
               isShowSaveModal: false,
               isShowDetailModal: false,
+              isShowDeleteModal: false,
               initData: {},
-              detailField: {}
+              detailField: {},
+              deleteField: {},
+              deleteParam: {},
+              deleteUrl: ''
           };
       },
       methods: {
@@ -15634,7 +15732,6 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               this.isShowSaveModal = true;
           },
           showDetailPage: function showDetailPage(data) {
-  
               this.initData = $.extend({}, data);
               this.detailField = {
                   id: 'ID',
@@ -15648,17 +15745,32 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               this.isShowDetailModal = true;
           },
           showDeletePage: function showDeletePage(data) {
-              this.initData = $.extend({}, data, {
-                  _isDelete: true
-              });
+              this.initData = $.extend({}, data);
+              this.deleteField = {
+                  id: 'ID',
+                  name: '用户名',
+                  stateShow: '状态',
+                  createTime: '创建时间',
+                  updateTime: '最后修改时间'
+              };
   
-              this.isShowDetailModal = true;
+              this.deleteParam = [{
+                  key: 'id',
+                  fieldName: 'id'
+              }];
+  
+              this.deleteUrl = '/admin/user/delete';
+  
+              this.isShowDeleteModal = true;
           },
           hideSaveModal: function hideSaveModal() {
               this.isShowSaveModal = false;
           },
           hideDetailModal: function hideDetailModal() {
               this.isShowDetailModal = false;
+          },
+          hideDeleteModal: function hideDeleteModal() {
+              this.isShowDeleteModal = false;
           },
           getDataById: function getDataById(id) {
               if (!id) {

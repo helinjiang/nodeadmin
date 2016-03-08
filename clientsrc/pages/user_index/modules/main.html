@@ -10,6 +10,15 @@
                 @modalhidden="hideDetailModal">
     </crud-modal-detail>
 
+    <crud-modal-delete v-if="isShowDeleteModal" 
+                :init-data="initData" 
+                :field="deleteField" 
+                :param="deleteParam"
+                :url="deleteUrl"
+                @modalhidden="hideDeleteModal"
+                @savesuccess="reloadDataGrid">
+    </crud-modal-delete>
+
     <save-modal v-if="isShowSaveModal" 
                 :init-data="initData" 
                 @modalhidden="hideSaveModal" 
