@@ -20,6 +20,8 @@ require('modules/admin/maintoolbar/main');
 require('modules/admin/sidemenuitem/main');
 require('modules/admin/sidemenu/main');
 
+require('modules/crudmodal/detail/main');
+
 require('components/portlet/main');
 require('components/wizard/item/main');
 require('components/wizard/main');

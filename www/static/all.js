@@ -12134,6 +12134,118 @@ define('modules/admin/sidemenu/main', function(require, exports, module) {
 
 });
 
+;/*!/mixins/basic_modal.js*/
+define('mixins/basic_modal', function(require, exports, module) {
+
+  // 定义一个混合对象
+  'use strict';
+  
+  module.exports = {
+      template: '<div>EMPTY</div>',
+      methods: {
+          beforeModal: function beforeModal() {},
+          /**
+           * 弹出对话框
+           */
+          showModal: function showModal() {
+              this.beforeModal();
+  
+              this.$children[0].show();
+          },
+  
+          /**
+           * 关闭对话框
+           */
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+  
+          /**
+           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           */
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              this.hideModal();
+          }
+      },
+      events: {
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
+          }
+      },
+      ready: function ready() {
+          this.showModal();
+      }
+  };
+
+});
+
+;/*!/modules/crudmodal/detail/main.js*/
+define('modules/crudmodal/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var mixinsBasicModal = require('mixins/basic_modal');
+  
+  Vue.component('crud-modal-detail', {
+      template: "<div class=\"crudmodal-detail\">\r\n    <modal title=\"详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              items: []
+          };
+      },
+      props: {
+          /**
+           * 数据
+           */
+          initData: {
+              type: Object,
+              required: true
+          },
+          /**
+           * 字段定义字典，key为字段名，value为其显示的中文名
+           */
+          field: {
+              type: Object,
+              required: true
+          }
+      },
+      mixins: [mixinsBasicModal],
+      methods: {
+          beforeModal: function beforeModal() {
+              var _this = this;
+  
+              var filedNameArr = Object.keys(this.field),
+                  result = [];
+  
+              filedNameArr.map(function (key) {
+                  result.push({
+                      key: key,
+                      value: _this.initData[key],
+                      title: _this.field[key]
+                  });
+              });
+  
+              this.items = result;
+          }
+      }
+  });
+
+});
+
 ;/*!/components/portlet/main.js*/
 define('components/portlet/main', function(require, exports, module) {
 
@@ -13448,6 +13560,8 @@ define('common/scripts/global', function(require, exports, module) {
   require('modules/admin/sidemenuitem/main');
   require('modules/admin/sidemenu/main');
   
+  require('modules/crudmodal/detail/main');
+  
   require('components/portlet/main');
   require('components/wizard/item/main');
   require('components/wizard/main');
@@ -13568,8 +13682,8 @@ define('components/loading/main', function(require, exports, module) {
 
 });
 
-;/*!/mixins/savemodal.js*/
-define('mixins/savemodal', function(require, exports, module) {
+;/*!/mixins/basic_save_modal.js*/
+define('mixins/basic_save_modal', function(require, exports, module) {
 
   'use strict';
   
@@ -13599,7 +13713,7 @@ define('mixins/savemodal', function(require, exports, module) {
           /**
            * 初始化数据，建议覆盖
            */
-          setFormData: function setFormData(data) {
+          setInitData: function setInitData(data) {
               // 初始化数据，建议覆盖
           },
   
@@ -13615,7 +13729,7 @@ define('mixins/savemodal', function(require, exports, module) {
            */
           showModal: function showModal() {
               // 初始化form data
-              this.setFormData(this.initData);
+              this.setInitData(this.initData);
   
               this.$children[0].show();
           },
@@ -15357,65 +15471,6 @@ define('pages/user_index/modules/delete/main', function(require, exports, module
 
 });
 
-;/*!/pages/user_index/modules/detail/main.js*/
-define('pages/user_index/modules/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var mixinsSaveModal = require('mixins/savemodal');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal :title=\"modalTitle\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: function data() {
-          return {
-              items: [],
-              modalTitle: '用户信息详情11'
-          };
-      },
-      mixins: [mixinsSaveModal],
-      methods: {
-          setFormData: function setFormData(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '用户名'
-              }, {
-                  key: 'birthday',
-                  value: data.birthday,
-                  title: '生日'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }, {
-                  key: 'createTime',
-                  value: data.createTime,
-                  title: '创建时间'
-              }, {
-                  key: 'updateTime',
-                  value: data.updateTime,
-                  title: '最后修改时间'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              this.hideModal();
-          }
-      }
-  });
-
-});
-
 ;/*!/pages/user_index/modules/savemodal/main.js*/
 define('pages/user_index/modules/savemodal/main', function(require, exports, module) {
 
@@ -15423,7 +15478,7 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
   
   var Vue = require('common/lib/vue');
   
-  var mixinsSaveModal = require('mixins/savemodal');
+  var mixinsBasicSaveModal = require('mixins/basic_save_modal');
   
   module.exports = Vue.extend({
       template: "<div class=\"savemodal\">\r\n    <modal :title=\"modalTitle\">\r\n        <he-form :action=\"cgiUrl\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
@@ -15444,9 +15499,9 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
               return this.isAdd ? '新增用户信息' : '修改用户信息';
           }
       },
-      mixins: [mixinsSaveModal],
+      mixins: [mixinsBasicSaveModal],
       methods: {
-          setFormData: function setFormData(data) {
+          setInitData: function setInitData(data) {
               if (!data) {
                   return;
               }
@@ -15513,21 +15568,22 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var deletePage = require('pages/user_index/modules/delete/main');
-  var detailPage = require('pages/user_index/modules/detail/main');
+  
   var saveModal = require('pages/user_index/modules/savemodal/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" v-on:click=\"showAddPage\">新增</he-button> \r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    </admin-main-toolbar>\r\n    \r\n    <detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </detail>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </crud-modal-detail>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" @click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'delete': deletePage,
-          'detail': detailPage,
+  
           'saveModal': saveModal
       },
       data: function data() {
           return {
               isShowSaveModal: false,
               isShowDetailModal: false,
-              initData: {}
+              initData: {},
+              detailField: {}
           };
       },
       methods: {
@@ -15551,6 +15607,8 @@ define('pages/user_index/modules/main', function(require, exports, module) {
                       this.showModifyPage(data);
                   } else if (type == 'detail') {
                       this.showDetailPage(data);
+                  } else if (type == 'delete') {
+                      this.showDeletePage(data);
                   }
   
                   // this.$refs[type].showModal(data);
@@ -15576,8 +15634,23 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               this.isShowSaveModal = true;
           },
           showDetailPage: function showDetailPage(data) {
-              console.log('showDetailPage--');
+  
               this.initData = $.extend({}, data);
+              this.detailField = {
+                  id: 'ID',
+                  name: '用户名',
+                  birthday: '生日',
+                  stateShow: '状态',
+                  createTime: '创建时间',
+                  updateTime: '最后修改时间'
+              };
+  
+              this.isShowDetailModal = true;
+          },
+          showDeletePage: function showDeletePage(data) {
+              this.initData = $.extend({}, data, {
+                  _isDelete: true
+              });
   
               this.isShowDetailModal = true;
           },

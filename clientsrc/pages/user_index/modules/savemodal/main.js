@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 
-var mixinsSaveModal = require('mixins/savemodal');
+var mixinsBasicSaveModal = require('mixins/basic_save_modal');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
@@ -21,9 +21,9 @@ module.exports = Vue.extend({
             return this.isAdd ? '新增用户信息' : '修改用户信息';
         }
     },
-    mixins: [mixinsSaveModal],
+    mixins: [mixinsBasicSaveModal],
     methods: {
-        setFormData: function(data) {
+        setInitData: function(data) {
             if (!data) {
                 return;
             }

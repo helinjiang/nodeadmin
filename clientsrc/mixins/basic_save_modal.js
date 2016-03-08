@@ -24,7 +24,7 @@ module.exports = {
         /**
          * 初始化数据，建议覆盖
          */
-        setFormData: function(data) {
+        setInitData: function(data) {
             // 初始化数据，建议覆盖
         },
 
@@ -40,7 +40,7 @@ module.exports = {
          */
         showModal: function() {
             // 初始化form data
-            this.setFormData(this.initData);
+            this.setInitData(this.initData);
 
             this.$children[0].show();
         },

@@ -2,21 +2,22 @@ var Vue = require('lib/vue');
 
 
 var deletePage = require('./delete/main');
-var detailPage = require('./detail/main');
+
 var saveModal = require('./savemodal/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
         'delete': deletePage,
-        'detail': detailPage,
+
         'saveModal': saveModal,
     },
     data: function() {
         return {
             isShowSaveModal: false,
             isShowDetailModal: false,
-            initData: {}
+            initData: {},
+            detailField: {}
         };
     },
     methods: {
@@ -40,6 +41,8 @@ module.exports = Vue.extend({
                     this.showModifyPage(data);
                 } else if (type == 'detail') {
                     this.showDetailPage(data);
+                } else if (type == 'delete') {
+                    this.showDeletePage(data);
                 }
 
                 // this.$refs[type].showModal(data);
@@ -65,8 +68,23 @@ module.exports = Vue.extend({
             this.isShowSaveModal = true;
         },
         showDetailPage: function(data) {
-            console.log('showDetailPage--');
+            
             this.initData = $.extend({}, data);
+            this.detailField = {
+                id: 'ID',
+                name: '用户名',
+                birthday: '生日',
+                stateShow: '状态',
+                createTime: '创建时间',
+                updateTime: '最后修改时间',
+            };
+
+            this.isShowDetailModal = true;
+        },
+        showDeletePage: function(data) {
+            this.initData = $.extend({}, data, {
+                _isDelete: true
+            });
 
             this.isShowDetailModal = true;
         },
