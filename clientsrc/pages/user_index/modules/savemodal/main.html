@@ -1,0 +1,24 @@
+<div class="savemodal">
+    <modal title="修改用户信息">
+        <he-form action="/admin/user/save" horizontal noactions>
+            <he-form-item title="ID" horizontal v-if="!isAdd">
+                <input type="text" name="id" v-model="id" readonly>
+            </he-form-item>
+            <he-form-item title="用户名" horizontal>
+                <input type="text" name="name" v-model="name" :readonly="!isAdd">
+            </he-form-item>
+            <he-form-item title="密码" horizontal v-if="isAdd">
+                <input type="password" name="pwd" v-model="pwd">
+            </he-form-item>
+            <he-form-item title="状态" horizontal>
+                <select2 name="state" :value.sync="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+            <he-form-item title="生日" horizontal>
+                <date name="birthday" :value.sync="birthday"></date>
+            </he-form-item>
+        </he-form>
+    </modal>
+</div>

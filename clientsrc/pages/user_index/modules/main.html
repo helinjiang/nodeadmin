@@ -7,6 +7,12 @@
         <detail v-ref:detail></detail>
     </admin-main-toolbar>
 
+    <he-button type="success" icon="plus" v-on:click="showAddPage">test新增</he-button> 
+    <he-button type="success" icon="plus" v-on:click="showModifyPage">test修改</he-button> 
+
+
+    <save-modal v-if="isShowSaveModal" :init-data="initData" v-on:modalhidden="hideSaveModal"></save-modal>
+
     <portlet title="用户列表" icon="globe">    
         <datagrid url="/admin/user/getdata" pagelength="4" v-on:click="operate" v-ref:datagrid>
             <datagrid-item name="id" title="ID"></datagrid-item>
