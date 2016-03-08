@@ -2,6 +2,11 @@ var Vue = require('lib/vue');
 
 Vue.component('modal', {
     template: __inline('main.html'),
+    data: function() {
+        return {
+            jqModal: undefined
+        };
+    },
     props: {
         'id': String,
         'css': String,
@@ -35,8 +40,8 @@ Vue.component('modal', {
     methods: {
         show: function() {
             // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
-            $(this.$el).modal();
-            
+            this.jqModal.modal();
+
             // TODO 此处还需要优化
             // 如果是longmodal形式，则在body中增加page-overflow
             if (this.longmodal) {
@@ -44,7 +49,7 @@ Vue.component('modal', {
             }
         },
         hide: function() {
-            $(this.$el).modal('hide');
+            this.jqModal.modal('hide');
             if (this.longmodal) {
                 $('body').removeClass('page-overflow');
             }
@@ -52,34 +57,44 @@ Vue.component('modal', {
         confirm: function() {
             // 自定义事件，使用方式为v-on:confirm="save"
             this.$dispatch('confirm', this.id);
+        },
+        reportShown: function(id) {
+            this.$dispatch('modalshown', id);
+        },
+        reportHidden: function(id) {
+            this.$dispatch('modalhidden', id);
+        },
+        _initGeneral: function() {
+            // general settings
+            $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner =
+                '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' +
+                '<div class="progress progress-striped active">' +
+                '<div class="progress-bar" style="width: 100%;"></div>' +
+                '</div>' +
+                '</div>';
+
+            $.fn.modalmanager.defaults.resize = true;
+        },
+        _listenEvent: function() {
+            var self = this;
+            this.jqModal.on('shown.bs.modal', function() {
+                self.reportShown(self.id);
+            }).on('hidden.bs.modal', function() {
+                self.reportHidden(self.id);
+            });
         }
     },
     ready: function() {
-        _init();
+        this.jqModal = $(this.$el);
+        this._initGeneral();
+        this._listenEvent();
     }
 });
 
-function _init() {
-    $(function() {
-        _initGeneral();
-    });
-}
 /**
  * data-focus-on="input:first"
  */
 
-
-function _initGeneral() {
-    // general settings
-    $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner =
-        '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' +
-        '<div class="progress progress-striped active">' +
-        '<div class="progress-bar" style="width: 100%;"></div>' +
-        '</div>' +
-        '</div>';
-
-    $.fn.modalmanager.defaults.resize = true;
-}
 
 function _ajaxDialog() {
     //ajax demo:
