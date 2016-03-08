@@ -1,15 +1,10 @@
 var Vue = require('lib/vue');
 
-
-var deletePage = require('./delete/main');
-
 var saveModal = require('./savemodal/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
-        'delete': deletePage,
-
         'saveModal': saveModal,
     },
     data: function() {
@@ -21,7 +16,7 @@ module.exports = Vue.extend({
             detailField: {},
             deleteField: {},
             deleteParam: {},
-            deleteUrl:''
+            deleteUrl: ''
         };
     },
     methods: {
@@ -40,16 +35,22 @@ module.exports = Vue.extend({
 
             data = this.getDataById(id);
 
-            if (data) {
-                if (type == 'modify') {
-                    this.showModifyPage(data);
-                } else if (type == 'detail') {
-                    this.showDetailPage(data);
-                } else if (type == 'delete') {
-                    this.showDeletePage(data);
-                }
+            if (!data) {
+                return;
+            }
 
-                // this.$refs[type].showModal(data);
+            switch (type) {
+                case 'modify':
+                    this.showModifyPage(data);
+                    break;
+                case 'detail':
+                    this.showDetailPage(data);
+                    break;
+                case 'delete':
+                    this.showDeletePage(data);
+                    break;
+                default:
+                    break;
             }
         },
         reloadDataGrid: function() {

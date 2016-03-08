@@ -15502,69 +15502,6 @@ define('pages/test_index/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/user_index/modules/delete/main.js*/
-define('pages/user_index/modules/delete/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('common/scripts/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data || !data.id) {
-                  return;
-              }
-  
-              // 设置要删除的记录的id
-              this.id = data.id;
-  
-              // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '用户名'
-              }, {
-                  key: 'birthday',
-                  value: data.birthday,
-                  title: '生日'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }, {
-                  key: 'createTime',
-                  value: data.createTime,
-                  title: '创建时间'
-              }, {
-                  key: 'updateTime',
-                  value: data.updateTime,
-                  title: '最后修改时间'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              var self = this;
-  
-              $.post('/admin/user/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  self.dealSuccessRes(responseText, statusText);
-              });
-          }
-      }
-  });
-
-});
-
 ;/*!/pages/user_index/modules/savemodal/main.js*/
 define('pages/user_index/modules/savemodal/main', function(require, exports, module) {
 
@@ -15661,15 +15598,11 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   
   var Vue = require('common/lib/vue');
   
-  var deletePage = require('pages/user_index/modules/delete/main');
-  
   var saveModal = require('pages/user_index/modules/savemodal/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                @modalhidden=\"hideDeleteModal\"\r\n                @savesuccess=\"reloadDataGrid\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" @click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
-          'delete': deletePage,
-  
           'saveModal': saveModal
       },
       data: function data() {
@@ -15700,16 +15633,22 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   
               data = this.getDataById(id);
   
-              if (data) {
-                  if (type == 'modify') {
-                      this.showModifyPage(data);
-                  } else if (type == 'detail') {
-                      this.showDetailPage(data);
-                  } else if (type == 'delete') {
-                      this.showDeletePage(data);
-                  }
+              if (!data) {
+                  return;
+              }
   
-                  // this.$refs[type].showModal(data);
+              switch (type) {
+                  case 'modify':
+                      this.showModifyPage(data);
+                      break;
+                  case 'detail':
+                      this.showDetailPage(data);
+                      break;
+                  case 'delete':
+                      this.showDeletePage(data);
+                      break;
+                  default:
+                      break;
               }
           },
           reloadDataGrid: function reloadDataGrid() {
