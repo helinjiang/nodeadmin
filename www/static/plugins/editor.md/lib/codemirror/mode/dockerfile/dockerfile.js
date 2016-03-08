@@ -3,7 +3,7 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("static/plugins/editor.md/lib/codemirror/lib/codemirror"), require("static/plugins/editor.md/lib/codemirror/addon/mode/simple"));
+    mod(require("common/plugins/editor.md/lib/codemirror/lib/codemirror"), require("common/plugins/editor.md/lib/codemirror/addon/mode/simple"));
   else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror", "../../addon/mode/simple"], mod);
   else // Plain browser env

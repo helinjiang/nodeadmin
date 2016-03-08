@@ -1,5 +1,5 @@
-;/*!/modules/lib/vue.js*/
-define('modules/lib/vue', function(require, exports, module) {
+;/*!/common/lib/vue.js*/
+define('common/lib/vue', function(require, exports, module) {
 
   /*!
    * Vue.js v1.0.13
@@ -9438,1582 +9438,8 @@ define('modules/lib/vue', function(require, exports, module) {
 
 });
 
-;/*!/modules/common/validator.js*/
-define('modules/common/validator', function(require, exports, module) {
-
-  /**
-   * http://jqueryvalidation.org/
-   * 基于 jquery.validate.js 修改  
-   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
-   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
-   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
-   * 也可以两者同时使用。
-   */
-  
-  // http://jqueryvalidation.org/category/plugin/
-  'use strict';
-  
-  var defaultOptions = {
-      errorElement: 'span', //default input error message container
-      errorClass: 'help-block', // default input error message class
-      focusInvalid: false, // do not focus the last invalid input
-      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
-  
-      /**
-       * hightlight error inputs  
-       * @param  {object}   element Dom元素input
-       */
-      highlight: function highlight(element) {
-          // set error class to the control group
-          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-      },
-  
-      /**
-       * revert the change done by hightlight
-       * @param  {object}   element Dom元素input
-       */
-      unhighlight: function unhighlight(element) {
-          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
-      },
-  
-      /**
-       * display error alert on form submit   
-       * @param  {[type]}   event     [description]
-       * @param  {[type]}   validator [description]
-       */
-      // invalidHandler: function(event, validator) {
-      // },
-  
-      success: function success(label) {
-          label.closest('.form-group').removeClass('has-error');
-          label.remove();
-      },
-  
-      /**
-       * render error placement for each input type
-       * @param  {object}   error   Dom元素
-       * @param  {object}   element [description]
-       */
-      errorPlacement: function errorPlacement(error, element) {
-          var errwrap = element.closest('.errwrap');
-          if (errwrap.length) {
-              error.appendTo(element.closest('.errwrap'));
-          } else {
-              // 默认，element为input元素
-              error.insertAfter(element);
-          }
-      },
-  
-      /**
-       * 提交操作
-       * @param  {object}   form Dom元素
-       * @author helinjiang
-       * @date   2016-02-28
-       */
-      submitHandler: function submitHandler(form) {
-          // 默认是提交表单，如果是ajax提交，则请覆盖之
-          form.submit();
-      }
-  };
-  
-  /**
-   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
-   * @param  {object}   jqForm       form的jQuery对象
-   * @param  {object}   rulesOptions 校验对象定义
-   * @param  {object}   validatorOptions     validator的配置参数
-   * @param  {object}   handler     自定义的一些处理方法
-   */
-  function check(jqForm, rulesOptions, validatorOptions, handler) {
-      if (!jqForm.length || typeof rulesOptions !== "object") {
-          return;
-      }
-  
-      if (typeof validatorOptions !== "object") {
-          validatorOptions = {};
-      }
-  
-      if (typeof handler !== "object") {
-          handler = {};
-      }
-  
-      // 从 rulesOptions 中获得 rules 和 messages
-      var rulesAndMessages = getRulesAndMessages(rulesOptions);
-  
-      // 获得options
-      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
-  
-      // 如果还有 handler，相对于钩子，则再追加操作。
-  
-      jqForm.validate(options);
-  }
-  
-  function getRulesAndMessages(rulesOptions) {
-      if ($.isEmptyObject(rulesOptions)) {
-          return {};
-      }
-  
-      // username: {
-      //     required: {
-      //         rule: true,
-      //         message: '用户名不能为空！'
-      //     },
-      //     minlength: {
-      //         rule: 2,
-      //         message: '最小长度为2'
-      //     },
-      //     maxlength: {
-      //         rule: 6,
-      //         message: '最大长度为6'
-      //     }
-      // }
-  
-      var options = {},
-          rules = {},
-          messages = {};
-  
-      for (var k in rulesOptions) {
-          // k=username
-          if (rulesOptions.hasOwnProperty(k)) {
-              var v = rulesOptions[k];
-              for (var vk in v) {
-                  // vk=required
-                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
-                  var vv = v[vk];
-  
-                  if (typeof vv === 'object') {
-                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
-                      // 校验器的传值 rule
-                      if (vv.rule) {
-                          if (!rules[k]) {
-                              rules[k] = {};
-                          }
-                          rules[k][vk] = vv.rule;
-                      }
-  
-                      // 校验器失败之后的提示 message
-                      if (vv.message) {
-                          if (!messages[k]) {
-                              messages[k] = {};
-                          }
-                          messages[k][vk] = vv.message;
-                      }
-                  } else {
-                      // 如果校验器对应的值不是对象，则将其当作 rule
-                      if (!rules[k]) {
-                          rules[k] = {};
-                      }
-                      rules[k][vk] = vv;
-                  }
-              }
-          }
-      }
-  
-      if (!$.isEmptyObject(rules)) {
-          options.rules = rules;
-      }
-  
-      if (!$.isEmptyObject(messages)) {
-          options.messages = messages;
-      }
-  
-      return options;
-  }
-  
-  /**
-   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
-   * @param  {object} jqForm form或者表单元素
-   * @param  {string} fieldName form中的某个表单元素的name属性值
-   * @return {boolean}          
-   */
-  function valid(jqForm, fieldName) {
-      if (!jqForm || !jqForm.length) {
-          return false;
-      }
-  
-      if (!fieldName) {
-          return jqForm.valid();
-      } else {
-          return $('[name="' + fieldName + '"]', jqForm).valid();
-      }
-  }
-  
-  module.exports = {
-      check: check,
-      valid: valid
-  };
-
-});
-
-;/*!/modules/components/msg/main.js*/
-define('modules/components/msg/main', function(require, exports, module) {
-
-  'use strict';
-  
-  toastr.options = {
-      "closeButton": true,
-      // "debug": true,
-      "positionClass": "toast-top-center",
-      "onclick": null,
-      "showDuration": "1000",
-      "hideDuration": "1000",
-      "timeOut": "5000",
-      "extendedTimeOut": "1000",
-      "showEasing": "swing",
-      "hideEasing": "linear",
-      "showMethod": "fadeIn",
-      "hideMethod": "fadeOut"
-  };
-  
-  function info(content) {
-      toastr.info(content, '信息');
-  }
-  
-  function success(content) {
-      toastr.success(content, '成功');
-  }
-  
-  function error(content) {
-      toastr.error(content, '错误');
-  }
-  
-  function warning(content) {
-      toastr.warning(content, '警告');
-  }
-  
-  module.exports = {
-      info: info,
-      success: success,
-      error: error,
-      warning: warning
-  };
-
-});
-
-;/*!/modules/common/crud.js*/
-define('modules/common/crud', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var Validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
-  
-  /**
-   * 用于定义Vue组件的通用的一些设置
-   * @type {Object}
-   */
-  var commonOptions = {
-      template: '<div> EMPTY </div>',
-      data: function data() {
-          return {
-              jqForm: undefined
-          };
-      },
-      methods: {
-          /**
-           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
-           */
-          beforeShowModal: function beforeShowModal(data) {},
-  
-          getRulesOptions: function getRulesOptions() {
-              return {};
-          },
-  
-          /**
-           * 弹出对话框
-           */
-          showModal: function showModal(data) {
-              this.beforeShowModal(data);
-  
-              this.$children[0].show();
-          },
-  
-          /**
-           * 关闭对话框
-           */
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-  
-          /**
-           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-           */
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-  
-          /**
-           * 对话框确定按钮点击之后的回调函数
-           */
-          triggerSubmit: function triggerSubmit(modalId) {
-              if (this.jqForm) {
-                  this.jqForm.submit();
-              } else {
-                  console.error('this.jqForm is undefined');
-              }
-          },
-  
-          /**
-           * 表单校验
-           */
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              Validator.check(this.jqForm, this.getRulesOptions(), {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              self.dealSuccessRes(responseText, statusText);
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
-                              }
-                          }
-                      });
-                  }
-              });
-          },
-          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
-              console.log(responseText, statusText);
-  
-              if (statusText !== 'success' || responseText.errno !== 0) {
-                  // 提示失败
-                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-              } else {
-                  // 提示成功
-                  Msg.success('^_^ 处理成功！');
-  
-                  // 关闭对话框
-                  this.hideModal();
-  
-                  // 刷新列表
-                  this.reportSuccess(responseText.data);
-              }
-          }
-      },
-      events: {
-          /**
-           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
-           * 
-           * @param  {string} name   表单中某一表单元素的name属性值
-           * @param  {string} val    新值
-           * @param  {string} oldVal 旧值
-           * @return {boolean}        校验结果
-           */
-          valuechange: function valuechange(name, val, oldVal) {
-              return Validator.valid(this.jqForm, name);
-          },
-  
-          /**
-           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-           * 
-           * @param  {string} modalId   当前modal的id
-           */
-          confirm: function confirm(modalId) {
-              this.triggerSubmit(modalId);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
-          this.handleValidator();
-      }
-  };
-  
-  module.exports = {
-      extend: function extend(param) {
-          // TODO 此处合并还可以进一步优化
-  
-          var options = $.extend({}, commonOptions);
-  
-          // 如果没有参数或参数不是object，则返回默认值
-          if (typeof param !== 'object') {
-              return options;
-          }
-  
-          // template
-          if (typeof param.template === "string") {
-              options.template = param.template;
-          }
-  
-          // props
-          if (typeof param.props === "object") {
-              options.props = $.extend({}, param.props);
-          }
-  
-          // data       
-          if (typeof param.data === "object") {
-              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
-              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
-              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
-              // var newData = $.extend(options.data(), param.data);
-              // var newData = Object.assign(options.data(), param.data);
-              var newData = options.data(),
-                  keys = Object.keys(param.data);
-  
-              keys.forEach(function (key) {
-                  newData[key] = param.data[key];
-              });
-  
-              options.data = function () {
-                  return newData;
-              };
-          }
-  
-          // 'methods' 和 'events'
-          ['methods', 'events'].forEach(function (p) {
-              options[p] = $.extend({}, options[p] || {}, param[p] || {});
-          });
-  
-          // ready
-          if (typeof param.ready === 'function') {
-              options.ready = param.ready;
-          }
-  
-          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
-          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
-          // });
-  
-          return Vue.extend(options);
-      }
-  };
-
-});
-
-;/*!/modules/car_index/add/main.js*/
-define('modules/car_index/add/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增汽车信息\">\r\n        <he-form action=\"/admin/car/add\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          name: undefined,
-          ownerId: undefined,
-          buydate: undefined,
-          state: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal() {
-              this.name = '';
-              this.ownerId = undefined;
-              this.buydate = '2016-02-25'; // TODO today
-              this.state = '1';
-  
-              this.$refs.user.init();
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  name: {
-                      required: {
-                          rule: true,
-                          message: '汽车名字不能为空！'
-                      }
-                  },
-                  ownerId: {
-                      required: {
-                          rule: true,
-                          message: '车主人不能为空！'
-                      }
-                  },
-                  buydate: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/car_index/delete/main.js*/
-define('modules/car_index/delete/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除汽车信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data || !data.id) {
-                  return;
-              }
-  
-              // 设置要删除的记录的id
-              this.id = data.id;
-  
-              // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'user_name',
-                  value: data.user_name,
-                  title: '车主人'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '汽车名字'
-              }, {
-                  key: 'buydate',
-                  value: data.buydate,
-                  title: '购买日期'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              var self = this;
-  
-              $.post('/admin/car/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  self.dealSuccessRes(responseText, statusText);
-              });
-          }
-      }
-  });
-
-});
-
-;/*!/modules/common/names.js*/
-define('modules/common/names', function(require, exports, module) {
-
-  // <datagrid-item name="id" title="ID"></datagrid-item>
-  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
-  // <datagrid-item name="pwd" hide></datagrid-item>
-  // <datagrid-item name="birthday" title="生日"></datagrid-item>
-  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
-  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
-  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
-  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
-  
-  'use strict';
-  
-  var common = {
-      'id': 'ID',
-      'name': '名字',
-      'createTime': '创建时间',
-      'updateTime': '更新时间',
-      'state': '状态',
-      'stateShow': '状态'
-  };
-  
-  /**
-   * /admin/user
-   */
-  var user = $.extend({}, common, {
-      'name': '用户名',
-      'pwd': '密码',
-      'birthday': '生日'
-  });
-  
-  module.exports = {
-      user: user
-  
-  };
-
-});
-
-;/*!/modules/car_index/detail/main.js*/
-define('modules/car_index/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  var Names = require('modules/common/names');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"汽车信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'user_name',
-                  value: data.user_name,
-                  title: '车主人'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '汽车名字'
-              }, {
-                  key: 'buydate',
-                  value: data.buydate,
-                  title: '购买日期'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              this.hideModal();
-          }
-      }
-  });
-
-});
-
-;/*!/modules/car_index/modify/main.js*/
-define('modules/car_index/modify/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/car/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          name: undefined,
-          ownerId: undefined,
-          state: undefined,
-          buydate: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.name = data.name;
-              this.ownerId = data.ownerId;
-              this.state = data.state;
-              this.buydate = data.buydate;
-  
-              this.$refs.user.init();
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  ownerId: {
-                      required: {
-                          rule: true,
-                          message: '车主人不能为空！'
-                      }
-                  },
-                  buydate: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/car_index/main.js*/
-define('modules/car_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var addPage = require('modules/car_index/add/main');
-  var modifyPage = require('modules/car_index/modify/main');
-  var deletePage = require('modules/car_index/delete/main');
-  var detailPage = require('modules/car_index/detail/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n            <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
-      components: {
-          'add': addPage,
-          'modify': modifyPage,
-          'delete': deletePage,
-          'detail': detailPage
-      },
-      methods: {
-          operate: function operate(event) {
-              var target = event.target,
-                  $target = $(target),
-                  type = $target.data('type'),
-                  id,
-                  data;
-  
-              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
-                  return;
-              }
-  
-              id = $target.data('id');
-  
-              data = this.getDataById(id);
-  
-              if (data) {
-                  this.$refs[type].showModal(data);
-              }
-          },
-          reloadDataGrid: function reloadDataGrid() {
-              this.$refs.datagrid.reload();
-          },
-          getDataById: function getDataById(id) {
-              if (!id) {
-                  console.error('No ID!');
-                  return;
-              }
-  
-              var data = this.$refs.datagrid.getDataById('id', id);
-  
-              if (!data) {
-                  console.error('No data of id=' + id);
-                  return;
-              }
-  
-              return data;
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/coding_index/add/main.js*/
-define('modules/coding_index/add/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器信息\">\r\n        <he-form action=\"/admin/coding/add\" horizontal noactions>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          tableName: undefined,
-          targetName: undefined,
-          targetDesc: undefined,
-          menuId: undefined,
-          breadcrumb: undefined,
-          state: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal() {
-              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
-              this.tableName = '';
-              this.targetName = '';
-              this.targetDesc = '';
-              this.menuId = '';
-              this.breadcrumb = '';
-              this.state = '1';
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  tableName: {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  },
-                  targetName: {
-                      required: true
-                  },
-                  menuId: {
-                      required: true
-                  },
-                  breadcrumb: {
-                      required: true
-                  },
-                  state: {
-                      required: true
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/coding_index/delete/main.js*/
-define('modules/coding_index/delete/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data || !data.id) {
-                  return;
-              }
-  
-              // 设置要删除的记录的id
-              this.id = data.id;
-  
-              // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'tableName',
-                  value: data.tableName,
-                  title: '数据库表名'
-              }, {
-                  key: 'targetName',
-                  value: data.targetName,
-                  title: '目标名字'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              var self = this;
-  
-              $.post('/admin/coding/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  self.dealSuccessRes(responseText, statusText);
-              });
-          }
-      }
-  });
-
-});
-
-;/*!/modules/coding_index/detail/main.js*/
-define('modules/coding_index/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  var Names = require('modules/common/names');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'tableName',
-                  value: data.tableName,
-                  title: '数据库表名'
-              }, {
-                  key: 'targetName',
-                  value: data.targetName,
-                  title: '目标名字'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              this.hideModal();
-          }
-      }
-  });
-
-});
-
-;/*!/modules/coding_index/modify/main.js*/
-define('modules/coding_index/modify/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/coding/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          tableName: undefined,
-          targetName: undefined,
-          targetDesc: undefined,
-          menuId: undefined,
-          breadcrumb: undefined,
-          state: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.tableName = data.tableName;
-              this.targetName = data.targetName;
-              this.targetDesc = data.targetDesc;
-              this.menuId = data.menuId;
-              this.breadcrumb = data.breadcrumb;
-              this.state = data.state;
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  targetName: {
-                      required: true
-                  },
-                  menuId: {
-                      required: true
-                  },
-                  breadcrumb: {
-                      required: true
-                  },
-                  state: {
-                      required: true
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/coding_index/main.js*/
-define('modules/coding_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var addPage = require('modules/coding_index/add/main');
-  var modifyPage = require('modules/coding_index/modify/main');
-  var deletePage = require('modules/coding_index/delete/main');
-  var detailPage = require('modules/coding_index/detail/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"coding_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/coding/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"tableName\" title=\"数据库表名\"></datagrid-item>\r\n            <datagrid-item name=\"targetName\" title=\"目标名字\"></datagrid-item>\r\n            <datagrid-item name=\"targetDesc\" title=\"目标描述\"></datagrid-item>\r\n            <datagrid-item name=\"menuId\" title=\"菜单ID\"></datagrid-item>\r\n            <datagrid-item name=\"breadcrumb\" title=\"面包屑导航\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | codingitem detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
-      components: {
-          'add': addPage,
-          'modify': modifyPage,
-          'delete': deletePage,
-          'detail': detailPage
-      },
-      methods: {
-          operate: function operate(event) {
-              var target = event.target,
-                  $target = $(target),
-                  type = $target.data('type'),
-                  id,
-                  data;
-  
-              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
-                  return;
-              }
-  
-              id = $target.data('id');
-  
-              data = this.getDataById(id);
-  
-              if (data) {
-                  this.$refs[type].showModal(data);
-              }
-          },
-          reloadDataGrid: function reloadDataGrid() {
-              this.$refs.datagrid.reload();
-          },
-          getDataById: function getDataById(id) {
-              if (!id) {
-                  console.error('No ID!');
-                  return;
-              }
-  
-              var data = this.$refs.datagrid.getDataById('id', id);
-  
-              if (!data) {
-                  console.error('No data of id=' + id);
-                  return;
-              }
-  
-              return data;
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/coding_index/wizard/main.js*/
-define('modules/coding_index/wizard/main', function(require, exports, module) {
-
-  /**
-   * 后期再提供解析当前数据库结构，根据sql语句反解析
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"test-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"配置数据库中的字段及含义\">     \r\n            <div class=\"row\">\r\n               <div class=\"col-md-6\">\r\n                    <he-form-item title=\"字段名\" col=\"3-9\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\" placeholder=\"在数据库中的字段名，推荐小驼峰形式\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" col=\"3-9\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"类型\" col=\"3-9\" help=\"可选可输入。时间用什么存储呢？\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" help=\"int、char、varchar才需要定义长度\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" help=\"可选可输入\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" help=\"下拉选择，比如UNSIGINED\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"是否非空\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"索引\" col=\"3-9\" help=\"定义主键或唯一信息\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"是否自增\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" help=\"备注和解释\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"此处可能有多个\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item col=\"3-9\" horizontal>\r\n                        <button class=\"btn btn-info\">保存</button>\r\n                    </he-form-item>\r\n               </div>\r\n               <div class=\"col-md-6\">\r\n                   \r\n               </div>\r\n           </div>       \r\n                   \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"基础信息配置\">           \r\n            <he-form-item title=\"目标名\" col=\"3-4\" help=\"用以描述这是xx管理系统\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n\r\n            <he-form-item title=\"功能描述\" col=\"3-4\" help=\"简单描述这个系统是用于做什么的\" horizontal>\r\n                <textarea rows=\"3\" name=\"targetDesc\"  v-model=\"targetDesc\"></textarea>\r\n            </he-form-item>\r\n\r\n            <he-form-item title=\"菜单ID\" col=\"3-4\" help=\"用于在左侧导航栏中高亮\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n\r\n            <he-form-item title=\"面包屑导航\" col=\"3-4\" help=\"用于在左侧导航栏中高亮\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n            <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n            </he-form-item> \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
-      data: function data() {
-          return {
-              username: '',
-              fullname: '',
-              remarks: '',
-              card_name: '',
-              title: '代码生成器',
-              stepItems: [{
-                  target: '#tab1',
-                  title: '基础配置'
-              }, {
-                  target: '#tab2',
-                  title: '数据库配置'
-              }, {
-                  target: '#tab3',
-                  title: '新增页'
-              }, {
-                  target: '#tab4',
-                  title: 'Confirm'
-              }],
-              rulesOptions: {
-                  //account
-                  username: {
-                      minlength: 5,
-                      required: true
-                  },
-                  //profile
-                  fullname: {
-                      required: true
-                  },
-                  //payment
-                  card_name: {
-                      required: true
-                  }
-              }
-          };
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/codingitem_index/save/main.js*/
-define('modules/codingitem_index/save/main', function(require, exports, module) {
-
-  /**
-   * 后期再提供解析当前数据库结构，根据sql语句反解析
-   */
-  
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"save-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\" v-on:wizardcancel=\"backToInit\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"基础信息配置\">   \r\n            <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">  \r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>            \r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item> \r\n            <he-form-item title=\"字段状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"备注\" col=\"3-9\" horizontal>\r\n                <textarea name=\"remark\" v-model=\"remark\" rows=\"3\"></textarea>\r\n            </he-form-item>  \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"配置数据库中的字段及含义\">  \r\n            <he-form-item horizontal>\r\n                <he-checkbox name=\"isDb\" title=\"是否数据库字段\" :checked.sync=\"isDb\"></he-checkbox>                   \r\n            </he-form-item>     \r\n            <template v-if=\"isDb\">\r\n                <he-form-item title=\"数据库字段模版\" help=\"预置了常用的字段配置，注意改变本字段会导致数据被覆盖。\" horizontal>\r\n                    <select2 name=\"dbTemplate\" :value.sync=\"dbTemplate\">\r\n                        <select2-option title=\"ID\" value=\"id\"></select2-option>\r\n                        <select2-option title=\"名字\" value=\"name\"></select2-option>                        \r\n                    </select2>\r\n                </he-form-item>     \r\n                <he-form-item title=\"数据库字段名称\" required horizontal>\r\n                    <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                </he-form-item>     \r\n                <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                    <select2 name=\"type\" :value.sync=\"type\">\r\n                        <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                        <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                        <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                        <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                        <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                        <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                    </select2>\r\n                </he-form-item> \r\n                <he-form-item title=\"长度\" col=\"3-9\" help=\"字符串和数字则需要定义长度\" horizontal>\r\n                    <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                </he-form-item>\r\n                <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                    <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                </he-form-item>\r\n                <he-form-item title=\"更多选项\" col=\"3-9\" horizontal>\r\n                    <div class=\"checkbox-list\">\r\n                        <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                        <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                        <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                        <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                        <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                    </div>\r\n                </he-form-item>\r\n                <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                    <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                </he-form-item>\r\n                <he-form-item title=\"字段注释\" col=\"3-9\" horizontal>\r\n                    <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                </he-form-item>                    \r\n               \r\n                <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                    <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                        <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                    </select2>\r\n                </he-form-item>   \r\n            </template>  \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"配置在页面中的展示和校验\">\r\n            <he-form-item title=\"在这些页面中出现\" col=\"3-9\" horizontal>\r\n                <div class=\"checkbox-list\">\r\n                    <he-checkbox name=\"isForeignKey\" title=\"列表页\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                    <he-checkbox name=\"isNotNull\" title=\"新增页\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                    <he-checkbox name=\"isAutoIncrease\" title=\"编辑页\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                    <he-checkbox name=\"isKey\" title=\"详情页\" :checked.sync=\"isKey\"></he-checkbox>\r\n                    <he-checkbox name=\"isUnique\" title=\"删除页\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                </div>\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
-      data: function data() {
-          return {
-              stepItems: [{
-                  target: '#tab1',
-                  title: '基础配置'
-              }, {
-                  target: '#tab2',
-                  title: '数据库配置'
-              }, {
-                  target: '#tab3',
-                  title: '新增页'
-              }, {
-                  target: '#tab4',
-                  title: 'Confirm'
-              }],
-              rulesOptions: {
-                  fieldName: {
-                      required: true
-                  },
-                  dbName: {
-                      required: true
-                  },
-                  type: {
-                      required: true
-                  }
-              },
-              fieldName: '', // 字段名称
-              cnName: '', // 中文名称
-              state: '1', // 字段状态
-              remark: '', // 备注
-              isDb: true, // 是否为数据库字段
-              dbName: '', // 数据库中字段名称
-              dbTemplate: '', // 数据库字段模版，用于快速设定常用的字段
-              type: 'varchar', // 类型
-              length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
-              defaultVal: '', // 默认值
-              property: '', // 属性，如果是id，需要定义为UNSIGNED
-              isNotNull: true, // 是否非空
-              isAutoIncrease: false, // 是否自增
-              isKey: false, // 是否主键
-              isUnique: false, // 是否唯一
-              isForeignKey: false, // 是否外键
-              comment: '', // 数据库注释
-              isInList: true, // 是否在列表页中出现
-              isInAdd: false, // 是否在新增页中出现
-              isInModify: false, // 是否在修改页中出现
-              isInDetail: false, // 是否在详情页中出现
-              isInDelete: false };
-      },
-      // 是否在删除页中出现
-      props: {
-          'title': String,
-          'codingId': {
-              required: true,
-              type: Number
-          }
-      },
-      methods: {
-          /**
-           * 点击取消按钮后，触发的一个事件，用于通知父组件关闭本页面，恢复初始状态
-           */
-          backToInit: function backToInit() {
-              this.$dispatch('backtoinit');
-          }
-      },
-      ready: function ready() {
-          console.log('save... ready!');
-      }
-  });
-
-});
-
-;/*!/modules/codingitem_index/add/main.js*/
-define('modules/codingitem_index/add/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var savePage = require('modules/codingitem_index/save/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"addpage\">   \r\n   <save-page title=\"新增代码生成器字段信息\" :coding-id=\"assign.id\" ></save-page>\r\n</div>\r\n",
-      components: {
-          savePage: savePage
-      },
-      props: {
-          assign: {
-              required: true,
-              type: Object
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/codingitem_index/add2/main.js*/
-define('modules/codingitem_index/add2/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器字段信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <div class=\"row\">\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"代码生成器\" required horizontal>\r\n                        <input type=\"text\" name=\"codingName\" readonly v-model=\"codingName\">\r\n                        <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"字段名称\" required horizontal>\r\n                        <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" horizontal>\r\n                        <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"英文名称\" required horizontal>\r\n                        <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                        <select2 name=\"type\" :value.sync=\"type\">\r\n                            <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                            <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                            <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                            <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                            <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                            <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" horizontal v-show=\"['varchar', 'char', 'int'].indexOf(type) > -1\">\r\n                        <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                        <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                            <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"选项\" col=\"3-9\" horizontal>\r\n                        <div class=\"checkbox-list\">\r\n                            <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                            <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                            <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                            <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                            <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                        </div>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                        <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" horizontal>\r\n                        <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"状态\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n            </div>           \r\n            \r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          codingName: undefined, // 所属的代码生成器展示名字
-          codingId: undefined, // 所属的代码生成器ID
-          fieldName: undefined, // 数据库中字段名称
-          cnName: undefined, // 中文名称
-          dbName: undefined, // 英文名称，用于代码中逻辑实现
-          state: undefined, // 状态
-          type: undefined, // 类型
-          length: undefined, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
-          defaultVal: undefined, // 默认值
-          property: undefined, // 属性，如果是id，需要定义为UNSIGNED
-          isNotNull: false, // 是否非空
-          isAutoIncrease: false, // 是否自增
-          isKey: false, // 是否主键
-          isUnique: false, // 是否唯一
-          isForeignKey: false, // 是否外键
-          comment: undefined },
-      // 注释
-      props: {
-          'assign': {
-              type: Object,
-              required: true
-          }
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal() {
-              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
-              this.codingName = this.assign.tableName + '-' + this.assign.targetName + '(' + this.assign.id + ')';
-              this.codingId = this.assign.id;
-              this.fieldName = '';
-              this.cnName = '';
-              this.dbName = '';
-              this.state = '1';
-              this.type = 'varchar';
-              this.length = 0;
-              this.defaultVal = '';
-              this.property = '';
-              this.isNotNull = true;
-              this.isAutoIncrease = false;
-              this.isKey = false;
-              this.isUnique = false;
-              this.isForeignKey = false;
-              this.comment = '';
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  codingId: {
-                      required: {
-                          rule: true,
-                          message: 'codingId不能为空！'
-                      }
-                  },
-                  fieldName: {
-                      required: true
-                  },
-                  dbName: {
-                      required: true
-                  },
-                  state: {
-                      required: true
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/codingitem_index/codinginfo/main.js*/
-define('modules/codingitem_index/codinginfo/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">{{assign.tableName}}-{{assign.targetName}}({{assign.id}})</div>\r\n</div>",
-      props: {
-          'assign': {
-              type: Object,
-              required: true
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/codingitem_index/delete/main.js*/
-define('modules/codingitem_index/delete/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data || !data.id) {
-                  return;
-              }
-  
-              // 设置要删除的记录的id
-              this.id = data.id;
-  
-              // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'codingId',
-                  value: data.codingId,
-                  title: '代码生成器'
-              }, {
-                  key: 'fieldName',
-                  value: data.fieldName,
-                  title: '字段名称'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              var self = this;
-  
-              $.post('/admin/codingitem/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  self.dealSuccessRes(responseText, statusText);
-              });
-          }
-      }
-  });
-
-});
-
-;/*!/modules/codingitem_index/detail/main.js*/
-define('modules/codingitem_index/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  var Names = require('modules/common/names');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'codingId',
-                  value: data.codingId,
-                  title: '代码生成器'
-              }, {
-                  key: 'fieldName',
-                  value: data.fieldName,
-                  title: '字段名称'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              this.hideModal();
-          }
-      }
-  });
-
-});
-
-;/*!/modules/codingitem_index/modify/main.js*/
-define('modules/codingitem_index/modify/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('modules/common/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/codingitem/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          codingId: undefined,
-          fieldName: undefined,
-          cnName: undefined,
-          dbName: undefined,
-          state: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.codingId = data.codingId;
-              this.fieldName = data.fieldName;
-              this.cnName = data.cnName;
-              this.dbName = data.dbName;
-              this.state = data.state;
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  fieldName: {
-                      required: true
-                  },
-                  cnName: {
-                      required: true
-                  },
-                  dbName: {
-                      required: true
-                  },
-                  state: {
-                      required: true
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/codingitem_index/main.js*/
-define('modules/codingitem_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var addPage = require('modules/codingitem_index/add/main');
-  var modifyPage = require('modules/codingitem_index/modify/main');
-  var deletePage = require('modules/codingitem_index/delete/main');
-  var detailPage = require('modules/codingitem_index/detail/main');
-  var codinginfoPage = require('modules/codingitem_index/codinginfo/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"codingitem_index-main\">\r\n\r\n    <codinginfo :assign=\"assign\"></codinginfo>\r\n\r\n    <admin-main-toolbar v-if=\"isShowToolbar\">\r\n         <button class=\"btn btn-success\" v-on:click=\"showAddPage\">\r\n            新增 <i class=\"fa fa-plus\"></i>\r\n        </button>\r\n    </admin-main-toolbar>\r\n\r\n    <add-page v-if=\"isShowAddPage\" :assign=\"assign\" v-on:backtoinit=\"backToInit\"></add-page>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n\r\n    <portlet v-if=\"isShowDatagrid\" title=\"代码生成器字段列表\" icon=\"globe\">    \r\n        <datagrid :url=\"getDataUrl\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"dbName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
-      data: function data() {
-          return {
-              isShowToolbar: true,
-              isShowAddPage: false,
-              isShowDatagrid: true
-          };
-      },
-      components: {
-          addPage: addPage,
-          'modify': modifyPage,
-          'delete': deletePage,
-          'detail': detailPage,
-          'codinginfo': codinginfoPage
-      },
-      props: {
-          /**
-           * thinkjs后台设置过来的值，由于无法传递对象，因此此处需要进行一些转义
-           */
-          'assign': {
-              required: true,
-              coerce: function coerce(val) {
-                  return JSON.parse(val);
-              }
-          }
-      },
-      computed: {
-          getDataUrl: function getDataUrl() {
-              // `this` 指向 vm 实例
-              return '/admin/codingitem/getdata/codingid/' + this.assign.id;
-          }
-      },
-      methods: {
-          /**
-           * 打开新增页面
-           */
-          showAddPage: function showAddPage() {
-              this.isShowToolbar = false;
-              this.isShowAddPage = true;
-              this.isShowDatagrid = false;
-          },
-          backToInit: function backToInit() {
-              this.isShowToolbar = true;
-              this.isShowAddPage = false;
-              this.isShowDatagrid = true;
-          },
-          operate: function operate(event) {
-              var target = event.target,
-                  $target = $(target),
-                  type = $target.data('type'),
-                  id,
-                  data;
-  
-              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
-                  return;
-              }
-  
-              id = $target.data('id');
-  
-              data = this.getDataById(id);
-  
-              if (data) {
-                  this.$refs[type].showModal(data);
-              }
-          },
-          reloadDataGrid: function reloadDataGrid() {
-              this.$refs.datagrid.reload();
-          },
-          getDataById: function getDataById(id) {
-              if (!id) {
-                  console.error('No ID!');
-                  return;
-              }
-  
-              var data = this.$refs.datagrid.getDataById('id', id);
-  
-              if (!data) {
-                  console.error('No data of id=' + id);
-                  return;
-              }
-  
-              return data;
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/common/app.js*/
-define('modules/common/app', function(require, exports, module) {
+;/*!/common/scripts/app.js*/
+define('common/scripts/app', function(require, exports, module) {
 
   /**
   Core script to handle the entire theme and core functions
@@ -11708,12 +10134,460 @@ define('modules/common/app', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/tipalert/main.js*/
-define('modules/components/tipalert/main', function(require, exports, module) {
+;/*!/common/scripts/validator.js*/
+define('common/scripts/validator', function(require, exports, module) {
+
+  /**
+   * http://jqueryvalidation.org/
+   * 基于 jquery.validate.js 修改  
+   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
+   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
+   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
+   * 也可以两者同时使用。
+   */
+  
+  // http://jqueryvalidation.org/category/plugin/
+  'use strict';
+  
+  var defaultOptions = {
+      errorElement: 'span', //default input error message container
+      errorClass: 'help-block', // default input error message class
+      focusInvalid: false, // do not focus the last invalid input
+      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+  
+      /**
+       * hightlight error inputs  
+       * @param  {object}   element Dom元素input
+       */
+      highlight: function highlight(element) {
+          // set error class to the control group
+          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+      },
+  
+      /**
+       * revert the change done by hightlight
+       * @param  {object}   element Dom元素input
+       */
+      unhighlight: function unhighlight(element) {
+          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
+      },
+  
+      /**
+       * display error alert on form submit   
+       * @param  {[type]}   event     [description]
+       * @param  {[type]}   validator [description]
+       */
+      // invalidHandler: function(event, validator) {
+      // },
+  
+      success: function success(label) {
+          label.closest('.form-group').removeClass('has-error');
+          label.remove();
+      },
+  
+      /**
+       * render error placement for each input type
+       * @param  {object}   error   Dom元素
+       * @param  {object}   element [description]
+       */
+      errorPlacement: function errorPlacement(error, element) {
+          var errwrap = element.closest('.errwrap');
+          if (errwrap.length) {
+              error.appendTo(element.closest('.errwrap'));
+          } else {
+              // 默认，element为input元素
+              error.insertAfter(element);
+          }
+      },
+  
+      /**
+       * 提交操作
+       * @param  {object}   form Dom元素
+       * @author helinjiang
+       * @date   2016-02-28
+       */
+      submitHandler: function submitHandler(form) {
+          // 默认是提交表单，如果是ajax提交，则请覆盖之
+          form.submit();
+      }
+  };
+  
+  /**
+   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
+   * @param  {object}   jqForm       form的jQuery对象
+   * @param  {object}   rulesOptions 校验对象定义
+   * @param  {object}   validatorOptions     validator的配置参数
+   * @param  {object}   handler     自定义的一些处理方法
+   */
+  function check(jqForm, rulesOptions, validatorOptions, handler) {
+      if (!jqForm.length || typeof rulesOptions !== "object") {
+          return;
+      }
+  
+      if (typeof validatorOptions !== "object") {
+          validatorOptions = {};
+      }
+  
+      if (typeof handler !== "object") {
+          handler = {};
+      }
+  
+      // 从 rulesOptions 中获得 rules 和 messages
+      var rulesAndMessages = getRulesAndMessages(rulesOptions);
+  
+      // 获得options
+      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
+  
+      // 如果还有 handler，相对于钩子，则再追加操作。
+  
+      jqForm.validate(options);
+  }
+  
+  function getRulesAndMessages(rulesOptions) {
+      if ($.isEmptyObject(rulesOptions)) {
+          return {};
+      }
+  
+      // username: {
+      //     required: {
+      //         rule: true,
+      //         message: '用户名不能为空！'
+      //     },
+      //     minlength: {
+      //         rule: 2,
+      //         message: '最小长度为2'
+      //     },
+      //     maxlength: {
+      //         rule: 6,
+      //         message: '最大长度为6'
+      //     }
+      // }
+  
+      var options = {},
+          rules = {},
+          messages = {};
+  
+      for (var k in rulesOptions) {
+          // k=username
+          if (rulesOptions.hasOwnProperty(k)) {
+              var v = rulesOptions[k];
+              for (var vk in v) {
+                  // vk=required
+                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
+                  var vv = v[vk];
+  
+                  if (typeof vv === 'object') {
+                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
+                      // 校验器的传值 rule
+                      if (vv.rule) {
+                          if (!rules[k]) {
+                              rules[k] = {};
+                          }
+                          rules[k][vk] = vv.rule;
+                      }
+  
+                      // 校验器失败之后的提示 message
+                      if (vv.message) {
+                          if (!messages[k]) {
+                              messages[k] = {};
+                          }
+                          messages[k][vk] = vv.message;
+                      }
+                  } else {
+                      // 如果校验器对应的值不是对象，则将其当作 rule
+                      if (!rules[k]) {
+                          rules[k] = {};
+                      }
+                      rules[k][vk] = vv;
+                  }
+              }
+          }
+      }
+  
+      if (!$.isEmptyObject(rules)) {
+          options.rules = rules;
+      }
+  
+      if (!$.isEmptyObject(messages)) {
+          options.messages = messages;
+      }
+  
+      return options;
+  }
+  
+  /**
+   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
+   * @param  {object} jqForm form或者表单元素
+   * @param  {string} fieldName form中的某个表单元素的name属性值
+   * @return {boolean}          
+   */
+  function valid(jqForm, fieldName) {
+      if (!jqForm || !jqForm.length) {
+          return false;
+      }
+  
+      if (!fieldName) {
+          return jqForm.valid();
+      } else {
+          return $('[name="' + fieldName + '"]', jqForm).valid();
+      }
+  }
+  
+  module.exports = {
+      check: check,
+      valid: valid
+  };
+
+});
+
+;/*!/components/msg/main.js*/
+define('components/msg/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  toastr.options = {
+      "closeButton": true,
+      // "debug": true,
+      "positionClass": "toast-top-center",
+      "onclick": null,
+      "showDuration": "1000",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+  };
+  
+  function info(content) {
+      toastr.info(content, '信息');
+  }
+  
+  function success(content) {
+      toastr.success(content, '成功');
+  }
+  
+  function error(content) {
+      toastr.error(content, '错误');
+  }
+  
+  function warning(content) {
+      toastr.warning(content, '警告');
+  }
+  
+  module.exports = {
+      info: info,
+      success: success,
+      error: error,
+      warning: warning
+  };
+
+});
+
+;/*!/common/scripts/crud.js*/
+define('common/scripts/crud', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var Validator = require('common/scripts/validator');
+  var Msg = require('components/msg/main');
+  
+  /**
+   * 用于定义Vue组件的通用的一些设置
+   * @type {Object}
+   */
+  var commonOptions = {
+      template: '<div> EMPTY </div>',
+      data: function data() {
+          return {
+              jqForm: undefined
+          };
+      },
+      methods: {
+          /**
+           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
+           */
+          beforeShowModal: function beforeShowModal(data) {},
+  
+          getRulesOptions: function getRulesOptions() {
+              return {};
+          },
+  
+          /**
+           * 弹出对话框
+           */
+          showModal: function showModal(data) {
+              this.beforeShowModal(data);
+  
+              this.$children[0].show();
+          },
+  
+          /**
+           * 关闭对话框
+           */
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+  
+          /**
+           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           */
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
+              }
+          },
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              Validator.check(this.jqForm, this.getRulesOptions(), {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              self.dealSuccessRes(responseText, statusText);
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return Validator.valid(this.jqForm, name);
+          },
+  
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
+          }
+      },
+      ready: function ready() {
+          this.jqForm = $('form', this.$el);
+  
+          this.handleValidator();
+      }
+  };
+  
+  module.exports = {
+      extend: function extend(param) {
+          // TODO 此处合并还可以进一步优化
+  
+          var options = $.extend({}, commonOptions);
+  
+          // 如果没有参数或参数不是object，则返回默认值
+          if (typeof param !== 'object') {
+              return options;
+          }
+  
+          // template
+          if (typeof param.template === "string") {
+              options.template = param.template;
+          }
+  
+          // props
+          if (typeof param.props === "object") {
+              options.props = $.extend({}, param.props);
+          }
+  
+          // data       
+          if (typeof param.data === "object") {
+              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
+              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
+              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
+              // var newData = $.extend(options.data(), param.data);
+              // var newData = Object.assign(options.data(), param.data);
+              var newData = options.data(),
+                  keys = Object.keys(param.data);
+  
+              keys.forEach(function (key) {
+                  newData[key] = param.data[key];
+              });
+  
+              options.data = function () {
+                  return newData;
+              };
+          }
+  
+          // 'methods' 和 'events'
+          ['methods', 'events'].forEach(function (p) {
+              options[p] = $.extend({}, options[p] || {}, param[p] || {});
+          });
+  
+          // ready
+          if (typeof param.ready === 'function') {
+              options.ready = param.ready;
+          }
+  
+          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
+          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
+          // });
+  
+          return Vue.extend(options);
+      }
+  };
+
+});
+
+;/*!/components/tipalert/main.js*/
+define('components/tipalert/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
   
   Vue.component('tip-alert', {
       template: "<div class=\"alert alert-{{type}}\" v-show=\"!hide\">\r\n    <button class=\"close\" v-on:click=\"hideIt\"></button>\r\n    <span>{{msg}}</span>\r\n</div>\r\n",
@@ -11757,12 +10631,12 @@ define('modules/components/tipalert/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/select2option/main.js*/
-define('modules/components/select2option/main', function(require, exports, module) {
+;/*!/components/select2option/main.js*/
+define('components/select2option/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('select2-option', {
       template: "<div style=\"display:none\" data-value=\"{{value}}\">{{title}}</div>",
@@ -11789,8 +10663,8 @@ define('modules/components/select2option/main', function(require, exports, modul
 
 });
 
-;/*!/modules/common/select2render.js*/
-define('modules/common/select2render', function(require, exports, module) {
+;/*!/common/scripts/select2render.js*/
+define('common/scripts/select2render', function(require, exports, module) {
 
   /**
    * 本文件用于select2控件时，转义CGI接口返回的数据格式的。
@@ -11835,8 +10709,8 @@ define('modules/common/select2render', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/select2/main.js*/
-define('modules/components/select2/main', function(require, exports, module) {
+;/*!/components/select2/main.js*/
+define('components/select2/main', function(require, exports, module) {
 
   /**
    * 有两种，一种是ajax请求的，一种是现成的
@@ -11869,9 +10743,9 @@ define('modules/components/select2/main', function(require, exports, module) {
   
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
-  var Select2Render = require('modules/common/select2render');
+  var Select2Render = require('common/scripts/select2render');
   
   Vue.component('select2', {
       template: "<div v-show=\"!lazy\">\r\n    <!-- <p>Selected: {{initValue}}-{{value}}-{{initData}}-{{data}}</p> -->\r\n    <input type=\"hidden\" :name=\"name\" v-model=\"value\" style=\"width: 100%\" class=\"form-control select2\"/>\r\n    <slot></slot>\r\n</div>",
@@ -12144,8 +11018,8 @@ define('modules/components/select2/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/date/main.js*/
-define('modules/components/date/main', function(require, exports, module) {
+;/*!/components/date/main.js*/
+define('components/date/main', function(require, exports, module) {
 
   /**
    * http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#autoclose
@@ -12154,7 +11028,7 @@ define('modules/components/date/main', function(require, exports, module) {
   
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   $.fn.datepicker.dates['zh-CN'] = {
       days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
@@ -12256,8 +11130,8 @@ define('modules/components/date/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/editormd/main.js*/
-define('modules/components/editormd/main', function(require, exports, module) {
+;/*!/components/editormd/main.js*/
+define('components/editormd/main', function(require, exports, module) {
 
   /**
   https://github.com/pandao/editor.md
@@ -12265,7 +11139,7 @@ define('modules/components/editormd/main', function(require, exports, module) {
   
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('editormd', {
       template: "<div id=\"test-editormd\"></div>",
@@ -12366,12 +11240,12 @@ define('modules/components/editormd/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/clearfix/main.js*/
-define('modules/components/clearfix/main', function(require, exports, module) {
+;/*!/components/clearfix/main.js*/
+define('components/clearfix/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('clearfix', {
       template: " <div class=\"clearfix\"></div>",
@@ -12380,12 +11254,12 @@ define('modules/components/clearfix/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/hebutton/main.js*/
-define('modules/components/hebutton/main', function(require, exports, module) {
+;/*!/components/hebutton/main.js*/
+define('components/hebutton/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('he-button', {
       template: "<button class=\"btn btn-{{type}}\">\r\n    <slot></slot> <i class=\"fa fa-{{icon}}\" v-if=\"icon\"></i>\r\n</button>",
@@ -12401,12 +11275,12 @@ define('modules/components/hebutton/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/hecheckbox/main.js*/
-define('modules/components/hecheckbox/main', function(require, exports, module) {
+;/*!/components/hecheckbox/main.js*/
+define('components/hecheckbox/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('he-checkbox', {
       template: "<label class=\"checkbox\">\r\n    <input type=\"checkbox\" name=\"{{ name }}\" v-model=\"checked\" /> \r\n    {{ title }} \r\n</label>",
@@ -12455,12 +11329,12 @@ define('modules/components/hecheckbox/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/components/heformitem/main.js*/
-define('modules/components/heformitem/main', function(require, exports, module) {
+;/*!/components/heformitem/main.js*/
+define('components/heformitem/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('he-form-item', {
       template: "<div class=\"form-group\" :class=\"{ 'errwrap': !horizontal }\">\r\n    <template v-if=\"horizontal\">\r\n        <label class=\"col-md-{{colLeft}} control-label\">{{ title }} <span class=\"required\" v-if=\"required\"> * </span></label>\r\n        <div class=\"col-md-{{colRight}} errwrap\">\r\n            <slot></slot>\r\n            <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <label class=\"control-label\">{{ title }}</label>\r\n        <slot></slot>\r\n        <span class=\"help-block\" v-if=\"help\" v-text=\"help\"></span>\r\n    </template>\r\n</div>",
@@ -12530,12 +11404,12 @@ define('modules/components/heformitem/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/components/heform/main.js*/
-define('modules/components/heform/main', function(require, exports, module) {
+;/*!/components/heform/main.js*/
+define('components/heform/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('he-form', {
       template: "<form :id=\"id\" :action=\"action\" :class=\"{ 'form-horizontal': horizontal }\" role=\"form\" :method=\"method\">\r\n    <template v-if=\"inner\">\r\n        <div :class=\"inner\">\r\n            <div class=\"form-body\" :class=\"bodycss\">\r\n                <slot></slot>\r\n            </div>\r\n            <div class=\"form-actions\" :class=\"actionscss\" v-if=\"!noactions\">\r\n                <slot name=\"actions\"></slot>\r\n            </div>\r\n        </div>\r\n    </template>\r\n    <template v-else>\r\n        <div class=\"form-body\" :class=\"bodycss\">\r\n            <slot></slot>\r\n        </div>\r\n        <div class=\"form-actions\" :class=\"actionscss\" v-if=\"!noactions\">\r\n            <slot name=\"actions\"></slot>\r\n        </div>\r\n    </template>\r\n</form>\r\n",
@@ -12623,13 +11497,13 @@ define('modules/components/heform/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/module_admin/footer/main.js*/
-define('modules/module_admin/footer/main', function(require, exports, module) {
+;/*!/modules/admin/footer/main.js*/
+define('modules/admin/footer/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  var App = require('modules/common/app');
+  var Vue = require('common/lib/vue');
+  var App = require('common/scripts/app');
   
   Vue.component('admin-footer', {
       template: "<div class=\"footer\">\r\n\r\n    <div class=\"footer-inner\">\r\n         {{year}} &copy; Hello, world!\r\n    </div>\r\n\r\n    <div class=\"footer-tools\">\r\n        <span class=\"go-top\" v-on:click=\"goTop\">\r\n            <i class=\"fa fa-angle-up\"></i>\r\n        </span>\r\n    </div>\r\n\r\n</div>",
@@ -12655,12 +11529,12 @@ define('modules/module_admin/footer/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/module_admin/header/main.js*/
-define('modules/module_admin/header/main', function(require, exports, module) {
+;/*!/modules/admin/header/main.js*/
+define('modules/admin/header/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('admin-header', {
       template: "<div class=\"header navbar navbar-fixed-top\">\r\n    <!-- BEGIN TOP NAVIGATION BAR -->\r\n    <div class=\"header-inner\">\r\n        <!-- BEGIN LOGO -->\r\n        <div class=\"page-logo\">\r\n            <a href=\"index.html\">\r\n                <img src=\"/static/img/logo.png\" alt=\"logo\"/>\r\n            </a>\r\n        </div>\r\n\r\n        <!-- END LOGO -->\r\n        <!-- BEGIN RESPONSIVE MENU TOGGLER -->\r\n        <a href=\"javascript:;\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\r\n            <img src=\"/static/img/menu-toggler.png\" alt=\"\"/>\r\n        </a>\r\n        <!-- END RESPONSIVE MENU TOGGLER -->\r\n        <!-- BEGIN TOP NAVIGATION MENU -->\r\n        <ul class=\"nav navbar-nav pull-right\">\r\n            <!-- BEGIN NOTIFICATION DROPDOWN -->\r\n            <dropdown id=\"header_notification_bar\">\r\n                <dropdown-toggle icon=\"bell\" icontype=\"icon\" bname=\"6\" btype=\"success\"></dropdown-toggle>\r\n                <dropdown-menu css=\"extended notification\">\r\n                    <li><p>You have 14 new notifications</p></li>\r\n                    <li>\r\n                        <dropdown-menu-list>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"success\" time=\"Just now\">New user registered.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"danger\" time=\"15 mins\">Server #12 overloaded. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"plus\" type=\"warning\" time=\"22 mins\">Server #2 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"40 mins\">Application error. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"5 hrs\">2 user IP blocked. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bell\" type=\"warning\" time=\"45 mins\">Storage Server #4 not responding. </notification-item>\r\n                            <notification-item href=\"#\" icon=\"bullhorn\" type=\"info\" time=\"55 mins\">System Error.</notification-item>\r\n                            <notification-item href=\"#\" icon=\"bolt\" type=\"danger\" time=\"2 hrs\">Database overloaded 68%.</notification-item>\r\n                        </dropdown-menu-list>\r\n                    </li>\r\n                    <li class=\"external\">\r\n                        <link-item iconend=\"angle-right\"> See all notifications </link-item>        \r\n                    </li>\r\n                </dropdown-menu>            \r\n             </dropdown>\r\n            <!-- END NOTIFICATION DROPDOWN -->\r\n\r\n            <li class=\"devider\">\r\n                 &nbsp;\r\n            </li>\r\n\r\n            <!-- BEGIN USER LOGIN DROPDOWN -->      \r\n            <dropdown css=\"user\">\r\n                <dropdown-toggle imgsrc=\"/static/img/avatar3_small.jpg\" iconend=\"angle-down\">\r\n                    <span class=\"username\"> {{username}} </span>\r\n                </dropdown-toggle>\r\n                <dropdown-menu>\r\n                    <li>\r\n                        <link-item href=\"extra_profile.html\" icon=\"user\"> My Profile </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_calendar.html\" icon=\"calendar\"> My Calendar </link-item>\r\n                    </li>\r\n                    <li>\r\n                        <link-item href=\"page_inbox.html\" icon=\"envelope\" bname=\"3\" btype=\"danger\"> My Inbox </link-item>                       \r\n                    </li>\r\n                    <li>\r\n                        <link-item icon=\"tasks\" bname=\"7\" btype=\"success\"> My Tasks </link-item>\r\n                    </li>\r\n                    <li class=\"divider\"> </li>\r\n                    <li>\r\n                        <link-item href=\"/admin/login/logout\" icon=\"key\"> Log Out </link-item>\r\n                    </li>\r\n                </dropdown-menu>\r\n            </dropdown>\r\n            <!-- END USER LOGIN DROPDOWN -->\r\n        </ul>\r\n        <!-- END TOP NAVIGATION MENU -->\r\n    </div>\r\n    <!-- END TOP NAVIGATION BAR -->\r\n</div>",
@@ -12678,12 +11552,12 @@ define('modules/module_admin/header/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/module_admin/container/main.js*/
-define('modules/module_admin/container/main', function(require, exports, module) {
+;/*!/modules/admin/container/main.js*/
+define('modules/admin/container/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('admin-container', {
       template: "<div class=\"page-container\">\r\n    <slot name=\"menu\"></slot>\r\n    <div class=\"page-content-wrapper\">\r\n        <div class=\"page-content\">              \r\n            <slot name=\"title\"></slot>\r\n            <div class=\"row\">\r\n                <div class=\"col-md-12\">\r\n                    <slot></slot>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
@@ -12692,8 +11566,8 @@ define('modules/module_admin/container/main', function(require, exports, module)
 
 });
 
-;/*!/modules/common/menudata.js*/
-define('modules/common/menudata', function(require, exports, module) {
+;/*!/common/scripts/menudata.js*/
+define('common/scripts/menudata', function(require, exports, module) {
 
   //mock data
   'use strict';
@@ -12842,14 +11716,14 @@ define('modules/common/menudata', function(require, exports, module) {
 
 });
 
-;/*!/modules/module_admin/maintitle/main.js*/
-define('modules/module_admin/maintitle/main', function(require, exports, module) {
+;/*!/modules/admin/maintitle/main.js*/
+define('modules/admin/maintitle/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
-  var menuData = require('modules/common/menudata');
+  var menuData = require('common/scripts/menudata');
   
   Vue.component('admin-main-title', {
       template: "<div class=\"admin-title\">\r\n    <h3 class=\"page-title\">{{ title }} <small>{{ desc }}</small></h3>\r\n\r\n    <div class=\"page-bar\">\r\n        <ul class=\"page-breadcrumb\">\r\n            <li v-for=\"item in items\">\r\n                <i class=\"fa fa-{{item.icon}}\" v-if=\"item.icon\"></i>\r\n                <a href=\"{{item.url}}\">{{item.name}}</a>\r\n                <i class=\"fa fa-angle-right\" v-if=\"!item.last\"></i>                \r\n            </li>\r\n        </ul>\r\n    </div> \r\n</div>\r\n\r\n     ",
@@ -12901,12 +11775,12 @@ define('modules/module_admin/maintitle/main', function(require, exports, module)
 
 });
 
-;/*!/modules/module_admin/maintoolbar/main.js*/
-define('modules/module_admin/maintoolbar/main', function(require, exports, module) {
+;/*!/modules/admin/maintoolbar/main.js*/
+define('modules/admin/maintoolbar/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('admin-main-toolbar', {
       template: "<div class=\"table-toolbar\">\r\n    <div class=\"row\">\r\n        <div class=\"col-md-12 toolbarbtns\">  \r\n            <slot></slot>\r\n        </div>      \r\n    </div>\r\n</div>",
@@ -12915,12 +11789,12 @@ define('modules/module_admin/maintoolbar/main', function(require, exports, modul
 
 });
 
-;/*!/modules/module_admin/sidemenuitem/main.js*/
-define('modules/module_admin/sidemenuitem/main', function(require, exports, module) {
+;/*!/modules/admin/sidemenuitem/main.js*/
+define('modules/admin/sidemenuitem/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('admin-side-menu-item', {
       template: "<li :class=\"licss\">\r\n    <a href=\"{{model.url}}\">\r\n        <i class=\"icon-{{model.icon}}\" v-if=\"model.icon\"></i>\r\n        <span class=\"title\">{{model.name}}</span>\r\n        <span class=\"badge badge-{{typeof model.badge=='object'?(model.badge.type||'info'):'info'}}\" v-if=\"model.badge\">{{typeof model.badge=='object'?model.badge.value:model.badge}}</span>\r\n        <span class=\"arrow \" v-if=\"isFolder\"></span>\r\n    </a>\r\n    <ul class=\"sub-menu\" v-if=\"isFolder\">\r\n        <admin-side-menu-item v-for=\"submenu in model.children\" :model=\"submenu\"> </admin-side-menu-item>\r\n    </ul>\r\n</li>\r\n",
@@ -12956,15 +11830,15 @@ define('modules/module_admin/sidemenuitem/main', function(require, exports, modu
 
 });
 
-;/*!/modules/module_admin/sidemenu/main.js*/
-define('modules/module_admin/sidemenu/main', function(require, exports, module) {
+;/*!/modules/admin/sidemenu/main.js*/
+define('modules/admin/sidemenu/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
-  var App = require('modules/common/app');
-  var menuData = require('modules/common/menudata');
+  var App = require('common/scripts/app');
+  var menuData = require('common/scripts/menudata');
   
   Vue.component('admin-side-menu', {
       template: "<div class=\"page-sidebar-wrapper\">\r\n    <div class=\"page-sidebar navbar-collapse collapse\">\r\n        <!-- BEGIN SIDEBAR MENU -->\r\n        <ul class=\"page-sidebar-menu\">\r\n            <li class=\"sidebar-toggler-wrapper\">\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n                <div class=\"sidebar-toggler\">\r\n                </div>\r\n                <div class=\"clearfix\">\r\n                </div>\r\n                <!-- BEGIN SIDEBAR TOGGLER BUTTON -->\r\n            </li>\r\n\r\n            <!-- <admin-side-menu-item class=\"item\" :model=\"treeData\"> </admin-side-menu-item> -->\r\n            <admin-side-menu-item v-for=\"submenu in treeData.children\" :model=\"submenu\" :mindex=\"$index\" :mtotal=\"treeData.children.length\"> </admin-side-menu-item>\r\n        </ul>\r\n        <!-- END SIDEBAR MENU -->\r\n    </div>\r\n</div>\r\n",
@@ -13260,12 +12134,12 @@ define('modules/module_admin/sidemenu/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/components/portlet/main.js*/
-define('modules/components/portlet/main', function(require, exports, module) {
+;/*!/components/portlet/main.js*/
+define('components/portlet/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('portlet', {
       template: "<div class=\"portlet\" :id=\"id\">\r\n    <div class=\"portlet-title\">\r\n        <div class=\"caption\">\r\n            <i class=\"fa fa-{{icon}}\" v-if=\"icon\"></i>{{ title }}\r\n            <slot name=\"title\"></slot>\r\n        </div>\r\n        <div class=\"tools\"></div>\r\n    </div>\r\n    <div class=\"portlet-body\" :class=\"bodycss\">\r\n        <slot></slot>\r\n    </div>\r\n</div>                  \r\n",
@@ -13280,12 +12154,12 @@ define('modules/components/portlet/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/wizard/item/main.js*/
-define('modules/components/wizard/item/main', function(require, exports, module) {
+;/*!/components/wizard/item/main.js*/
+define('components/wizard/item/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('wizard-item', {
       template: "<div class=\"tab-pane\" :class=\"css\" :id=\"id\">\r\n    <h3 class=\"block\" v-text=\"title\"></h3>\r\n    <slot></slot>\r\n</div>\r\n",
@@ -13299,12 +12173,12 @@ define('modules/components/wizard/item/main', function(require, exports, module)
 
 });
 
-;/*!/modules/components/wizard/title/main.js*/
-define('modules/components/wizard/title/main', function(require, exports, module) {
+;/*!/components/wizard/title/main.js*/
+define('components/wizard/title/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<span class=\"step-title\" v-text=\"value\"></span>",
@@ -13316,12 +12190,12 @@ define('modules/components/wizard/title/main', function(require, exports, module
 
 });
 
-;/*!/modules/components/wizard/steps/main.js*/
-define('modules/components/wizard/steps/main', function(require, exports, module) {
+;/*!/components/wizard/steps/main.js*/
+define('components/wizard/steps/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<ul class=\"nav nav-pills nav-justified steps\">\r\n    <template v-for=\"item in items\">\r\n        <li :class=\"$index<index?doneClass:''\">\r\n            <a href=\"{{item.target}}\" data-toggle=\"tab\" class=\"step\">\r\n                <span class=\"number\"> {{$index+1}} </span>\r\n                <span class=\"desc\">\r\n                        <i class=\"fa fa-check\"></i> {{item.title}} \r\n                </span>\r\n            </a>\r\n        </li>\r\n    </template>\r\n</ul>\r\n",
@@ -13354,12 +12228,12 @@ define('modules/components/wizard/steps/main', function(require, exports, module
 
 });
 
-;/*!/modules/components/wizard/progress/main.js*/
-define('modules/components/wizard/progress/main', function(require, exports, module) {
+;/*!/components/wizard/progress/main.js*/
+define('components/wizard/progress/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"progress progress-striped\" role=\"progressbar\">\r\n    <div class=\"progress-bar progress-bar-success\" :style=\"{width:width}\"></div>\r\n</div>\r\n",
@@ -13380,12 +12254,12 @@ define('modules/components/wizard/progress/main', function(require, exports, mod
 
 });
 
-;/*!/modules/components/wizard/tabcontent/main.js*/
-define('modules/components/wizard/tabcontent/main', function(require, exports, module) {
+;/*!/components/wizard/tabcontent/main.js*/
+define('components/wizard/tabcontent/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"tab-content\">\r\n    <slot></slot>\r\n</div>",
@@ -13394,12 +12268,12 @@ define('modules/components/wizard/tabcontent/main', function(require, exports, m
 
 });
 
-;/*!/modules/components/wizard/actions/main.js*/
-define('modules/components/wizard/actions/main', function(require, exports, module) {
+;/*!/components/wizard/actions/main.js*/
+define('components/wizard/actions/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"col-md-offset-3 col-md-9\">\r\n            <a href=\"javascript:;\" class=\"btn btn-default \" v-on:click=\"triggerCancel\">\r\n                <i class=\"m-icon-swapleft\"></i> 取消 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-default button-previous\" v-show=\"index > 0\">\r\n                <i class=\"m-icon-swapleft\"></i> 后退 \r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-info button-next\"  v-show=\"index < total-1\">\r\n                继续 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n            <a href=\"javascript:;\" class=\"btn btn-success button-submit\" v-on:click=\"triggerSubmit\" v-else>\r\n                提交 <i class=\"m-icon-swapright m-icon-white\"></i>\r\n            </a>\r\n        </div>\r\n    </div>\r\n</div>\r\n",
@@ -13421,20 +12295,20 @@ define('modules/components/wizard/actions/main', function(require, exports, modu
 
 });
 
-;/*!/modules/components/wizard/main.js*/
-define('modules/components/wizard/main', function(require, exports, module) {
+;/*!/components/wizard/main.js*/
+define('components/wizard/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  var App = require('modules/common/app');
-  var Validator = require('modules/common/validator');
+  var Vue = require('common/lib/vue');
+  var App = require('common/scripts/app');
+  var Validator = require('common/scripts/validator');
   
-  var WizardTitle = require('modules/components/wizard/title/main');
-  var WizardSteps = require('modules/components/wizard/steps/main');
-  var WizardProgress = require('modules/components/wizard/progress/main');
-  var WizardTabContent = require('modules/components/wizard/tabcontent/main');
-  var WizardActions = require('modules/components/wizard/actions/main');
+  var WizardTitle = require('components/wizard/title/main');
+  var WizardSteps = require('components/wizard/steps/main');
+  var WizardProgress = require('components/wizard/progress/main');
+  var WizardTabContent = require('components/wizard/tabcontent/main');
+  var WizardActions = require('components/wizard/actions/main');
   
   var MSG_SUCCESS = 'TEST: Your form validation is successful!';
   var MSG_ERROR = 'TEST: You have some form errors. Please check below.';
@@ -13578,8 +12452,8 @@ define('modules/components/wizard/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/datagriditem/main.js*/
-define('modules/components/datagriditem/main', function(require, exports, module) {
+;/*!/components/datagriditem/main.js*/
+define('components/datagriditem/main', function(require, exports, module) {
 
   /**
    * 
@@ -13587,7 +12461,7 @@ define('modules/components/datagriditem/main', function(require, exports, module
   
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('datagrid-item', {
     template: "<div style=\"display:none\" data-name=\"{{name}}\" data-title=\"{{title}}\" data-disableorder=\"{{disableorder}}\" data-hide=\"{{hide}}\" data-css=\"{{css}}\"></div>",
@@ -13630,8 +12504,8 @@ define('modules/components/datagriditem/main', function(require, exports, module
 
 });
 
-;/*!/modules/common/render.js*/
-define('modules/common/render', function(require, exports, module) {
+;/*!/common/scripts/render.js*/
+define('common/scripts/render', function(require, exports, module) {
 
   'use strict';
   
@@ -13699,8 +12573,8 @@ define('modules/common/render', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/datagrid/main.js*/
-define('modules/components/datagrid/main', function(require, exports, module) {
+;/*!/components/datagrid/main.js*/
+define('components/datagrid/main', function(require, exports, module) {
 
   /**
    * 需要支持：
@@ -13718,8 +12592,8 @@ define('modules/components/datagrid/main', function(require, exports, module) {
   
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  var Render = require('modules/common/render');
+  var Vue = require('common/lib/vue');
+  var Render = require('common/scripts/render');
   
   Vue.component('datagrid', {
       template: "<div class=\"datagrid\">\r\n    <table class=\"table table-striped table-bordered table-hover datagrid-table\">\r\n        <thead>\r\n            <tr></tr>\r\n        </thead>\r\n        <tbody>\r\n            <tr><td class=\"dataTables_empty\">正在加载数据……</td></tr>\r\n        </tbody>\r\n    </table>  \r\n    <slot></slot> \r\n</div>\r\n\r\n",
@@ -14130,12 +13004,12 @@ define('modules/components/datagrid/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/modal/main.js*/
-define('modules/components/modal/main', function(require, exports, module) {
+;/*!/components/modal/main.js*/
+define('components/modal/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('modal', {
       template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
@@ -14237,12 +13111,12 @@ define('modules/components/modal/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/dropdown/main.js*/
-define('modules/components/dropdown/main', function(require, exports, module) {
+;/*!/components/dropdown/main.js*/
+define('components/dropdown/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('dropdown', {
       template: "<li class=\"dropdown {{css}}\" id=\"{{id}}\">    \r\n    <slot></slot>   \r\n</li>\r\n",
@@ -14261,12 +13135,12 @@ define('modules/components/dropdown/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/dropdowntoggle/main.js*/
-define('modules/components/dropdowntoggle/main', function(require, exports, module) {
+;/*!/components/dropdowntoggle/main.js*/
+define('components/dropdowntoggle/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('dropdown-toggle', {
       template: "<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" data-hover=\"dropdown\" data-close-others=\"true\">\r\n    <img alt=\"\" :src=\"imgsrc\" v-if=\"imgsrc\"/>\r\n    <i class=\"{{iconClass}}\" v-if=\"iconClass\"></i> \r\n    <slot></slot>\r\n    <span class=\"badge badge-{{btype}}\" v-if=\"bname\"> {{bname}} </span> \r\n   <i class=\"{{iconEndClass}}\" v-if=\"iconEndClass\"></i>  \r\n</a>",
@@ -14355,12 +13229,12 @@ define('modules/components/dropdowntoggle/main', function(require, exports, modu
 
 });
 
-;/*!/modules/components/dropdownmenu/main.js*/
-define('modules/components/dropdownmenu/main', function(require, exports, module) {
+;/*!/components/dropdownmenu/main.js*/
+define('components/dropdownmenu/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('dropdown-menu', {
       template: "<ul class=\"dropdown-menu {{css}}\">\r\n    <slot></slot>\r\n</ul>\r\n",
@@ -14379,12 +13253,12 @@ define('modules/components/dropdownmenu/main', function(require, exports, module
 
 });
 
-;/*!/modules/components/linkitem/main.js*/
-define('modules/components/linkitem/main', function(require, exports, module) {
+;/*!/components/linkitem/main.js*/
+define('components/linkitem/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('link-item', {
       template: "<a href=\"{{href}}\">\r\n    <i class=\"{{iconClass}}\" v-if=\"iconClass\"></i> \r\n    <span><slot></slot></span> \r\n    <span class=\"badge badge-{{btype}}\" v-if=\"bname\"> {{bname}} </span> \r\n    <i class=\"{{iconEndClass}}\" v-if=\"iconEndClass\"></i>     \r\n</a>",
@@ -14476,12 +13350,12 @@ define('modules/components/linkitem/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/dropdownmenulist/main.js*/
-define('modules/components/dropdownmenulist/main', function(require, exports, module) {
+;/*!/components/dropdownmenulist/main.js*/
+define('components/dropdownmenulist/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('dropdown-menu-list', {
       template: "<ul class=\"dropdown-menu-list scroller\" style=\"height: 250px;\">\r\n    <slot></slot>\r\n</ul>\r\n",
@@ -14500,12 +13374,12 @@ define('modules/components/dropdownmenulist/main', function(require, exports, mo
 
 });
 
-;/*!/modules/components/notificationitem/main.js*/
-define('modules/components/notificationitem/main', function(require, exports, module) {
+;/*!/components/notificationitem/main.js*/
+define('components/notificationitem/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   Vue.component('notification-item', {
       template: "<li>\r\n    <a href=\"{{href}}\">\r\n        <span class=\"label label-sm label-icon label-{{type}}\"><i class=\"fa fa-{{icon}}\"></i></span> \r\n        <slot></slot><span class=\"time\"> {{time}} </span>\r\n    </a>\r\n</li>\r\n",
@@ -14532,50 +13406,89 @@ define('modules/components/notificationitem/main', function(require, exports, mo
 
 });
 
-;/*!/modules/common/global.js*/
-define('modules/common/global', function(require, exports, module) {
+;/*!/common/scripts/global.js*/
+define('common/scripts/global', function(require, exports, module) {
 
   'use strict';
   
-  require('modules/components/tipalert/main');
-  require('modules/components/select2option/main');
-  require('modules/components/select2/main');
-  require('modules/components/date/main');
+  require('components/tipalert/main');
+  require('components/select2option/main');
+  require('components/select2/main');
+  require('components/date/main');
   
-  require('modules/components/editormd/main');
+  require('components/editormd/main');
   
-  require('modules/components/clearfix/main');
+  require('components/clearfix/main');
   
-  require('modules/components/hebutton/main');
-  require('modules/components/hecheckbox/main');
-  require('modules/components/heformitem/main');
-  require('modules/components/heform/main');
+  require('components/hebutton/main');
+  require('components/hecheckbox/main');
+  require('components/heformitem/main');
+  require('components/heform/main');
   
-  require('modules/module_admin/footer/main');
-  require('modules/module_admin/header/main');
-  require('modules/module_admin/container/main');
-  require('modules/module_admin/maintitle/main');
-  require('modules/module_admin/maintoolbar/main');
-  require('modules/module_admin/sidemenuitem/main');
-  require('modules/module_admin/sidemenu/main');
+  require('modules/admin/footer/main');
+  require('modules/admin/header/main');
+  require('modules/admin/container/main');
+  require('modules/admin/maintitle/main');
+  require('modules/admin/maintoolbar/main');
+  require('modules/admin/sidemenuitem/main');
+  require('modules/admin/sidemenu/main');
   
-  require('modules/components/portlet/main');
-  require('modules/components/wizard/item/main');
-  require('modules/components/wizard/main');
-  require('modules/components/datagriditem/main');
-  require('modules/components/datagrid/main');
-  require('modules/components/modal/main');
-  require('modules/components/dropdown/main');
-  require('modules/components/dropdowntoggle/main');
-  require('modules/components/dropdownmenu/main');
-  require('modules/components/linkitem/main');
-  require('modules/components/dropdownmenulist/main');
-  require('modules/components/notificationitem/main');
+  require('components/portlet/main');
+  require('components/wizard/item/main');
+  require('components/wizard/main');
+  require('components/datagriditem/main');
+  require('components/datagrid/main');
+  require('components/modal/main');
+  require('components/dropdown/main');
+  require('components/dropdowntoggle/main');
+  require('components/dropdownmenu/main');
+  require('components/linkitem/main');
+  require('components/dropdownmenulist/main');
+  require('components/notificationitem/main');
 
 });
 
-;/*!/modules/common/service.js*/
-define('modules/common/service', function(require, exports, module) {
+;/*!/common/scripts/names.js*/
+define('common/scripts/names', function(require, exports, module) {
+
+  // <datagrid-item name="id" title="ID"></datagrid-item>
+  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
+  // <datagrid-item name="pwd" hide></datagrid-item>
+  // <datagrid-item name="birthday" title="生日"></datagrid-item>
+  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
+  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
+  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
+  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
+  
+  'use strict';
+  
+  var common = {
+      'id': 'ID',
+      'name': '名字',
+      'createTime': '创建时间',
+      'updateTime': '更新时间',
+      'state': '状态',
+      'stateShow': '状态'
+  };
+  
+  /**
+   * /admin/user
+   */
+  var user = $.extend({}, common, {
+      'name': '用户名',
+      'pwd': '密码',
+      'birthday': '生日'
+  });
+  
+  module.exports = {
+      user: user
+  
+  };
+
+});
+
+;/*!/common/scripts/service.js*/
+define('common/scripts/service', function(require, exports, module) {
 
   //mock data
   'use strict';
@@ -14759,12 +13672,12 @@ define('modules/common/service', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/inputtext/main.js*/
-define('modules/components/inputtext/main', function(require, exports, module) {
+;/*!/components/inputtext/main.js*/
+define('components/inputtext/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
     template: "<div class=\"form-group\">\r\n    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n    <label class=\"control-label visible-ie8 visible-ie9\" v-if=\"!notitle\">{{ title }}</label>\r\n    <div class=\"input-icon\">\r\n        <i class=\"fa fa-{{ icon }}\" v-if=\"icon\"></i>\r\n        <input class=\"form-control placeholder-no-fix\" type=\"text\" autocomplete=\"off\" placeholder=\"{{ title }}\" name=\"{{ name }}\" />\r\n    </div>\r\n</div>\r\n",
@@ -14800,12 +13713,12 @@ define('modules/components/inputtext/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/components/loading/main.js*/
-define('modules/components/loading/main', function(require, exports, module) {
+;/*!/components/loading/main.js*/
+define('components/loading/main', function(require, exports, module) {
 
   'use strict';
   
-  var App = require('modules/common/app');
+  var App = require('common/scripts/app');
   
   function show(msg) {
       msg = msg || '加载中...';
@@ -14825,12 +13738,1193 @@ define('modules/components/loading/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/index_index/main.js*/
-define('modules/index_index/main', function(require, exports, module) {
+;/*!/pages/car_index/main.js*/
+define('pages/car_index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var App = require('/modules/common/app');
+  var CarMain = require('/modules/car_index/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          CarMain: CarMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/car_index/modules/add/main.js*/
+define('pages/car_index/modules/add/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增汽车信息\">\r\n        <he-form action=\"/admin/car/add\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          name: undefined,
+          ownerId: undefined,
+          buydate: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              this.name = '';
+              this.ownerId = undefined;
+              this.buydate = '2016-02-25'; // TODO today
+              this.state = '1';
+  
+              this.$refs.user.init();
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '汽车名字不能为空！'
+                      }
+                  },
+                  ownerId: {
+                      required: {
+                          rule: true,
+                          message: '车主人不能为空！'
+                      }
+                  },
+                  buydate: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
+                      }
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/car_index/modules/delete/main.js*/
+define('pages/car_index/modules/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除汽车信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
+              this.id = data.id;
+  
+              // 设置要展示的信息条目
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'user_name',
+                  value: data.user_name,
+                  title: '车主人'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '汽车名字'
+              }, {
+                  key: 'buydate',
+                  value: data.buydate,
+                  title: '购买日期'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              var self = this;
+  
+              $.post('/admin/car/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  self.dealSuccessRes(responseText, statusText);
+              });
+          }
+      }
+  });
+
+});
+
+;/*!/pages/car_index/modules/detail/main.js*/
+define('pages/car_index/modules/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  var Names = require('common/scripts/names');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"汽车信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'user_name',
+                  value: data.user_name,
+                  title: '车主人'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '汽车名字'
+              }, {
+                  key: 'buydate',
+                  value: data.buydate,
+                  title: '购买日期'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
+          }
+      }
+  });
+
+});
+
+;/*!/pages/car_index/modules/main.js*/
+define('pages/car_index/modules/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var addPage = require('/modules/car_index/add/main');
+  var modifyPage = require('/modules/car_index/modify/main');
+  var deletePage = require('/modules/car_index/delete/main');
+  var detailPage = require('/modules/car_index/detail/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n            <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      components: {
+          'add': addPage,
+          'modify': modifyPage,
+          'delete': deletePage,
+          'detail': detailPage
+      },
+      methods: {
+          operate: function operate(event) {
+              var target = event.target,
+                  $target = $(target),
+                  type = $target.data('type'),
+                  id,
+                  data;
+  
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
+                  return;
+              }
+  
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
+              }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/car_index/modules/modify/main.js*/
+define('pages/car_index/modules/modify/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/car/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          name: undefined,
+          ownerId: undefined,
+          state: undefined,
+          buydate: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.name = data.name;
+              this.ownerId = data.ownerId;
+              this.state = data.state;
+              this.buydate = data.buydate;
+  
+              this.$refs.user.init();
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  ownerId: {
+                      required: {
+                          rule: true,
+                          message: '车主人不能为空！'
+                      }
+                  },
+                  buydate: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
+                      }
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/coding_index/main.js*/
+define('pages/coding_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var App = require('/modules/common/app');
+  var CodingMain = require('/modules/coding_index/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          CodingMain: CodingMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/coding_index/modules/add/main.js*/
+define('pages/coding_index/modules/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器信息\">\r\n        <he-form action=\"/admin/coding/add\" horizontal noactions>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          tableName: undefined,
+          targetName: undefined,
+          targetDesc: undefined,
+          menuId: undefined,
+          breadcrumb: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+              this.tableName = '';
+              this.targetName = '';
+              this.targetDesc = '';
+              this.menuId = '';
+              this.breadcrumb = '';
+              this.state = '1';
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  tableName: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  },
+                  targetName: {
+                      required: true
+                  },
+                  menuId: {
+                      required: true
+                  },
+                  breadcrumb: {
+                      required: true
+                  },
+                  state: {
+                      required: true
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/coding_index/modules/delete/main.js*/
+define('pages/coding_index/modules/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
+              this.id = data.id;
+  
+              // 设置要展示的信息条目
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'tableName',
+                  value: data.tableName,
+                  title: '数据库表名'
+              }, {
+                  key: 'targetName',
+                  value: data.targetName,
+                  title: '目标名字'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              var self = this;
+  
+              $.post('/admin/coding/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  self.dealSuccessRes(responseText, statusText);
+              });
+          }
+      }
+  });
+
+});
+
+;/*!/pages/coding_index/modules/detail/main.js*/
+define('pages/coding_index/modules/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  var Names = require('common/scripts/names');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'tableName',
+                  value: data.tableName,
+                  title: '数据库表名'
+              }, {
+                  key: 'targetName',
+                  value: data.targetName,
+                  title: '目标名字'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
+          }
+      }
+  });
+
+});
+
+;/*!/pages/coding_index/modules/modify/main.js*/
+define('pages/coding_index/modules/modify/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/coding/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          tableName: undefined,
+          targetName: undefined,
+          targetDesc: undefined,
+          menuId: undefined,
+          breadcrumb: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.tableName = data.tableName;
+              this.targetName = data.targetName;
+              this.targetDesc = data.targetDesc;
+              this.menuId = data.menuId;
+              this.breadcrumb = data.breadcrumb;
+              this.state = data.state;
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  targetName: {
+                      required: true
+                  },
+                  menuId: {
+                      required: true
+                  },
+                  breadcrumb: {
+                      required: true
+                  },
+                  state: {
+                      required: true
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/coding_index/modules/main.js*/
+define('pages/coding_index/modules/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var addPage = require('pages/coding_index/modules/add/main');
+  var modifyPage = require('pages/coding_index/modules/modify/main');
+  var deletePage = require('pages/coding_index/modules/delete/main');
+  var detailPage = require('pages/coding_index/modules/detail/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"coding_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"代码生成器列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/coding/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"tableName\" title=\"数据库表名\"></datagrid-item>\r\n            <datagrid-item name=\"targetName\" title=\"目标名字\"></datagrid-item>\r\n            <datagrid-item name=\"targetDesc\" title=\"目标描述\"></datagrid-item>\r\n            <datagrid-item name=\"menuId\" title=\"菜单ID\"></datagrid-item>\r\n            <datagrid-item name=\"breadcrumb\" title=\"面包屑导航\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | codingitem detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      components: {
+          'add': addPage,
+          'modify': modifyPage,
+          'delete': deletePage,
+          'detail': detailPage
+      },
+      methods: {
+          operate: function operate(event) {
+              var target = event.target,
+                  $target = $(target),
+                  type = $target.data('type'),
+                  id,
+                  data;
+  
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
+                  return;
+              }
+  
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
+              }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/coding_index/modules/wizard/main.js*/
+define('pages/coding_index/modules/wizard/main', function(require, exports, module) {
+
+  /**
+   * 后期再提供解析当前数据库结构，根据sql语句反解析
+   */
+  
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"test-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"配置数据库中的字段及含义\">     \r\n            <div class=\"row\">\r\n               <div class=\"col-md-6\">\r\n                    <he-form-item title=\"字段名\" col=\"3-9\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\" placeholder=\"在数据库中的字段名，推荐小驼峰形式\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" col=\"3-9\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"类型\" col=\"3-9\" help=\"可选可输入。时间用什么存储呢？\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" help=\"int、char、varchar才需要定义长度\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" help=\"可选可输入\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" help=\"下拉选择，比如UNSIGINED\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"是否非空\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"索引\" col=\"3-9\" help=\"定义主键或唯一信息\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"是否自增\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" help=\"备注和解释\" required horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"此处可能有多个\" horizontal>\r\n                        <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n                    </he-form-item>\r\n                    <he-form-item col=\"3-9\" horizontal>\r\n                        <button class=\"btn btn-info\">保存</button>\r\n                    </he-form-item>\r\n               </div>\r\n               <div class=\"col-md-6\">\r\n                   \r\n               </div>\r\n           </div>       \r\n                   \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"基础信息配置\">           \r\n            <he-form-item title=\"目标名\" col=\"3-4\" help=\"用以描述这是xx管理系统\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n\r\n            <he-form-item title=\"功能描述\" col=\"3-4\" help=\"简单描述这个系统是用于做什么的\" horizontal>\r\n                <textarea rows=\"3\" name=\"targetDesc\"  v-model=\"targetDesc\"></textarea>\r\n            </he-form-item>\r\n\r\n            <he-form-item title=\"菜单ID\" col=\"3-4\" help=\"用于在左侧导航栏中高亮\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n\r\n            <he-form-item title=\"面包屑导航\" col=\"3-4\" help=\"用于在左侧导航栏中高亮\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n            <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n            </he-form-item> \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              username: '',
+              fullname: '',
+              remarks: '',
+              card_name: '',
+              title: '代码生成器',
+              stepItems: [{
+                  target: '#tab1',
+                  title: '基础配置'
+              }, {
+                  target: '#tab2',
+                  title: '数据库配置'
+              }, {
+                  target: '#tab3',
+                  title: '新增页'
+              }, {
+                  target: '#tab4',
+                  title: 'Confirm'
+              }],
+              rulesOptions: {
+                  //account
+                  username: {
+                      minlength: 5,
+                      required: true
+                  },
+                  //profile
+                  fullname: {
+                      required: true
+                  },
+                  //payment
+                  card_name: {
+                      required: true
+                  }
+              }
+          };
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/codingitem_index/main.js*/
+define('pages/codingitem_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var App = require('/modules/common/app');
+  var CodingitemMain = require('/modules/codingitem_index/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          CodingitemMain: CodingitemMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/codingitem_index/modules/save/main.js*/
+define('pages/codingitem_index/modules/save/main', function(require, exports, module) {
+
+  /**
+   * 后期再提供解析当前数据库结构，根据sql语句反解析
+   */
+  
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"save-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\" v-on:wizardcancel=\"backToInit\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"基础信息配置\">   \r\n            <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">  \r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>            \r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item> \r\n            <he-form-item title=\"字段状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"备注\" col=\"3-9\" horizontal>\r\n                <textarea name=\"remark\" v-model=\"remark\" rows=\"3\"></textarea>\r\n            </he-form-item>  \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"配置数据库中的字段及含义\">  \r\n            <he-form-item horizontal>\r\n                <he-checkbox name=\"isDb\" title=\"是否数据库字段\" :checked.sync=\"isDb\"></he-checkbox>                   \r\n            </he-form-item>     \r\n            <template v-if=\"isDb\">\r\n                <he-form-item title=\"数据库字段模版\" help=\"预置了常用的字段配置，注意改变本字段会导致数据被覆盖。\" horizontal>\r\n                    <select2 name=\"dbTemplate\" :value.sync=\"dbTemplate\">\r\n                        <select2-option title=\"ID\" value=\"id\"></select2-option>\r\n                        <select2-option title=\"名字\" value=\"name\"></select2-option>                        \r\n                    </select2>\r\n                </he-form-item>     \r\n                <he-form-item title=\"数据库字段名称\" required horizontal>\r\n                    <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                </he-form-item>     \r\n                <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                    <select2 name=\"type\" :value.sync=\"type\">\r\n                        <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                        <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                        <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                        <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                        <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                        <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                    </select2>\r\n                </he-form-item> \r\n                <he-form-item title=\"长度\" col=\"3-9\" help=\"字符串和数字则需要定义长度\" horizontal>\r\n                    <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                </he-form-item>\r\n                <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                    <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                </he-form-item>\r\n                <he-form-item title=\"更多选项\" col=\"3-9\" horizontal>\r\n                    <div class=\"checkbox-list\">\r\n                        <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                        <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                        <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                        <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                        <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                    </div>\r\n                </he-form-item>\r\n                <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                    <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                </he-form-item>\r\n                <he-form-item title=\"字段注释\" col=\"3-9\" horizontal>\r\n                    <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                </he-form-item>                    \r\n               \r\n                <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                    <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                        <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                    </select2>\r\n                </he-form-item>   \r\n            </template>  \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"配置在页面中的展示和校验\">\r\n            <he-form-item title=\"在这些页面中出现\" col=\"3-9\" horizontal>\r\n                <div class=\"checkbox-list\">\r\n                    <he-checkbox name=\"isForeignKey\" title=\"列表页\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                    <he-checkbox name=\"isNotNull\" title=\"新增页\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                    <he-checkbox name=\"isAutoIncrease\" title=\"编辑页\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                    <he-checkbox name=\"isKey\" title=\"详情页\" :checked.sync=\"isKey\"></he-checkbox>\r\n                    <he-checkbox name=\"isUnique\" title=\"删除页\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                </div>\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              stepItems: [{
+                  target: '#tab1',
+                  title: '基础配置'
+              }, {
+                  target: '#tab2',
+                  title: '数据库配置'
+              }, {
+                  target: '#tab3',
+                  title: '新增页'
+              }, {
+                  target: '#tab4',
+                  title: 'Confirm'
+              }],
+              rulesOptions: {
+                  fieldName: {
+                      required: true
+                  },
+                  dbName: {
+                      required: true
+                  },
+                  type: {
+                      required: true
+                  }
+              },
+              fieldName: '', // 字段名称
+              cnName: '', // 中文名称
+              state: '1', // 字段状态
+              remark: '', // 备注
+              isDb: true, // 是否为数据库字段
+              dbName: '', // 数据库中字段名称
+              dbTemplate: '', // 数据库字段模版，用于快速设定常用的字段
+              type: 'varchar', // 类型
+              length: 0, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
+              defaultVal: '', // 默认值
+              property: '', // 属性，如果是id，需要定义为UNSIGNED
+              isNotNull: true, // 是否非空
+              isAutoIncrease: false, // 是否自增
+              isKey: false, // 是否主键
+              isUnique: false, // 是否唯一
+              isForeignKey: false, // 是否外键
+              comment: '', // 数据库注释
+              isInList: true, // 是否在列表页中出现
+              isInAdd: false, // 是否在新增页中出现
+              isInModify: false, // 是否在修改页中出现
+              isInDetail: false, // 是否在详情页中出现
+              isInDelete: false };
+      },
+      // 是否在删除页中出现
+      props: {
+          'title': String,
+          'codingId': {
+              required: true,
+              type: Number
+          }
+      },
+      methods: {
+          /**
+           * 点击取消按钮后，触发的一个事件，用于通知父组件关闭本页面，恢复初始状态
+           */
+          backToInit: function backToInit() {
+              this.$dispatch('backtoinit');
+          }
+      },
+      ready: function ready() {
+          console.log('save... ready!');
+      }
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/add/main.js*/
+define('pages/codingitem_index/modules/add/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var savePage = require('pages/codingitem_index/modules/save/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"addpage\">   \r\n   <save-page title=\"新增代码生成器字段信息\" :coding-id=\"assign.id\" ></save-page>\r\n</div>\r\n",
+      components: {
+          savePage: savePage
+      },
+      props: {
+          assign: {
+              required: true,
+              type: Object
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/add2/main.js*/
+define('pages/codingitem_index/modules/add2/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器字段信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <div class=\"row\">\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"代码生成器\" required horizontal>\r\n                        <input type=\"text\" name=\"codingName\" readonly v-model=\"codingName\">\r\n                        <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"字段名称\" required horizontal>\r\n                        <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" horizontal>\r\n                        <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"英文名称\" required horizontal>\r\n                        <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                        <select2 name=\"type\" :value.sync=\"type\">\r\n                            <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                            <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                            <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                            <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                            <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                            <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" horizontal v-show=\"['varchar', 'char', 'int'].indexOf(type) > -1\">\r\n                        <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                        <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                            <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"选项\" col=\"3-9\" horizontal>\r\n                        <div class=\"checkbox-list\">\r\n                            <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                            <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                            <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                            <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                            <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                        </div>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                        <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" horizontal>\r\n                        <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"状态\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n            </div>           \r\n            \r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          codingName: undefined, // 所属的代码生成器展示名字
+          codingId: undefined, // 所属的代码生成器ID
+          fieldName: undefined, // 数据库中字段名称
+          cnName: undefined, // 中文名称
+          dbName: undefined, // 英文名称，用于代码中逻辑实现
+          state: undefined, // 状态
+          type: undefined, // 类型
+          length: undefined, // 长度，只有varchar、char、int类型时有必要设置 TODO 默认值待优化
+          defaultVal: undefined, // 默认值
+          property: undefined, // 属性，如果是id，需要定义为UNSIGNED
+          isNotNull: false, // 是否非空
+          isAutoIncrease: false, // 是否自增
+          isKey: false, // 是否主键
+          isUnique: false, // 是否唯一
+          isForeignKey: false, // 是否外键
+          comment: undefined },
+      // 注释
+      props: {
+          'assign': {
+              type: Object,
+              required: true
+          }
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal() {
+              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
+              this.codingName = this.assign.tableName + '-' + this.assign.targetName + '(' + this.assign.id + ')';
+              this.codingId = this.assign.id;
+              this.fieldName = '';
+              this.cnName = '';
+              this.dbName = '';
+              this.state = '1';
+              this.type = 'varchar';
+              this.length = 0;
+              this.defaultVal = '';
+              this.property = '';
+              this.isNotNull = true;
+              this.isAutoIncrease = false;
+              this.isKey = false;
+              this.isUnique = false;
+              this.isForeignKey = false;
+              this.comment = '';
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  codingId: {
+                      required: {
+                          rule: true,
+                          message: 'codingId不能为空！'
+                      }
+                  },
+                  fieldName: {
+                      required: true
+                  },
+                  dbName: {
+                      required: true
+                  },
+                  state: {
+                      required: true
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/codinginfo/main.js*/
+define('pages/codingitem_index/modules/codinginfo/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"row\">\r\n    <div class=\"col-md-12\">{{assign.tableName}}-{{assign.targetName}}({{assign.id}})</div>\r\n</div>",
+      props: {
+          'assign': {
+              type: Object,
+              required: true
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/delete/main.js*/
+define('pages/codingitem_index/modules/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data || !data.id) {
+                  return;
+              }
+  
+              // 设置要删除的记录的id
+              this.id = data.id;
+  
+              // 设置要展示的信息条目
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'codingId',
+                  value: data.codingId,
+                  title: '代码生成器'
+              }, {
+                  key: 'fieldName',
+                  value: data.fieldName,
+                  title: '字段名称'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              var self = this;
+  
+              $.post('/admin/codingitem/delete', {
+                  id: this.id
+              }, function (responseText, statusText) {
+                  self.dealSuccessRes(responseText, statusText);
+              });
+          }
+      }
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/detail/main.js*/
+define('pages/codingitem_index/modules/detail/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  var Names = require('common/scripts/names');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          items: []
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'codingId',
+                  value: data.codingId,
+                  title: '代码生成器'
+              }, {
+                  key: 'fieldName',
+                  value: data.fieldName,
+                  title: '字段名称'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }];
+          },
+          triggerSubmit: function triggerSubmit() {
+              this.hideModal();
+          }
+      }
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/modify/main.js*/
+define('pages/codingitem_index/modules/modify/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/codingitem/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          codingId: undefined,
+          fieldName: undefined,
+          cnName: undefined,
+          dbName: undefined,
+          state: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.codingId = data.codingId;
+              this.fieldName = data.fieldName;
+              this.cnName = data.cnName;
+              this.dbName = data.dbName;
+              this.state = data.state;
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  fieldName: {
+                      required: true
+                  },
+                  cnName: {
+                      required: true
+                  },
+                  dbName: {
+                      required: true
+                  },
+                  state: {
+                      required: true
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/codingitem_index/modules/main.js*/
+define('pages/codingitem_index/modules/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var addPage = require('pages/codingitem_index/modules/add/main');
+  var modifyPage = require('pages/codingitem_index/modules/modify/main');
+  var deletePage = require('pages/codingitem_index/modules/delete/main');
+  var detailPage = require('pages/codingitem_index/modules/detail/main');
+  var codinginfoPage = require('pages/codingitem_index/modules/codinginfo/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"codingitem_index-main\">\r\n\r\n    <codinginfo :assign=\"assign\"></codinginfo>\r\n\r\n    <admin-main-toolbar v-if=\"isShowToolbar\">\r\n         <button class=\"btn btn-success\" v-on:click=\"showAddPage\">\r\n            新增 <i class=\"fa fa-plus\"></i>\r\n        </button>\r\n    </admin-main-toolbar>\r\n\r\n    <add-page v-if=\"isShowAddPage\" :assign=\"assign\" v-on:backtoinit=\"backToInit\"></add-page>\r\n    <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n    <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    <detail v-ref:detail></detail>\r\n\r\n    <portlet v-if=\"isShowDatagrid\" title=\"代码生成器字段列表\" icon=\"globe\">    \r\n        <datagrid :url=\"getDataUrl\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"fieldName\" title=\"字段名称\"></datagrid-item>\r\n            <datagrid-item name=\"cnName\" title=\"中文名称\"></datagrid-item>\r\n            <datagrid-item name=\"dbName\" title=\"英文名称\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      data: function data() {
+          return {
+              isShowToolbar: true,
+              isShowAddPage: false,
+              isShowDatagrid: true
+          };
+      },
+      components: {
+          addPage: addPage,
+          'modify': modifyPage,
+          'delete': deletePage,
+          'detail': detailPage,
+          'codinginfo': codinginfoPage
+      },
+      props: {
+          /**
+           * thinkjs后台设置过来的值，由于无法传递对象，因此此处需要进行一些转义
+           */
+          'assign': {
+              required: true,
+              coerce: function coerce(val) {
+                  return JSON.parse(val);
+              }
+          }
+      },
+      computed: {
+          getDataUrl: function getDataUrl() {
+              // `this` 指向 vm 实例
+              return '/admin/codingitem/getdata/codingid/' + this.assign.id;
+          }
+      },
+      methods: {
+          /**
+           * 打开新增页面
+           */
+          showAddPage: function showAddPage() {
+              this.isShowToolbar = false;
+              this.isShowAddPage = true;
+              this.isShowDatagrid = false;
+          },
+          backToInit: function backToInit() {
+              this.isShowToolbar = true;
+              this.isShowAddPage = false;
+              this.isShowDatagrid = true;
+          },
+          operate: function operate(event) {
+              var target = event.target,
+                  $target = $(target),
+                  type = $target.data('type'),
+                  id,
+                  data;
+  
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
+                  return;
+              }
+  
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (data) {
+                  this.$refs[type].showModal(data);
+              }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/index_index/modules/main.js*/
+define('pages/index_index/modules/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<h1>欢迎！</h1>",
@@ -14839,1552 +14933,42 @@ define('modules/index_index/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/lib/marked.js*/
-define('modules/lib/marked', function(require, exports, module) {
-
-  /**
-   * marked - a markdown parser
-   * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
-   * https://github.com/chjj/marked
-   */
-  
-  /**
-   * Block-Level Grammar
-   */
-  
-  var block = {
-    newline: /^\n+/,
-    code: /^( {4}[^\n]+\n*)+/,
-    fences: noop,
-    hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-    heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-    nptable: noop,
-    lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-    blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-    list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-    html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
-    def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-    table: noop,
-    paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-    text: /^[^\n]+/
-  };
-  
-  block.bullet = /(?:[*+-]|\d+\.)/;
-  block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
-  block.item = replace(block.item, 'gm')
-    (/bull/g, block.bullet)
-    ();
-  
-  block.list = replace(block.list)
-    (/bull/g, block.bullet)
-    ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-    ('def', '\\n+(?=' + block.def.source + ')')
-    ();
-  
-  block.blockquote = replace(block.blockquote)
-    ('def', block.def)
-    ();
-  
-  block._tag = '(?!(?:'
-    + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-    + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
-  
-  block.html = replace(block.html)
-    ('comment', /<!--[\s\S]*?-->/)
-    ('closed', /<(tag)[\s\S]+?<\/\1>/)
-    ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-    (/tag/g, block._tag)
-    ();
-  
-  block.paragraph = replace(block.paragraph)
-    ('hr', block.hr)
-    ('heading', block.heading)
-    ('lheading', block.lheading)
-    ('blockquote', block.blockquote)
-    ('tag', '<' + block._tag)
-    ('def', block.def)
-    ();
-  
-  /**
-   * Normal Block Grammar
-   */
-  
-  block.normal = merge({}, block);
-  
-  /**
-   * GFM Block Grammar
-   */
-  
-  block.gfm = merge({}, block.normal, {
-    fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]+?)\s*\1 *(?:\n+|$)/,
-    paragraph: /^/,
-    heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-  });
-  
-  block.gfm.paragraph = replace(block.paragraph)
-    ('(?!', '(?!'
-      + block.gfm.fences.source.replace('\\1', '\\2') + '|'
-      + block.list.source.replace('\\1', '\\3') + '|')
-    ();
-  
-  /**
-   * GFM + Tables Block Grammar
-   */
-  
-  block.tables = merge({}, block.gfm, {
-    nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-    table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-  });
-  
-  /**
-   * Block Lexer
-   */
-  
-  function Lexer(options) {
-    this.tokens = [];
-    this.tokens.links = {};
-    this.options = options || marked.defaults;
-    this.rules = block.normal;
-  
-    if (this.options.gfm) {
-      if (this.options.tables) {
-        this.rules = block.tables;
-      } else {
-        this.rules = block.gfm;
-      }
-    }
-  }
-  
-  /**
-   * Expose Block Rules
-   */
-  
-  Lexer.rules = block;
-  
-  /**
-   * Static Lex Method
-   */
-  
-  Lexer.lex = function(src, options) {
-    var lexer = new Lexer(options);
-    return lexer.lex(src);
-  };
-  
-  /**
-   * Preprocessing
-   */
-  
-  Lexer.prototype.lex = function(src) {
-    src = src
-      .replace(/\r\n|\r/g, '\n')
-      .replace(/\t/g, '    ')
-      .replace(/\u00a0/g, ' ')
-      .replace(/\u2424/g, '\n');
-  
-    return this.token(src, true);
-  };
-  
-  /**
-   * Lexing
-   */
-  
-  Lexer.prototype.token = function(src, top, bq) {
-    var src = src.replace(/^ +$/gm, '')
-      , next
-      , loose
-      , cap
-      , bull
-      , b
-      , item
-      , space
-      , i
-      , l;
-  
-    while (src) {
-      // newline
-      if (cap = this.rules.newline.exec(src)) {
-        src = src.substring(cap[0].length);
-        if (cap[0].length > 1) {
-          this.tokens.push({
-            type: 'space'
-          });
-        }
-      }
-  
-      // code
-      if (cap = this.rules.code.exec(src)) {
-        src = src.substring(cap[0].length);
-        cap = cap[0].replace(/^ {4}/gm, '');
-        this.tokens.push({
-          type: 'code',
-          text: !this.options.pedantic
-            ? cap.replace(/\n+$/, '')
-            : cap
-        });
-        continue;
-      }
-  
-      // fences (gfm)
-      if (cap = this.rules.fences.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'code',
-          lang: cap[2],
-          text: cap[3]
-        });
-        continue;
-      }
-  
-      // heading
-      if (cap = this.rules.heading.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'heading',
-          depth: cap[1].length,
-          text: cap[2]
-        });
-        continue;
-      }
-  
-      // table no leading pipe (gfm)
-      if (top && (cap = this.rules.nptable.exec(src))) {
-        src = src.substring(cap[0].length);
-  
-        item = {
-          type: 'table',
-          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3].replace(/\n$/, '').split('\n')
-        };
-  
-        for (i = 0; i < item.align.length; i++) {
-          if (/^ *-+: *$/.test(item.align[i])) {
-            item.align[i] = 'right';
-          } else if (/^ *:-+: *$/.test(item.align[i])) {
-            item.align[i] = 'center';
-          } else if (/^ *:-+ *$/.test(item.align[i])) {
-            item.align[i] = 'left';
-          } else {
-            item.align[i] = null;
-          }
-        }
-  
-        for (i = 0; i < item.cells.length; i++) {
-          item.cells[i] = item.cells[i].split(/ *\| */);
-        }
-  
-        this.tokens.push(item);
-  
-        continue;
-      }
-  
-      // lheading
-      if (cap = this.rules.lheading.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'heading',
-          depth: cap[2] === '=' ? 1 : 2,
-          text: cap[1]
-        });
-        continue;
-      }
-  
-      // hr
-      if (cap = this.rules.hr.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'hr'
-        });
-        continue;
-      }
-  
-      // blockquote
-      if (cap = this.rules.blockquote.exec(src)) {
-        src = src.substring(cap[0].length);
-  
-        this.tokens.push({
-          type: 'blockquote_start'
-        });
-  
-        cap = cap[0].replace(/^ *> ?/gm, '');
-  
-        // Pass `top` to keep the current
-        // "toplevel" state. This is exactly
-        // how markdown.pl works.
-        this.token(cap, top, true);
-  
-        this.tokens.push({
-          type: 'blockquote_end'
-        });
-  
-        continue;
-      }
-  
-      // list
-      if (cap = this.rules.list.exec(src)) {
-        src = src.substring(cap[0].length);
-        bull = cap[2];
-  
-        this.tokens.push({
-          type: 'list_start',
-          ordered: bull.length > 1
-        });
-  
-        // Get each top-level item.
-        cap = cap[0].match(this.rules.item);
-  
-        next = false;
-        l = cap.length;
-        i = 0;
-  
-        for (; i < l; i++) {
-          item = cap[i];
-  
-          // Remove the list item's bullet
-          // so it is seen as the next token.
-          space = item.length;
-          item = item.replace(/^ *([*+-]|\d+\.) +/, '');
-  
-          // Outdent whatever the
-          // list item contains. Hacky.
-          if (~item.indexOf('\n ')) {
-            space -= item.length;
-            item = !this.options.pedantic
-              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-              : item.replace(/^ {1,4}/gm, '');
-          }
-  
-          // Determine whether the next list item belongs here.
-          // Backpedal if it does not belong in this list.
-          if (this.options.smartLists && i !== l - 1) {
-            b = block.bullet.exec(cap[i + 1])[0];
-            if (bull !== b && !(bull.length > 1 && b.length > 1)) {
-              src = cap.slice(i + 1).join('\n') + src;
-              i = l - 1;
-            }
-          }
-  
-          // Determine whether item is loose or not.
-          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-          // for discount behavior.
-          loose = next || /\n\n(?!\s*$)/.test(item);
-          if (i !== l - 1) {
-            next = item.charAt(item.length - 1) === '\n';
-            if (!loose) loose = next;
-          }
-  
-          this.tokens.push({
-            type: loose
-              ? 'loose_item_start'
-              : 'list_item_start'
-          });
-  
-          // Recurse.
-          this.token(item, false, bq);
-  
-          this.tokens.push({
-            type: 'list_item_end'
-          });
-        }
-  
-        this.tokens.push({
-          type: 'list_end'
-        });
-  
-        continue;
-      }
-  
-      // html
-      if (cap = this.rules.html.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: this.options.sanitize
-            ? 'paragraph'
-            : 'html',
-          pre: !this.options.sanitizer
-            && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-          text: cap[0]
-        });
-        continue;
-      }
-  
-      // def
-      if ((!bq && top) && (cap = this.rules.def.exec(src))) {
-        src = src.substring(cap[0].length);
-        this.tokens.links[cap[1].toLowerCase()] = {
-          href: cap[2],
-          title: cap[3]
-        };
-        continue;
-      }
-  
-      // table (gfm)
-      if (top && (cap = this.rules.table.exec(src))) {
-        src = src.substring(cap[0].length);
-  
-        item = {
-          type: 'table',
-          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
-        };
-  
-        for (i = 0; i < item.align.length; i++) {
-          if (/^ *-+: *$/.test(item.align[i])) {
-            item.align[i] = 'right';
-          } else if (/^ *:-+: *$/.test(item.align[i])) {
-            item.align[i] = 'center';
-          } else if (/^ *:-+ *$/.test(item.align[i])) {
-            item.align[i] = 'left';
-          } else {
-            item.align[i] = null;
-          }
-        }
-  
-        for (i = 0; i < item.cells.length; i++) {
-          item.cells[i] = item.cells[i]
-            .replace(/^ *\| *| *\| *$/g, '')
-            .split(/ *\| */);
-        }
-  
-        this.tokens.push(item);
-  
-        continue;
-      }
-  
-      // top-level paragraph
-      if (top && (cap = this.rules.paragraph.exec(src))) {
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'paragraph',
-          text: cap[1].charAt(cap[1].length - 1) === '\n'
-            ? cap[1].slice(0, -1)
-            : cap[1]
-        });
-        continue;
-      }
-  
-      // text
-      if (cap = this.rules.text.exec(src)) {
-        // Top-level should never reach here.
-        src = src.substring(cap[0].length);
-        this.tokens.push({
-          type: 'text',
-          text: cap[0]
-        });
-        continue;
-      }
-  
-      if (src) {
-        throw new
-          Error('Infinite loop on byte: ' + src.charCodeAt(0));
-      }
-    }
-  
-    return this.tokens;
-  };
-  
-  /**
-   * Inline-Level Grammar
-   */
-  
-  var inline = {
-    escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
-    autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
-    url: noop,
-    tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
-    link: /^!?\[(inside)\]\(href\)/,
-    reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
-    nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
-    strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
-    em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
-    code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
-    br: /^ {2,}\n(?!\s*$)/,
-    del: noop,
-    text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
-  };
-  
-  inline._inside = /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;
-  inline._href = /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
-  
-  inline.link = replace(inline.link)
-    ('inside', inline._inside)
-    ('href', inline._href)
-    ();
-  
-  inline.reflink = replace(inline.reflink)
-    ('inside', inline._inside)
-    ();
-  
-  /**
-   * Normal Inline Grammar
-   */
-  
-  inline.normal = merge({}, inline);
-  
-  /**
-   * Pedantic Inline Grammar
-   */
-  
-  inline.pedantic = merge({}, inline.normal, {
-    strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
-    em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
-  });
-  
-  /**
-   * GFM Inline Grammar
-   */
-  
-  inline.gfm = merge({}, inline.normal, {
-    escape: replace(inline.escape)('])', '~|])')(),
-    url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
-    del: /^~~(?=\S)([\s\S]*?\S)~~/,
-    text: replace(inline.text)
-      (']|', '~]|')
-      ('|', '|https?://|')
-      ()
-  });
-  
-  /**
-   * GFM + Line Breaks Inline Grammar
-   */
-  
-  inline.breaks = merge({}, inline.gfm, {
-    br: replace(inline.br)('{2,}', '*')(),
-    text: replace(inline.gfm.text)('{2,}', '*')()
-  });
-  
-  /**
-   * Inline Lexer & Compiler
-   */
-  
-  function InlineLexer(links, options) {
-    this.options = options || marked.defaults;
-    this.links = links;
-    this.rules = inline.normal;
-    this.renderer = this.options.renderer || new Renderer;
-    this.renderer.options = this.options;
-  
-    if (!this.links) {
-      throw new
-        Error('Tokens array requires a `links` property.');
-    }
-  
-    if (this.options.gfm) {
-      if (this.options.breaks) {
-        this.rules = inline.breaks;
-      } else {
-        this.rules = inline.gfm;
-      }
-    } else if (this.options.pedantic) {
-      this.rules = inline.pedantic;
-    }
-  }
-  
-  /**
-   * Expose Inline Rules
-   */
-  
-  InlineLexer.rules = inline;
-  
-  /**
-   * Static Lexing/Compiling Method
-   */
-  
-  InlineLexer.output = function(src, links, options) {
-    var inline = new InlineLexer(links, options);
-    return inline.output(src);
-  };
-  
-  /**
-   * Lexing/Compiling
-   */
-  
-  InlineLexer.prototype.output = function(src) {
-    var out = ''
-      , link
-      , text
-      , href
-      , cap;
-  
-    while (src) {
-      // escape
-      if (cap = this.rules.escape.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += cap[1];
-        continue;
-      }
-  
-      // autolink
-      if (cap = this.rules.autolink.exec(src)) {
-        src = src.substring(cap[0].length);
-        if (cap[2] === '@') {
-          text = cap[1].charAt(6) === ':'
-            ? this.mangle(cap[1].substring(7))
-            : this.mangle(cap[1]);
-          href = this.mangle('mailto:') + text;
-        } else {
-          text = escape(cap[1]);
-          href = text;
-        }
-        out += this.renderer.link(href, null, text);
-        continue;
-      }
-  
-      // url (gfm)
-      if (!this.inLink && (cap = this.rules.url.exec(src))) {
-        src = src.substring(cap[0].length);
-        text = escape(cap[1]);
-        href = text;
-        out += this.renderer.link(href, null, text);
-        continue;
-      }
-  
-      // tag
-      if (cap = this.rules.tag.exec(src)) {
-        if (!this.inLink && /^<a /i.test(cap[0])) {
-          this.inLink = true;
-        } else if (this.inLink && /^<\/a>/i.test(cap[0])) {
-          this.inLink = false;
-        }
-        src = src.substring(cap[0].length);
-        out += this.options.sanitize
-          ? this.options.sanitizer
-            ? this.options.sanitizer(cap[0])
-            : escape(cap[0])
-          : cap[0]
-        continue;
-      }
-  
-      // link
-      if (cap = this.rules.link.exec(src)) {
-        src = src.substring(cap[0].length);
-        this.inLink = true;
-        out += this.outputLink(cap, {
-          href: cap[2],
-          title: cap[3]
-        });
-        this.inLink = false;
-        continue;
-      }
-  
-      // reflink, nolink
-      if ((cap = this.rules.reflink.exec(src))
-          || (cap = this.rules.nolink.exec(src))) {
-        src = src.substring(cap[0].length);
-        link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
-        link = this.links[link.toLowerCase()];
-        if (!link || !link.href) {
-          out += cap[0].charAt(0);
-          src = cap[0].substring(1) + src;
-          continue;
-        }
-        this.inLink = true;
-        out += this.outputLink(cap, link);
-        this.inLink = false;
-        continue;
-      }
-  
-      // strong
-      if (cap = this.rules.strong.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.strong(this.output(cap[2] || cap[1]));
-        continue;
-      }
-  
-      // em
-      if (cap = this.rules.em.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.em(this.output(cap[2] || cap[1]));
-        continue;
-      }
-  
-      // code
-      if (cap = this.rules.code.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.codespan(escape(cap[2], true));
-        continue;
-      }
-  
-      // br
-      if (cap = this.rules.br.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.br();
-        continue;
-      }
-  
-      // del (gfm)
-      if (cap = this.rules.del.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.del(this.output(cap[1]));
-        continue;
-      }
-  
-      // text
-      if (cap = this.rules.text.exec(src)) {
-        src = src.substring(cap[0].length);
-        out += this.renderer.text(escape(this.smartypants(cap[0])));
-        continue;
-      }
-  
-      if (src) {
-        throw new
-          Error('Infinite loop on byte: ' + src.charCodeAt(0));
-      }
-    }
-  
-    return out;
-  };
-  
-  /**
-   * Compile Link
-   */
-  
-  InlineLexer.prototype.outputLink = function(cap, link) {
-    var href = escape(link.href)
-      , title = link.title ? escape(link.title) : null;
-  
-    return cap[0].charAt(0) !== '!'
-      ? this.renderer.link(href, title, this.output(cap[1]))
-      : this.renderer.image(href, title, escape(cap[1]));
-  };
-  
-  /**
-   * Smartypants Transformations
-   */
-  
-  InlineLexer.prototype.smartypants = function(text) {
-    if (!this.options.smartypants) return text;
-    return text
-      // em-dashes
-      .replace(/---/g, '\u2014')
-      // en-dashes
-      .replace(/--/g, '\u2013')
-      // opening singles
-      .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
-      // closing singles & apostrophes
-      .replace(/'/g, '\u2019')
-      // opening doubles
-      .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
-      // closing doubles
-      .replace(/"/g, '\u201d')
-      // ellipses
-      .replace(/\.{3}/g, '\u2026');
-  };
-  
-  /**
-   * Mangle Links
-   */
-  
-  InlineLexer.prototype.mangle = function(text) {
-    if (!this.options.mangle) return text;
-    var out = ''
-      , l = text.length
-      , i = 0
-      , ch;
-  
-    for (; i < l; i++) {
-      ch = text.charCodeAt(i);
-      if (Math.random() > 0.5) {
-        ch = 'x' + ch.toString(16);
-      }
-      out += '&#' + ch + ';';
-    }
-  
-    return out;
-  };
-  
-  /**
-   * Renderer
-   */
-  
-  function Renderer(options) {
-    this.options = options || {};
-  }
-  
-  Renderer.prototype.code = function(code, lang, escaped) {
-    if (this.options.highlight) {
-      var out = this.options.highlight(code, lang);
-      if (out != null && out !== code) {
-        escaped = true;
-        code = out;
-      }
-    }
-  
-    if (!lang) {
-      return '<pre><code>'
-        + (escaped ? code : escape(code, true))
-        + '\n</code></pre>';
-    }
-  
-    return '<pre><code class="'
-      + this.options.langPrefix
-      + escape(lang, true)
-      + '">'
-      + (escaped ? code : escape(code, true))
-      + '\n</code></pre>\n';
-  };
-  
-  Renderer.prototype.blockquote = function(quote) {
-    return '<blockquote>\n' + quote + '</blockquote>\n';
-  };
-  
-  Renderer.prototype.html = function(html) {
-    return html;
-  };
-  
-  Renderer.prototype.heading = function(text, level, raw) {
-    return '<h'
-      + level
-      + ' id="'
-      + this.options.headerPrefix
-      + raw.toLowerCase().replace(/[^\w]+/g, '-')
-      + '">'
-      + text
-      + '</h'
-      + level
-      + '>\n';
-  };
-  
-  Renderer.prototype.hr = function() {
-    return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
-  };
-  
-  Renderer.prototype.list = function(body, ordered) {
-    var type = ordered ? 'ol' : 'ul';
-    return '<' + type + '>\n' + body + '</' + type + '>\n';
-  };
-  
-  Renderer.prototype.listitem = function(text) {
-    return '<li>' + text + '</li>\n';
-  };
-  
-  Renderer.prototype.paragraph = function(text) {
-    return '<p>' + text + '</p>\n';
-  };
-  
-  Renderer.prototype.table = function(header, body) {
-    return '<table>\n'
-      + '<thead>\n'
-      + header
-      + '</thead>\n'
-      + '<tbody>\n'
-      + body
-      + '</tbody>\n'
-      + '</table>\n';
-  };
-  
-  Renderer.prototype.tablerow = function(content) {
-    return '<tr>\n' + content + '</tr>\n';
-  };
-  
-  Renderer.prototype.tablecell = function(content, flags) {
-    var type = flags.header ? 'th' : 'td';
-    var tag = flags.align
-      ? '<' + type + ' style="text-align:' + flags.align + '">'
-      : '<' + type + '>';
-    return tag + content + '</' + type + '>\n';
-  };
-  
-  // span level renderer
-  Renderer.prototype.strong = function(text) {
-    return '<strong>' + text + '</strong>';
-  };
-  
-  Renderer.prototype.em = function(text) {
-    return '<em>' + text + '</em>';
-  };
-  
-  Renderer.prototype.codespan = function(text) {
-    return '<code>' + text + '</code>';
-  };
-  
-  Renderer.prototype.br = function() {
-    return this.options.xhtml ? '<br/>' : '<br>';
-  };
-  
-  Renderer.prototype.del = function(text) {
-    return '<del>' + text + '</del>';
-  };
-  
-  Renderer.prototype.link = function(href, title, text) {
-    if (this.options.sanitize) {
-      try {
-        var prot = decodeURIComponent(unescape(href))
-          .replace(/[^\w:]/g, '')
-          .toLowerCase();
-      } catch (e) {
-        return '';
-      }
-      if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
-        return '';
-      }
-    }
-    var out = '<a href="' + href + '"';
-    if (title) {
-      out += ' title="' + title + '"';
-    }
-    out += '>' + text + '</a>';
-    return out;
-  };
-  
-  Renderer.prototype.image = function(href, title, text) {
-    var out = '<img src="' + href + '" alt="' + text + '"';
-    if (title) {
-      out += ' title="' + title + '"';
-    }
-    out += this.options.xhtml ? '/>' : '>';
-    return out;
-  };
-  
-  Renderer.prototype.text = function(text) {
-    return text;
-  };
-  
-  /**
-   * Parsing & Compiling
-   */
-  
-  function Parser(options) {
-    this.tokens = [];
-    this.token = null;
-    this.options = options || marked.defaults;
-    this.options.renderer = this.options.renderer || new Renderer;
-    this.renderer = this.options.renderer;
-    this.renderer.options = this.options;
-  }
-  
-  /**
-   * Static Parse Method
-   */
-  
-  Parser.parse = function(src, options, renderer) {
-    var parser = new Parser(options, renderer);
-    return parser.parse(src);
-  };
-  
-  /**
-   * Parse Loop
-   */
-  
-  Parser.prototype.parse = function(src) {
-    this.inline = new InlineLexer(src.links, this.options, this.renderer);
-    this.tokens = src.reverse();
-  
-    var out = '';
-    while (this.next()) {
-      out += this.tok();
-    }
-  
-    return out;
-  };
-  
-  /**
-   * Next Token
-   */
-  
-  Parser.prototype.next = function() {
-    return this.token = this.tokens.pop();
-  };
-  
-  /**
-   * Preview Next Token
-   */
-  
-  Parser.prototype.peek = function() {
-    return this.tokens[this.tokens.length - 1] || 0;
-  };
-  
-  /**
-   * Parse Text Tokens
-   */
-  
-  Parser.prototype.parseText = function() {
-    var body = this.token.text;
-  
-    while (this.peek().type === 'text') {
-      body += '\n' + this.next().text;
-    }
-  
-    return this.inline.output(body);
-  };
-  
-  /**
-   * Parse Current Token
-   */
-  
-  Parser.prototype.tok = function() {
-    switch (this.token.type) {
-      case 'space': {
-        return '';
-      }
-      case 'hr': {
-        return this.renderer.hr();
-      }
-      case 'heading': {
-        return this.renderer.heading(
-          this.inline.output(this.token.text),
-          this.token.depth,
-          this.token.text);
-      }
-      case 'code': {
-        return this.renderer.code(this.token.text,
-          this.token.lang,
-          this.token.escaped);
-      }
-      case 'table': {
-        var header = ''
-          , body = ''
-          , i
-          , row
-          , cell
-          , flags
-          , j;
-  
-        // header
-        cell = '';
-        for (i = 0; i < this.token.header.length; i++) {
-          flags = { header: true, align: this.token.align[i] };
-          cell += this.renderer.tablecell(
-            this.inline.output(this.token.header[i]),
-            { header: true, align: this.token.align[i] }
-          );
-        }
-        header += this.renderer.tablerow(cell);
-  
-        for (i = 0; i < this.token.cells.length; i++) {
-          row = this.token.cells[i];
-  
-          cell = '';
-          for (j = 0; j < row.length; j++) {
-            cell += this.renderer.tablecell(
-              this.inline.output(row[j]),
-              { header: false, align: this.token.align[j] }
-            );
-          }
-  
-          body += this.renderer.tablerow(cell);
-        }
-        return this.renderer.table(header, body);
-      }
-      case 'blockquote_start': {
-        var body = '';
-  
-        while (this.next().type !== 'blockquote_end') {
-          body += this.tok();
-        }
-  
-        return this.renderer.blockquote(body);
-      }
-      case 'list_start': {
-        var body = ''
-          , ordered = this.token.ordered;
-  
-        while (this.next().type !== 'list_end') {
-          body += this.tok();
-        }
-  
-        return this.renderer.list(body, ordered);
-      }
-      case 'list_item_start': {
-        var body = '';
-  
-        while (this.next().type !== 'list_item_end') {
-          body += this.token.type === 'text'
-            ? this.parseText()
-            : this.tok();
-        }
-  
-        return this.renderer.listitem(body);
-      }
-      case 'loose_item_start': {
-        var body = '';
-  
-        while (this.next().type !== 'list_item_end') {
-          body += this.tok();
-        }
-  
-        return this.renderer.listitem(body);
-      }
-      case 'html': {
-        var html = !this.token.pre && !this.options.pedantic
-          ? this.inline.output(this.token.text)
-          : this.token.text;
-        return this.renderer.html(html);
-      }
-      case 'paragraph': {
-        return this.renderer.paragraph(this.inline.output(this.token.text));
-      }
-      case 'text': {
-        return this.renderer.paragraph(this.parseText());
-      }
-    }
-  };
-  
-  /**
-   * Helpers
-   */
-  
-  function escape(html, encode) {
-    return html
-      .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-  
-  function unescape(html) {
-    return html.replace(/&([#\w]+);/g, function(_, n) {
-      n = n.toLowerCase();
-      if (n === 'colon') return ':';
-      if (n.charAt(0) === '#') {
-        return n.charAt(1) === 'x'
-          ? String.fromCharCode(parseInt(n.substring(2), 16))
-          : String.fromCharCode(+n.substring(1));
-      }
-      return '';
-    });
-  }
-  
-  function replace(regex, opt) {
-    regex = regex.source;
-    opt = opt || '';
-    return function self(name, val) {
-      if (!name) return new RegExp(regex, opt);
-      val = val.source || val;
-      val = val.replace(/(^|[^\[])\^/g, '$1');
-      regex = regex.replace(name, val);
-      return self;
-    };
-  }
-  
-  function noop() {}
-  noop.exec = noop;
-  
-  function merge(obj) {
-    var i = 1
-      , target
-      , key;
-  
-    for (; i < arguments.length; i++) {
-      target = arguments[i];
-      for (key in target) {
-        if (Object.prototype.hasOwnProperty.call(target, key)) {
-          obj[key] = target[key];
-        }
-      }
-    }
-  
-    return obj;
-  }
-  
-  
-  /**
-   * Marked
-   */
-  
-  function marked(src, opt, callback) {
-    if (callback || typeof opt === 'function') {
-      if (!callback) {
-        callback = opt;
-        opt = null;
-      }
-  
-      opt = merge({}, marked.defaults, opt || {});
-  
-      var highlight = opt.highlight
-        , tokens
-        , pending
-        , i = 0;
-  
-      try {
-        tokens = Lexer.lex(src, opt)
-      } catch (e) {
-        return callback(e);
-      }
-  
-      pending = tokens.length;
-  
-      var done = function(err) {
-        if (err) {
-          opt.highlight = highlight;
-          return callback(err);
-        }
-  
-        var out;
-  
-        try {
-          out = Parser.parse(tokens, opt);
-        } catch (e) {
-          err = e;
-        }
-  
-        opt.highlight = highlight;
-  
-        return err
-          ? callback(err)
-          : callback(null, out);
-      };
-  
-      if (!highlight || highlight.length < 3) {
-        return done();
-      }
-  
-      delete opt.highlight;
-  
-      if (!pending) return done();
-  
-      for (; i < tokens.length; i++) {
-        (function(token) {
-          if (token.type !== 'code') {
-            return --pending || done();
-          }
-          return highlight(token.text, token.lang, function(err, code) {
-            if (err) return done(err);
-            if (code == null || code === token.text) {
-              return --pending || done();
-            }
-            token.text = code;
-            token.escaped = true;
-            --pending || done();
-          });
-        })(tokens[i]);
-      }
-  
-      return;
-    }
-    try {
-      if (opt) opt = merge({}, marked.defaults, opt);
-      return Parser.parse(Lexer.lex(src, opt), opt);
-    } catch (e) {
-      e.message += '\nPlease report this to https://github.com/chjj/marked.';
-      if ((opt || marked.defaults).silent) {
-        return '<p>An error occured:</p><pre>'
-          + escape(e.message + '', true)
-          + '</pre>';
-      }
-      throw e;
-    }
-  }
-  
-  /**
-   * Options
-   */
-  
-  marked.options =
-  marked.setOptions = function(opt) {
-    merge(marked.defaults, opt);
-    return marked;
-  };
-  
-  marked.defaults = {
-    gfm: true,
-    tables: true,
-    breaks: false,
-    pedantic: false,
-    sanitize: false,
-    sanitizer: null,
-    mangle: true,
-    smartLists: false,
-    silent: false,
-    highlight: null,
-    langPrefix: 'lang-',
-    smartypants: false,
-    headerPrefix: '',
-    renderer: new Renderer,
-    xhtml: false
-  };
-  
-  /**
-   * Expose
-   */
-  
-  marked.Parser = Parser;
-  marked.parser = Parser.parse;
-  
-  marked.Renderer = Renderer;
-  
-  marked.Lexer = Lexer;
-  marked.lexer = Lexer.lex;
-  
-  marked.InlineLexer = InlineLexer;
-  marked.inlineLexer = InlineLexer.output;
-  
-  marked.parse = marked;
-  
-  module.exports = marked;
-  
-  
-
-});
-
-;/*!/modules/lib/mod.js*/
-/**
- * file: mod.js
- * ver: 1.0.11
- * update: 2015/05/14
- *
- * https://github.com/fex-team/mod
- */
-var require, define;
-
-(function(global) {
-    if (require) return; // 避免重复加载而导致已定义模块丢失
-
-    var head = document.getElementsByTagName('head')[0],
-        loadingMap = {},
-        factoryMap = {},
-        modulesMap = {},
-        scriptsMap = {},
-        resMap = {},
-        pkgMap = {};
-
-    function createScript(url, onerror) {
-        if (url in scriptsMap) return;
-        scriptsMap[url] = true;
-
-        var script = document.createElement('script');
-        if (onerror) {
-            var tid = setTimeout(onerror, require.timeout);
-
-            script.onerror = function() {
-                clearTimeout(tid);
-                onerror();
-            };
-
-            function onload() {
-                clearTimeout(tid);
-            }
-
-            if ('onload' in script) {
-                script.onload = onload;
-            } else {
-                script.onreadystatechange = function() {
-                    if (this.readyState == 'loaded' || this.readyState == 'complete') {
-                        onload();
-                    }
-                }
-            }
-        }
-        script.type = 'text/javascript';
-        script.src = url;
-        head.appendChild(script);
-        return script;
-    }
-
-    function loadScript(id, callback, onerror) {
-        var queue = loadingMap[id] || (loadingMap[id] = []);
-        queue.push(callback);
-
-        //
-        // resource map query
-        //
-        var res = resMap[id] || resMap[id + '.js'] || {};
-        var pkg = res.pkg;
-        var url;
-
-        if (pkg) {
-            url = pkgMap[pkg].url;
-        } else {
-            url = res.url || id;
-        }
-
-        createScript(url, onerror && function() {
-            onerror(id);
-        });
-    }
-
-    define = function(id, factory) {
-        id = id.replace(/\.js$/i, '');
-        factoryMap[id] = factory;
-
-        var queue = loadingMap[id];
-        if (queue) {
-            for (var i = 0, n = queue.length; i < n; i++) {
-                queue[i]();
-            }
-            delete loadingMap[id];
-        }
-    };
-
-    require = function(id) {
-
-        // compatible with require([dep, dep2...]) syntax.
-        if (id && id.splice) {
-            return require.async.apply(this, arguments);
-        }
-
-        id = require.alias(id);
-
-        var mod = modulesMap[id];
-        if (mod) {
-            return mod.exports;
-        }
-
-        //
-        // init module
-        //
-        var factory = factoryMap[id];
-        if (!factory) {
-            throw '[ModJS] Cannot find module `' + id + '`';
-        }
-
-        mod = modulesMap[id] = {
-            exports: {}
-        };
-
-        //
-        // factory: function OR value
-        //
-        var ret = (typeof factory == 'function') ? factory.apply(mod, [require, mod.exports, mod]) : factory;
-
-        if (ret) {
-            mod.exports = ret;
-        }
-        return mod.exports;
-    };
-
-    require.async = function(names, onload, onerror) {
-        if (typeof names == 'string') {
-            names = [names];
-        }
-
-        var needMap = {};
-        var needNum = 0;
-
-        function findNeed(depArr) {
-            for (var i = 0, n = depArr.length; i < n; i++) {
-                //
-                // skip loading or loaded
-                //
-                var dep = require.alias(depArr[i]);
-
-                if (dep in factoryMap) {
-                    // check whether loaded resource's deps is loaded or not
-                    var child = resMap[dep] || resMap[dep + '.js'];
-                    if (child && 'deps' in child) {
-                        findNeed(child.deps);
-                    }
-                    continue;
-                }
-
-                if (dep in needMap) {
-                    continue;
-                }
-
-                needMap[dep] = true;
-                needNum++;
-                loadScript(dep, updateNeed, onerror);
-
-                var child = resMap[dep] || resMap[dep + '.js'];
-                if (child && 'deps' in child) {
-                    findNeed(child.deps);
-                }
-            }
-        }
-
-        function updateNeed() {
-            if (0 == needNum--) {
-                var args = [];
-                for (var i = 0, n = names.length; i < n; i++) {
-                    args[i] = require(names[i]);
-                }
-
-                onload && onload.apply(global, args);
-            }
-        }
-
-        findNeed(names);
-        updateNeed();
-    };
-
-    require.resourceMap = function(obj) {
-        var k, col;
-
-        // merge `res` & `pkg` fields
-        col = obj.res;
-        for (k in col) {
-            if (col.hasOwnProperty(k)) {
-                resMap[k] = col[k];
-            }
-        }
-
-        col = obj.pkg;
-        for (k in col) {
-            if (col.hasOwnProperty(k)) {
-                pkgMap[k] = col[k];
-            }
-        }
-    };
-
-    require.loadJs = function(url) {
-        createScript(url);
-    };
-
-    require.loadCss = function(cfg) {
-        if (cfg.content) {
-            var sty = document.createElement('style');
-            sty.type = 'text/css';
-
-            if (sty.styleSheet) { // IE
-                sty.styleSheet.cssText = cfg.content;
-            } else {
-                sty.innerHTML = cfg.content;
-            }
-            head.appendChild(sty);
-        } else if (cfg.url) {
-            var link = document.createElement('link');
-            link.href = cfg.url;
-            link.rel = 'stylesheet';
-            link.type = 'text/css';
-            head.appendChild(link);
-        }
-    };
-
-
-    require.alias = function(id) {
-        return id.replace(/\.js$/i, '');
-    };
-
-    require.timeout = 5000;
-
-})(this);
-;/*!/modules/login_index/container/main.js*/
-define('modules/login_index/container/main', function(require, exports, module) {
+;/*!/pages/index_index/main.js*/
+define('pages/index_index/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  require('common/scripts/global');
   
-  module.exports = Vue.extend({
-      template: "<div class=\"content\">\r\n    <slot></slot>\r\n</div>\r\n",
-      ready: function ready() {}
+  var Vue = require('common/lib/vue');
+  
+  var App = require('common/scripts/app');
+  var IndexMain = require('pages/index_index/modules/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          IndexMain: IndexMain
+      },
+      ready: function ready() {
+          _init();
+      }
   });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
 
 });
 
-;/*!/modules/login_index/footer/main.js*/
-define('modules/login_index/footer/main', function(require, exports, module) {
+;/*!/pages/login_index/modules/header/main.js*/
+define('pages/login_index/modules/header/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"copyright\">\r\n    2016 &copy; <a href=\"https://github.com/helinjiang/nodeadmin\" target=\"_blank\">NodeAdmin</a>.\r\n</div>\r\n",
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/modules/login_index/header/main.js*/
-define('modules/login_index/header/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"logo\">\r\n    <a href=\"index.html\">\r\n        <img src=\"/static/img/logo.png\" alt=\"logo\" />\r\n    </a>\r\n</div>\r\n",
@@ -16393,16 +14977,44 @@ define('modules/login_index/header/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/login_index/loginpanel/main.js*/
-define('modules/login_index/loginpanel/main', function(require, exports, module) {
+;/*!/pages/login_index/modules/footer/main.js*/
+define('pages/login_index/modules/footer/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
-  var Validator = require('modules/common/validator');
-  var Msg = require('modules/components/msg/main');
-  var Loading = require('modules/components/loading/main');
+  module.exports = Vue.extend({
+      template: "<div class=\"copyright\">\r\n    2016 &copy; <a href=\"https://github.com/helinjiang/nodeadmin\" target=\"_blank\">NodeAdmin</a>.\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/login_index/modules/container/main.js*/
+define('pages/login_index/modules/container/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"content\">\r\n    <slot></slot>\r\n</div>\r\n",
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/login_index/modules/loginpanel/main.js*/
+define('pages/login_index/modules/loginpanel/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var Validator = require('common/scripts/validator');
+  var Msg = require('components/msg/main');
+  var Loading = require('components/loading/main');
   
   module.exports = Vue.extend({
       template: "<form class=\"login-form\" action=\"/admin/login/login\" method=\"post\">\r\n    <h3 class=\"form-title\">欢迎登录</h3>  \r\n\r\n    <div class=\"form-group errwrap\">\r\n        <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->\r\n        <label class=\"control-label visible-ie8 visible-ie9\">用户名</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-user\"></i>\r\n            <input name=\"username\" type=\"text\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"用户名\" autofocus/>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-group errwrap\">\r\n        <label class=\"control-label visible-ie8 visible-ie9\">密码</label>\r\n        <div class=\"input-icon\">\r\n            <i class=\"fa fa-lock\"></i>\r\n            <input name=\"password\" type=\"password\" class=\"form-control placeholder-no-fix\" autocomplete=\"off\" placeholder=\"密码\" />\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <he-checkbox name=\"remember\" title=\"记住密码\" checked></he-checkbox>\r\n        <button type=\"submit\" class=\"btn btn-info pull-right\"> 登录 </button>\r\n    </div>\r\n\r\n</form>",
@@ -16484,12 +15096,81 @@ define('modules/login_index/loginpanel/main', function(require, exports, module)
 
 });
 
-;/*!/modules/test_index/testselect2/main.js*/
-define('modules/test_index/testselect2/main', function(require, exports, module) {
+;/*!/pages/login_index/main.js*/
+define('pages/login_index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var LoginHeader = require('pages/login_index/modules/header/main');
+  var LoginFooter = require('pages/login_index/modules/footer/main');
+  var LoginContainer = require('pages/login_index/modules/container/main');
+  var LoginPanel = require('pages/login_index/modules/loginpanel/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          LoginHeader: LoginHeader,
+          LoginContainer: LoginContainer,
+          LoginFooter: LoginFooter,
+          LoginPanel: LoginPanel
+      }
+  });
+  
+  // TODO html中的样式由js来控制
+  /**
+      <!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+      <!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+      <!--[if !IE]><!-->
+      <html lang="en" class="no-js">
+      <!--<![endif]-->
+   */
+
+});
+
+;/*!/pages/test_index/main.js*/
+define('pages/test_index/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var App = require('/modules/common/app');
+  var TestMain = require('/modules/test_index/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          TestMain: TestMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/test_index/modules/testselect2/main.js*/
+define('pages/test_index/modules/testselect2/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"test-select2\">\r\n\r\n    <select2 value=\"1\" name=\"test\" include-input>\r\n        <select2-option title=\"hello1\" value=\"1\"></select2-option>\r\n        <select2-option title=\"word2\" value=\"2\"></select2-option>\r\n        <select2-option title=\"test3\" value=\"3\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 :init-data=\"select2data\" value=\"2\" name=\"test\" include-input>\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" convert=\"getgroup\" name=\"test\" >\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/get_group\" lazy name=\"test\">\r\n        <select2-option title=\"test4\" value=\"4\"></select2-option>\r\n    </select2>\r\n\r\n    <select2 url=\"/admin/test/searchuser\" convert=\"searchuser\" ajax name=\"test\"></select2> \r\n\r\n</div>\r\n",
@@ -16512,12 +15193,12 @@ define('modules/test_index/testselect2/main', function(require, exports, module)
 
 });
 
-;/*!/modules/test_index/testdate/main.js*/
-define('modules/test_index/testdate/main', function(require, exports, module) {
+;/*!/pages/test_index/modules/testdate/main.js*/
+define('pages/test_index/modules/testdate/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"test-date\">\r\n\r\n    <date name=\"birthday\" value=\"2015-12-12\"></date>\r\n\r\n    <date name=\"birthday2\" value=\"2016-12-12\" start-date=\"+0d\"></date>\r\n\r\n    <date name=\"birthday3\" value=\"2015-12-12\" start-date=\"2015-12-10\"></date>\r\n    \r\n    <date name=\"birthday4\" today-btn=\"linked\"></date>\r\n\r\n</div>\r\n",
@@ -16526,12 +15207,12 @@ define('modules/test_index/testdate/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/test_index/testwizard/main.js*/
-define('modules/test_index/testwizard/main', function(require, exports, module) {
+;/*!/pages/test_index/modules/testwizard/main.js*/
+define('pages/test_index/modules/testwizard/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"test-wizard\">\r\n\r\n    <wizard :title=\"title\" :step-items=\"stepItems\" :rules-options=\"rulesOptions\">\r\n        \r\n        <wizard-item css=\"active\" id=\"tab1\" title=\"Provide your account details\">\r\n            <he-form-item title=\"用户名\" col=\"3-4\" help=\"Provide your username\" required horizontal>\r\n                <input type=\"text\" name=\"username\" v-model=\"username\">\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab2\" title=\"Provide your profile details\">           \r\n            <he-form-item title=\"Fullname\" col=\"3-4\" help=\"Provide your fullname\" required horizontal>\r\n                <input type=\"text\" name=\"fullname\" v-model=\"fullname\">\r\n            </he-form-item> \r\n\r\n            <he-form-item title=\"Remarks\" col=\"3-4\" help=\"Provide your fullname\"  horizontal>\r\n                <textarea rows=\"3\" name=\"remarks\"  v-model=\"remarks\"></textarea>\r\n            </he-form-item>\r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab3\" title=\"Provide your billing and credit card details\">\r\n            <he-form-item title=\"Card Holder Name\" col=\"3-4\" required horizontal>\r\n                <input type=\"text\" name=\"card_name\" v-model=\"card_name\">\r\n            </he-form-item> \r\n        </wizard-item>\r\n\r\n        <wizard-item id=\"tab4\" title=\"Confirm your account\">\r\n\r\n            <h4 class=\"form-section\">Account</h4>\r\n            <he-form-item title=\"Username:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{username}} </p>\r\n            </he-form-item>     \r\n\r\n            <h4 class=\"form-section\">Profile</h4>     \r\n            <he-form-item title=\"Fullname:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{fullname}} </p>\r\n            </he-form-item>     \r\n            <he-form-item title=\"Remarks:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{remarks}} </p>\r\n            </he-form-item>      \r\n\r\n            <h4 class=\"form-section\">Billing</h4>\r\n            <he-form-item title=\"Card Holder Name:\" col=\"3-4\" horizontal>\r\n                <p class=\"form-control-static\" > {{card_name}} </p>\r\n            </he-form-item>      \r\n\r\n        </wizard-item>\r\n\r\n    </wizard>\r\n\r\n</div>\r\n",
@@ -16577,12 +15258,12 @@ define('modules/test_index/testwizard/main', function(require, exports, module) 
 
 });
 
-;/*!/modules/test_index/testeditormd/main.js*/
-define('modules/test_index/testeditormd/main', function(require, exports, module) {
+;/*!/pages/test_index/modules/testeditormd/main.js*/
+define('pages/test_index/modules/testeditormd/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
   module.exports = Vue.extend({
       template: "<div class=\"test-editormd\">\r\n    <editormd></editormd>\r\n    \r\n\r\n</div>\r\n",
@@ -16605,17 +15286,17 @@ define('modules/test_index/testeditormd/main', function(require, exports, module
 
 });
 
-;/*!/modules/test_index/main.js*/
-define('modules/test_index/main', function(require, exports, module) {
+;/*!/pages/test_index/modules/main.js*/
+define('pages/test_index/modules/main', function(require, exports, module) {
 
   'use strict';
   
-  var Vue = require('modules/lib/vue');
+  var Vue = require('common/lib/vue');
   
-  var TestSelect2 = require('modules/test_index/testselect2/main');
-  var TestDate = require('modules/test_index/testdate/main');
-  var TestWizard = require('modules/test_index/testwizard/main');
-  var TestEditormd = require('modules/test_index/testeditormd/main');
+  var TestSelect2 = require('pages/test_index/modules/testselect2/main');
+  var TestDate = require('pages/test_index/modules/testdate/main');
+  var TestWizard = require('pages/test_index/modules/testwizard/main');
+  var TestEditormd = require('pages/test_index/modules/testeditormd/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"test_index-main\">\r\n\r\n    <div class=\"row\">\r\n\r\n        <!-- <div class=\"col-md-6\">\r\n            <test-select2></test-select2>\r\n        </div>   \r\n        \r\n        <div class=\"col-md-6\">\r\n             <test-date></test-date>  \r\n        </div>   -->\r\n\r\n        <div class=\"col-md-12\">\r\n            <test-editormd></test-editormd>\r\n        </div>\r\n\r\n    </div>  \r\n    \r\n</div>",
@@ -16630,12 +15311,12 @@ define('modules/test_index/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/add/main.js*/
-define('modules/user_index/add/main', function(require, exports, module) {
+;/*!/pages/user_index/modules/add/main.js*/
+define('pages/user_index/modules/add/main', function(require, exports, module) {
 
   'use strict';
   
-  var CommonCrud = require('modules/common/crud');
+  var CommonCrud = require('common/scripts/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"addpage\">\r\n    \r\n    \r\n    <modal title=\"新增用户信息\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>   \r\n\r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showModal\">新增</he-button> \r\n\r\n</div>\r\n",
@@ -16698,12 +15379,70 @@ define('modules/user_index/add/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/delete/main.js*/
-define('modules/user_index/delete/main', function(require, exports, module) {
+;/*!/pages/user_index/modules/modify/main.js*/
+define('pages/user_index/modules/modify/main', function(require, exports, module) {
 
   'use strict';
   
-  var CommonCrud = require('modules/common/crud');
+  var CommonCrud = require('common/scripts/crud');
+  
+  module.exports = CommonCrud.extend({
+      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
+      data: {
+          id: undefined,
+          name: undefined,
+          state: undefined,
+          birthday: undefined
+      },
+      methods: {
+          beforeShowModal: function beforeShowModal(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.name = data.name;
+              this.state = data.state;
+              this.birthday = data.birthday;
+          },
+          getRulesOptions: function getRulesOptions() {
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  },
+                  birthday: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
+                      }
+                  }
+              };
+  
+              return config;
+          }
+      }
+  });
+
+});
+
+;/*!/pages/user_index/modules/delete/main.js*/
+define('pages/user_index/modules/delete/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var CommonCrud = require('common/scripts/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"删除用户信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -16761,14 +15500,14 @@ define('modules/user_index/delete/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/detail/main.js*/
-define('modules/user_index/detail/main', function(require, exports, module) {
+;/*!/pages/user_index/modules/detail/main.js*/
+define('pages/user_index/modules/detail/main', function(require, exports, module) {
 
   'use strict';
   
-  var CommonCrud = require('modules/common/crud');
+  var CommonCrud = require('common/scripts/crud');
   
-  var Names = require('modules/common/names');
+  var Names = require('common/scripts/names');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -16801,75 +15540,17 @@ define('modules/user_index/detail/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/modify/main.js*/
-define('modules/user_index/modify/main', function(require, exports, module) {
+;/*!/pages/user_index/modules/main.js*/
+define('pages/user_index/modules/main', function(require, exports, module) {
 
   'use strict';
   
-  var CommonCrud = require('modules/common/crud');
+  var Vue = require('common/lib/vue');
   
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          name: undefined,
-          state: undefined,
-          birthday: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.name = data.name;
-              this.state = data.state;
-              this.birthday = data.birthday;
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  name: {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  },
-                  birthday: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/modules/user_index/main.js*/
-define('modules/user_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('modules/lib/vue');
-  
-  var addPage = require('modules/user_index/add/main');
-  var modifyPage = require('modules/user_index/modify/main');
-  var deletePage = require('modules/user_index/delete/main');
-  var detailPage = require('modules/user_index/detail/main');
+  var addPage = require('pages/user_index/modules/add/main');
+  var modifyPage = require('pages/user_index/modules/modify/main');
+  var deletePage = require('pages/user_index/modules/delete/main');
+  var detailPage = require('pages/user_index/modules/detail/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
@@ -16923,8 +15604,42 @@ define('modules/user_index/main', function(require, exports, module) {
 
 });
 
-;/*!/modules/user_index/model.js*/
-define('modules/user_index/model', function(require, exports, module) {
+;/*!/pages/user_index/main.js*/
+define('pages/user_index/main', function(require, exports, module) {
+
+  /**
+   * Boot up the Vue instance and wire up the router.
+   */
+  
+  'use strict';
+  
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var App = require('common/scripts/app');
+  var UserMain = require('pages/user_index/modules/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          UserMain: UserMain
+      },
+      ready: function ready() {
+          _init();
+      }
+  });
+  
+  function _init() {
+      $(function () {
+          App.init();
+      });
+  }
+
+});
+
+;/*!/pages/user_index/modules/model.js*/
+define('pages/user_index/modules/model', function(require, exports, module) {
 
   /**
    * 描述定义
@@ -17128,232 +15843,5 @@ define('modules/user_index/model', function(require, exports, module) {
       user: user
   
   };
-
-});
-
-;/*!/pages/car_index/main.js*/
-define('pages/car_index/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var CarMain = require('modules/car_index/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          CarMain: CarMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
-
-});
-
-;/*!/pages/coding_index/main.js*/
-define('pages/coding_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var CodingMain = require('modules/coding_index/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          CodingMain: CodingMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
-
-});
-
-;/*!/pages/codingitem_index/main.js*/
-define('pages/codingitem_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var CodingitemMain = require('modules/codingitem_index/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          CodingitemMain: CodingitemMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
-
-});
-
-;/*!/pages/index_index/main.js*/
-define('pages/index_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var IndexMain = require('modules/index_index/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          IndexMain: IndexMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
-
-});
-
-;/*!/pages/login_index/main.js*/
-define('pages/login_index/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var LoginHeader = require('modules/login_index/header/main');
-  var LoginFooter = require('modules/login_index/footer/main');
-  var LoginContainer = require('modules/login_index/container/main');
-  var LoginPanel = require('modules/login_index/loginpanel/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          LoginHeader: LoginHeader,
-          LoginContainer: LoginContainer,
-          LoginFooter: LoginFooter,
-          LoginPanel: LoginPanel
-      }
-  });
-  
-  // TODO html中的样式由js来控制
-  /**
-      <!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
-      <!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
-      <!--[if !IE]><!-->
-      <html lang="en" class="no-js">
-      <!--<![endif]-->
-   */
-
-});
-
-;/*!/pages/test_index/main.js*/
-define('pages/test_index/main', function(require, exports, module) {
-
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var TestMain = require('modules/test_index/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          TestMain: TestMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
-
-});
-
-;/*!/pages/user_index/main.js*/
-define('pages/user_index/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('modules/common/global');
-  
-  var Vue = require('modules/lib/vue');
-  
-  var App = require('modules/common/app');
-  var UserMain = require('modules/user_index/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          UserMain: UserMain
-      },
-      ready: function ready() {
-          _init();
-      }
-  });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
 
 });
