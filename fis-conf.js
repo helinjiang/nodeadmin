@@ -22,6 +22,9 @@ fis.hook('commonjs', {
         name: 'components',
         location: '/components'
     }, {
+        name: 'mixins',
+        location: '/mixins'
+    }, {
         name: 'modules',
         location: '/modules'
     }]
@@ -34,7 +37,7 @@ fis.match('/*', {
 
 // pages\modules\components下的所有js都需要处理识别CommonJS，但压缩文件和部分文件除外
 // common/lib和common/scripts下也要识别，但common/lib/mod.js除外
-fis.match('/{pages,modules,components}/**.js', {
+fis.match('/{mixins,components,modules,pages}/**.js', {
     isMod: true
 }).match('**.min.js', {
     isMod: false
@@ -52,7 +55,7 @@ modArr.forEach(function(item) {
 });
 
 // 使用babel处理es6/es7
-fis.match('/{pages,modules,components}/**.js', {
+fis.match('/{mixins,components,modules,pages}/**.js', {
     parser: fis.plugin('babel')
 }).match('/common/scripts/**.js', {
     parser: fis.plugin('babel')
@@ -139,7 +142,7 @@ fis.match('::packager', {
     .match('/common/{css,plugins}/**.{css,scss}', { //TODO此处待改正
         packTo: ''
     })
-    .match('{common,components,modules,pages}/**.js', {
+    .match('{common,mixins,components,modules,pages}/**.js', {
         packTo: '/static/all.js'
     })
     .match('/common/plugins/**.js', {

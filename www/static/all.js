@@ -13013,6 +13013,11 @@ define('components/modal/main', function(require, exports, module) {
   
   Vue.component('modal', {
       template: "<div id=\"{{id}}\" class=\"modal {{className}} fade\" tabindex=\"{{tabindex}}\" data-focus-on=\"input:first\">\r\n    <div class=\"modal-header\" v-if=\"title\">\r\n        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>\r\n        <h4 class=\"modal-title\">{{title}}</h4>\r\n    </div>\r\n    <div class=\"modal-body\">\r\n        <slot></slot>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\"> 取消 </button>\r\n        <button type=\"button\" class=\"btn btn-primary\" v-on:click=\"confirm\"> 确认 </button>\r\n    </div>\r\n</div>",
+      data: function data() {
+          return {
+              jqModal: undefined
+          };
+      },
       props: {
           'id': String,
           'css': String,
@@ -13046,7 +13051,7 @@ define('components/modal/main', function(require, exports, module) {
       methods: {
           show: function show() {
               // data-focus-on="input:first" 这里是在bootstrap-modal.js中定义了focusOn选项，支持选择器
-              $(this.$el).modal();
+              this.jqModal.modal();
   
               // TODO 此处还需要优化
               // 如果是longmodal形式，则在body中增加page-overflow
@@ -13055,7 +13060,7 @@ define('components/modal/main', function(require, exports, module) {
               }
           },
           hide: function hide() {
-              $(this.$el).modal('hide');
+              this.jqModal.modal('hide');
               if (this.longmodal) {
                   $('body').removeClass('page-overflow');
               }
@@ -13063,28 +13068,38 @@ define('components/modal/main', function(require, exports, module) {
           confirm: function confirm() {
               // 自定义事件，使用方式为v-on:confirm="save"
               this.$dispatch('confirm', this.id);
+          },
+          reportShown: function reportShown(id) {
+              this.$dispatch('modalshown', id);
+          },
+          reportHidden: function reportHidden(id) {
+              this.$dispatch('modalhidden', id);
+          },
+          _initGeneral: function _initGeneral() {
+              // general settings
+              $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner = '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' + '<div class="progress progress-striped active">' + '<div class="progress-bar" style="width: 100%;"></div>' + '</div>' + '</div>';
+  
+              $.fn.modalmanager.defaults.resize = true;
+          },
+          _listenEvent: function _listenEvent() {
+              var self = this;
+              this.jqModal.on('shown.bs.modal', function () {
+                  self.reportShown(self.id);
+              }).on('hidden.bs.modal', function () {
+                  self.reportHidden(self.id);
+              });
           }
       },
       ready: function ready() {
-          _init();
+          this.jqModal = $(this.$el);
+          this._initGeneral();
+          this._listenEvent();
       }
   });
   
-  function _init() {
-      $(function () {
-          _initGeneral();
-      });
-  }
   /**
    * data-focus-on="input:first"
    */
-  
-  function _initGeneral() {
-      // general settings
-      $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner = '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' + '<div class="progress progress-striped active">' + '<div class="progress-bar" style="width: 100%;"></div>' + '</div>' + '</div>';
-  
-      $.fn.modalmanager.defaults.resize = true;
-  }
   
   function _ajaxDialog() {
       //ajax demo:
@@ -13487,191 +13502,6 @@ define('common/scripts/names', function(require, exports, module) {
 
 });
 
-;/*!/common/scripts/service.js*/
-define('common/scripts/service', function(require, exports, module) {
-
-  //mock data
-  'use strict';
-  
-  var articles = [{
-      'wrap_img': "/static/images/wrap_image_1.jpg",
-      'avatar': '/static/images/avatar1.jpg',
-      'author_id': '001',
-      'article_id': 'a10',
-      'author': '小禾',
-      'timestamp': '1430035573188',
-      'title': '遇见安然（十四）荷兰出差 白露（8）',
-      'read': 334,
-      'like': 34,
-      'comment': 20
-  }, {
-      'wrap_img': "/static/images/wrap_image_2.jpg",
-      'avatar': '/static/images/avatar2.jpeg',
-      'author_id': '002',
-      'article_id': 'a11',
-      'author': 'caroline蕴',
-      'timestamp': '1435005573188',
-      'title': '波兰独立之五：反俄的“普罗米修斯”计划',
-      'read': 3314,
-      'like': 324,
-      'comment': 20
-  }, {
-      'wrap_img': "/static/images/wrap_image_3.jpg",
-      'avatar': '/static/images/avatar3.jpg',
-      'author_id': '003',
-      'article_id': 'a13',
-      'author': '小禾',
-      'timestamp': '1435035573188',
-      'title': '遇见安然（十四）荷兰出差 白露（8）',
-      'read': 334,
-      'like': 34,
-      'comment': 20
-  }, {
-      'avatar': '/static/images/avatar4.png',
-      'author_id': '004',
-      'article_id': 'a14',
-      'author': '洛洛莉ya',
-      'timestamp': '1435035573188',
-      'title': '【租用时光】Graceland先森|教我如何提升鉴赏力',
-      'read': 134,
-      'like': 24,
-      'comment': 2
-  }, {
-      'wrap_img': "/static/images/wrap_image_4.jpg",
-      'avatar': '/static/images/avatar5.jpg',
-      'author_id': '005',
-      'article_id': 'a15',
-      'author': '洛洛莉ya',
-      'timestamp': '1435025573188',
-      'title': '我的寂寞芳邻（3）夜色中有多少不为人知的故事',
-      'read': 134,
-      'like': 24,
-      'comment': 2
-  }, {
-      'wrap_img': "/static/images/wrap_image_5.jpg",
-      'avatar': '/static/images/avatar6.jpeg',
-      'author_id': '006',
-      'article_id': 'a16',
-      'author': '艾瑞克自留地 ',
-      'timestamp': '1435031573188',
-      'title': '“职业刷客”自述套利全过程，无处不在，无根无解',
-      'read': 34,
-      'like': 124,
-      'comment': 20
-  }, {
-      'avatar': '/static/images/avatar7.png',
-      'author_id': '007',
-      'article_id': 'a17',
-      'author': '洛洛莉ya',
-      'timestamp': '1435035573188',
-      'title': '世界凭什么温柔待你？',
-      'read': 40,
-      'like': 24,
-      'comment': 2
-  }, {
-      'avatar': '/static/images/avatar8.png',
-      'author_id': '008',
-      'article_id': 'a18',
-      'author': '霍真布鲁兹老爷 ',
-      'timestamp': '1435035573188',
-      'title': '教练，我想打篮球-----我们都曾是三井寿',
-      'read': 84,
-      'like': 44,
-      'comment': 9
-  }, {
-      'wrap_img': "/static/images/wrap_image_6.jpg",
-      'avatar': '/static/images/avatar9.png',
-      'author_id': '009',
-      'article_id': 'a19',
-      'author': '李陌359',
-      'timestamp': '1433035573188',
-      'title': '不在场证明：真假女神（05）',
-      'read': 134,
-      'like': 24,
-      'comment': 2
-  }, {
-      'wrap_img': "/static/images/wrap_image_7.jpg",
-      'avatar': '/static/images/avatar10.png',
-      'author_id': '010',
-      'article_id': 'a20',
-      'author': '微冷微冷 ',
-      'timestamp': '1435035573188',
-      'title': '长大后我就成了你',
-      'read': 2194,
-      'like': 124,
-      'comment': 5
-  }];
-  
-  //just for mock
-  function shuffleArray(array) {
-      for (var i = array.length - 1; i > 0; i--) {
-          var j = Math.floor(Math.random() * (i + 1));
-          var temp = array[i];
-          array[i] = array[j];
-          array[j] = temp;
-      }
-      return array;
-  }
-  
-  /**
-   * get article list
-   * @param  {[type]} cate [description]
-   * @return {[type]}      [description]
-   */
-  function getArticleList(type, cate, cb) {
-      //you should call ajax api to get data
-      //$.ajax()
-  
-      //just for mock
-      articles = shuffleArray(articles);
-      cb(shuffleArray(articles.slice(Math.round(Math.random() * 5))));
-  }
-  
-  /**
-   * search articles by keyword
-   * @param  {[type]}   keyword [description]
-   * @param  {Function} cb      [description]
-   * @return {[type]}           [description]
-   */
-  function searchArticles(keyword, cb) {
-  
-      //mock
-      var _articles = [];
-      for (var i = 0; i < articles.length; i++) {
-          if (articles[i]['title'].indexOf(keyword) > -1) {
-              _articles.push(articles[i]);
-          }
-      };
-      cb(_articles);
-  }
-  
-  /**
-   * get article detail by id
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
-   */
-  function getArticleDetail(id, cb) {
-      //mock
-      var article = {};
-      for (var i = 0; i < articles.length; i++) {
-          if (articles[i]['article_id'] == id) {
-              article = articles[i];
-              break;
-          }
-      };
-      //markdown content
-      article.content = '>引子 \n ## 标题1 \n ### 子标题1';
-      cb(article);
-  }
-  
-  module.exports = {
-      getArticleList: getArticleList,
-      searchArticles: searchArticles,
-      getArticleDetail: getArticleDetail
-  };
-
-});
-
 ;/*!/components/inputtext/main.js*/
 define('components/inputtext/main', function(require, exports, module) {
 
@@ -13734,6 +13564,159 @@ define('components/loading/main', function(require, exports, module) {
   module.exports = {
       show: show,
       hide: hide
+  };
+
+});
+
+;/*!/mixins/savemodal.js*/
+define('mixins/savemodal', function(require, exports, module) {
+
+  'use strict';
+  
+  var Validator = require('common/scripts/validator');
+  var Msg = require('components/msg/main');
+  
+  // 定义一个混合对象
+  module.exports = {
+      template: '<div>EMPTY</div>',
+      data: function data() {
+          return {
+              jqForm: undefined
+          };
+      },
+      props: {
+          /**
+           * 初始化的值，对象，用于设置模态框中表单初始值
+           */
+          initData: Object
+      },
+      computed: {
+          isAdd: function isAdd() {
+              return !this.id;
+          }
+      },
+      methods: {
+          /**
+           * 初始化数据，建议覆盖
+           */
+          setFormData: function setFormData(data) {
+              // 初始化数据，建议覆盖
+          },
+  
+          /**
+           * 返回校验器规则，建议覆盖
+           */
+          getRulesOptions: function getRulesOptions() {
+              return {};
+          },
+  
+          /**
+           * 弹出对话框
+           */
+          showModal: function showModal() {
+              // 初始化form data
+              this.setFormData(this.initData);
+  
+              this.$children[0].show();
+          },
+  
+          /**
+           * 关闭对话框
+           */
+          hideModal: function hideModal() {
+              this.$children[0].hide();
+          },
+  
+          /**
+           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           */
+          reportSuccess: function reportSuccess(data) {
+              this.$dispatch('savesuccess', data);
+          },
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
+              }
+          },
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              Validator.check(this.jqForm, this.getRulesOptions(), {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              self.dealSuccessRes(responseText, statusText);
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return Validator.valid(this.jqForm, name);
+          },
+  
+          /**
+           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
+           * 
+           * @param  {string} modalId   当前modal的id
+           */
+          confirm: function confirm(modalId) {
+              this.triggerSubmit(modalId);
+          }
+      },
+      ready: function ready() {
+          this.jqForm = $('form', this.$el);
+  
+          this.handleValidator();
+  
+          this.showModal();
+      }
   };
 
 });
@@ -15540,6 +15523,88 @@ define('pages/user_index/modules/detail/main', function(require, exports, module
 
 });
 
+;/*!/pages/user_index/modules/savemodal/main.js*/
+define('pages/user_index/modules/savemodal/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var mixinsSaveModal = require('mixins/savemodal');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"savemodal\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/save\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      data: function data() {
+          return {
+              id: undefined,
+              name: undefined,
+              pwd: undefined,
+              birthday: undefined,
+              state: undefined
+          };
+      },
+      mixins: [mixinsSaveModal],
+      methods: {
+          setFormData: function setFormData(data) {
+              if (!data) {
+                  return;
+              }
+  
+              // 初始化数据
+              this.id = data.id;
+              this.name = data.name;
+              this.pwd = data.pwd;
+              this.state = data.state;
+              this.birthday = data.birthday;
+          },
+          getRulesOptions: function getRulesOptions() {
+              // TODO 根据isAdd来设置校验
+              var config = {
+                  name: {
+                      required: {
+                          rule: true,
+                          message: '用户名不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  },
+                  pwd: {
+                      required: {
+                          rule: true,
+                          message: '密码不能为空！'
+                      },
+                      minlength: {
+                          rule: 5,
+                          message: '最小长度为5'
+                      },
+                      maxlength: {
+                          rule: 32,
+                          message: '最大长度为32'
+                      }
+                  },
+                  birthday: {
+                      required: {
+                          rule: true,
+                          message: '生日不能为空！'
+                      }
+                  }
+              };
+  
+              return config;
+          }
+  
+      },
+      ready: function ready() {}
+  });
+
+});
+
 ;/*!/pages/user_index/modules/main.js*/
 define('pages/user_index/modules/main', function(require, exports, module) {
 
@@ -15551,14 +15616,22 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var modifyPage = require('pages/user_index/modules/modify/main');
   var deletePage = require('pages/user_index/modules/delete/main');
   var detailPage = require('pages/user_index/modules/detail/main');
+  var saveModal = require('pages/user_index/modules/savemodal/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showAddPage\">test新增</he-button> \r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showModifyPage\">test修改</he-button> \r\n\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" :init-data=\"initData\" v-on:modalhidden=\"hideSaveModal\"></save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'add': addPage,
           'modify': modifyPage,
           'delete': deletePage,
-          'detail': detailPage
+          'detail': detailPage,
+          'saveModal': saveModal
+      },
+      data: function data() {
+          return {
+              isShowSaveModal: false,
+              initData: {}
+          };
       },
       methods: {
           operate: function operate(event) {
@@ -15582,6 +15655,31 @@ define('pages/user_index/modules/main', function(require, exports, module) {
           },
           reloadDataGrid: function reloadDataGrid() {
               this.$refs.datagrid.reload();
+          },
+          showAddPage: function showAddPage() {
+              this.initData = {
+                  id: undefined,
+                  name: '',
+                  pwd: '',
+                  birthday: '2015-12-13',
+                  state: '1'
+              };
+  
+              this.isShowSaveModal = true;
+          },
+          showModifyPage: function showModifyPage() {
+              this.initData = {
+                  id: 1,
+                  name: 'dfdf',
+                  pwd: 'ssss',
+                  birthday: '2015-12-25',
+                  state: '1'
+              };
+  
+              this.isShowSaveModal = true;
+          },
+          hideSaveModal: function hideSaveModal() {
+              this.isShowSaveModal = false;
           },
           getDataById: function getDataById(id) {
               if (!id) {
