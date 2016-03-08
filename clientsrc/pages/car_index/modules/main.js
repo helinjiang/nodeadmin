@@ -1,9 +1,9 @@
 var Vue = require('lib/vue');
 
-var addPage = require('/modules/car_index/add/main');
-var modifyPage = require('/modules/car_index/modify/main');
-var deletePage = require('/modules/car_index/delete/main');
-var detailPage = require('/modules/car_index/detail/main');
+var addPage = require('./add/main');
+var modifyPage = require('./modify/main');
+var deletePage = require('./delete/main');
+var detailPage = require('./detail/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),

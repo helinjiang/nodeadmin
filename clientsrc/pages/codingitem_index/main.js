@@ -2,8 +2,8 @@ require('common/global');
 
 var Vue = require('lib/vue');
 
-var App = require('/modules/common/app');
-var CodingitemMain = require('/modules/codingitem_index/main');
+var App = require('common/app');
+var CodingitemMain = require('./modules/main');
 
 window.app = new Vue({
     el: '#app',
