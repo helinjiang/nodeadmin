@@ -3,8 +3,12 @@
     <admin-main-toolbar>
         <he-button type="success" icon="plus" v-on:click="showAddPage">新增</he-button> 
         <delete v-ref:delete v-on:savesuccess="reloadDataGrid"></delete>
-        <detail v-ref:detail></detail>
     </admin-main-toolbar>
+    
+    <detail v-if="isShowDetailModal" 
+                :init-data="initData" 
+                @modalhidden="hideDetailModal">
+    </detail>
 
     <save-modal v-if="isShowSaveModal" 
                 :init-data="initData" 

@@ -1,7 +1,6 @@
 var Vue = require('lib/vue');
 
-var addPage = require('./add/main');
-var modifyPage = require('./modify/main');
+
 var deletePage = require('./delete/main');
 var detailPage = require('./detail/main');
 var saveModal = require('./savemodal/main');
@@ -9,8 +8,6 @@ var saveModal = require('./savemodal/main');
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
-        'add': addPage,
-        'modify': modifyPage,
         'delete': deletePage,
         'detail': detailPage,
         'saveModal': saveModal,
@@ -18,6 +15,7 @@ module.exports = Vue.extend({
     data: function() {
         return {
             isShowSaveModal: false,
+            isShowDetailModal: false,
             initData: {}
         };
     },
@@ -38,11 +36,12 @@ module.exports = Vue.extend({
             data = this.getDataById(id);
 
             if (data) {
-                if (type =='modify'){
+                if (type == 'modify') {
                     this.showModifyPage(data);
-                }else{
-
+                } else if (type == 'detail') {
+                    this.showDetailPage(data);
                 }
+
                 // this.$refs[type].showModal(data);
             }
         },
@@ -65,8 +64,17 @@ module.exports = Vue.extend({
 
             this.isShowSaveModal = true;
         },
+        showDetailPage: function(data) {
+            console.log('showDetailPage--');
+            this.initData = $.extend({}, data);
+
+            this.isShowDetailModal = true;
+        },
         hideSaveModal: function() {
             this.isShowSaveModal = false;
+        },
+        hideDetailModal: function() {
+            this.isShowDetailModal = false;
         },
         getDataById: function(id) {
             if (!id) {

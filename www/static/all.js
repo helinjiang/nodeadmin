@@ -15294,132 +15294,6 @@ define('pages/test_index/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/user_index/modules/add/main.js*/
-define('pages/user_index/modules/add/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('common/scripts/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    \r\n    \r\n    <modal title=\"新增用户信息\">\r\n        <he-form action=\"/admin/user/add\" horizontal noactions>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal>\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>   \r\n\r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showModal\">新增</he-button> \r\n\r\n</div>\r\n",
-      data: {
-          name: undefined,
-          pwd: undefined,
-          birthday: undefined,
-          state: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal() {
-              // TODO 如果上一次关闭弹出框时表单元素验证失败过，则下一次打开错误依然在显示，体验不太好
-              this.name = '';
-              this.pwd = '';
-              this.birthday = '2015-12-12';
-              this.state = '1';
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  name: {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  },
-                  pwd: {
-                      required: {
-                          rule: true,
-                          message: '密码不能为空！'
-                      },
-                      minlength: {
-                          rule: 6,
-                          message: '最小长度为6'
-                      },
-                      maxlength: {
-                          rule: 32,
-                          message: '最大长度为32'
-                      }
-                  },
-                  birthday: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/pages/user_index/modules/modify/main.js*/
-define('pages/user_index/modules/modify/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('common/scripts/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/user/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          name: undefined,
-          state: undefined,
-          birthday: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.name = data.name;
-              this.state = data.state;
-              this.birthday = data.birthday;
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  name: {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  },
-                  birthday: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
 ;/*!/pages/user_index/modules/delete/main.js*/
 define('pages/user_index/modules/delete/main', function(require, exports, module) {
 
@@ -15488,32 +15362,51 @@ define('pages/user_index/modules/detail/main', function(require, exports, module
 
   'use strict';
   
-  var CommonCrud = require('common/scripts/crud');
+  var Vue = require('common/lib/vue');
   
-  var Names = require('common/scripts/names');
+  var mixinsSaveModal = require('mixins/savemodal');
   
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"用户信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          items: []
+  module.exports = Vue.extend({
+      template: "<div class=\"deletepage\">\r\n    <modal :title=\"modalTitle\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
+      data: function data() {
+          return {
+              items: [],
+              modalTitle: '用户信息详情11'
+          };
       },
+      mixins: [mixinsSaveModal],
       methods: {
-          beforeShowModal: function beforeShowModal(data) {
+          setFormData: function setFormData(data) {
               if (!data) {
                   return;
               }
   
               // 设置要展示的信息条目
-              var fields = ['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime'],
-                  map = Names.user;
-  
-              this.items = fields.map(function (field) {
-                  return {
-                      key: field,
-                      value: data[field],
-                      title: map[field]
-                  };
-              });
+              this.items = [{
+                  key: 'id',
+                  value: data.id,
+                  title: 'ID'
+              }, {
+                  key: 'name',
+                  value: data.name,
+                  title: '用户名'
+              }, {
+                  key: 'birthday',
+                  value: data.birthday,
+                  title: '生日'
+              }, {
+                  key: 'stateShow',
+                  value: data.stateShow,
+                  title: '状态'
+              }, {
+                  key: 'createTime',
+                  value: data.createTime,
+                  title: '创建时间'
+              }, {
+                  key: 'updateTime',
+                  value: data.updateTime,
+                  title: '最后修改时间'
+              }];
           },
           triggerSubmit: function triggerSubmit() {
               this.hideModal();
@@ -15619,17 +15512,13 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   
   var Vue = require('common/lib/vue');
   
-  var addPage = require('pages/user_index/modules/add/main');
-  var modifyPage = require('pages/user_index/modules/modify/main');
   var deletePage = require('pages/user_index/modules/delete/main');
   var detailPage = require('pages/user_index/modules/detail/main');
   var saveModal = require('pages/user_index/modules/savemodal/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showAddPage\">test新增</he-button> \r\n    <he-button type=\"success\" icon=\"plus\" v-on:click=\"showModifyPage\">test修改</he-button> \r\n\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" :init-data=\"initData\" v-on:modalhidden=\"hideSaveModal\"></save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" v-on:click=\"showAddPage\">新增</he-button> \r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n    </admin-main-toolbar>\r\n    \r\n    <detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </detail>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
-          'add': addPage,
-          'modify': modifyPage,
           'delete': deletePage,
           'detail': detailPage,
           'saveModal': saveModal
@@ -15637,6 +15526,7 @@ define('pages/user_index/modules/main', function(require, exports, module) {
       data: function data() {
           return {
               isShowSaveModal: false,
+              isShowDetailModal: false,
               initData: {}
           };
       },
@@ -15657,7 +15547,13 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               data = this.getDataById(id);
   
               if (data) {
-                  this.$refs[type].showModal(data);
+                  if (type == 'modify') {
+                      this.showModifyPage(data);
+                  } else if (type == 'detail') {
+                      this.showDetailPage(data);
+                  }
+  
+                  // this.$refs[type].showModal(data);
               }
           },
           reloadDataGrid: function reloadDataGrid() {
@@ -15674,19 +15570,22 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   
               this.isShowSaveModal = true;
           },
-          showModifyPage: function showModifyPage() {
-              this.initData = {
-                  id: 1,
-                  name: 'dfdf',
-                  pwd: 'ssss',
-                  birthday: '2015-12-25',
-                  state: '1'
-              };
+          showModifyPage: function showModifyPage(data) {
+              this.initData = $.extend({}, data);
   
               this.isShowSaveModal = true;
           },
+          showDetailPage: function showDetailPage(data) {
+              console.log('showDetailPage--');
+              this.initData = $.extend({}, data);
+  
+              this.isShowDetailModal = true;
+          },
           hideSaveModal: function hideSaveModal() {
               this.isShowSaveModal = false;
+          },
+          hideDetailModal: function hideDetailModal() {
+              this.isShowDetailModal = false;
           },
           getDataById: function getDataById(id) {
               if (!id) {

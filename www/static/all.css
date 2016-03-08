@@ -1203,8 +1203,3 @@ Login page
     margin-top: 10px;
   }
 }
-
-/*!/pages/user_index/modules/add/main.scss*/
-.addpage {
-  display: inline-block;
-}
