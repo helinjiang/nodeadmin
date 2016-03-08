@@ -38,7 +38,12 @@ module.exports = Vue.extend({
             data = this.getDataById(id);
 
             if (data) {
-                this.$refs[type].showModal(data);
+                if (type =='modify'){
+                    this.showModifyPage(data);
+                }else{
+
+                }
+                // this.$refs[type].showModal(data);
             }
         },
         reloadDataGrid: function() {
@@ -55,14 +60,8 @@ module.exports = Vue.extend({
 
             this.isShowSaveModal = true;
         },
-        showModifyPage: function() {
-            this.initData = {
-                id: 1,
-                name: 'dfdf',
-                pwd: 'ssss',
-                birthday: '2015-12-25',
-                state: '1',
-            };
+        showModifyPage: function(data) {
+            this.initData = $.extend({}, data);
 
             this.isShowSaveModal = true;
         },
