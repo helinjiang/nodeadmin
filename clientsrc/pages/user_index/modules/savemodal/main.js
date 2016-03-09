@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 
-var mixinsBasicSaveModal = require('mixins/basic_save_modal');
+var mixinsSaveModal = require('mixins/modal/crudsave/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
@@ -21,7 +21,7 @@ module.exports = Vue.extend({
         isAdd: Boolean,
         title: String
     },
-    mixins: [mixinsBasicSaveModal],
+    mixins: [mixinsSaveModal],
     methods: {
         setInitData: function(data) {
             if (!data) {

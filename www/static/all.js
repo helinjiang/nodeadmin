@@ -12134,8 +12134,8 @@ define('modules/admin/sidemenu/main', function(require, exports, module) {
 
 });
 
-;/*!/mixins/basic_modal.js*/
-define('mixins/basic_modal', function(require, exports, module) {
+;/*!/mixins/modal/basic/main.js*/
+define('mixins/modal/basic/main', function(require, exports, module) {
 
   // 定义一个混合对象
   'use strict';
@@ -12198,7 +12198,7 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
   
   var Vue = require('common/lib/vue');
   
-  var mixinsBasicModal = require('mixins/basic_modal');
+  var mixinsBasicModal = require('mixins/modal/basic/main');
   
   Vue.component('crud-modal-detail', {
       template: "<div class=\"crudmodal-detail\">\r\n    <modal :title=\"title\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -12257,7 +12257,7 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
   
   var Vue = require('common/lib/vue');
   var Msg = require('components/msg/main');
-  var mixinsBasicModal = require('mixins/basic_modal');
+  var mixinsBasicModal = require('mixins/modal/basic/main');
   
   Vue.component('crud-modal-delete', {
       template: "<div class=\"crudmodal-detail\">\r\n    <modal :title=\"title\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -13784,8 +13784,8 @@ define('components/loading/main', function(require, exports, module) {
 
 });
 
-;/*!/mixins/basic_index_modal.js*/
-define('mixins/basic_index_modal', function(require, exports, module) {
+;/*!/mixins/modal/crudindex/main.js*/
+define('mixins/modal/crudindex/main', function(require, exports, module) {
 
   // 定义一个混合对象
   'use strict';
@@ -13796,6 +13796,7 @@ define('mixins/basic_index_modal', function(require, exports, module) {
           return {
               datagridUrl: '',
               datagridTitle: '',
+              datagridItem: [],
               isShowSaveModal: false,
               isShowDetailModal: false,
               isShowDeleteModal: false,
@@ -13925,8 +13926,8 @@ define('mixins/basic_index_modal', function(require, exports, module) {
 
 });
 
-;/*!/mixins/basic_save_modal.js*/
-define('mixins/basic_save_modal', function(require, exports, module) {
+;/*!/mixins/modal/crudsave/main.js*/
+define('mixins/modal/crudsave/main', function(require, exports, module) {
 
   'use strict';
   
@@ -15658,7 +15659,7 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
   
   var Vue = require('common/lib/vue');
   
-  var mixinsBasicSaveModal = require('mixins/basic_save_modal');
+  var mixinsSaveModal = require('mixins/modal/crudsave/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
@@ -15679,7 +15680,7 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
           isAdd: Boolean,
           title: String
       },
-      mixins: [mixinsBasicSaveModal],
+      mixins: [mixinsSaveModal],
       methods: {
           setInitData: function setInitData(data) {
               if (!data) {
@@ -15748,14 +15749,14 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var saveModal = require('pages/user_index/modules/savemodal/main');
-  var mixinsBasicIndexModal = require('mixins/basic_index_modal');
+  var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
       template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\"\r\n                :title=\"detailTitle\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                :title=\"deleteTitle\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\"\r\n                :is-add=\"isAdd\"\r\n                :title=\"saveTitle\"\r\n                :url=\"saveUrl\">\r\n    </save-modal>\r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n        <datagrid :url=\"datagridUrl\" \r\n                @click=\"operate\" \r\n                v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
-      mixins: [mixinsBasicIndexModal],
+      mixins: [mixinsIndexModal],
       methods: {
           beforeShowAddPage: function beforeShowAddPage() {
               this.initData = {
@@ -15809,6 +15810,7 @@ define('pages/user_index/modules/main', function(require, exports, module) {
       ready: function ready() {
           this.datagridUrl = '/admin/user/getdata';
           this.datagridTitle = '用户信息列表';
+          this.datagridItem = [{}];
       }
   });
 

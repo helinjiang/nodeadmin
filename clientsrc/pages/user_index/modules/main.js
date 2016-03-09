@@ -1,14 +1,14 @@
 var Vue = require('lib/vue');
 
 var saveModal = require('./savemodal/main');
-var mixinsBasicIndexModal = require('mixins/basic_index_modal');
+var mixinsIndexModal = require('mixins/modal/crudindex/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
         'saveModal': saveModal,
     },
-    mixins: [mixinsBasicIndexModal],
+    mixins: [mixinsIndexModal],
     methods: {
         beforeShowAddPage: function() {
             this.initData = {
@@ -38,7 +38,7 @@ module.exports = Vue.extend({
                 createTime: '创建时间',
                 updateTime: '最后修改时间',
             };
-            this.detailTitle = '查看用户信息';            
+            this.detailTitle = '查看用户信息';
         },
         beforeShowDeletePage: function(data) {
             this.initData = $.extend({}, data);
@@ -56,11 +56,14 @@ module.exports = Vue.extend({
             }];
 
             this.deleteUrl = '/admin/user/delete';
-            this.deleteTitle = '删除用户信息'; 
-        },       
+            this.deleteTitle = '删除用户信息';
+        },
     },
     ready: function() {
-        this.datagridUrl='/admin/user/getdata';
-        this.datagridTitle='用户信息列表';
+        this.datagridUrl = '/admin/user/getdata';
+        this.datagridTitle = '用户信息列表';
+        this.datagridItem = [{
+
+        }];
     }
 });

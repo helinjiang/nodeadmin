@@ -4,7 +4,8 @@ module.exports = {
     data: function() {
         return {
             datagridUrl: '',            
-            datagridTitle: '',            
+            datagridTitle: '',    
+            datagridItem:[],        
             isShowSaveModal: false,
             isShowDetailModal: false,
             isShowDeleteModal: false,

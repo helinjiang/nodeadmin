@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 var Msg = require('components/msg/main');
-var mixinsBasicModal = require('mixins/basic_modal');
+var mixinsBasicModal = require('mixins/modal/basic/main');
 
 Vue.component('crud-modal-delete', {
     template: __inline('main.html'),

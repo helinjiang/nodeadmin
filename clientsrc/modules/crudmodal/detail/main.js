@@ -1,6 +1,6 @@
 var Vue = require('lib/vue');
 
-var mixinsBasicModal = require('mixins/basic_modal');
+var mixinsBasicModal = require('mixins/modal/basic/main');
 
 Vue.component('crud-modal-detail', {
     template: __inline('main.html'),
