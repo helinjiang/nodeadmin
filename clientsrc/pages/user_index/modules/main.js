@@ -18,9 +18,15 @@ module.exports = Vue.extend({
                 birthday: '2016-03-01',
                 state: '1',
             };
+
+            this.saveUrl = '/admin/user/add';
+            this.saveTitle = '新增用户信息';
         },
         beforeShowModifyPage: function(data) {
             this.initData = $.extend({}, data);
+
+            this.saveUrl = '/admin/user/modify';
+            this.saveTitle = '修改用户信息';
         },
         beforeShowDetailPage: function(data) {
             this.initData = $.extend({}, data);
@@ -32,6 +38,7 @@ module.exports = Vue.extend({
                 createTime: '创建时间',
                 updateTime: '最后修改时间',
             };
+            this.detailTitle = '查看用户信息';            
         },
         beforeShowDeletePage: function(data) {
             this.initData = $.extend({}, data);
@@ -49,6 +56,7 @@ module.exports = Vue.extend({
             }];
 
             this.deleteUrl = '/admin/user/delete';
+            this.deleteTitle = '删除用户信息'; 
         },       
     },
     ready: function() {

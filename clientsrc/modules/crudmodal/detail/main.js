@@ -23,6 +23,10 @@ Vue.component('crud-modal-detail', {
         field: {
             type: Object,
             required: true
+        },
+        title: {
+            type: String,
+            'default': '详情'
         }
     },
     mixins: [mixinsBasicModal],

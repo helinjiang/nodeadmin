@@ -13,13 +13,13 @@ module.exports = Vue.extend({
             state: undefined,
         };
     },
-    computed: {
-        cgiUrl: function() {
-            return this.isAdd ? '/admin/user/add' : '/admin/user/modify';
+    props: {
+        url: {
+            type: String,
+            required: true
         },
-        modalTitle: function() {
-            return this.isAdd ? '新增用户信息' : '修改用户信息';
-        }
+        isAdd: Boolean,
+        title: String
     },
     mixins: [mixinsBasicSaveModal],
     methods: {

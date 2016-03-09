@@ -7,10 +7,15 @@ module.exports = {
             isShowDetailModal: false,
             isShowDeleteModal: false,
             initData: {},
+            isAdd: true,
+            saveUrl: '',
+            saveTitle: '',
             detailField: {},
+            detailTitle: '',
             deleteField: {},
             deleteParam: {},
-            deleteUrl: ''
+            deleteUrl: '',
+            deleteTitle: ''
         };
     },
     methods: {
@@ -63,11 +68,15 @@ module.exports = {
             // 设置初始值
         },
         showAddPage: function() {
+            this.isAdd = true;
+
             this.beforeShowAddPage();
 
             this.isShowSaveModal = true;
         },
         showModifyPage: function(data) {
+            this.isAdd = false;
+
             this.beforeShowModifyPage(data);
 
             this.isShowSaveModal = true;

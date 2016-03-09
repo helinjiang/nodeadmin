@@ -6,18 +6,23 @@
     
     <crud-modal-detail v-if="isShowDetailModal" 
                 :init-data="initData" 
-                :field="detailField">
+                :field="detailField"
+                :title="detailTitle">
     </crud-modal-detail>
 
     <crud-modal-delete v-if="isShowDeleteModal" 
                 :init-data="initData" 
                 :field="deleteField" 
                 :param="deleteParam"
-                :url="deleteUrl">
+                :url="deleteUrl"
+                :title="deleteTitle">
     </crud-modal-delete>
 
     <save-modal v-if="isShowSaveModal" 
-                :init-data="initData">
+                :init-data="initData"
+                :is-add="isAdd"
+                :title="saveTitle"
+                :url="saveUrl">
     </save-modal>
 
     <portlet title="用户列表" icon="globe">    

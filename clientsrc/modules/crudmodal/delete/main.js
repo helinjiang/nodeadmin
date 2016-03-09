@@ -29,6 +29,10 @@ Vue.component('crud-modal-delete', {
         url: {
             type: String,
             required: true
+        },
+        title: {
+            type: String,
+            'default': '删除'
         }
     },
     mixins: [mixinsBasicModal],
