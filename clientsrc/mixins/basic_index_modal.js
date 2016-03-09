@@ -3,6 +3,8 @@ module.exports = {
     template: '<div>EMPTY</div>',
     data: function() {
         return {
+            datagridUrl: '',            
+            datagridTitle: '',            
             isShowSaveModal: false,
             isShowDetailModal: false,
             isShowDeleteModal: false,

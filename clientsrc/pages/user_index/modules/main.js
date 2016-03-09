@@ -60,6 +60,7 @@ module.exports = Vue.extend({
         },       
     },
     ready: function() {
-
+        this.datagridUrl='/admin/user/getdata';
+        this.datagridTitle='用户信息列表';
     }
 });

@@ -13794,6 +13794,8 @@ define('mixins/basic_index_modal', function(require, exports, module) {
       template: '<div>EMPTY</div>',
       data: function data() {
           return {
+              datagridUrl: '',
+              datagridTitle: '',
               isShowSaveModal: false,
               isShowDetailModal: false,
               isShowDeleteModal: false,
@@ -15749,7 +15751,7 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var mixinsBasicIndexModal = require('mixins/basic_index_modal');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\"\r\n                :title=\"detailTitle\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                :title=\"deleteTitle\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\"\r\n                :is-add=\"isAdd\"\r\n                :title=\"saveTitle\"\r\n                :url=\"saveUrl\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" \r\n                @click=\"operate\" \r\n                v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\"\r\n                :title=\"detailTitle\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                :title=\"deleteTitle\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\"\r\n                :is-add=\"isAdd\"\r\n                :title=\"saveTitle\"\r\n                :url=\"saveUrl\">\r\n    </save-modal>\r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n        <datagrid :url=\"datagridUrl\" \r\n                @click=\"operate\" \r\n                v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -15804,7 +15806,10 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               this.deleteTitle = '删除用户信息';
           }
       },
-      ready: function ready() {}
+      ready: function ready() {
+          this.datagridUrl = '/admin/user/getdata';
+          this.datagridTitle = '用户信息列表';
+      }
   });
 
 });
