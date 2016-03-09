@@ -6,27 +6,24 @@
     
     <crud-modal-detail v-if="isShowDetailModal" 
                 :init-data="initData" 
-                :field="detailField" 
-                @modalhidden="hideDetailModal">
+                :field="detailField">
     </crud-modal-detail>
 
     <crud-modal-delete v-if="isShowDeleteModal" 
                 :init-data="initData" 
                 :field="deleteField" 
                 :param="deleteParam"
-                :url="deleteUrl"
-                @modalhidden="hideDeleteModal"
-                @savesuccess="reloadDataGrid">
+                :url="deleteUrl">
     </crud-modal-delete>
 
     <save-modal v-if="isShowSaveModal" 
-                :init-data="initData" 
-                @modalhidden="hideSaveModal" 
-                @savesuccess="reloadDataGrid">
+                :init-data="initData">
     </save-modal>
 
     <portlet title="用户列表" icon="globe">    
-        <datagrid url="/admin/user/getdata" pagelength="4" @click="operate" v-ref:datagrid>
+        <datagrid url="/admin/user/getdata" 
+                @click="operate" 
+                v-ref:datagrid>
             <datagrid-item name="id" title="ID"></datagrid-item>
             <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
             <datagrid-item name="pwd" hide></datagrid-item>

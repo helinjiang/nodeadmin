@@ -13776,6 +13776,136 @@ define('components/loading/main', function(require, exports, module) {
 
 });
 
+;/*!/mixins/basic_index_modal.js*/
+define('mixins/basic_index_modal', function(require, exports, module) {
+
+  // 定义一个混合对象
+  'use strict';
+  
+  module.exports = {
+      template: '<div>EMPTY</div>',
+      data: function data() {
+          return {
+              isShowSaveModal: false,
+              isShowDetailModal: false,
+              isShowDeleteModal: false,
+              initData: {},
+              detailField: {},
+              deleteField: {},
+              deleteParam: {},
+              deleteUrl: ''
+          };
+      },
+      methods: {
+          operate: function operate(event) {
+              var target = event.target,
+                  $target = $(target),
+                  type = $target.data('type'),
+                  id,
+                  data;
+  
+              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
+                  return;
+              }
+  
+              id = $target.data('id');
+  
+              data = this.getDataById(id);
+  
+              if (!data) {
+                  return;
+              }
+  
+              switch (type) {
+                  case 'modify':
+                      this.showModifyPage(data);
+                      break;
+                  case 'detail':
+                      this.showDetailPage(data);
+                      break;
+                  case 'delete':
+                      this.showDeletePage(data);
+                      break;
+                  default:
+                      break;
+              }
+          },
+          reloadDataGrid: function reloadDataGrid() {
+              this.$refs.datagrid.reload();
+          },
+          beforeShowAddPage: function beforeShowAddPage() {
+              // 设置初始值
+          },
+          beforeShowModifyPage: function beforeShowModifyPage(data) {
+              // 设置初始值
+          },
+          beforeShowDetailPage: function beforeShowDetailPage(data) {
+              // 设置初始值           
+          },
+          beforeShowDeletePage: function beforeShowDeletePage(data) {
+              // 设置初始值
+          },
+          showAddPage: function showAddPage() {
+              this.beforeShowAddPage();
+  
+              this.isShowSaveModal = true;
+          },
+          showModifyPage: function showModifyPage(data) {
+              this.beforeShowModifyPage(data);
+  
+              this.isShowSaveModal = true;
+          },
+          showDetailPage: function showDetailPage(data) {
+              this.beforeShowDetailPage(data);
+  
+              this.isShowDetailModal = true;
+          },
+          showDeletePage: function showDeletePage(data) {
+              this.beforeShowDeletePage(data);
+  
+              this.isShowDeleteModal = true;
+          },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
+          }
+      },
+      events: {
+          /**
+           * 监听子组件modal中的 'savesuccess' 事件，
+           * 在modal中处理完form中的数据后，则会触发该事件
+           * 
+           */
+          savesuccess: function savesuccess() {
+              this.reloadDataGrid();
+          },
+  
+          /**
+           * 监听子组件modal中的 'modalhidden' 事件，
+           * 在关闭modal后，则会触发该事件
+           * 
+           */
+          modalhidden: function modalhidden() {
+              this.isShowSaveModal = false;
+              this.isShowDetailModal = false;
+              this.isShowDeleteModal = false;
+          }
+      }
+  };
+
+});
+
 ;/*!/mixins/basic_save_modal.js*/
 define('mixins/basic_save_modal', function(require, exports, module) {
 
@@ -15599,78 +15729,28 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var saveModal = require('pages/user_index/modules/savemodal/main');
+  var mixinsBasicIndexModal = require('mixins/basic_index_modal');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\" \r\n                @modalhidden=\"hideDetailModal\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                @modalhidden=\"hideDeleteModal\"\r\n                @savesuccess=\"reloadDataGrid\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\" \r\n                @modalhidden=\"hideSaveModal\" \r\n                @savesuccess=\"reloadDataGrid\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" pagelength=\"4\" @click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\">\r\n    </save-modal>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/user/getdata\" \r\n                @click=\"operate\" \r\n                v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
-      data: function data() {
-          return {
-              isShowSaveModal: false,
-              isShowDetailModal: false,
-              isShowDeleteModal: false,
-              initData: {},
-              detailField: {},
-              deleteField: {},
-              deleteParam: {},
-              deleteUrl: ''
-          };
-      },
+      mixins: [mixinsBasicIndexModal],
       methods: {
-          operate: function operate(event) {
-              var target = event.target,
-                  $target = $(target),
-                  type = $target.data('type'),
-                  id,
-                  data;
-  
-              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
-                  return;
-              }
-  
-              id = $target.data('id');
-  
-              data = this.getDataById(id);
-  
-              if (!data) {
-                  return;
-              }
-  
-              switch (type) {
-                  case 'modify':
-                      this.showModifyPage(data);
-                      break;
-                  case 'detail':
-                      this.showDetailPage(data);
-                      break;
-                  case 'delete':
-                      this.showDeletePage(data);
-                      break;
-                  default:
-                      break;
-              }
-          },
-          reloadDataGrid: function reloadDataGrid() {
-              this.$refs.datagrid.reload();
-          },
-          showAddPage: function showAddPage() {
+          beforeShowAddPage: function beforeShowAddPage() {
               this.initData = {
                   id: undefined,
                   name: '',
                   pwd: '',
-                  birthday: '2016-03-08',
+                  birthday: '2016-03-01',
                   state: '1'
               };
-  
-              this.isShowSaveModal = true;
           },
-          showModifyPage: function showModifyPage(data) {
+          beforeShowModifyPage: function beforeShowModifyPage(data) {
               this.initData = $.extend({}, data);
-  
-              this.isShowSaveModal = true;
           },
-          showDetailPage: function showDetailPage(data) {
+          beforeShowDetailPage: function beforeShowDetailPage(data) {
               this.initData = $.extend({}, data);
               this.detailField = {
                   id: 'ID',
@@ -15680,10 +15760,8 @@ define('pages/user_index/modules/main', function(require, exports, module) {
                   createTime: '创建时间',
                   updateTime: '最后修改时间'
               };
-  
-              this.isShowDetailModal = true;
           },
-          showDeletePage: function showDeletePage(data) {
+          beforeShowDeletePage: function beforeShowDeletePage(data) {
               this.initData = $.extend({}, data);
               this.deleteField = {
                   id: 'ID',
@@ -15699,32 +15777,6 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               }];
   
               this.deleteUrl = '/admin/user/delete';
-  
-              this.isShowDeleteModal = true;
-          },
-          hideSaveModal: function hideSaveModal() {
-              this.isShowSaveModal = false;
-          },
-          hideDetailModal: function hideDetailModal() {
-              this.isShowDetailModal = false;
-          },
-          hideDeleteModal: function hideDeleteModal() {
-              this.isShowDeleteModal = false;
-          },
-          getDataById: function getDataById(id) {
-              if (!id) {
-                  console.error('No ID!');
-                  return;
-              }
-  
-              var data = this.$refs.datagrid.getDataById('id', id);
-  
-              if (!data) {
-                  console.error('No data of id=' + id);
-                  return;
-              }
-  
-              return data;
           }
       },
       ready: function ready() {}

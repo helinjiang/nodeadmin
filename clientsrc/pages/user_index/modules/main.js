@@ -1,78 +1,28 @@
 var Vue = require('lib/vue');
 
 var saveModal = require('./savemodal/main');
+var mixinsBasicIndexModal = require('mixins/basic_index_modal');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
     components: {
         'saveModal': saveModal,
     },
-    data: function() {
-        return {
-            isShowSaveModal: false,
-            isShowDetailModal: false,
-            isShowDeleteModal: false,
-            initData: {},
-            detailField: {},
-            deleteField: {},
-            deleteParam: {},
-            deleteUrl: ''
-        };
-    },
+    mixins: [mixinsBasicIndexModal],
     methods: {
-        operate: function(event) {
-            var target = event.target,
-                $target = $(target),
-                type = $target.data('type'),
-                id,
-                data;
-
-            if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
-                return;
-            }
-
-            id = $target.data('id');
-
-            data = this.getDataById(id);
-
-            if (!data) {
-                return;
-            }
-
-            switch (type) {
-                case 'modify':
-                    this.showModifyPage(data);
-                    break;
-                case 'detail':
-                    this.showDetailPage(data);
-                    break;
-                case 'delete':
-                    this.showDeletePage(data);
-                    break;
-                default:
-                    break;
-            }
-        },
-        reloadDataGrid: function() {
-            this.$refs.datagrid.reload();
-        },
-        showAddPage: function() {
+        beforeShowAddPage: function() {
             this.initData = {
                 id: undefined,
                 name: '',
                 pwd: '',
-                birthday: '2016-03-08',
+                birthday: '2016-03-01',
                 state: '1',
             };
-
-            this.isShowSaveModal = true;
         },
-        showModifyPage: function(data) {
+        beforeShowModifyPage: function(data) {
             this.initData = $.extend({}, data);
-
-            this.isShowSaveModal = true;
         },
-        showDetailPage: function(data) {
+        beforeShowDetailPage: function(data) {
             this.initData = $.extend({}, data);
             this.detailField = {
                 id: 'ID',
@@ -82,10 +32,8 @@ module.exports = Vue.extend({
                 createTime: '创建时间',
                 updateTime: '最后修改时间',
             };
-
-            this.isShowDetailModal = true;
         },
-        showDeletePage: function(data) {
+        beforeShowDeletePage: function(data) {
             this.initData = $.extend({}, data);
             this.deleteField = {
                 id: 'ID',
@@ -101,33 +49,7 @@ module.exports = Vue.extend({
             }];
 
             this.deleteUrl = '/admin/user/delete';
-
-            this.isShowDeleteModal = true;
-        },
-        hideSaveModal: function() {
-            this.isShowSaveModal = false;
-        },
-        hideDetailModal: function() {
-            this.isShowDetailModal = false;
-        },
-        hideDeleteModal: function() {
-            this.isShowDeleteModal = false;
-        },
-        getDataById: function(id) {
-            if (!id) {
-                console.error('No ID!');
-                return;
-            }
-
-            var data = this.$refs.datagrid.getDataById('id', id);
-
-            if (!data) {
-                console.error('No data of id=' + id);
-                return;
-            }
-
-            return data;
-        }
+        },       
     },
     ready: function() {
 
