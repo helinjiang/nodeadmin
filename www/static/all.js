@@ -12814,26 +12814,29 @@ define('components/datagrid/main', function(require, exports, module) {
           return {
               jqTable: undefined, //table的jQuery对象
               tableId: undefined, // table的Id
-              oTable: undefined, // datatables对象
-              itemArray: [] };
+              oTable: undefined };
       },
-      // 项列表
+      // datatables对象
       props: {
           /**
            * 列表的类型
            * 前台分页：front; 后台分页：server
            */
-          'type': {
+          type: {
               type: String,
               'default': 'front'
           },
-          'url': String,
-          'pagelength': {
+          url: String,
+          pagelength: {
               type: Number,
               'default': '10',
               coerce: function coerce(val) {
                   return parseInt(val, 10);
               }
+          },
+          items: {
+              type: Array,
+              required: true
           }
       },
       methods: {
@@ -12872,24 +12875,7 @@ define('components/datagrid/main', function(require, exports, module) {
       },
       ready: function ready() {
           // 缓存该值，避免重复获取
-          this.$set('jqTable', $('.datagrid-table', $(this.$el)));
-  
-          // 循环遍历 $vm.$children，从中获得每一项数据，并存入到itemArray字段中
-          var items = this.$children,
-              itemArray = [];
-  
-          items.forEach(function (item) {
-              itemArray.push({
-                  'name': item.name,
-                  'title': item.title,
-                  'css': item.css,
-                  'render': item.render,
-                  'disableorder': item.disableorder,
-                  'hide': item.hide
-              });
-          });
-  
-          this.$set('itemArray', itemArray);
+          this.$set('jqTable', $('.datagrid-table', this.$el));
   
           // 初始化
           _init(this);
@@ -12916,7 +12902,7 @@ define('components/datagrid/main', function(require, exports, module) {
   
   function initAjaxFront(vm) {
       // 配置
-      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+      var dataTableOptions = getAjaxOptions(vm.url, vm.items, vm.pagelength);
       if (typeof dataTableOptions !== 'object') {
           return;
       }
@@ -12936,7 +12922,7 @@ define('components/datagrid/main', function(require, exports, module) {
   
   function initAjaxServer(vm) {
       // 配置
-      var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+      var dataTableOptions = getAjaxOptions(vm.url, vm.items, vm.pagelength);
       if (typeof dataTableOptions !== 'object') {
           return;
       }
@@ -13062,7 +13048,7 @@ define('components/datagrid/main', function(require, exports, module) {
    * 获得Ajax类型的 datagrid 配置
    * @return {[type]} [description]
    */
-  function getAjaxOptions(url, itemArray, pagelength) {
+  function getAjaxOptions(url, items, pagelength) {
       // url
       if (!url) {
           console.error('Unknown url', url);
@@ -13073,8 +13059,8 @@ define('components/datagrid/main', function(require, exports, module) {
       var columns = [],
           columnDefs = [];
   
-      if (!itemArray.length) {
-          console.error('Unknown itemArray', itemArray);
+      if (!items.length) {
+          console.error('Unknown items', items);
   
           return;
       }
@@ -13083,8 +13069,8 @@ define('components/datagrid/main', function(require, exports, module) {
           visibleArr = [],
           classNameMap = {};
   
-      for (var i = 0; i < itemArray.length; i++) {
-          var item = itemArray[i],
+      for (var i = 0; i < items.length; i++) {
+          var item = items[i],
               columnOption = {
               'data': item.name,
               'title': item.title ? item.title : item.name
@@ -13791,7 +13777,7 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
   'use strict';
   
   module.exports = {
-      template: '<div>EMPTY</div>',
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\"\r\n                :title=\"detailTitle\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                :title=\"deleteTitle\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\"\r\n                :is-add=\"isAdd\"\r\n                :title=\"saveTitle\"\r\n                :url=\"saveUrl\">\r\n    </save-modal>\r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n        <datagrid \r\n                :url=\"datagridUrl\" \r\n                :items=\"datagridItem\"\r\n                @click=\"operate\" \r\n                v-ref:datagrid>            \r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       data: function data() {
           return {
               datagridUrl: '',
@@ -15752,7 +15738,6 @@ define('pages/user_index/modules/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button type=\"success\" icon=\"plus\" @click=\"showAddPage\">新增</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\"\r\n                :title=\"detailTitle\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                :title=\"deleteTitle\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\"\r\n                :is-add=\"isAdd\"\r\n                :title=\"saveTitle\"\r\n                :url=\"saveUrl\">\r\n    </save-modal>\r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n        <datagrid :url=\"datagridUrl\" \r\n                @click=\"operate\" \r\n                v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"用户名\" css=\"namecss\"></datagrid-item>\r\n            <datagrid-item name=\"pwd\" hide></datagrid-item>\r\n            <datagrid-item name=\"birthday\" title=\"生日\"></datagrid-item>\r\n            <datagrid-item name=\"createTime\" title=\"创建时间\"></datagrid-item>\r\n            <datagrid-item name=\"updateTime\" title=\"最后更新时间\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -15810,7 +15795,34 @@ define('pages/user_index/modules/main', function(require, exports, module) {
       ready: function ready() {
           this.datagridUrl = '/admin/user/getdata';
           this.datagridTitle = '用户信息列表';
-          this.datagridItem = [{}];
+          this.datagridItem = [{
+              name: 'id',
+              title: 'ID'
+          }, {
+              name: 'name',
+              title: '用户名',
+              css: 'namecss'
+          }, {
+              name: 'pwd',
+              hide: true
+          }, {
+              name: 'birthday',
+              title: '生日'
+          }, {
+              name: 'createTime',
+              title: '创建时间'
+          }, {
+              name: 'updateTime',
+              title: '最后更新时间'
+          }, {
+              name: 'stateShow',
+              title: '状态'
+          }, {
+              name: 'id',
+              title: '操作',
+              render: 'commonOperate | detail modify delete',
+              disableorder: true
+          }];
       }
   });
 

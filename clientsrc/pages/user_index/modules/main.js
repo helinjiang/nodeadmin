@@ -4,7 +4,6 @@ var saveModal = require('./savemodal/main');
 var mixinsIndexModal = require('mixins/modal/crudindex/main');
 
 module.exports = Vue.extend({
-    template: __inline('main.html'),
     components: {
         'saveModal': saveModal,
     },
@@ -63,7 +62,32 @@ module.exports = Vue.extend({
         this.datagridUrl = '/admin/user/getdata';
         this.datagridTitle = '用户信息列表';
         this.datagridItem = [{
-
+            name: 'id',
+            title: 'ID'
+        }, {
+            name: 'name',
+            title: '用户名',
+            css: 'namecss'
+        }, {
+            name: 'pwd',
+            hide: true
+        }, {
+            name: 'birthday',
+            title: '生日'
+        }, {
+            name: 'createTime',
+            title: '创建时间'
+        }, {
+            name: 'updateTime',
+            title: '最后更新时间'
+        }, {
+            name: 'stateShow',
+            title: '状态'
+        }, {
+            name: 'id',
+            title: '操作',
+            render: 'commonOperate | detail modify delete',
+            disableorder: true
         }];
     }
 });

@@ -22,7 +22,6 @@ Vue.component('datagrid', {
             jqTable: undefined, //table的jQuery对象
             tableId: undefined, // table的Id
             oTable: undefined, // datatables对象
-            itemArray: [], // 项列表
         };
     },
     props: {
@@ -30,17 +29,21 @@ Vue.component('datagrid', {
          * 列表的类型
          * 前台分页：front; 后台分页：server
          */
-        'type': {
+        type: {
             type: String,
             'default': 'front'
         },
-        'url': String,
-        'pagelength': {
+        url: String,
+        pagelength: {
             type: Number,
             'default': '10',
             coerce: function(val) {
                 return parseInt(val, 10);
             }
+        },
+        items: {
+            type: Array,
+            required: true
         }
     },
     methods: {
@@ -79,24 +82,7 @@ Vue.component('datagrid', {
     },
     ready: function() {
         // 缓存该值，避免重复获取
-        this.$set('jqTable', $('.datagrid-table', $(this.$el)));
-
-        // 循环遍历 $vm.$children，从中获得每一项数据，并存入到itemArray字段中
-        var items = this.$children,
-            itemArray = [];
-
-        items.forEach(function(item) {
-            itemArray.push({
-                'name': item.name,
-                'title': item.title,
-                'css': item.css,
-                'render': item.render,
-                'disableorder': item.disableorder,
-                'hide': item.hide
-            });
-        });
-
-        this.$set('itemArray', itemArray);
+        this.$set('jqTable', $('.datagrid-table', this.$el));
 
         // 初始化
         _init(this);
@@ -125,7 +111,7 @@ function initDataGrid(vm) {
 
 function initAjaxFront(vm) {
     // 配置
-    var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+    var dataTableOptions = getAjaxOptions(vm.url, vm.items, vm.pagelength);
     if (typeof dataTableOptions !== 'object') {
         return;
     }
@@ -145,7 +131,7 @@ function initAjaxFront(vm) {
 
 function initAjaxServer(vm) {
     // 配置
-    var dataTableOptions = getAjaxOptions(vm.url, vm.itemArray, vm.pagelength);
+    var dataTableOptions = getAjaxOptions(vm.url, vm.items, vm.pagelength);
     if (typeof dataTableOptions !== 'object') {
         return;
     }
@@ -275,7 +261,7 @@ function getDefaultOptions() {
  * 获得Ajax类型的 datagrid 配置
  * @return {[type]} [description]
  */
-function getAjaxOptions(url, itemArray, pagelength) {
+function getAjaxOptions(url, items, pagelength) {
     // url
     if (!url) {
         console.error('Unknown url', url);
@@ -286,8 +272,8 @@ function getAjaxOptions(url, itemArray, pagelength) {
     var columns = [],
         columnDefs = [];
 
-    if (!itemArray.length) {
-        console.error('Unknown itemArray', itemArray);
+    if (!items.length) {
+        console.error('Unknown items', items);
 
         return;
     }
@@ -296,8 +282,8 @@ function getAjaxOptions(url, itemArray, pagelength) {
         visibleArr = [],
         classNameMap = {};
 
-    for (var i = 0; i < itemArray.length; i++) {
-        var item = itemArray[i],
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i],
             columnOption = {
                 'data': item.name,
                 'title': item.title ? item.title : item.name
