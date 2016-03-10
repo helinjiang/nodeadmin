@@ -14,15 +14,26 @@ module.exports = {
          * 初始化的值，对象，用于设置模态框中表单初始值
          */
         initData: Object,
-    },
-    methods: {
+
         /**
-         * 初始化数据，建议覆盖
+         * save时保存到服务器的Url
          */
-        setInitData: function(data) {
-            // 初始化数据，建议覆盖
+        url: {
+            type: String,
+            required: true
         },
 
+        /**
+         * 当前是否为新增页面，因为新增和修改页面会不一样
+         */
+        isAdd: Boolean,
+
+        /**
+         * 标题
+         */
+        title: String
+    },
+    methods: {
         /**
          * 返回校验器规则，建议覆盖
          */
@@ -34,9 +45,21 @@ module.exports = {
          * 弹出对话框
          */
         showModal: function() {
-            // 初始化form data
-            this.setInitData(this.initData);
+            if (!this.initData) {
+                return;
+            }
 
+            // 遍历所有的有name属性的表单，并将其设置到vue的data中
+            var self = this,
+                jqFiledList = this.jqForm.find('[name]');
+
+            jqFiledList.each(function() {
+                var filedName = $(this).attr('name');
+
+                self.$set(filedName, self.initData[filedName]);
+            });
+
+            // 弹出对话框
             this.$children[0].show();
         },
 

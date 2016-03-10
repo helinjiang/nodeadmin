@@ -13975,16 +13975,27 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
           /**
            * 初始化的值，对象，用于设置模态框中表单初始值
            */
-          initData: Object
-      },
-      methods: {
+          initData: Object,
+  
           /**
-           * 初始化数据，建议覆盖
+           * save时保存到服务器的Url
            */
-          setInitData: function setInitData(data) {
-              // 初始化数据，建议覆盖
+          url: {
+              type: String,
+              required: true
           },
   
+          /**
+           * 当前是否为新增页面，因为新增和修改页面会不一样
+           */
+          isAdd: Boolean,
+  
+          /**
+           * 标题
+           */
+          title: String
+      },
+      methods: {
           /**
            * 返回校验器规则，建议覆盖
            */
@@ -13996,9 +14007,21 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
            * 弹出对话框
            */
           showModal: function showModal() {
-              // 初始化form data
-              this.setInitData(this.initData);
+              if (!this.initData) {
+                  return;
+              }
   
+              // 遍历所有的有name属性的表单，并将其设置到vue的data中
+              var self = this,
+                  jqFiledList = this.jqForm.find('[name]');
+  
+              jqFiledList.each(function () {
+                  var filedName = $(this).attr('name');
+  
+                  self.$set(filedName, self.initData[filedName]);
+              });
+  
+              // 弹出对话框
               this.$children[0].show();
           },
   
@@ -15771,41 +15794,28 @@ define('pages/user_index/mainarea/savemodal/main', function(require, exports, mo
   
   module.exports = Vue.extend({
       template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      data: function data() {
-          return {
-              id: undefined,
-              name: undefined,
-              pwd: undefined,
-              birthday: undefined,
-              state: undefined
-          };
-      },
-      props: {
-          url: {
-              type: String,
-              required: true
-          },
-          isAdd: Boolean,
-          title: String
-      },
       mixins: [mixinsSaveModal],
       methods: {
-          setInitData: function setInitData(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.name = data.name;
-              this.pwd = data.pwd;
-              this.state = data.state;
-              this.birthday = data.birthday;
-          },
+          /**
+           * 校验器规则
+           * @return {object} 规则对象
+           */
           getRulesOptions: function getRulesOptions() {
-              // TODO 根据isAdd来设置校验
-              var config = {
-                  name: {
+              var config = {};
+  
+              config.state = {
+                  required: true
+              };
+  
+              config.birthday = {
+                  required: {
+                      rule: true,
+                      message: '生日不能为空！'
+                  }
+              };
+  
+              if (this.isAdd) {
+                  config.name = {
                       required: {
                           rule: true,
                           message: '用户名不能为空！'
@@ -15818,8 +15828,9 @@ define('pages/user_index/mainarea/savemodal/main', function(require, exports, mo
                           rule: 64,
                           message: '最大长度为64'
                       }
-                  },
-                  pwd: {
+                  };
+  
+                  config.pwd = {
                       required: {
                           rule: true,
                           message: '密码不能为空！'
@@ -15832,14 +15843,8 @@ define('pages/user_index/mainarea/savemodal/main', function(require, exports, mo
                           rule: 32,
                           message: '最大长度为32'
                       }
-                  },
-                  birthday: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
+                  };
+              }
   
               return config;
           }
