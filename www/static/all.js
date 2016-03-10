@@ -13665,6 +13665,40 @@ define('common/scripts/global', function(require, exports, module) {
 
 });
 
+;/*!/common/scripts/model.js*/
+define('common/scripts/model', function(require, exports, module) {
+
+  'use strict';
+  
+  var data = {
+      'id': 'ID',
+      'name': '名字',
+      'createTime': '创建时间',
+      'updateTime': '更新时间',
+      'state': '状态',
+      'stateShow': '状态'
+  };
+  
+  function getNameMap(arr) {
+      var map = {};
+  
+      arr.forEach(function (fieldName) {
+          if (typeof data[fieldName] !== 'undefined') {
+              map[fieldName] = data[fieldName];
+          }
+      });
+  
+      return map;
+  }
+  
+  module.exports = {
+      data: data,
+      getNameMap: getNameMap
+  
+  };
+
+});
+
 ;/*!/common/scripts/names.js*/
 define('common/scripts/names', function(require, exports, module) {
 
@@ -13942,11 +13976,6 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
            * 初始化的值，对象，用于设置模态框中表单初始值
            */
           initData: Object
-      },
-      computed: {
-          isAdd: function isAdd() {
-              return !this.id;
-          }
       },
       methods: {
           /**
@@ -15647,6 +15676,90 @@ define('pages/test_index/main', function(require, exports, module) {
 
 });
 
+;/*!/pages/user_index/model.js*/
+define('pages/user_index/model', function(require, exports, module) {
+
+  'use strict';
+  
+  var Model = require('common/scripts/model');
+  
+  var data = $.extend({}, Model.getNameMap(['id', 'createTime', 'updateTime', 'state', 'stateShow']), {
+      'name': '用户名',
+      'pwd': '密码',
+      'birthday': '生日'
+  });
+  
+  /**
+   * 通过filedNameArr，获得一个map，key为name，value为title
+   */
+  function getNameMap(arr) {
+      var map = {};
+  
+      arr.forEach(function (item) {
+          if (typeof data[item] !== 'undefined') {
+              map[item] = data[item];
+          }
+      });
+  
+      return map;
+  }
+  
+  /**
+   * 获得datagrid的items列表
+   * arr:['id','name','pwd'],
+   * param:{
+   *     name:{
+   *         css:'namecss'
+   *     },
+   *     pwd:{
+   *         hide:true
+   *     }     
+   * },
+   * items:[{
+          name: 'id',
+          title: '操作',
+          render: 'commonOperate | detail modify delete',
+          disableorder: true
+      }];
+   */
+  function getDatagridItem(arr, param, items) {
+      var result = [];
+  
+      arr.forEach(function (fieldName) {
+          var item = {
+              name: fieldName,
+              title: data[fieldName] || fieldName
+          };
+  
+          if (typeof param[fieldName] === 'object') {
+              item = $.extend({}, item, param[fieldName]);
+          }
+  
+          result.push(item);
+      });
+  
+      if (items && items.length) {
+          result = result.concat(items);
+      }
+  
+      return result;
+  }
+  
+  /**
+   * 通过name获取title
+   */
+  function getTitle(name) {
+      return data[name];
+  }
+  
+  module.exports = {
+      data: data,
+      getNameMap: getNameMap,
+      getDatagridItem: getDatagridItem
+  };
+
+});
+
 ;/*!/pages/user_index/mainarea/savemodal/main.js*/
 define('pages/user_index/mainarea/savemodal/main', function(require, exports, module) {
 
@@ -15743,6 +15856,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   
   var Vue = require('common/lib/vue');
   
+  var Model = require('pages/user_index/model');
   var saveModal = require('pages/user_index/mainarea/savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
@@ -15754,84 +15868,55 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
-              this.datagridUrl = '/admin/user/getdata';
               this.datagridTitle = '用户信息列表';
-              this.datagridItem = [{
-                  name: 'id',
-                  title: 'ID'
-              }, {
-                  name: 'name',
-                  title: '用户名',
-                  css: 'namecss'
-              }, {
-                  name: 'pwd',
-                  hide: true
-              }, {
-                  name: 'birthday',
-                  title: '生日'
-              }, {
-                  name: 'createTime',
-                  title: '创建时间'
-              }, {
-                  name: 'updateTime',
-                  title: '最后更新时间'
-              }, {
-                  name: 'stateShow',
-                  title: '状态'
-              }, {
+              this.datagridUrl = '/admin/user/getdata';
+  
+              this.datagridItem = Model.getDatagridItem(['id', 'name', 'pwd', 'birthday', 'createTime', 'updateTime', 'stateShow'], {
+                  name: {
+                      css: 'namecss'
+                  },
+                  pwd: {
+                      hide: true
+                  }
+              }, [{
                   name: 'id',
                   title: '操作',
                   render: 'commonOperate | detail modify delete',
                   disableorder: true
-              }];
+              }]);
           },
           beforeShowAddPage: function beforeShowAddPage() {
+              this.saveTitle = '新增用户信息';
+              this.saveUrl = '/admin/user/add';
+  
               this.initData = {
-                  id: undefined,
-                  name: '',
-                  pwd: '',
                   birthday: '2016-03-01',
                   state: '1'
               };
-  
-              this.saveUrl = '/admin/user/add';
-              this.saveTitle = '新增用户信息';
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
-              this.initData = $.extend({}, data);
-  
-              this.saveUrl = '/admin/user/modify';
               this.saveTitle = '修改用户信息';
+              this.saveUrl = '/admin/user/modify';
+  
+              this.initData = $.extend({}, data);
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
-              this.initData = $.extend({}, data);
-              this.detailField = {
-                  id: 'ID',
-                  name: '用户名',
-                  birthday: '生日',
-                  stateShow: '状态',
-                  createTime: '创建时间',
-                  updateTime: '最后修改时间'
-              };
               this.detailTitle = '查看用户信息';
+  
+              this.initData = $.extend({}, data);
+              this.detailField = Model.getNameMap(['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime']);
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
+              this.deleteTitle = '删除用户信息';
+              this.deleteUrl = '/admin/user/delete';
+  
               this.initData = $.extend({}, data);
-              this.deleteField = {
-                  id: 'ID',
-                  name: '用户名',
-                  stateShow: '状态',
-                  createTime: '创建时间',
-                  updateTime: '最后修改时间'
-              };
+              this.deleteField = Model.getNameMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
   
               this.deleteParam = [{
                   key: 'id',
                   fieldName: 'id'
               }];
-  
-              this.deleteUrl = '/admin/user/delete';
-              this.deleteTitle = '删除用户信息';
           }
       },
       ready: function ready() {}
