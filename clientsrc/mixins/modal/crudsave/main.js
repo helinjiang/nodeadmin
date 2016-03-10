@@ -15,11 +15,6 @@ module.exports = {
          */
         initData: Object,
     },
-    computed: {
-        isAdd: function() {
-            return !this.id;
-        }
-    },
     methods: {
         /**
          * 初始化数据，建议覆盖
