@@ -12,60 +12,58 @@ module.exports = Vue.extend({
     mixins: [mixinsIndexModal],
     methods: {
         beforeShowDataGrid: function() {
-            this.datagridTitle = '汽车信息列表';
-            this.datagridUrl = '/admin/car/getdata';
-            this.saveUrlType = 'server';
+            this.datagridTitle = '代码生成器信息列表';
+            this.datagridUrl = '/admin/coding/getdata';
 
             this.datagridItem = Model.getDatagridItem([
                 'id',
-                'user_name',
-                'name',
-                'buydate',
+                'tableName',
+                'targetName',
+                'targetDesc',
+                'menuId',
+                'breadcrumb',
                 'stateShow'
             ], null, [{
                 name: 'id',
                 title: '操作',
-                render: 'commonOperate | detail modify delete',
+                render: 'commonOperate | codingitem detail modify delete',
                 disableorder: true
             }]);
         },
         beforeShowAddPage: function() {
-            this.saveTitle = '新增汽车信息';
-            this.saveUrl = '/admin/car/add';
+            this.saveTitle = '新增代码生成器信息';
+            this.saveUrl = '/admin/coding/add';
 
             this.initData = {
-                buydate: '2016-03-01',
                 state: '1',
             };
         },
         beforeShowModifyPage: function(data) {
-            this.saveTitle = '修改汽车信息';
-            this.saveUrl = '/admin/car/modify';
+            this.saveTitle = '修改代码生成器信息';
+            this.saveUrl = '/admin/coding/modify';
 
             this.initData = $.extend({}, data);
         },
         beforeShowDetailPage: function(data) {
-            this.detailTitle = '查看汽车信息';
+            this.detailTitle = '查看代码生成器信息';
 
             this.initData = $.extend({}, data);
             this.detailField = Model.getNameMap([
                 'id',
-                'user_name',
-                'name',
-                'buydate',
+                'tableName',
+                'targetName',
                 'stateShow'
             ]);
         },
         beforeShowDeletePage: function(data) {
-            this.deleteTitle = '删除汽车信息';
-            this.deleteUrl = '/admin/car/delete';
+            this.deleteTitle = '删除代码生成器信息';
+            this.deleteUrl = '/admin/coding/delete';
 
             this.initData = $.extend({}, data);
             this.deleteField = Model.getNameMap([
                 'id',
-                'user_name',
-                'name',
-                'buydate',
+                'tableName',
+                'targetName',
                 'stateShow'
             ]);
 

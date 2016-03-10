@@ -1,7 +1,3 @@
-/**
- * Boot up the Vue instance and wire up the router.
- */
-
 require('common/global');
 
 var Vue = require('lib/vue');
