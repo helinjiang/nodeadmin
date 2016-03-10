@@ -296,6 +296,16 @@ Vue.component('select2', {
             }
         },
     },
+    events: {
+        /**
+         * 接受这个事件用于初始化select2，注意引用到lazy场景
+         */
+        initselect2: function(data) {
+             if(this.lazy){
+                this.init();
+            }
+        }
+    },
     ready: function() {
         // 如果不是lazy模式，则立即渲染
         if (!this.lazy) {

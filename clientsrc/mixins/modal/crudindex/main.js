@@ -3,9 +3,9 @@ module.exports = {
     template: '<div>EMPTY</div>',
     data: function() {
         return {
-            datagridUrl: '',            
-            datagridTitle: '',    
-            datagridItem:[],        
+            datagridUrl: '',
+            datagridTitle: '',
+            datagridItem: [],
             isShowSaveModal: false,
             isShowDetailModal: false,
             isShowDeleteModal: false,
@@ -112,7 +112,7 @@ module.exports = {
 
             this.isShowDeleteModal = true;
         },
-        showDataGrid:function(){
+        showDataGrid: function() {
             this.beforeShowDataGrid();
         }
     },

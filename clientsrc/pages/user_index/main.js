@@ -15,13 +15,8 @@ window.app = new Vue({
         MainArea
     },
     ready: function() {
-        _init();
+        $(function() {
+            App.init();
+        });
     }
 });
-
-
-function _init() {
-    $(function() {
-        App.init();
-    });
-}

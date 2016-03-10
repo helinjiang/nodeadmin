@@ -1,11 +1,11 @@
-<div class="modifypage">
-    <modal title="修改用户信息">
-        <he-form action="/admin/car/modify" horizontal noactions>
-            <he-form-item title="ID" horizontal>
+<div class="savemodal">
+    <modal :title="title">
+        <he-form :action="url" horizontal noactions>
+            <he-form-item title="ID" horizontal v-if="!isAdd">
                 <input type="text" name="id" v-model="id" readonly>
             </he-form-item>
             <he-form-item title="汽车名" horizontal>
-                <input type="text" name="name" v-model="name" readonly>
+                <input type="text" name="name" v-model="name" :readonly="!isAdd">
             </he-form-item>
             <he-form-item title="车主人" horizontal>
                 <select2 name="ownerId" :value.sync="ownerId" url="/admin/user/getdata" convert="searchuser" lazy v-ref:user></select2>

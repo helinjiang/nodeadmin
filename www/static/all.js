@@ -11008,6 +11008,16 @@ define('components/select2/main', function(require, exports, module) {
               }
           }
       },
+      events: {
+          /**
+           * 接受这个事件用于初始化select2，注意引用到lazy场景
+           */
+          initselect2: function initselect2(data) {
+              if (this.lazy) {
+                  this.init();
+              }
+          }
+      },
       ready: function ready() {
           // 如果不是lazy模式，则立即渲染
           if (!this.lazy) {
@@ -14126,279 +14136,218 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/car_index/modules/add/main.js*/
-define('pages/car_index/modules/add/main', function(require, exports, module) {
+;/*!/pages/car_index/model.js*/
+define('pages/car_index/model', function(require, exports, module) {
 
   'use strict';
   
-  var CommonCrud = require('common/scripts/crud');
+  var Model = require('common/scripts/model');
   
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增汽车信息\">\r\n        <he-form action=\"/admin/car/add\" horizontal noactions>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          name: undefined,
-          ownerId: undefined,
-          buydate: undefined,
-          state: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal() {
-              this.name = '';
-              this.ownerId = undefined;
-              this.buydate = '2016-02-25'; // TODO today
-              this.state = '1';
-  
-              this.$refs.user.init();
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  name: {
-                      required: {
-                          rule: true,
-                          message: '汽车名字不能为空！'
-                      }
-                  },
-                  ownerId: {
-                      required: {
-                          rule: true,
-                          message: '车主人不能为空！'
-                      }
-                  },
-                  buydate: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
+  var data = $.extend({}, Model.getNameMap(['id', 'state', 'stateShow']), {
+      'user_name': '车主人',
+      'name': '汽车名字',
+      'buydate': '购买日期'
   });
+  
+  /**
+   * 通过filedNameArr，获得一个map，key为name，value为title
+   */
+  function getNameMap(arr) {
+      var map = {};
+  
+      arr.forEach(function (item) {
+          if (typeof data[item] !== 'undefined') {
+              map[item] = data[item];
+          }
+      });
+  
+      return map;
+  }
+  
+  /**
+   * 获得datagrid的items列表
+   * arr:['id','name','pwd'],
+   * param:{
+   *     name:{
+   *         css:'namecss'
+   *     },
+   *     pwd:{
+   *         hide:true
+   *     }     
+   * },
+   * items:[{
+          name: 'id',
+          title: '操作',
+          render: 'commonOperate | detail modify delete',
+          disableorder: true
+      }];
+   */
+  function getDatagridItem(arr, param, items) {
+      var result = [];
+  
+      arr.forEach(function (fieldName) {
+          var item = {
+              name: fieldName,
+              title: data[fieldName] || fieldName
+          };
+  
+          if (typeof param[fieldName] === 'object') {
+              item = $.extend({}, item, param[fieldName]);
+          }
+  
+          result.push(item);
+      });
+  
+      if (items && items.length) {
+          result = result.concat(items);
+      }
+  
+      return result;
+  }
+  
+  /**
+   * 通过name获取title
+   */
+  function getTitle(name) {
+      return data[name];
+  }
+  
+  module.exports = {
+      data: data,
+      getNameMap: getNameMap,
+      getDatagridItem: getDatagridItem
+  };
 
 });
 
-;/*!/pages/car_index/modules/modify/main.js*/
-define('pages/car_index/modules/modify/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('common/scripts/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"modifypage\">\r\n    <modal title=\"修改用户信息\">\r\n        <he-form action=\"/admin/car/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          name: undefined,
-          ownerId: undefined,
-          state: undefined,
-          buydate: undefined
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              // 初始化数据
-              this.id = data.id;
-              this.name = data.name;
-              this.ownerId = data.ownerId;
-              this.state = data.state;
-              this.buydate = data.buydate;
-  
-              this.$refs.user.init();
-          },
-          getRulesOptions: function getRulesOptions() {
-              var config = {
-                  ownerId: {
-                      required: {
-                          rule: true,
-                          message: '车主人不能为空！'
-                      }
-                  },
-                  buydate: {
-                      required: {
-                          rule: true,
-                          message: '生日不能为空！'
-                      }
-                  }
-              };
-  
-              return config;
-          }
-      }
-  });
-
-});
-
-;/*!/pages/car_index/modules/delete/main.js*/
-define('pages/car_index/modules/delete/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('common/scripts/crud');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"删除汽车信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          id: undefined,
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data || !data.id) {
-                  return;
-              }
-  
-              // 设置要删除的记录的id
-              this.id = data.id;
-  
-              // 设置要展示的信息条目
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'user_name',
-                  value: data.user_name,
-                  title: '车主人'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '汽车名字'
-              }, {
-                  key: 'buydate',
-                  value: data.buydate,
-                  title: '购买日期'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              var self = this;
-  
-              $.post('/admin/car/delete', {
-                  id: this.id
-              }, function (responseText, statusText) {
-                  self.dealSuccessRes(responseText, statusText);
-              });
-          }
-      }
-  });
-
-});
-
-;/*!/pages/car_index/modules/detail/main.js*/
-define('pages/car_index/modules/detail/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var CommonCrud = require('common/scripts/crud');
-  
-  var Names = require('common/scripts/names');
-  
-  module.exports = CommonCrud.extend({
-      template: "<div class=\"deletepage\">\r\n    <modal title=\"汽车信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
-      data: {
-          items: []
-      },
-      methods: {
-          beforeShowModal: function beforeShowModal(data) {
-              if (!data) {
-                  return;
-              }
-  
-              this.items = [{
-                  key: 'id',
-                  value: data.id,
-                  title: 'ID'
-              }, {
-                  key: 'user_name',
-                  value: data.user_name,
-                  title: '车主人'
-              }, {
-                  key: 'name',
-                  value: data.name,
-                  title: '汽车名字'
-              }, {
-                  key: 'buydate',
-                  value: data.buydate,
-                  title: '购买日期'
-              }, {
-                  key: 'stateShow',
-                  value: data.stateShow,
-                  title: '状态'
-              }];
-          },
-          triggerSubmit: function triggerSubmit() {
-              this.hideModal();
-          }
-      }
-  });
-
-});
-
-;/*!/pages/car_index/modules/main.js*/
-define('pages/car_index/modules/main', function(require, exports, module) {
+;/*!/pages/car_index/mainarea/savemodal/main.js*/
+define('pages/car_index/mainarea/savemodal/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('common/lib/vue');
   
-  var addPage = require('pages/car_index/modules/add/main');
-  var modifyPage = require('pages/car_index/modules/modify/main');
-  var deletePage = require('pages/car_index/modules/delete/main');
-  var detailPage = require('pages/car_index/modules/detail/main');
+  var mixinsSaveModal = require('mixins/modal/crudsave/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"user_index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <add v-on:savesuccess=\"reloadDataGrid\"></add>\r\n        <modify v-ref:modify v-on:savesuccess=\"reloadDataGrid\"></modify>\r\n        <delete v-ref:delete v-on:savesuccess=\"reloadDataGrid\"></delete>\r\n        <detail v-ref:detail></detail>\r\n    </admin-main-toolbar>\r\n\r\n    <portlet title=\"用户列表\" icon=\"globe\">    \r\n        <datagrid url=\"/admin/car/getdata\" pagelength=\"4\" type=\"server\" v-on:click=\"operate\" v-ref:datagrid>\r\n            <datagrid-item name=\"id\" title=\"ID\"></datagrid-item>\r\n            <datagrid-item name=\"user_name\" title=\"车主人\"></datagrid-item>\r\n            <datagrid-item name=\"name\" title=\"汽车名字\"></datagrid-item>\r\n            <datagrid-item name=\"buydate\" title=\"购买日期\"></datagrid-item>\r\n            <datagrid-item name=\"stateShow\" title=\"状态\"></datagrid-item>\r\n            <datagrid-item name=\"id\" title=\"操作\" render=\"commonOperate | detail modify delete\" disableorder></datagrid-item>\r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
-      components: {
-          'add': addPage,
-          'modify': modifyPage,
-          'delete': deletePage,
-          'detail': detailPage
-      },
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      mixins: [mixinsSaveModal],
       methods: {
-          operate: function operate(event) {
-              var target = event.target,
-                  $target = $(target),
-                  type = $target.data('type'),
-                  id,
-                  data;
+          /**
+           * 校验器规则
+           * @return {object} 规则对象
+           */
+          getRulesOptions: function getRulesOptions() {
+              var config = {};
   
-              if (!type || ['modify', 'delete', 'detail'].indexOf(type) < 0) {
-                  return;
+              config.state = {
+                  required: true
+              };
+  
+              config.buydate = {
+                  required: {
+                      rule: true,
+                      message: '购买日期不能为空！'
+                  }
+              };
+  
+              config.ownerId = {
+                  required: {
+                      rule: true,
+                      message: '车主人不能为空！'
+                  }
+              };
+  
+              if (this.isAdd) {
+                  config.name = {
+                      required: {
+                          rule: true,
+                          message: '汽车名字不能为空！'
+                      },
+                      minlength: {
+                          rule: 3,
+                          message: '最小长度为3'
+                      },
+                      maxlength: {
+                          rule: 64,
+                          message: '最大长度为64'
+                      }
+                  };
               }
   
-              id = $target.data('id');
+              return config;
+          }
   
-              data = this.getDataById(id);
+      },
+      ready: function ready() {
+          // 通知 select2 初始化
+          this.$broadcast('initselect2');
+      }
+  });
+
+});
+
+;/*!/pages/car_index/mainarea/main.js*/
+define('pages/car_index/mainarea/main', function(require, exports, module) {
+
+  'use strict';
   
-              if (data) {
-                  this.$refs[type].showModal(data);
-              }
+  var Vue = require('common/lib/vue');
+  
+  var Model = require('pages/car_index/model');
+  var saveModal = require('pages/car_index/mainarea/savemodal/main');
+  var mixinsIndexModal = require('mixins/modal/crudindex/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n        <datagrid \r\n                :url=\"datagridUrl\" \r\n                :items=\"datagridItem\"\r\n                type=\"server\"\r\n                @click=\"operate\" \r\n                v-ref:datagrid>            \r\n        </datagrid>\r\n    </portlet>   \r\n\r\n\r\n</div>\r\n",
+      components: {
+          'saveModal': saveModal
+      },
+      mixins: [mixinsIndexModal],
+      methods: {
+          beforeShowDataGrid: function beforeShowDataGrid() {
+              this.datagridTitle = '汽车信息列表';
+              this.datagridUrl = '/admin/car/getdata';
+  
+              this.datagridItem = Model.getDatagridItem(['id', 'user_name', 'name', 'buydate', 'stateShow'], {}, [{
+                  name: 'id',
+                  title: '操作',
+                  render: 'commonOperate | detail modify delete',
+                  disableorder: true
+              }]);
           },
-          reloadDataGrid: function reloadDataGrid() {
-              this.$refs.datagrid.reload();
+          beforeShowAddPage: function beforeShowAddPage() {
+              this.saveTitle = '新增汽车信息';
+              this.saveUrl = '/admin/car/add';
+  
+              this.initData = {
+                  buydate: '2016-03-01',
+                  state: '1'
+              };
           },
-          getDataById: function getDataById(id) {
-              if (!id) {
-                  console.error('No ID!');
-                  return;
-              }
+          beforeShowModifyPage: function beforeShowModifyPage(data) {
+              this.saveTitle = '修改汽车信息';
+              this.saveUrl = '/admin/car/modify';
   
-              var data = this.$refs.datagrid.getDataById('id', id);
+              this.initData = $.extend({}, data);
+          },
+          beforeShowDetailPage: function beforeShowDetailPage(data) {
+              this.detailTitle = '查看汽车信息';
   
-              if (!data) {
-                  console.error('No data of id=' + id);
-                  return;
-              }
+              this.initData = $.extend({}, data);
+              this.detailField = Model.getNameMap(['id', 'user_name', 'name', 'buydate', 'stateShow']);
+          },
+          beforeShowDeletePage: function beforeShowDeletePage(data) {
+              this.deleteTitle = '删除汽车信息';
+              this.deleteUrl = '/admin/car/delete';
   
-              return data;
+              this.initData = $.extend({}, data);
+              this.deleteField = Model.getNameMap(['id', 'user_name', 'name', 'buydate', 'stateShow']);
+  
+              this.deleteParam = [{
+                  key: 'id',
+                  fieldName: 'id'
+              }];
           }
       },
       ready: function ready() {}
@@ -14420,23 +14369,20 @@ define('pages/car_index/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var App = require('common/scripts/app');
-  var CarMain = require('pages/car_index/modules/main');
+  
+  var MainArea = require('pages/car_index/mainarea/main');
   
   window.app = new Vue({
       el: '#app',
       components: {
-          CarMain: CarMain
+          MainArea: MainArea
       },
       ready: function ready() {
-          _init();
+          $(function () {
+              App.init();
+          });
       }
   });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
 
 });
 
@@ -15951,14 +15897,10 @@ define('pages/user_index/main', function(require, exports, module) {
           MainArea: MainArea
       },
       ready: function ready() {
-          _init();
+          $(function () {
+              App.init();
+          });
       }
   });
-  
-  function _init() {
-      $(function () {
-          App.init();
-      });
-  }
 
 });

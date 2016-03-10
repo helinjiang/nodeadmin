@@ -1022,11 +1022,6 @@ Sidebar toggler(show/hide)
   margin-left: -1px;
 }
 
-/*!/pages/car_index/modules/add/main.scss*/
-.addpage {
-  display: inline-block;
-}
-
 /*!/pages/coding_index/modules/add/main.scss*/
 .addpage {
   display: inline-block;
