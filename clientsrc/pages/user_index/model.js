@@ -1,10 +1,10 @@
-var Model = require('common/model');
+var BaseModel = require('common/model');
 
-class UserModel extends Model {
+class Model extends BaseModel {
 
 }
 
-module.exports = new UserModel([
+module.exports = new Model([
     'id',
     'createTime',
     'updateTime',

@@ -14,6 +14,7 @@ module.exports = Vue.extend({
         beforeShowDataGrid: function() {
             this.datagridTitle = '汽车信息列表';
             this.datagridUrl = '/admin/car/getdata';
+            this.saveUrlType = 'server';
 
             this.datagridItem = Model.getDatagridItem([
                 'id',

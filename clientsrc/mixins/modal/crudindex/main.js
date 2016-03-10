@@ -12,6 +12,7 @@ module.exports = {
             initData: {},
             isAdd: true,
             saveUrl: '',
+            saveUrlType: 'front', // 默认前端分页
             saveTitle: '',
             detailField: {},
             detailTitle: '',
