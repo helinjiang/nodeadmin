@@ -13680,32 +13680,108 @@ define('common/scripts/model', function(require, exports, module) {
 
   'use strict';
   
-  var data = {
-      'id': 'ID',
-      'name': '名字',
-      'createTime': '创建时间',
-      'updateTime': '更新时间',
-      'state': '状态',
-      'stateShow': '状态'
-  };
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
   
-  function getNameMap(arr) {
-      var map = {};
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
   
-      arr.forEach(function (fieldName) {
-          if (typeof data[fieldName] !== 'undefined') {
-              map[fieldName] = data[fieldName];
+  var Model = (function () {
+      function Model(arr, param) {
+          _classCallCheck(this, Model);
+  
+          this.commonData = {
+              'id': 'ID',
+              'name': '名字',
+              'createTime': '创建时间',
+              'updateTime': '更新时间',
+              'state': '状态',
+              'stateShow': '状态'
+          };
+  
+          this.data = $.extend({}, this._getMap(arr, this.commonData), param || {});
+      }
+  
+      /**
+       * 通过filedNameArr，获得一个map，key为name，value为title
+       */
+  
+      _createClass(Model, [{
+          key: 'getNameMap',
+          value: function getNameMap(arr) {
+              return this._getMap(arr, this.data);
           }
-      });
   
-      return map;
-  }
+          /**
+           * 通过name获取title
+           */
+      }, {
+          key: 'getTitle',
+          value: function getTitle(name) {
+              return this.data[name];
+          }
   
-  module.exports = {
-      data: data,
-      getNameMap: getNameMap
+          /**
+           * 获得datagrid的items列表
+           * arr:['id','name','pwd'],
+           * param:{
+           *     name:{
+           *         css:'namecss'
+           *     },
+           *     pwd:{
+           *         hide:true
+           *     }     
+           * },
+           * items:[{
+                  name: 'id',
+                  title: '操作',
+                  render: 'commonOperate | detail modify delete',
+                  disableorder: true
+              }];
+           */
+      }, {
+          key: 'getDatagridItem',
+          value: function getDatagridItem(arr, param, items) {
+              var _this = this;
   
-  };
+              var result = [];
+  
+              arr.forEach(function (fieldName) {
+                  var item = {
+                      name: fieldName,
+                      title: _this.data[fieldName] || fieldName
+                  };
+  
+                  if (param && typeof param[fieldName] === 'object') {
+                      item = $.extend({}, item, param[fieldName]);
+                  }
+  
+                  result.push(item);
+              });
+  
+              if (items && items.length) {
+                  result = result.concat(items);
+              }
+  
+              return result;
+          }
+      }, {
+          key: '_getMap',
+          value: function _getMap(arr, param) {
+              var map = {};
+  
+              arr.forEach(function (fieldName) {
+                  if (typeof param[fieldName] !== 'undefined') {
+                      map[fieldName] = param[fieldName];
+                  }
+              });
+  
+              return map;
+          }
+      }]);
+  
+      return Model;
+  })();
+  
+  module.exports = Model;
 
 });
 
@@ -14141,82 +14217,31 @@ define('pages/car_index/model', function(require, exports, module) {
 
   'use strict';
   
-  var Model = require('common/scripts/model');
+  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
   
-  var data = $.extend({}, Model.getNameMap(['id', 'state', 'stateShow']), {
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+  
+  var BaseModel = require('common/scripts/model');
+  
+  var Model = (function (_BaseModel) {
+      _inherits(Model, _BaseModel);
+  
+      function Model() {
+          _classCallCheck(this, Model);
+  
+          _get(Object.getPrototypeOf(Model.prototype), 'constructor', this).apply(this, arguments);
+      }
+  
+      return Model;
+  })(BaseModel);
+  
+  module.exports = new Model(['id', 'state', 'stateShow'], {
       'user_name': '车主人',
       'name': '汽车名字',
       'buydate': '购买日期'
   });
-  
-  /**
-   * 通过filedNameArr，获得一个map，key为name，value为title
-   */
-  function getNameMap(arr) {
-      var map = {};
-  
-      arr.forEach(function (item) {
-          if (typeof data[item] !== 'undefined') {
-              map[item] = data[item];
-          }
-      });
-  
-      return map;
-  }
-  
-  /**
-   * 获得datagrid的items列表
-   * arr:['id','name','pwd'],
-   * param:{
-   *     name:{
-   *         css:'namecss'
-   *     },
-   *     pwd:{
-   *         hide:true
-   *     }     
-   * },
-   * items:[{
-          name: 'id',
-          title: '操作',
-          render: 'commonOperate | detail modify delete',
-          disableorder: true
-      }];
-   */
-  function getDatagridItem(arr, param, items) {
-      var result = [];
-  
-      arr.forEach(function (fieldName) {
-          var item = {
-              name: fieldName,
-              title: data[fieldName] || fieldName
-          };
-  
-          if (typeof param[fieldName] === 'object') {
-              item = $.extend({}, item, param[fieldName]);
-          }
-  
-          result.push(item);
-      });
-  
-      if (items && items.length) {
-          result = result.concat(items);
-      }
-  
-      return result;
-  }
-  
-  /**
-   * 通过name获取title
-   */
-  function getTitle(name) {
-      return data[name];
-  }
-  
-  module.exports = {
-      data: data,
-      getNameMap: getNameMap,
-      getDatagridItem: getDatagridItem
-  };
 
 });
 
@@ -15650,82 +15675,31 @@ define('pages/user_index/model', function(require, exports, module) {
 
   'use strict';
   
+  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+  
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+  
   var Model = require('common/scripts/model');
   
-  var data = $.extend({}, Model.getNameMap(['id', 'createTime', 'updateTime', 'state', 'stateShow']), {
+  var UserModel = (function (_Model) {
+      _inherits(UserModel, _Model);
+  
+      function UserModel() {
+          _classCallCheck(this, UserModel);
+  
+          _get(Object.getPrototypeOf(UserModel.prototype), 'constructor', this).apply(this, arguments);
+      }
+  
+      return UserModel;
+  })(Model);
+  
+  module.exports = new UserModel(['id', 'createTime', 'updateTime', 'state', 'stateShow'], {
       'name': '用户名',
       'pwd': '密码',
       'birthday': '生日'
   });
-  
-  /**
-   * 通过filedNameArr，获得一个map，key为name，value为title
-   */
-  function getNameMap(arr) {
-      var map = {};
-  
-      arr.forEach(function (item) {
-          if (typeof data[item] !== 'undefined') {
-              map[item] = data[item];
-          }
-      });
-  
-      return map;
-  }
-  
-  /**
-   * 获得datagrid的items列表
-   * arr:['id','name','pwd'],
-   * param:{
-   *     name:{
-   *         css:'namecss'
-   *     },
-   *     pwd:{
-   *         hide:true
-   *     }     
-   * },
-   * items:[{
-          name: 'id',
-          title: '操作',
-          render: 'commonOperate | detail modify delete',
-          disableorder: true
-      }];
-   */
-  function getDatagridItem(arr, param, items) {
-      var result = [];
-  
-      arr.forEach(function (fieldName) {
-          var item = {
-              name: fieldName,
-              title: data[fieldName] || fieldName
-          };
-  
-          if (typeof param[fieldName] === 'object') {
-              item = $.extend({}, item, param[fieldName]);
-          }
-  
-          result.push(item);
-      });
-  
-      if (items && items.length) {
-          result = result.concat(items);
-      }
-  
-      return result;
-  }
-  
-  /**
-   * 通过name获取title
-   */
-  function getTitle(name) {
-      return data[name];
-  }
-  
-  module.exports = {
-      data: data,
-      getNameMap: getNameMap,
-      getDatagridItem: getDatagridItem
-  };
 
 });
 
