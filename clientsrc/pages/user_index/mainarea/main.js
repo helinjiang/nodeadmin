@@ -4,6 +4,7 @@ var saveModal = require('./savemodal/main');
 var mixinsIndexModal = require('mixins/modal/crudindex/main');
 
 module.exports = Vue.extend({
+    template: __inline('main.html'),
     components: {
         'saveModal': saveModal,
     },

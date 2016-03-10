@@ -13777,7 +13777,7 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
   'use strict';
   
   module.exports = {
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"detailField\"\r\n                :title=\"detailTitle\">\r\n    </crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n                :init-data=\"initData\" \r\n                :field=\"deleteField\" \r\n                :param=\"deleteParam\"\r\n                :url=\"deleteUrl\"\r\n                :title=\"deleteTitle\">\r\n    </crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n                :init-data=\"initData\"\r\n                :is-add=\"isAdd\"\r\n                :title=\"saveTitle\"\r\n                :url=\"saveUrl\">\r\n    </save-modal>\r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n        <datagrid \r\n                :url=\"datagridUrl\" \r\n                :items=\"datagridItem\"\r\n                @click=\"operate\" \r\n                v-ref:datagrid>            \r\n        </datagrid>\r\n    </portlet>   \r\n\r\n</div>\r\n",
+      template: '<div>EMPTY</div>',
       data: function data() {
           return {
               datagridUrl: '',
@@ -15647,8 +15647,8 @@ define('pages/test_index/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/user_index/modules/savemodal/main.js*/
-define('pages/user_index/modules/savemodal/main', function(require, exports, module) {
+;/*!/pages/user_index/mainarea/savemodal/main.js*/
+define('pages/user_index/mainarea/savemodal/main', function(require, exports, module) {
 
   'use strict';
   
@@ -15736,17 +15736,18 @@ define('pages/user_index/modules/savemodal/main', function(require, exports, mod
 
 });
 
-;/*!/pages/user_index/modules/main.js*/
-define('pages/user_index/modules/main', function(require, exports, module) {
+;/*!/pages/user_index/mainarea/main.js*/
+define('pages/user_index/mainarea/main', function(require, exports, module) {
 
   'use strict';
   
   var Vue = require('common/lib/vue');
   
-  var saveModal = require('pages/user_index/modules/savemodal/main');
+  var saveModal = require('pages/user_index/mainarea/savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -15852,12 +15853,12 @@ define('pages/user_index/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var App = require('common/scripts/app');
-  var UserMain = require('pages/user_index/modules/main');
+  var MainArea = require('pages/user_index/mainarea/main');
   
   window.app = new Vue({
       el: '#app',
       components: {
-          UserMain: UserMain
+          MainArea: MainArea
       },
       ready: function ready() {
           _init();

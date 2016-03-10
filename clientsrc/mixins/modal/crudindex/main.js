@@ -1,6 +1,6 @@
 // 定义一个混合对象
 module.exports = {
-    template: __inline('main.html'),
+    template: '<div>EMPTY</div>',
     data: function() {
         return {
             datagridUrl: '',            

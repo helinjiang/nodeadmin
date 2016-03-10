@@ -7,12 +7,12 @@ require('common/global');
 var Vue = require('lib/vue');
 
 var App = require('common/app');
-var UserMain = require('./modules/main');
+var MainArea = require('./mainarea/main');
 
 window.app = new Vue({
     el: '#app',
     components: {
-        UserMain
+        MainArea
     },
     ready: function() {
         _init();
