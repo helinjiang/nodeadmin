@@ -13835,6 +13835,21 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
           reloadDataGrid: function reloadDataGrid() {
               this.$refs.datagrid.reload();
           },
+          getDataById: function getDataById(id) {
+              if (!id) {
+                  console.error('No ID!');
+                  return;
+              }
+  
+              var data = this.$refs.datagrid.getDataById('id', id);
+  
+              if (!data) {
+                  console.error('No data of id=' + id);
+                  return;
+              }
+  
+              return data;
+          },
           beforeShowAddPage: function beforeShowAddPage() {
               // 设置初始值
           },
@@ -13845,6 +13860,9 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
               // 设置初始值           
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
+              // 设置初始值
+          },
+          beforeShowDataGrid: function beforeShowDataGrid() {
               // 设置初始值
           },
           showAddPage: function showAddPage() {
@@ -13871,20 +13889,8 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
   
               this.isShowDeleteModal = true;
           },
-          getDataById: function getDataById(id) {
-              if (!id) {
-                  console.error('No ID!');
-                  return;
-              }
-  
-              var data = this.$refs.datagrid.getDataById('id', id);
-  
-              if (!data) {
-                  console.error('No data of id=' + id);
-                  return;
-              }
-  
-              return data;
+          showDataGrid: function showDataGrid() {
+              this.beforeShowDataGrid();
           }
       },
       events: {
@@ -13907,6 +13913,9 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
               this.isShowDetailModal = false;
               this.isShowDeleteModal = false;
           }
+      },
+      ready: function ready() {
+          this.showDataGrid();
       }
   };
 
@@ -15743,6 +15752,38 @@ define('pages/user_index/modules/main', function(require, exports, module) {
       },
       mixins: [mixinsIndexModal],
       methods: {
+          beforeShowDataGrid: function beforeShowDataGrid() {
+              this.datagridUrl = '/admin/user/getdata';
+              this.datagridTitle = '用户信息列表';
+              this.datagridItem = [{
+                  name: 'id',
+                  title: 'ID'
+              }, {
+                  name: 'name',
+                  title: '用户名',
+                  css: 'namecss'
+              }, {
+                  name: 'pwd',
+                  hide: true
+              }, {
+                  name: 'birthday',
+                  title: '生日'
+              }, {
+                  name: 'createTime',
+                  title: '创建时间'
+              }, {
+                  name: 'updateTime',
+                  title: '最后更新时间'
+              }, {
+                  name: 'stateShow',
+                  title: '状态'
+              }, {
+                  name: 'id',
+                  title: '操作',
+                  render: 'commonOperate | detail modify delete',
+                  disableorder: true
+              }];
+          },
           beforeShowAddPage: function beforeShowAddPage() {
               this.initData = {
                   id: undefined,
@@ -15792,38 +15833,7 @@ define('pages/user_index/modules/main', function(require, exports, module) {
               this.deleteTitle = '删除用户信息';
           }
       },
-      ready: function ready() {
-          this.datagridUrl = '/admin/user/getdata';
-          this.datagridTitle = '用户信息列表';
-          this.datagridItem = [{
-              name: 'id',
-              title: 'ID'
-          }, {
-              name: 'name',
-              title: '用户名',
-              css: 'namecss'
-          }, {
-              name: 'pwd',
-              hide: true
-          }, {
-              name: 'birthday',
-              title: '生日'
-          }, {
-              name: 'createTime',
-              title: '创建时间'
-          }, {
-              name: 'updateTime',
-              title: '最后更新时间'
-          }, {
-              name: 'stateShow',
-              title: '状态'
-          }, {
-              name: 'id',
-              title: '操作',
-              render: 'commonOperate | detail modify delete',
-              disableorder: true
-          }];
-      }
+      ready: function ready() {}
   });
 
 });

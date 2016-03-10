@@ -9,6 +9,38 @@ module.exports = Vue.extend({
     },
     mixins: [mixinsIndexModal],
     methods: {
+        beforeShowDataGrid: function() {
+            this.datagridUrl = '/admin/user/getdata';
+            this.datagridTitle = '用户信息列表';
+            this.datagridItem = [{
+                name: 'id',
+                title: 'ID'
+            }, {
+                name: 'name',
+                title: '用户名',
+                css: 'namecss'
+            }, {
+                name: 'pwd',
+                hide: true
+            }, {
+                name: 'birthday',
+                title: '生日'
+            }, {
+                name: 'createTime',
+                title: '创建时间'
+            }, {
+                name: 'updateTime',
+                title: '最后更新时间'
+            }, {
+                name: 'stateShow',
+                title: '状态'
+            }, {
+                name: 'id',
+                title: '操作',
+                render: 'commonOperate | detail modify delete',
+                disableorder: true
+            }];
+        },
         beforeShowAddPage: function() {
             this.initData = {
                 id: undefined,
@@ -59,35 +91,6 @@ module.exports = Vue.extend({
         },
     },
     ready: function() {
-        this.datagridUrl = '/admin/user/getdata';
-        this.datagridTitle = '用户信息列表';
-        this.datagridItem = [{
-            name: 'id',
-            title: 'ID'
-        }, {
-            name: 'name',
-            title: '用户名',
-            css: 'namecss'
-        }, {
-            name: 'pwd',
-            hide: true
-        }, {
-            name: 'birthday',
-            title: '生日'
-        }, {
-            name: 'createTime',
-            title: '创建时间'
-        }, {
-            name: 'updateTime',
-            title: '最后更新时间'
-        }, {
-            name: 'stateShow',
-            title: '状态'
-        }, {
-            name: 'id',
-            title: '操作',
-            render: 'commonOperate | detail modify delete',
-            disableorder: true
-        }];
+
     }
 });

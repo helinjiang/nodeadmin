@@ -58,6 +58,21 @@ module.exports = {
         reloadDataGrid: function() {
             this.$refs.datagrid.reload();
         },
+        getDataById: function(id) {
+            if (!id) {
+                console.error('No ID!');
+                return;
+            }
+
+            var data = this.$refs.datagrid.getDataById('id', id);
+
+            if (!data) {
+                console.error('No data of id=' + id);
+                return;
+            }
+
+            return data;
+        },
         beforeShowAddPage: function() {
             // 设置初始值
         },
@@ -68,6 +83,9 @@ module.exports = {
             // 设置初始值            
         },
         beforeShowDeletePage: function(data) {
+            // 设置初始值
+        },
+        beforeShowDataGrid: function() {
             // 设置初始值
         },
         showAddPage: function() {
@@ -94,20 +112,8 @@ module.exports = {
 
             this.isShowDeleteModal = true;
         },
-        getDataById: function(id) {
-            if (!id) {
-                console.error('No ID!');
-                return;
-            }
-
-            var data = this.$refs.datagrid.getDataById('id', id);
-
-            if (!data) {
-                console.error('No data of id=' + id);
-                return;
-            }
-
-            return data;
+        showDataGrid:function(){
+            this.beforeShowDataGrid();
         }
     },
     events: {
@@ -130,5 +136,8 @@ module.exports = {
             this.isShowDetailModal = false;
             this.isShowDeleteModal = false;
         },
+    },
+    ready: function() {
+        this.showDataGrid();
     }
 };
