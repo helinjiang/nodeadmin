@@ -14534,7 +14534,7 @@ define('pages/coding_index/mainarea/main', function(require, exports, module) {
               this.datagridItem = Model.getDatagridItem(['id', 'tableName', 'targetName', 'targetDesc', 'menuId', 'breadcrumb', 'stateShow'], null, [{
                   name: 'id',
                   title: '操作',
-                  render: 'commonOperate | codingitem detail modify delete',
+                  render: 'commonOperate | detail modify delete',
                   disableorder: true
               }]);
           },

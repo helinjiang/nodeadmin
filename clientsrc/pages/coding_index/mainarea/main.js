@@ -26,7 +26,7 @@ module.exports = Vue.extend({
             ], null, [{
                 name: 'id',
                 title: '操作',
-                render: 'commonOperate | codingitem detail modify delete',
+                render: 'commonOperate | detail modify delete',
                 disableorder: true
             }]);
         },
