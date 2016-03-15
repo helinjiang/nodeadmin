@@ -1,0 +1,24 @@
+<div class="savemodal">
+    <modal :title="title">
+        <he-form :action="url" horizontal noactions>
+            <he-form-item title="ID" horizontal v-if="!isAdd">
+                <input type="text" name="id" v-model="id" readonly>
+            </he-form-item>
+            <he-form-item title="汽车名" horizontal>
+                <input type="text" name="name" v-model="name" :readonly="!isAdd">
+            </he-form-item>
+            <he-form-item title="车主人" horizontal>
+                <select2 name="ownerId" :value.sync="ownerId" url="/admin/user/getdata" convert="searchuser" lazy v-ref:user></select2>
+            </he-form-item>
+            <he-form-item title="状态" horizontal>
+                <select2 name="state" :value.sync="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+            <he-form-item title="购买日期" horizontal>
+                <date name="buydate" :value.sync="buydate"></date>
+            </he-form-item>
+        </he-form>
+    </modal>
+</div>

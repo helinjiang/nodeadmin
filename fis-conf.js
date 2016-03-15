@@ -1,6 +1,6 @@
- var modArr = [
+var modArr = [
     // 'modules/lib/bootstrap/**.js'
- ];
+];
 
 // 设置工程的根目录为src文件夹
 fis.project.setProjectRoot('clientsrc');
@@ -10,17 +10,23 @@ fis.processCWD = fis.project.getProjectPath();
 fis.project.currentMedia() === 'dist' && fis.util.del(fis.project.getProjectPath('../public'));
 
 
-// 为'/modules/common'和'/modules/lib'指定别名
+// 指定别名
 fis.hook('commonjs', {
     packages: [{
         name: 'common',
-        location: '/modules/common'
+        location: '/common/scripts'
     }, {
         name: 'lib',
-        location: '/modules/lib'
+        location: '/common/lib'
     }, {
         name: 'components',
-        location: '/modules/components'
+        location: '/components'
+    }, {
+        name: 'mixins',
+        location: '/mixins'
+    }, {
+        name: 'modules',
+        location: '/modules'
     }]
 });
 
@@ -29,35 +35,31 @@ fis.match('/*', {
     release: false
 });
 
-// pages和modules下的所有js都需要处理识别CommonJS，但压缩文件和部分文件除外
-fis.match('/{pages,modules}/(**).js', {
+// pages\modules\components下的所有js都需要处理识别CommonJS，但压缩文件和部分文件除外
+// common/lib和common/scripts下也要识别，但common/lib/mod.js除外
+fis.match('/{mixins,components,modules,pages}/**.js', {
     isMod: true
 }).match('**.min.js', {
     isMod: false
-}).match('/modules/lib/{zepto,mod,jquery}*.js', {
+}).match('/common/{lib,scripts}/(**).js', {
+    isMod: true
+}).match('/common/lib/mod.js', {
     isMod: false
 });
 
 
-modArr.forEach(function (item) {
-    fis.match(item, {isMod: true});
+modArr.forEach(function(item) {
+    fis.match(item, {
+        isMod: true
+    });
 });
 
-// 使用babel处理es6/es7，但modules/lib中的除外
-fis.match('/{pages,modules}/**.js', {
+// 使用babel处理es6/es7
+fis.match('/{mixins,components,modules,pages}/**.js', {
     parser: fis.plugin('babel')
-}).match('/modules/lib/**.js', {
-    parser: null
+}).match('/common/scripts/**.js', {
+    parser: fis.plugin('babel')
 });
-
-// 如果使用了.tpl后缀，则将其编译为模版
-// fis.match(/\/(.+)\.tpl$/, {
-//     isMod: true,
-//     rExt: 'js',
-//     id: '$1_tpl',
-//     release: '$0.tpl',
-//     parser: fis.plugin('imweb-tpl')
-// });
 
 // sass的编译
 fis.match('*.scss', {
@@ -77,10 +79,6 @@ fis.match('*.scss', {
         ]
     });
 
-//文章封面和作者头像等动态图片地址不加hash
-fis.match(/static\/images\/.*\.(jpeg|jpg|png)$/, {
-    useHash: false
-})
 
 // 如果采用Ques进行处理
 // fis.match('/pages/**.html', {
@@ -94,12 +92,17 @@ fis.match(/static\/images\/.*\.(jpeg|jpg|png)$/, {
 //     release: '/static/$0'
 // });
 
+// fis.match("/common/modules/**", {
+//     useCache: false,
+//     release: '/static/$0'
+// });
 
 // fis.match("/component_modules/*.js", {
 //     isMod: true,
 //     useMap: true,
 //     release: '/static/$0'
 // });
+
 
 //component组件资源id支持简写
 // fis.match(/^\/components\/component\/(.*)$/i, {
@@ -112,31 +115,43 @@ fis.match(/static\/images\/.*\.(jpeg|jpg|png)$/, {
 //     useCache : false
 // });
 //page里的页面发布到根目录
-fis.match("pages/(*)/*(.html)", {
+fis.match("/pages/(*)/*(.html)", {
     release: '/$1$2',
     useCache: false
 });
 
 
-fis.match('::packager', {
-    // npm install [-g] fis3-postpackager-loader
-    // 分析 __RESOURCE_MAP__ 结构，来解决资源加载问题
-    postpackager: fis.plugin('loader', {
-        resourceType: 'mod',
-        useInlineMap: true // 资源映射表内嵌
-    }),
-    packager: fis.plugin('map'),
-    spriter: fis.plugin('csssprites', {
-        layout: 'matrix',
-        margin: '15'
-    })
 
-}).match('{modules,pages}/**.{css,scss}', {
-    packTo: '/static/all.css' //css打成一个包
-}).match('static/**.{css,scss}', {
-    packTo: '' 
-});
-  
+fis.match('::packager', {
+        // npm install [-g] fis3-postpackager-loader
+        // 分析 __RESOURCE_MAP__ 结构，来解决资源加载问题
+        postpackager: fis.plugin('loader', {
+            resourceType: 'mod',
+            useInlineMap: true // 资源映射表内嵌
+        }),
+        packager: fis.plugin('map'),
+        spriter: fis.plugin('csssprites', {
+            layout: 'matrix',
+            margin: '15'
+        })
+
+    })
+    .match('/{common,components,modules,pages}/**.{css,scss}', {
+        packTo: '/static/all.css' //css打成一个包
+    })
+    .match('/common/{css,plugins}/**.{css,scss}', { //TODO此处待改正
+        packTo: ''
+    })
+    .match('{common,mixins,components,modules,pages}/**.js', {
+        packTo: '/static/all.js'
+    })
+    .match('/common/plugins/**.js', {
+        packTo: ''
+    })
+    .match('/common/lib/mod.js', {
+        packTo: '/static/mod.js'
+    });
+
 
 //生产环境下CSS、JS压缩合并
 //使用方法 fis3 release prod
@@ -157,33 +172,43 @@ fis.match('::packager', {
 // 将所有的静态资源都放入到/static文件夹下，因为thinkjs的静态资源文件夹就是这个
 
 
-if(fis.project.currentMedia() === 'dev'){
+if (fis.project.currentMedia() === 'dev') {
     fis.util.del(fis.project.getProjectPath('../dev'));
     fis.util.del(fis.project.getProjectPath('../www/static'));
-} 
+}
 
 fis.media('dev')
-    .match('**', {
+    .match("/common/(css/**)", {
+        release: 'static/$1',
         deploy: fis.plugin('local-deliver', {
-            to: '../dev'
+            to: '../www'
+        })
+    })
+    .match("/common/(img/**)", {
+        release: 'static/$1',
+        deploy: fis.plugin('local-deliver', {
+            to: '../www'
+        })
+    })
+    .match("/common/(fonts/**)", {
+        release: 'static/$1',
+        deploy: fis.plugin('local-deliver', {
+            to: '../www'
+        })
+    })
+    .match("/common/(plugins/**)", {
+        release: 'static/$1',
+        deploy: fis.plugin('local-deliver', {
+            to: '../www'
         })
     })
     .match("/static/**", {
         deploy: fis.plugin('local-deliver', {
             to: '../www'
         })
-    }).match("/pages/**", {
-        deploy: fis.plugin('local-deliver', {
-            to: '../www/static'
-        })
-    }).match("/modules/**", {
-        deploy: fis.plugin('local-deliver', {
-            to: '../www/static'
-        })
-    }).match("/pages/(*_*)/*(.html)", {
+    })
+    .match("/pages/*_*/*.html", {
         deploy: fis.plugin('local-deliver', {
             to: '../view/admin'
         })
-    }).match('{modules,pages}/**/*.js', {
-        packTo: '/static/all.js'
-    })
+    });

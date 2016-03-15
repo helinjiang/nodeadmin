@@ -1,0 +1,10 @@
+<div class="crudmodal-detail">
+    <modal :title="title">
+        <table class="table table-bordered">
+            <tr v-for="item in items">
+                <th>{{ item.title}}</th>
+                <td>{{ item.value}}</td>
+            </tr>
+        </table>
+    </modal>
+</div>

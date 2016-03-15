@@ -1,0 +1,20 @@
+<div class="wizard">
+    <portlet :title="title" icon="reorder" id="form_wizard_1" bodycss="form"> 
+        <wizard-title slot="title" :value="stepTitle"></wizard-title>
+
+        <he-form id="submit_form" inner="form-wizard" actionscss="fluid" horizontal>
+
+            <wizard-steps :index="stepIndex" :items="stepItems"></wizard-steps>
+            <wizard-progress :index="stepIndex" :total="stepTotal"></wizard-progress>
+
+            <wizard-tab-content>            
+                <tip-alert :type="msgType" :msg="msgContent" :hide="msgHide"></tip-alert>
+
+                <slot></slot>                
+                
+            </wizard-tab-content>
+           
+            <wizard-actions slot="actions" :index="stepIndex" :total="stepTotal"></wizard-actions>
+        </he-form>
+    </portlet>   
+</div>

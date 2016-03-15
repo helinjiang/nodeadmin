@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+    <head>
+        <!--inline[common/html/meta.html]-->
+        <title>代码生成器</title>    
+
+        <!--inline[common/html/css_global.html]-->
+        <!--inline[common/html/css_plugins.html]-->    
+        <!--inline[common/html/css_theme.html]-->
+
+        <link rel="stylesheet" href="./main.scss">
+    </head>
+
+    <body class="page-header-fixed page-sidebar-fixed user_index">
+        
+        <div id="app">
+
+            <admin-header username="<%=user.name%>"></admin-header>
+
+            <clearfix></clearfix>
+
+            <admin-container> 
+
+                <admin-side-menu slot="menu" menu-id="menuCoding"></admin-side-menu>
+
+                <admin-main-title slot="title" title="代码生成器" desc="生成代码和脚本" items="首页|/admin|home;代码生成器"></admin-main-title>
+
+                <main-area></main-area>
+
+            </admin-container>
+
+            <clearfix></clearfix>
+
+            <admin-footer></admin-footer>
+            
+        </div>
+
+        <!--inline[common/html/js_global.html]-->
+        <!--inline[common/html/js_plugins.html]-->  
+
+        <script src="/common/lib/mod.js"></script>
+
+        <script src="./main.js"></script>
+        <script type="text/javascript">
+            require(['./main']);
+        </script>
+
+    </body>
+
+</html>

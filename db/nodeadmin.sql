@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 2016-02-21 11:06:22
+-- Generation Time: 2016-03-01 06:18:03
 -- 服务器版本： 5.6.17
 -- PHP Version: 5.5.12
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `think_car` (
   `state` int(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `carownerid` (`ownerId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
 -- 转存表中的数据 `think_car`
@@ -42,7 +42,61 @@ CREATE TABLE IF NOT EXISTS `think_car` (
 
 INSERT INTO `think_car` (`id`, `ownerId`, `name`, `buydate`, `state`) VALUES
 (1, 3, 'car1', '2016-02-01', 1),
-(2, 35, 'asd', '2015-12-12', 1);
+(3, 39, 'test', '2016-02-22', -1),
+(4, 39, 'test1', '2015-12-12', 1),
+(5, 38, 'sdfasdf', '2015-12-12', 1),
+(6, 38, 'sdafadsf', '2015-12-12', 1),
+(7, 38, 'asd', '2015-12-12', 1);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `think_coding`
+--
+
+CREATE TABLE IF NOT EXISTS `think_coding` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(64) NOT NULL,
+  `targetName` varchar(64) NOT NULL,
+  `targetDesc` varchar(255) DEFAULT '',
+  `menuId` varchar(64) NOT NULL,
+  `breadcrumb` varchar(255) NOT NULL,
+  `state` int(1) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tableName` (`tableName`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+
+--
+-- 转存表中的数据 `think_coding`
+--
+
+INSERT INTO `think_coding` (`id`, `tableName`, `targetName`, `targetDesc`, `menuId`, `breadcrumb`, `state`) VALUES
+(1, 'think_user', '用户', '管理登录用户de信息', 'menuUser', '首页|/admin|home;系统管理;用户管理', 1),
+(4, 'think_car', '汽车', '汽车管理', 'menuCar', '管理汽车信息" items="首页|/admin|home;系统管理;汽车管理', 1);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `think_codingitem`
+--
+
+CREATE TABLE `think_codingitem` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `codingId` int(11) UNSIGNED NOT NULL,
+  `fieldName` varchar(32) NOT NULL,
+  `cnName` varchar(32) NOT NULL,
+  `dbName` varchar(32) NOT NULL,
+  `state` int(1) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+
+--
+-- 转存表中的数据 `think_codingitem`
+--
+
+INSERT INTO `think_codingitem` (`id`, `codingId`, `fieldName`, `cnName`, `dbName`, `state`) VALUES
+(1, 1, 'name', '姓名', 'name', 1),
+(3, 4, 'pwd', '密码', 'pwd', 1);
 
 -- --------------------------------------------------------
 
@@ -66,7 +120,6 @@ CREATE TABLE IF NOT EXISTS `think_user` (
 --
 
 INSERT INTO `think_user` (`id`, `name`, `pwd`, `birthday`, `createTime`, `updateTime`, `state`) VALUES
-(1, 'hhh', 'e10adc3949ba59abbe56e057f20f883e', '1987-02-01', NULL, '0000-00-00 00:00:00', 1),
 (3, 'admin', 'c981387ec2067dae27b55dc0bffbdd97', NULL, NULL, '0000-00-00 00:00:00', 1),
 (4, 'admin1', 'c981387ec2067dae27b55dc0bffbdd97', NULL, NULL, '0000-00-00 00:00:00', -1),
 (5, 'admin2', 'c981387ec2067dae27b55dc0bffbdd97', NULL, NULL, '0000-00-00 00:00:00', 1),
@@ -105,14 +158,18 @@ INSERT INTO `think_user` (`id`, `name`, `pwd`, `birthday`, `createTime`, `update
 (39, 'aaas1', 'ef1570f9b7e885b1395e66fd8172c896', '2015-12-12', '2016-02-21 17:37:42', '2016-02-21 17:37:42', 1);
 
 --
--- 限制导出的表
---
 
 --
 -- 限制表 `think_car`
 --
 ALTER TABLE `think_car`
   ADD CONSTRAINT `carownerid` FOREIGN KEY (`ownerId`) REFERENCES `think_user` (`id`);
+
+--
+-- 限制表 `think_codingitem`
+--
+ALTER TABLE `think_codingitem`
+  ADD CONSTRAINT `produceId` FOREIGN KEY (`codingId`) REFERENCES `think_coding` (`id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

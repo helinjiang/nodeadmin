@@ -1,8 +1,0 @@
-<form :action="action" :class="horizontal?'form-horizontal':''" role="form" :method="method">
-    <div class="form-body">
-        <slot></slot>
-    </div>
-    <div class="form-actions" v-if="!noactions">
-        <slot name="actions"></slot>
-    </div>
-</form>

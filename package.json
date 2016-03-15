@@ -1,6 +1,6 @@
 {
   "name": "nodeadmin",
-  "version": "0.0.1",
+  "version": "1.3.0",
   "description": "Admin system write with Node",
   "main": "fis-conf.js",
   "scripts": {

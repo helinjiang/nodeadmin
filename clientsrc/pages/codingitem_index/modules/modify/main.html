@@ -1,0 +1,27 @@
+<div class="modifypage">
+    <modal title="修改代码生成器信息">
+        <he-form action="/admin/codingitem/modify" horizontal noactions>
+            <he-form-item title="ID" required horizontal>
+                <input type="text" name="id" v-model="id" readonly>
+            </he-form-item>
+            <he-form-item title="代码生成器" required horizontal>
+                <input type="text" name="codingId" v-model="codingId" readonly>
+            </he-form-item>
+            <he-form-item title="字段名称" required horizontal>
+                <input type="text" name="fieldName" v-model="fieldName">
+            </he-form-item>
+            <he-form-item title="中文名称" horizontal>
+                <input type="text" name="cnName" v-model="cnName">
+            </he-form-item>
+            <he-form-item title="英文名称" required horizontal>
+                <input type="text" name="dbName" v-model="dbName">
+            </he-form-item>
+            <he-form-item title="状态" required horizontal>
+                <select2 name="state" :value.sync="state">
+                    <select2-option title="有效" value="1"></select2-option>
+                    <select2-option title="无效" value="-1"></select2-option>
+                </select2>
+            </he-form-item>
+        </he-form>
+    </modal>
+</div>

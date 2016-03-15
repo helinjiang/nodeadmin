@@ -1,0 +1,12 @@
+<div class="portlet" :id="id">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-{{icon}}" v-if="icon"></i>{{ title }}
+            <slot name="title"></slot>
+        </div>
+        <div class="tools"></div>
+    </div>
+    <div class="portlet-body" :class="bodycss">
+        <slot></slot>
+    </div>
+</div>                  
