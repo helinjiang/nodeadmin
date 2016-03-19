@@ -1,7 +1,7 @@
 var Validator = require('common/validator');
 var Msg = require('components/msg/main');
+var mixinsBasicModal = require('mixins/modal/basic/main');
 
-// 定义一个混合对象
 module.exports = {
     template: '<div>EMPTY</div>',
     data: function() {
@@ -33,6 +33,7 @@ module.exports = {
          */
         title: String
     },
+    mixins: [mixinsBasicModal],
     methods: {
         /**
          * 返回校验器规则，建议覆盖
@@ -41,10 +42,11 @@ module.exports = {
             return {};
         },
 
-        /**
-         * 弹出对话框
-         */
-        showModal: function() {
+        beforeModal: function() {
+            // 在展示对话框之前，获取到form对象，以便后续处理
+            this.jqForm = $('form', this.$el);
+
+            // 也可能没有初始值，比如新增页面
             if (!this.initData) {
                 return;
             }
@@ -58,23 +60,6 @@ module.exports = {
 
                 self.$set(filedName, self.initData[filedName]);
             });
-
-            // 弹出对话框
-            this.$children[0].show();
-        },
-
-        /**
-         * 关闭对话框
-         */
-        hideModal: function() {
-            this.$children[0].hide();
-        },
-
-        /**
-         * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-         */
-        reportSuccess: function(data) {
-            this.$dispatch('savesuccess', data);
         },
 
         /**
@@ -143,21 +128,8 @@ module.exports = {
         valuechange: function(name, val, oldVal) {
             return Validator.valid(this.jqForm, name);
         },
-
-        /**
-         * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-         * 
-         * @param  {string} modalId   当前modal的id
-         */
-        confirm: function(modalId) {
-            this.triggerSubmit(modalId);
-        },
     },
     ready: function() {
-        this.jqForm = $('form', this.$el);
-
         this.handleValidator();
-
-        this.showModal();
     }
 };

@@ -12172,6 +12172,9 @@ define('mixins/modal/basic/main', function(require, exports, module) {
   
           /**
            * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           *
+           * TODO 该方法似乎不适合放入在这里，因为它并不是对话框的基本行为
+           * 
            */
           reportSuccess: function reportSuccess(data) {
               this.$dispatch('savesuccess', data);
@@ -14049,8 +14052,8 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
   
   var Validator = require('common/scripts/validator');
   var Msg = require('components/msg/main');
+  var mixinsBasicModal = require('mixins/modal/basic/main');
   
-  // 定义一个混合对象
   module.exports = {
       template: '<div>EMPTY</div>',
       data: function data() {
@@ -14082,6 +14085,7 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
            */
           title: String
       },
+      mixins: [mixinsBasicModal],
       methods: {
           /**
            * 返回校验器规则，建议覆盖
@@ -14090,10 +14094,11 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
               return {};
           },
   
-          /**
-           * 弹出对话框
-           */
-          showModal: function showModal() {
+          beforeModal: function beforeModal() {
+              // 在展示对话框之前，获取到form对象，以便后续处理
+              this.jqForm = $('form', this.$el);
+  
+              // 也可能没有初始值，比如新增页面
               if (!this.initData) {
                   return;
               }
@@ -14107,23 +14112,6 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
   
                   self.$set(filedName, self.initData[filedName]);
               });
-  
-              // 弹出对话框
-              this.$children[0].show();
-          },
-  
-          /**
-           * 关闭对话框
-           */
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-  
-          /**
-           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-           */
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
           },
   
           /**
@@ -14191,23 +14179,10 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
            */
           valuechange: function valuechange(name, val, oldVal) {
               return Validator.valid(this.jqForm, name);
-          },
-  
-          /**
-           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-           * 
-           * @param  {string} modalId   当前modal的id
-           */
-          confirm: function confirm(modalId) {
-              this.triggerSubmit(modalId);
           }
       },
       ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
           this.handleValidator();
-  
-          this.showModal();
       }
   };
 
@@ -14448,67 +14423,6 @@ define('pages/coding_index/model', function(require, exports, module) {
 
 });
 
-;/*!/pages/coding_index/mainarea/savemodal/main.js*/
-define('pages/coding_index/mainarea/savemodal/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var mixinsSaveModal = require('mixins/modal/crudsave/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      mixins: [mixinsSaveModal],
-      methods: {
-          /**
-           * 校验器规则
-           * @return {object} 规则对象
-           */
-          getRulesOptions: function getRulesOptions() {
-              var config = {};
-  
-              config.targetName = {
-                  required: true
-              };
-  
-              config.menuId = {
-                  required: true
-              };
-  
-              config.breadcrumb = {
-                  required: true
-              };
-  
-              config.state = {
-                  required: true
-              };
-  
-              if (this.isAdd) {
-                  config.tableName = {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  };
-              }
-  
-              return config;
-          }
-  
-      }
-  });
-
-});
-
 ;/*!/pages/coding_index/mainarea/main.js*/
 define('pages/coding_index/mainarea/main', function(require, exports, module) {
 
@@ -14517,7 +14431,7 @@ define('pages/coding_index/mainarea/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var Model = require('pages/coding_index/model');
-  var saveModal = require('pages/coding_index/mainarea/savemodal/main');
+  var saveModal = require('./savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
