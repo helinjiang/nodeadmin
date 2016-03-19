@@ -12313,6 +12313,7 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
               var items = [],
                   requestParam = {};
   
+              // TODO 此处的map用法错误
               Object.keys(this.field).map(function (key) {
                   items.push({
                       key: key,
@@ -12355,6 +12356,213 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
                   this.reportSuccess(responseText.data);
               }
           }
+      }
+  });
+
+});
+
+;/*!/modules/crudmodal/save/main.js*/
+define('modules/crudmodal/save/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  var Validator = require('common/scripts/validator');
+  var Msg = require('components/msg/main');
+  var mixinsBasicModal = require('mixins/modal/basic/main');
+  
+  Vue.component('crud-modal-save', {
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='input'\">\r\n\r\n                    <date :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2 :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='select2'\">\r\n                        <template v-for=\"select2Item in item.elementParam.options\">\r\n                            <select2-option :title=\"select2Item.title\":value=\"select2Item.value\" ></select2-option>\r\n                        </template>\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      data: function data() {
+          return {
+              jqForm: undefined,
+              items: []
+          };
+      },
+      props: {
+          /**
+           * 初始化的值，对象，用于设置模态框中表单初始值
+           */
+          initData: {
+              type: Object,
+              'default': function _default() {
+                  return {};
+              }
+          },
+  
+          /**
+           * 字段定义数据
+           */
+          fieldData: {
+              type: Array,
+              required: true
+          },
+  
+          /**
+           * 字段定义字典，key为字段名，value为其显示的中文名
+           */
+          filedTitleMap: {
+              type: Object,
+              required: true
+          },
+  
+          /**
+           * save时保存到服务器的Url
+           */
+          url: {
+              type: String,
+              required: true
+          },
+  
+          /**
+           * 当前是否为新增页面，因为新增和修改页面会不一样
+           */
+          isAdd: Boolean,
+  
+          /**
+           * 标题
+           */
+          title: String
+      },
+      mixins: [mixinsBasicModal],
+      methods: {
+          /**
+           * 返回校验器规则，建议覆盖
+           */
+          getRulesOptions: function getRulesOptions() {
+              return {};
+          },
+  
+          beforeModal: function beforeModal() {
+              var _this = this;
+  
+              // 在展示对话框之前，获取到form对象，以便后续处理
+              this.jqForm = $('form', this.$el);
+  
+              /**
+               *
+               * filedName：字段名称
+               * elementType：DOM元素类型
+               * elementParam：针对DOM元素的更多配置
+               * 
+               */
+  
+              var items = [];
+  
+              this.fieldData.forEach(function (key) {
+                  var filedName = key.filedName;
+  
+                  // 设置字段显示名称
+                  key.title = _this.filedTitleMap[filedName];
+  
+                  // 如果有初始值，则设置之
+                  if (_this.initData[filedName]) {
+                      key.value = _this.initData[filedName];
+                  }
+  
+                  // 补充一些默认值
+                  switch (key.elementType) {
+                      case 'input':
+                          if (!key.elementParam) {
+                              key.elementParam = {
+                                  type: 'text'
+                              };
+                          } else if (!key.elementParam.type) {
+                              key.elementParam.type = 'text';
+                          }
+                          break;
+                      case 'select2':
+                          if (!key.elementParam) {
+                              key.elementParam = {
+                                  options: []
+                              };
+                          } else if (!key.elementParam.options) {
+                              key.elementParam.options = [];
+                          }
+                          break;
+                      default:
+                          break;
+  
+                  }
+  
+                  items.push(key);
+  
+                  // 设置vue的data字段及其初始值
+                  // this.$set(filedName, this.initData[filedName]);
+              });
+  
+              this.items = items;
+          },
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
+              }
+          },
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              Validator.check(this.jqForm, this.getRulesOptions(), {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              self.dealSuccessRes(responseText, statusText);
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return Validator.valid(this.jqForm, name);
+          }
+      },
+      ready: function ready() {
+          this.handleValidator();
       }
   });
 
@@ -13662,6 +13870,7 @@ define('common/scripts/global', function(require, exports, module) {
   
   require('modules/crudmodal/detail/main');
   require('modules/crudmodal/delete/main');
+  require('modules/crudmodal/save/main');
   
   require('components/portlet/main');
   require('components/wizard/item/main');
@@ -13910,10 +14119,12 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
               isShowDetailModal: false,
               isShowDeleteModal: false,
               initData: {},
+              fieldData: {},
               isAdd: true,
               saveUrl: '',
               saveUrlType: 'front', // 默认前端分页
               saveTitle: '',
+              saveField: {},
               detailField: {},
               detailTitle: '',
               deleteField: {},
@@ -15521,7 +15732,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :field-data=\"fieldData\"\r\n            :filed-title-map=\"saveField\" \r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -15553,6 +15764,34 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
                   birthday: '2016-03-01',
                   state: '1'
               };
+  
+              this.fieldData = [{
+                  filedName: 'name',
+                  elementType: 'input'
+              }, {
+                  filedName: 'pwd',
+                  elementType: 'input',
+                  elementParam: {
+                      type: 'password'
+                  }
+              }, {
+                  filedName: 'state',
+                  elementType: 'select2',
+                  elementParam: {
+                      options: [{
+                          title: '有效',
+                          value: '1'
+                      }, {
+                          title: '无效',
+                          value: '-1'
+                      }]
+                  }
+              }, {
+                  filedName: 'birthday',
+                  elementType: 'date'
+              }];
+  
+              this.saveField = Model.getNameMap(['name', 'birthday', 'state', 'pwd']);
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
               this.saveTitle = '修改用户信息';

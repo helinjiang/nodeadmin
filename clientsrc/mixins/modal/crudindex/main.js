@@ -10,10 +10,12 @@ module.exports = {
             isShowDetailModal: false,
             isShowDeleteModal: false,
             initData: {},
+            fieldData: {},
             isAdd: true,
             saveUrl: '',
             saveUrlType: 'front', // 默认前端分页
             saveTitle: '',
+            saveField: {},
             detailField: {},
             detailTitle: '',
             deleteField: {},

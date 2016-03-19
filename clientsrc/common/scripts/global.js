@@ -22,6 +22,7 @@ require('modules/admin/sidemenu/main');
 
 require('modules/crudmodal/detail/main');
 require('modules/crudmodal/delete/main');
+require('modules/crudmodal/save/main');
 
 require('components/portlet/main');
 require('components/wizard/item/main');

@@ -41,6 +41,7 @@ Vue.component('crud-modal-delete', {
             var items = [],
                 requestParam = {};
 
+            // TODO 此处的map用法错误
             Object.keys(this.field).map(key => {
                 items.push({
                     key: key,

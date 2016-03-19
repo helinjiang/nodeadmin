@@ -45,6 +45,39 @@ module.exports = Vue.extend({
                 birthday: '2016-03-01',
                 state: '1',
             };
+
+            this.fieldData=[{
+                filedName: 'name',
+                elementType: 'input'
+            }, {
+                filedName: 'pwd',
+                elementType: 'input',
+                elementParam: {
+                    type: 'password'
+                }
+            }, {
+                filedName: 'state',
+                elementType: 'select2',
+                elementParam: {
+                    options: [{
+                        title: '有效',
+                        value: '1'
+                    }, {
+                        title: '无效',
+                        value: '-1'
+                    }]
+                }
+            }, {
+                filedName: 'birthday',
+                elementType: 'date'
+            }];
+
+            this.saveField = Model.getNameMap([
+                'name',
+                'birthday',
+                'state',
+                'pwd'
+            ]);
         },
         beforeShowModifyPage: function(data) {
             this.saveTitle = '修改用户信息';
