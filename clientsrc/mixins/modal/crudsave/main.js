@@ -56,9 +56,9 @@ module.exports = {
                 jqFiledList = this.jqForm.find('[name]');
 
             jqFiledList.each(function() {
-                var filedName = $(this).attr('name');
+                var fieldName = $(this).attr('name');
 
-                self.$set(filedName, self.initData[filedName]);
+                self.$set(fieldName, self.initData[fieldName]);
             });
         },
 

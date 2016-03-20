@@ -9,6 +9,9 @@ class Model {
         // datagrid的items
         this.datagridItem = undefined;
 
+        // add的fieldDefine
+        this.addFieldDefine = undefined;
+
         // detail的fieldDefine
         this.detailFieldDefine = undefined;
 
@@ -97,6 +100,68 @@ class Model {
     }
 
     /**
+     * 获得add的fieldDefine。
+     *
+     * 依赖于各个字段的moduleAdd值，该值可以为：
+     * 1. 如果为undefined，则其等价为{show:false}
+     * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+     * 3. 值为对象，其完整定义为： 
+     * moduleAdd: {
+        show: true,
+        priority: 100,
+        options: {
+            type: 'input',
+            param: {
+                type: 'password'
+            }
+        }
+    }
+     * 
+     * @param  {array}   extraItems 额外附加items
+     *     [{
+                fieldName: 'id',
+                title: 'ID',
+                priority: 100,
+                elementType: 'input',
+                elementParam: {
+                    type: 'password'
+                },
+                validator: {
+                    required: true
+                }          
+            }]
+     * @return {array}              add的fieldDefine
+     */
+    getAddFieldDefine(extraItems) {
+        // 优先使用缓存
+        if (this.addFieldDefine) {
+            return this.addFieldDefine;
+        }
+
+        var result = this._getComputedFieldDefine('moduleAdd', extraItems, function(item, oneFieldDefine) {
+
+            // options
+            if (typeof oneFieldDefine.moduleAdd.options === "object") {
+                item.elementType = oneFieldDefine.moduleAdd.options.type;
+                item.elementParam = oneFieldDefine.moduleAdd.options.param || {};
+            }
+
+            // validator
+             if (typeof oneFieldDefine.validator=== "object") {
+                item.validator = oneFieldDefine.validator;
+            }
+
+            return item;
+        });
+
+        // 缓存数据
+        this.addFieldDefine = result;
+
+        // 返回结果
+        return result;
+    }
+
+    /**
      * 获得detail的fieldDefine。
      *
      * 依赖于各个字段的moduleDetail值，该值可以为：
@@ -134,7 +199,7 @@ class Model {
     /**
      * 获得delete的fieldDefine。
      *
-     * 依赖于各个字段的moduleDetail值，该值可以为：
+     * 依赖于各个字段的moduleDelete值，该值可以为：
      * 1. 如果为undefined，则其等价为{show:false}
      * 2. 如果boolean值，则其等价为{show:true}或{show:false}
      * 3. 值为对象，其完整定义为： 

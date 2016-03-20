@@ -13,7 +13,7 @@ class Model {
     }
 
     /**
-     * 通过filedNameArr，获得一个map，key为name，value为title
+     * 通过fieldNameArr，获得一个map，key为name，value为title
      */
     getNameMap(arr) {
         return this._getMap(arr, this.data);

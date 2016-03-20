@@ -27,83 +27,7 @@ module.exports = Vue.extend({
                 state: '1',
             };
 
-            this.modalFieldDefine = [{
-                filedName: 'name',
-                elementType: 'input'
-            }, {
-                filedName: 'pwd',
-                elementType: 'input',
-                elementParam: {
-                    type: 'password'
-                }
-            }, {
-                filedName: 'state',
-                elementType: 'select2',
-                elementParam: {
-                    options: [{
-                        title: '有效',
-                        value: '1'
-                    }, {
-                        title: '无效',
-                        value: '-1'
-                    }]
-                }
-            }, {
-                filedName: 'birthday',
-                elementType: 'date'
-            }];
-
-            this.saveField = Model.getFieldTitleMap([
-                'name',
-                'birthday',
-                'state',
-                'pwd'
-            ]);
-
-            var config = {};
-
-            config.state = {
-                required: true
-            };
-
-            config.birthday = {
-                required: {
-                    rule: true,
-                    message: '生日不能为空！'
-                }
-            };
-
-            config.name = {
-                required: {
-                    rule: true,
-                    message: '用户名不能为空！'
-                },
-                minlength: {
-                    rule: 3,
-                    message: '最小长度为3'
-                },
-                maxlength: {
-                    rule: 64,
-                    message: '最大长度为64'
-                }
-            };
-
-            config.pwd = {
-                required: {
-                    rule: true,
-                    message: '密码不能为空！'
-                },
-                minlength: {
-                    rule: 5,
-                    message: '最小长度为5'
-                },
-                maxlength: {
-                    rule: 32,
-                    message: '最大长度为32'
-                }
-            };
-
-            this.validatorOptions = config;
+            this.modalFieldDefine = Model.getAddFieldDefine();
         },
         beforeShowModifyPage: function(data) {
             this.modalTitle = '修改用户信息';
@@ -112,19 +36,19 @@ module.exports = Vue.extend({
             this.modalInitData = $.extend({}, data);
 
             this.modalFieldDefine = [{
-                filedName: 'id',
+                fieldName: 'id',
                 elementType: 'input',
                 elementParam: {
                     readonly: true
                 }
             }, {
-                filedName: 'name',
+                fieldName: 'name',
                 elementType: 'input',
                 elementParam: {
                     readonly: true
                 }
             }, {
-                filedName: 'state',
+                fieldName: 'state',
                 elementType: 'select2',
                 elementParam: {
                     options: [{
@@ -136,16 +60,10 @@ module.exports = Vue.extend({
                     }]
                 }
             }, {
-                filedName: 'birthday',
+                fieldName: 'birthday',
                 elementType: 'date'
             }];
 
-            this.saveField = Model.getFieldTitleMap([
-                'id',
-                'name',
-                'birthday',
-                'state'
-            ]);
 
             var config = {};
 
@@ -164,7 +82,7 @@ module.exports = Vue.extend({
         },
         beforeShowDetailPage: function(data) {
             this.modalTitle = '查看用户信息';
-            
+
             this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getDetailFieldDefine();
         },

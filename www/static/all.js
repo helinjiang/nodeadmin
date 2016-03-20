@@ -10155,6 +10155,9 @@ define('common/scripts/crudmodel', function(require, exports, module) {
           // datagrid的items
           this.datagridItem = undefined;
   
+          // add的fieldDefine
+          this.addFieldDefine = undefined;
+  
           // detail的fieldDefine
           this.detailFieldDefine = undefined;
   
@@ -10251,6 +10254,70 @@ define('common/scripts/crudmodel', function(require, exports, module) {
           }
   
           /**
+           * 获得add的fieldDefine。
+           *
+           * 依赖于各个字段的moduleAdd值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleAdd: {
+              show: true,
+              priority: 100,
+              options: {
+                  type: 'input',
+                  param: {
+                      type: 'password'
+                  }
+              }
+          }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100,
+                      elementType: 'input',
+                      elementParam: {
+                          type: 'password'
+                      },
+                      validator: {
+                          required: true
+                      }          
+                  }]
+           * @return {array}              add的fieldDefine
+           */
+      }, {
+          key: 'getAddFieldDefine',
+          value: function getAddFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.addFieldDefine) {
+                  return this.addFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleAdd', extraItems, function (item, oneFieldDefine) {
+  
+                  // options
+                  if (typeof oneFieldDefine.moduleAdd.options === "object") {
+                      item.elementType = oneFieldDefine.moduleAdd.options.type;
+                      item.elementParam = oneFieldDefine.moduleAdd.options.param || {};
+                  }
+  
+                  // validator
+                  if (typeof oneFieldDefine.validator === "object") {
+                      item.validator = oneFieldDefine.validator;
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.addFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
            * 获得detail的fieldDefine。
            *
            * 依赖于各个字段的moduleDetail值，该值可以为：
@@ -10290,7 +10357,7 @@ define('common/scripts/crudmodel', function(require, exports, module) {
           /**
            * 获得delete的fieldDefine。
            *
-           * 依赖于各个字段的moduleDetail值，该值可以为：
+           * 依赖于各个字段的moduleDelete值，该值可以为：
            * 1. 如果为undefined，则其等价为{show:false}
            * 2. 如果boolean值，则其等价为{show:true}或{show:false}
            * 3. 值为对象，其完整定义为： 
@@ -12496,11 +12563,12 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
   var mixinsBasicModal = require('mixins/modal/basic/main');
   
   Vue.component('crud-modal-save', {
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" :name=\"item.filedName\" :value=\"item.value\" :readonly=\"item.elementParam.readonly\" v-if=\"item.elementType=='input'\">\r\n\r\n                    <date :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2 :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='select2'\">\r\n                        <template v-for=\"select2Item in item.elementParam.options\">\r\n                            <select2-option :title=\"select2Item.title\":value=\"select2Item.value\" ></select2-option>\r\n                        </template>\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" :name=\"item.fieldName\" :value=\"item.value\" :readonly=\"item.elementParam.readonly\" v-if=\"item.elementType=='input'\">\r\n\r\n                    <date :name=\"item.fieldName\" :value=\"item.value\" v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2 :name=\"item.fieldName\" :value=\"item.value\" v-if=\"item.elementType=='select2'\">\r\n                        <template v-for=\"select2Item in item.elementParam.options\">\r\n                            <select2-option :title=\"select2Item.title\":value=\"select2Item.value\" ></select2-option>\r\n                        </template>\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
       data: function data() {
           return {
               jqForm: undefined,
-              items: []
+              items: [],
+              validatorOptions: {}
           };
       },
       props: {
@@ -12523,24 +12591,6 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           },
   
           /**
-           * 字段定义字典，key为字段名，value为其显示的中文名
-           */
-          // filedTitleMap: {
-          //     type: Object,
-          //     required: true
-          // },
-  
-          /**
-           * 校验器规则
-           */
-          validatorOptions: {
-              type: Object,
-              'default': function _default() {
-                  return {};
-              }
-          },
-  
-          /**
            * save时保存到服务器的Url
            */
           url: {
@@ -12555,13 +12605,6 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
       },
       mixins: [mixinsBasicModal],
       methods: {
-          /**
-           * 返回校验器规则，建议覆盖
-           */
-          getRulesOptions: function getRulesOptions() {
-              return this.validatorOptions;
-          },
-  
           beforeModal: function beforeModal() {
               var _this = this;
   
@@ -12570,44 +12613,41 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
   
               /**
                *
-               * filedName：字段名称
+               * fieldName：字段名称
                * elementType：DOM元素类型
                * elementParam：针对DOM元素的更多配置
                * 
                */
   
-              var items = [];
+              var items = [],
+                  validatorOptions = {};
   
-              this.fieldDefine.forEach(function (key) {
-                  var filedName = key.filedName;
-  
-                  // 设置字段显示名称
-                  // key.title = this.filedTitleMap[filedName];
-                  key.title = filedName;
+              this.fieldDefine.forEach(function (item) {
+                  var fieldName = item.fieldName;
   
                   // 如果有初始值，则设置之
-                  if (_this.initData[filedName]) {
-                      key.value = _this.initData[filedName];
+                  if (_this.initData[fieldName]) {
+                      item.value = _this.initData[fieldName];
                   }
   
                   // 补充一些默认值
-                  switch (key.elementType) {
+                  switch (item.elementType) {
                       case 'input':
-                          if (!key.elementParam) {
-                              key.elementParam = {
+                          if (!item.elementParam) {
+                              item.elementParam = {
                                   type: 'text'
                               };
-                          } else if (!key.elementParam.type) {
-                              key.elementParam.type = 'text';
+                          } else if (!item.elementParam.type) {
+                              item.elementParam.type = 'text';
                           }
                           break;
                       case 'select2':
-                          if (!key.elementParam) {
-                              key.elementParam = {
+                          if (!item.elementParam) {
+                              item.elementParam = {
                                   options: []
                               };
-                          } else if (!key.elementParam.options) {
-                              key.elementParam.options = [];
+                          } else if (!item.elementParam.options) {
+                              item.elementParam.options = [];
                           }
                           break;
                       default:
@@ -12615,13 +12655,20 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
   
                   }
   
-                  items.push(key);
+                  items.push(item);
+  
+                  // validator
+                  if (item.validator) {
+                      validatorOptions[fieldName] = item.validator;
+                  }
   
                   // 设置vue的data字段及其初始值
-                  // this.$set(filedName, this.initData[filedName]);
+                  // this.$set(fieldName, this.initData[fieldName]);
               });
   
               this.items = items;
+  
+              this.validatorOptions = validatorOptions;
           },
   
           /**
@@ -12641,7 +12688,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           handleValidator: function handleValidator() {
               var self = this;
   
-              Validator.check(this.jqForm, this.getRulesOptions(), {
+              Validator.check(this.jqForm, this.validatorOptions, {
                   submitHandler: function submitHandler(form) {
                       $(form).ajaxSubmit({
                           success: function success(responseText, statusText) {
@@ -14043,7 +14090,7 @@ define('common/scripts/model', function(require, exports, module) {
       }
   
       /**
-       * 通过filedNameArr，获得一个map，key为name，value为title
+       * 通过fieldNameArr，获得一个map，key为name，value为title
        */
   
       _createClass(Model, [{
@@ -14442,9 +14489,9 @@ define('mixins/modal/crudsave/main', function(require, exports, module) {
                   jqFiledList = this.jqForm.find('[name]');
   
               jqFiledList.each(function () {
-                  var filedName = $(this).attr('name');
+                  var fieldName = $(this).attr('name');
   
-                  self.$set(filedName, self.initData[filedName]);
+                  self.$set(fieldName, self.initData[fieldName]);
               });
           },
   
@@ -15970,7 +16017,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n<crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :param=\"deleteParam\"\r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :validator-options=\"validatorOptions\"\r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n<portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n<crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :param=\"deleteParam\"\r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n<portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
@@ -15993,78 +16040,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
                   state: '1'
               };
   
-              this.modalFieldDefine = [{
-                  filedName: 'name',
-                  elementType: 'input'
-              }, {
-                  filedName: 'pwd',
-                  elementType: 'input',
-                  elementParam: {
-                      type: 'password'
-                  }
-              }, {
-                  filedName: 'state',
-                  elementType: 'select2',
-                  elementParam: {
-                      options: [{
-                          title: '有效',
-                          value: '1'
-                      }, {
-                          title: '无效',
-                          value: '-1'
-                      }]
-                  }
-              }, {
-                  filedName: 'birthday',
-                  elementType: 'date'
-              }];
-  
-              this.saveField = Model.getFieldTitleMap(['name', 'birthday', 'state', 'pwd']);
-  
-              var config = {};
-  
-              config.state = {
-                  required: true
-              };
-  
-              config.birthday = {
-                  required: {
-                      rule: true,
-                      message: '生日不能为空！'
-                  }
-              };
-  
-              config.name = {
-                  required: {
-                      rule: true,
-                      message: '用户名不能为空！'
-                  },
-                  minlength: {
-                      rule: 3,
-                      message: '最小长度为3'
-                  },
-                  maxlength: {
-                      rule: 64,
-                      message: '最大长度为64'
-                  }
-              };
-  
-              config.pwd = {
-                  required: {
-                      rule: true,
-                      message: '密码不能为空！'
-                  },
-                  minlength: {
-                      rule: 5,
-                      message: '最小长度为5'
-                  },
-                  maxlength: {
-                      rule: 32,
-                      message: '最大长度为32'
-                  }
-              };
-  
-              this.validatorOptions = config;
+              this.modalFieldDefine = Model.getAddFieldDefine();
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
               this.modalTitle = '修改用户信息';
@@ -16073,19 +16049,19 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.modalInitData = $.extend({}, data);
   
               this.modalFieldDefine = [{
-                  filedName: 'id',
+                  fieldName: 'id',
                   elementType: 'input',
                   elementParam: {
                       readonly: true
                   }
               }, {
-                  filedName: 'name',
+                  fieldName: 'name',
                   elementType: 'input',
                   elementParam: {
                       readonly: true
                   }
               }, {
-                  filedName: 'state',
+                  fieldName: 'state',
                   elementType: 'select2',
                   elementParam: {
                       options: [{
@@ -16097,11 +16073,9 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
                       }]
                   }
               }, {
-                  filedName: 'birthday',
+                  fieldName: 'birthday',
                   elementType: 'date'
               }];
-  
-              this.saveField = Model.getFieldTitleMap(['id', 'name', 'birthday', 'state']);
   
               var config = {};
   

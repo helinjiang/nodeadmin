@@ -8,7 +8,8 @@ Vue.component('crud-modal-save', {
     data: function() {
         return {
             jqForm: undefined,
-            items: []
+            items: [],
+            validatorOptions: {}
         };
     },
     props: {
@@ -31,24 +32,6 @@ Vue.component('crud-modal-save', {
         },
 
         /**
-         * 字段定义字典，key为字段名，value为其显示的中文名
-         */
-        // filedTitleMap: {
-        //     type: Object,
-        //     required: true
-        // },
-
-        /**
-         * 校验器规则
-         */
-        validatorOptions: {
-            type: Object,
-            'default': function() {
-                return {};
-            }
-        },
-
-        /**
          * save时保存到服务器的Url
          */
         url: {
@@ -63,57 +46,47 @@ Vue.component('crud-modal-save', {
     },
     mixins: [mixinsBasicModal],
     methods: {
-        /**
-         * 返回校验器规则，建议覆盖
-         */
-        getRulesOptions: function() {
-            return this.validatorOptions;
-        },
-
         beforeModal: function() {
             // 在展示对话框之前，获取到form对象，以便后续处理
             this.jqForm = $('form', this.$el);
 
             /**
              *
-             * filedName：字段名称
+             * fieldName：字段名称
              * elementType：DOM元素类型
              * elementParam：针对DOM元素的更多配置
              * 
              */
 
-            var items = [];
+            var items = [],
+                validatorOptions = {};
 
-            this.fieldDefine.forEach(key => {
-                var filedName = key.filedName;
-
-                // 设置字段显示名称
-                // key.title = this.filedTitleMap[filedName];
-                key.title = filedName;
+            this.fieldDefine.forEach(item => {
+                var fieldName = item.fieldName;
 
                 // 如果有初始值，则设置之
-                if (this.initData[filedName]) {
-                    key.value = this.initData[filedName];
+                if (this.initData[fieldName]) {
+                    item.value = this.initData[fieldName];
                 }
 
                 // 补充一些默认值
-                switch (key.elementType) {
+                switch (item.elementType) {
                     case 'input':
-                        if (!key.elementParam) {
-                            key.elementParam = {
+                        if (!item.elementParam) {
+                            item.elementParam = {
                                 type: 'text'
                             }
-                        } else if (!key.elementParam.type) {
-                            key.elementParam.type = 'text';
+                        } else if (!item.elementParam.type) {
+                            item.elementParam.type = 'text';
                         }
                         break;
                     case 'select2':
-                        if (!key.elementParam) {
-                            key.elementParam = {
+                        if (!item.elementParam) {
+                            item.elementParam = {
                                 options: []
                             }
-                        } else if (!key.elementParam.options) {
-                            key.elementParam.options = [];
+                        } else if (!item.elementParam.options) {
+                            item.elementParam.options = [];
                         }
                         break;
                     default:
@@ -121,13 +94,20 @@ Vue.component('crud-modal-save', {
 
                 }
 
-                items.push(key);
+                items.push(item);
+
+                // validator
+                if (item.validator) {
+                    validatorOptions[fieldName] = item.validator;
+                }
 
                 // 设置vue的data字段及其初始值
-                // this.$set(filedName, this.initData[filedName]);
+                // this.$set(fieldName, this.initData[fieldName]);
             });
 
             this.items = items;
+
+            this.validatorOptions = validatorOptions;
         },
 
         /**
@@ -147,7 +127,7 @@ Vue.component('crud-modal-save', {
         handleValidator: function() {
             var self = this;
 
-            Validator.check(this.jqForm, this.getRulesOptions(), {
+            Validator.check(this.jqForm, this.validatorOptions, {
                 submitHandler: function(form) {
                     $(form).ajaxSubmit({
                         success: function(responseText, statusText) {
