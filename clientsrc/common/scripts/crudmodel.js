@@ -12,7 +12,7 @@ class Model {
         // add的fieldDefine
         this.addFieldDefine = undefined;
 
-         // modify的fieldDefine
+        // modify的fieldDefine
         this.modifyFieldDefine = undefined;
 
         // detail的fieldDefine
@@ -147,10 +147,15 @@ class Model {
             if (typeof oneFieldDefine.moduleAdd.options === "object") {
                 item.elementType = oneFieldDefine.moduleAdd.options.type;
                 item.elementParam = oneFieldDefine.moduleAdd.options.param || {};
+
+                // 此处是默认值，可能会被后面传递的实际数据覆盖
+                if (oneFieldDefine.moduleAdd.options.value) {
+                    item.value = oneFieldDefine.moduleAdd.options.value;
+                }
             }
 
             // validator
-             if (typeof oneFieldDefine.validator=== "object") {
+            if (typeof oneFieldDefine.validator === "object") {
                 item.validator = oneFieldDefine.validator;
             }
 
@@ -165,7 +170,7 @@ class Model {
     }
 
 
-     /**
+    /**
      * 获得modify的fieldDefine。
      *
      * 依赖于各个字段的moduleModify值，该值可以为：
@@ -210,10 +215,15 @@ class Model {
             if (typeof oneFieldDefine.moduleModify.options === "object") {
                 item.elementType = oneFieldDefine.moduleModify.options.type;
                 item.elementParam = oneFieldDefine.moduleModify.options.param || {};
+
+                // 此处是默认值，可能会被后面传递的实际数据覆盖
+                if (oneFieldDefine.moduleModify.options.value) {
+                    item.value = oneFieldDefine.moduleModify.options.value;
+                }
             }
 
             // validator
-             if (typeof oneFieldDefine.validator=== "object") {
+            if (typeof oneFieldDefine.validator === "object") {
                 item.validator = oneFieldDefine.validator;
             }
 
@@ -306,7 +316,7 @@ class Model {
 
         // 返回结果
         return result;
-    }   
+    }
 
     /**
      * 获得所有字段的字段名和名称键值对

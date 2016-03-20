@@ -10303,6 +10303,11 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                   if (typeof oneFieldDefine.moduleAdd.options === "object") {
                       item.elementType = oneFieldDefine.moduleAdd.options.type;
                       item.elementParam = oneFieldDefine.moduleAdd.options.param || {};
+  
+                      // 此处是默认值，可能会被后面传递的实际数据覆盖
+                      if (oneFieldDefine.moduleAdd.options.value) {
+                          item.value = oneFieldDefine.moduleAdd.options.value;
+                      }
                   }
   
                   // validator
@@ -10321,38 +10326,38 @@ define('common/scripts/crudmodel', function(require, exports, module) {
           }
   
           /**
-          * 获得modify的fieldDefine。
-          *
-          * 依赖于各个字段的moduleModify值，该值可以为：
-          * 1. 如果为undefined，则其等价为{show:false}
-          * 2. 如果boolean值，则其等价为{show:true}或{show:false}
-          * 3. 值为对象，其完整定义为： 
-          * moduleModify: {
-             show: true,
-             priority: 100,
-             options: {
-                 type: 'input',
-                 param: {
-                     type: 'password'
-                 }
-             }
+           * 获得modify的fieldDefine。
+           *
+           * 依赖于各个字段的moduleModify值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleModify: {
+              show: true,
+              priority: 100,
+              options: {
+                  type: 'input',
+                  param: {
+                      type: 'password'
+                  }
+              }
           }
-          * 
-          * @param  {array}   extraItems 额外附加items
-          *     [{
-                     fieldName: 'id',
-                     title: 'ID',
-                     priority: 100,
-                     elementType: 'input',
-                     elementParam: {
-                         type: 'password'
-                     },
-                     validator: {
-                         required: true
-                     }          
-                 }]
-          * @return {array}              modify的fieldDefine
-          */
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100,
+                      elementType: 'input',
+                      elementParam: {
+                          type: 'password'
+                      },
+                      validator: {
+                          required: true
+                      }          
+                  }]
+           * @return {array}              modify的fieldDefine
+           */
       }, {
           key: 'getModifyFieldDefine',
           value: function getModifyFieldDefine(extraItems) {
@@ -10367,6 +10372,11 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                   if (typeof oneFieldDefine.moduleModify.options === "object") {
                       item.elementType = oneFieldDefine.moduleModify.options.type;
                       item.elementParam = oneFieldDefine.moduleModify.options.param || {};
+  
+                      // 此处是默认值，可能会被后面传递的实际数据覆盖
+                      if (oneFieldDefine.moduleModify.options.value) {
+                          item.value = oneFieldDefine.moduleModify.options.value;
+                      }
                   }
   
                   // validator
@@ -12656,7 +12666,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
               this.fieldDefine.forEach(function (item) {
                   var fieldName = item.fieldName;
   
-                  // 如果有初始值，则设置之
+                  // 如果有传递了值进来，则设置之，会覆盖model中配置的默认的value值
                   if (_this.initData[fieldName]) {
                       item.value = _this.initData[fieldName];
                   }
@@ -14369,16 +14379,19 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
           showModifyPage: function showModifyPage(data) {
               this.beforeShowModifyPage(data);
   
+              this.modalInitData = $.extend({}, data);
               this.isShowSaveModal = true;
           },
           showDetailPage: function showDetailPage(data) {
               this.beforeShowDetailPage(data);
   
+              this.modalInitData = $.extend({}, data);
               this.isShowDetailModal = true;
           },
           showDeletePage: function showDeletePage(data) {
               this.beforeShowDeletePage(data);
   
+              this.modalInitData = $.extend({}, data);
               this.isShowDeleteModal = true;
           },
           showDataGrid: function showDataGrid() {
@@ -15904,6 +15917,7 @@ define('pages/user_index/model', function(require, exports, module) {
           show: true,
           options: {
               type: 'select2',
+              value: '1',
               param: {
                   options: [{
                       title: '有效',
@@ -15911,8 +15925,7 @@ define('pages/user_index/model', function(require, exports, module) {
                   }, {
                       title: '无效',
                       value: '-1'
-                  }],
-                  value: '1'
+                  }]
               }
           }
       },
@@ -16022,31 +16035,23 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.modalTitle = '新增用户信息';
               this.modalCgi = '/admin/user/add';
   
-              this.modalInitData = {
-                  birthday: '2016-03-01',
-                  state: '1'
-              };
-  
               this.modalFieldDefine = Model.getAddFieldDefine();
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
               this.modalTitle = '修改用户信息';
               this.modalCgi = '/admin/user/modify';
   
-              this.modalInitData = $.extend({}, data);
               this.modalFieldDefine = Model.getModifyFieldDefine();
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
               this.modalTitle = '查看用户信息';
   
-              this.modalInitData = $.extend({}, data);
               this.modalFieldDefine = Model.getDetailFieldDefine();
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
               this.modalTitle = '删除用户信息';
               this.modalCgi = '/admin/user/delete';
   
-              this.modalInitData = $.extend({}, data);
               this.modalFieldDefine = Model.getDeleteFieldDefine();
           }
       },

@@ -95,16 +95,19 @@ module.exports = {
         showModifyPage: function(data) {
             this.beforeShowModifyPage(data);
 
+            this.modalInitData = $.extend({}, data);
             this.isShowSaveModal = true;
         },
         showDetailPage: function(data) {
             this.beforeShowDetailPage(data);
 
+            this.modalInitData = $.extend({}, data);
             this.isShowDetailModal = true;
         },
         showDeletePage: function(data) {
             this.beforeShowDeletePage(data);
 
+            this.modalInitData = $.extend({}, data);
             this.isShowDeleteModal = true;
         },
         showDataGrid: function() {

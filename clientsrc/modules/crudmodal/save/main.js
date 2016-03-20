@@ -63,7 +63,7 @@ Vue.component('crud-modal-save', {
             this.fieldDefine.forEach(item => {
                 var fieldName = item.fieldName;
 
-                // 如果有初始值，则设置之
+                // 如果有传递了值进来，则设置之，会覆盖model中配置的默认的value值
                 if (this.initData[fieldName]) {
                     item.value = this.initData[fieldName];
                 }

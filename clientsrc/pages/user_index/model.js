@@ -110,6 +110,7 @@ fieldDefine.state = {
         show: true,
         options: {
             type: 'select2',
+            value: '1',
             param: {
                 options: [{
                     title: '有效',
@@ -117,8 +118,7 @@ fieldDefine.state = {
                 }, {
                     title: '无效',
                     value: '-1'
-                }],
-                value: '1'
+                }]
             }
         }
     },

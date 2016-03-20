@@ -22,31 +22,23 @@ module.exports = Vue.extend({
             this.modalTitle = '新增用户信息';
             this.modalCgi = '/admin/user/add';
 
-            this.modalInitData = {
-                birthday: '2016-03-01',
-                state: '1',
-            };
-
             this.modalFieldDefine = Model.getAddFieldDefine();
         },
         beforeShowModifyPage: function(data) {
             this.modalTitle = '修改用户信息';
             this.modalCgi = '/admin/user/modify';
 
-            this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getModifyFieldDefine();
         },
         beforeShowDetailPage: function(data) {
             this.modalTitle = '查看用户信息';
 
-            this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getDetailFieldDefine();
         },
         beforeShowDeletePage: function(data) {
             this.modalTitle = '删除用户信息';
             this.modalCgi = '/admin/user/delete';
 
-            this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getDeleteFieldDefine();
         },
     },
