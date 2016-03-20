@@ -12391,7 +12391,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           },
   
           /**
-           * 字段定义数据
+           * 字段定义数据，数组，每个字段用什么来展示
            */
           fieldData: {
               type: Array,
@@ -12404,6 +12404,16 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           filedTitleMap: {
               type: Object,
               required: true
+          },
+  
+          /**
+           * 校验器规则
+           */
+          validatorOptions: {
+              type: Object,
+              'default': function _default() {
+                  return {};
+              }
           },
   
           /**
@@ -12430,7 +12440,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
            * 返回校验器规则，建议覆盖
            */
           getRulesOptions: function getRulesOptions() {
-              return {};
+              return this.validatorOptions;
           },
   
           beforeModal: function beforeModal() {
@@ -15649,77 +15659,6 @@ define('pages/user_index/model', function(require, exports, module) {
 
 });
 
-;/*!/pages/user_index/mainarea/savemodal/main.js*/
-define('pages/user_index/mainarea/savemodal/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var mixinsSaveModal = require('mixins/modal/crudsave/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      mixins: [mixinsSaveModal],
-      methods: {
-          /**
-           * 校验器规则
-           * @return {object} 规则对象
-           */
-          getRulesOptions: function getRulesOptions() {
-              var config = {};
-  
-              config.state = {
-                  required: true
-              };
-  
-              config.birthday = {
-                  required: {
-                      rule: true,
-                      message: '生日不能为空！'
-                  }
-              };
-  
-              if (this.isAdd) {
-                  config.name = {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  };
-  
-                  config.pwd = {
-                      required: {
-                          rule: true,
-                          message: '密码不能为空！'
-                      },
-                      minlength: {
-                          rule: 5,
-                          message: '最小长度为5'
-                      },
-                      maxlength: {
-                          rule: 32,
-                          message: '最大长度为32'
-                      }
-                  };
-              }
-  
-              return config;
-          }
-  
-      }
-  });
-
-});
-
 ;/*!/pages/user_index/mainarea/main.js*/
 define('pages/user_index/mainarea/main', function(require, exports, module) {
 
@@ -15732,7 +15671,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :field-data=\"fieldData\"\r\n            :filed-title-map=\"saveField\" \r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :field-data=\"fieldData\"\r\n            :filed-title-map=\"saveField\" \r\n            :validator-options=\"validatorOptions\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -15792,6 +15731,51 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               }];
   
               this.saveField = Model.getNameMap(['name', 'birthday', 'state', 'pwd']);
+  
+              var config = {};
+  
+              config.state = {
+                  required: true
+              };
+  
+              config.birthday = {
+                  required: {
+                      rule: true,
+                      message: '生日不能为空！'
+                  }
+              };
+  
+              config.name = {
+                  required: {
+                      rule: true,
+                      message: '用户名不能为空！'
+                  },
+                  minlength: {
+                      rule: 3,
+                      message: '最小长度为3'
+                  },
+                  maxlength: {
+                      rule: 64,
+                      message: '最大长度为64'
+                  }
+              };
+  
+              config.pwd = {
+                  required: {
+                      rule: true,
+                      message: '密码不能为空！'
+                  },
+                  minlength: {
+                      rule: 5,
+                      message: '最小长度为5'
+                  },
+                  maxlength: {
+                      rule: 32,
+                      message: '最大长度为32'
+                  }
+              };
+  
+              this.validatorOptions = config;
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
               this.saveTitle = '修改用户信息';
@@ -15829,6 +15813,21 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               }];
   
               this.saveField = Model.getNameMap(['id', 'name', 'birthday', 'state']);
+  
+              var config = {};
+  
+              config.state = {
+                  required: true
+              };
+  
+              config.birthday = {
+                  required: {
+                      rule: true,
+                      message: '生日不能为空！'
+                  }
+              };
+  
+              this.validatorOptions = config;
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
               this.detailTitle = '查看用户信息';

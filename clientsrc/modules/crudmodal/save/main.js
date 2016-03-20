@@ -17,13 +17,13 @@ Vue.component('crud-modal-save', {
          */
         initData: {
             type: Object,
-            default: function() {
-                return {}
+            'default': function() {
+                return {};
             }
         },
 
         /**
-         * 字段定义数据
+         * 字段定义数据，数组，每个字段用什么来展示
          */
         fieldData: {
             type: Array,
@@ -36,6 +36,16 @@ Vue.component('crud-modal-save', {
         filedTitleMap: {
             type: Object,
             required: true
+        },
+
+        /**
+         * 校验器规则
+         */
+        validatorOptions: {
+            type: Object,
+            'default': function() {
+                return {};
+            }
         },
 
         /**
@@ -62,7 +72,7 @@ Vue.component('crud-modal-save', {
          * 返回校验器规则，建议覆盖
          */
         getRulesOptions: function() {
-            return {};
+            return this.validatorOptions;
         },
 
         beforeModal: function() {

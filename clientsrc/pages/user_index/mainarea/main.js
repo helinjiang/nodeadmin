@@ -46,7 +46,7 @@ module.exports = Vue.extend({
                 state: '1',
             };
 
-            this.fieldData=[{
+            this.fieldData = [{
                 filedName: 'name',
                 elementType: 'input'
             }, {
@@ -78,6 +78,51 @@ module.exports = Vue.extend({
                 'state',
                 'pwd'
             ]);
+
+            var config = {};
+
+            config.state = {
+                required: true
+            };
+
+            config.birthday = {
+                required: {
+                    rule: true,
+                    message: '生日不能为空！'
+                }
+            };
+
+            config.name = {
+                required: {
+                    rule: true,
+                    message: '用户名不能为空！'
+                },
+                minlength: {
+                    rule: 3,
+                    message: '最小长度为3'
+                },
+                maxlength: {
+                    rule: 64,
+                    message: '最大长度为64'
+                }
+            };
+
+            config.pwd = {
+                required: {
+                    rule: true,
+                    message: '密码不能为空！'
+                },
+                minlength: {
+                    rule: 5,
+                    message: '最小长度为5'
+                },
+                maxlength: {
+                    rule: 32,
+                    message: '最大长度为32'
+                }
+            };
+
+            this.validatorOptions = config;
         },
         beforeShowModifyPage: function(data) {
             this.saveTitle = '修改用户信息';
@@ -85,7 +130,7 @@ module.exports = Vue.extend({
 
             this.initData = $.extend({}, data);
 
-            this.fieldData=[{
+            this.fieldData = [{
                 filedName: 'id',
                 elementType: 'input',
                 elementParam: {
@@ -120,6 +165,21 @@ module.exports = Vue.extend({
                 'birthday',
                 'state'
             ]);
+
+            var config = {};
+
+            config.state = {
+                required: true
+            };
+
+            config.birthday = {
+                required: {
+                    rule: true,
+                    message: '生日不能为空！'
+                }
+            };
+
+            this.validatorOptions = config;
         },
         beforeShowDetailPage: function(data) {
             this.detailTitle = '查看用户信息';
