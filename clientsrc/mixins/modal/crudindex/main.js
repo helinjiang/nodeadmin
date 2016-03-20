@@ -3,21 +3,19 @@ module.exports = {
     template: '<div>EMPTY</div>',
     data: function() {
         return {
+            isShowSaveModal: false,
+            isShowDetailModal: false,
+            isShowDeleteModal: false,
+
             datagridCgi: '',
             datagridTitle: '',
             datagridItem: [],
             datagridType: 'front', // 默认前端分页
 
-            isShowSaveModal: false,
-            isShowDetailModal: false,
-            isShowDeleteModal: false,
-
             modalTitle: '',
             modalCgi: '',
             modalInitData: {},
-            modalFieldDefine: {},
-
-            deleteParam: {},
+            modalFieldDefine: {}
         };
     },
     methods: {

@@ -1,8 +1,8 @@
 <portlet :title="datagridTitle" icon="globe">    
     <datagrid 
-            :url="datagridUrl" 
+            :url="datagridCgi" 
             :items="datagridItem"
-            :type="saveUrlType"
+            :type="datagridType"
             @click="operate" 
             v-ref:datagrid>            
     </datagrid>

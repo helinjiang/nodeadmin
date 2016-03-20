@@ -14287,21 +14287,19 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
       template: '<div>EMPTY</div>',
       data: function data() {
           return {
+              isShowSaveModal: false,
+              isShowDetailModal: false,
+              isShowDeleteModal: false,
+  
               datagridCgi: '',
               datagridTitle: '',
               datagridItem: [],
               datagridType: 'front', // 默认前端分页
   
-              isShowSaveModal: false,
-              isShowDetailModal: false,
-              isShowDeleteModal: false,
-  
               modalTitle: '',
               modalCgi: '',
               modalInitData: {},
-              modalFieldDefine: {},
-  
-              deleteParam: {}
+              modalFieldDefine: {}
           };
       },
       methods: {
@@ -14426,149 +14424,6 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
 
 });
 
-;/*!/mixins/modal/crudsave/main.js*/
-define('mixins/modal/crudsave/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Validator = require('common/scripts/validator');
-  var Msg = require('components/msg/main');
-  var mixinsBasicModal = require('mixins/modal/basic/main');
-  
-  module.exports = {
-      template: '<div>EMPTY</div>',
-      data: function data() {
-          return {
-              jqForm: undefined
-          };
-      },
-      props: {
-          /**
-           * 初始化的值，对象，用于设置模态框中表单初始值
-           */
-          initData: Object,
-  
-          /**
-           * save时保存到服务器的Url
-           */
-          url: {
-              type: String,
-              required: true
-          },
-  
-          /**
-           * 当前是否为新增页面，因为新增和修改页面会不一样
-           */
-          isAdd: Boolean,
-  
-          /**
-           * 标题
-           */
-          title: String
-      },
-      mixins: [mixinsBasicModal],
-      methods: {
-          /**
-           * 返回校验器规则，建议覆盖
-           */
-          getRulesOptions: function getRulesOptions() {
-              return {};
-          },
-  
-          beforeModal: function beforeModal() {
-              // 在展示对话框之前，获取到form对象，以便后续处理
-              this.jqForm = $('form', this.$el);
-  
-              // 也可能没有初始值，比如新增页面
-              if (!this.initData) {
-                  return;
-              }
-  
-              // 遍历所有的有name属性的表单，并将其设置到vue的data中
-              var self = this,
-                  jqFiledList = this.jqForm.find('[name]');
-  
-              jqFiledList.each(function () {
-                  var fieldName = $(this).attr('name');
-  
-                  self.$set(fieldName, self.initData[fieldName]);
-              });
-          },
-  
-          /**
-           * 对话框确定按钮点击之后的回调函数
-           */
-          triggerSubmit: function triggerSubmit(modalId) {
-              if (this.jqForm) {
-                  this.jqForm.submit();
-              } else {
-                  console.error('this.jqForm is undefined');
-              }
-          },
-  
-          /**
-           * 表单校验
-           */
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              Validator.check(this.jqForm, this.getRulesOptions(), {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              self.dealSuccessRes(responseText, statusText);
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
-                              }
-                          }
-                      });
-                  }
-              });
-          },
-          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
-              console.log(responseText, statusText);
-  
-              if (statusText !== 'success' || responseText.errno !== 0) {
-                  // 提示失败
-                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-              } else {
-                  // 提示成功
-                  Msg.success('^_^ 处理成功！');
-  
-                  // 关闭对话框
-                  this.hideModal();
-  
-                  // 刷新列表
-                  this.reportSuccess(responseText.data);
-              }
-          }
-      },
-      events: {
-          /**
-           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
-           * 
-           * @param  {string} name   表单中某一表单元素的name属性值
-           * @param  {string} val    新值
-           * @param  {string} oldVal 旧值
-           * @return {boolean}        校验结果
-           */
-          valuechange: function valuechange(name, val, oldVal) {
-              return Validator.valid(this.jqForm, name);
-          }
-      },
-      ready: function ready() {
-          this.handleValidator();
-      }
-  };
-
-});
-
 ;/*!/pages/car_index/model.js*/
 define('pages/car_index/model', function(require, exports, module) {
 
@@ -14681,7 +14536,7 @@ define('pages/car_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -14816,7 +14671,7 @@ define('pages/coding_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -16017,7 +15872,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n<crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n<portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
