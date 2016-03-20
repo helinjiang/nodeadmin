@@ -12372,7 +12372,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
   var mixinsBasicModal = require('mixins/modal/basic/main');
   
   Vue.component('crud-modal-save', {
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='input'\">\r\n\r\n                    <date :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2 :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='select2'\">\r\n                        <template v-for=\"select2Item in item.elementParam.options\">\r\n                            <select2-option :title=\"select2Item.title\":value=\"select2Item.value\" ></select2-option>\r\n                        </template>\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" :name=\"item.filedName\" :value=\"item.value\" :readonly=\"item.elementParam.readonly\" v-if=\"item.elementType=='input'\">\r\n\r\n                    <date :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2 :name=\"item.filedName\" :value=\"item.value\" v-if=\"item.elementType=='select2'\">\r\n                        <template v-for=\"select2Item in item.elementParam.options\">\r\n                            <select2-option :title=\"select2Item.title\":value=\"select2Item.value\" ></select2-option>\r\n                        </template>\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
       data: function data() {
           return {
               jqForm: undefined,
@@ -15798,6 +15798,37 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.saveUrl = '/admin/user/modify';
   
               this.initData = $.extend({}, data);
+  
+              this.fieldData = [{
+                  filedName: 'id',
+                  elementType: 'input',
+                  elementParam: {
+                      readonly: true
+                  }
+              }, {
+                  filedName: 'name',
+                  elementType: 'input',
+                  elementParam: {
+                      readonly: true
+                  }
+              }, {
+                  filedName: 'state',
+                  elementType: 'select2',
+                  elementParam: {
+                      options: [{
+                          title: '有效',
+                          value: '1'
+                      }, {
+                          title: '无效',
+                          value: '-1'
+                      }]
+                  }
+              }, {
+                  filedName: 'birthday',
+                  elementType: 'date'
+              }];
+  
+              this.saveField = Model.getNameMap(['id', 'name', 'birthday', 'state']);
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
               this.detailTitle = '查看用户信息';

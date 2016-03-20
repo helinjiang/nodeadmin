@@ -84,6 +84,42 @@ module.exports = Vue.extend({
             this.saveUrl = '/admin/user/modify';
 
             this.initData = $.extend({}, data);
+
+            this.fieldData=[{
+                filedName: 'id',
+                elementType: 'input',
+                elementParam: {
+                    readonly: true
+                }
+            }, {
+                filedName: 'name',
+                elementType: 'input',
+                elementParam: {
+                    readonly: true
+                }
+            }, {
+                filedName: 'state',
+                elementType: 'select2',
+                elementParam: {
+                    options: [{
+                        title: '有效',
+                        value: '1'
+                    }, {
+                        title: '无效',
+                        value: '-1'
+                    }]
+                }
+            }, {
+                filedName: 'birthday',
+                elementType: 'date'
+            }];
+
+            this.saveField = Model.getNameMap([
+                'id',
+                'name',
+                'birthday',
+                'state'
+            ]);
         },
         beforeShowDetailPage: function(data) {
             this.detailTitle = '查看用户信息';
