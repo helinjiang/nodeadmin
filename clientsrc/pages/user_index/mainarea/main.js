@@ -34,51 +34,7 @@ module.exports = Vue.extend({
             this.modalCgi = '/admin/user/modify';
 
             this.modalInitData = $.extend({}, data);
-
-            this.modalFieldDefine = [{
-                fieldName: 'id',
-                elementType: 'input',
-                elementParam: {
-                    readonly: true
-                }
-            }, {
-                fieldName: 'name',
-                elementType: 'input',
-                elementParam: {
-                    readonly: true
-                }
-            }, {
-                fieldName: 'state',
-                elementType: 'select2',
-                elementParam: {
-                    options: [{
-                        title: '有效',
-                        value: '1'
-                    }, {
-                        title: '无效',
-                        value: '-1'
-                    }]
-                }
-            }, {
-                fieldName: 'birthday',
-                elementType: 'date'
-            }];
-
-
-            var config = {};
-
-            config.state = {
-                required: true
-            };
-
-            config.birthday = {
-                required: {
-                    rule: true,
-                    message: '生日不能为空！'
-                }
-            };
-
-            this.validatorOptions = config;
+            this.modalFieldDefine = Model.getModifyFieldDefine();
         },
         beforeShowDetailPage: function(data) {
             this.modalTitle = '查看用户信息';

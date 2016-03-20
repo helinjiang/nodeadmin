@@ -10158,6 +10158,9 @@ define('common/scripts/crudmodel', function(require, exports, module) {
           // add的fieldDefine
           this.addFieldDefine = undefined;
   
+          // modify的fieldDefine
+          this.modifyFieldDefine = undefined;
+  
           // detail的fieldDefine
           this.detailFieldDefine = undefined;
   
@@ -10312,6 +10315,70 @@ define('common/scripts/crudmodel', function(require, exports, module) {
   
               // 缓存数据
               this.addFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+          * 获得modify的fieldDefine。
+          *
+          * 依赖于各个字段的moduleModify值，该值可以为：
+          * 1. 如果为undefined，则其等价为{show:false}
+          * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+          * 3. 值为对象，其完整定义为： 
+          * moduleModify: {
+             show: true,
+             priority: 100,
+             options: {
+                 type: 'input',
+                 param: {
+                     type: 'password'
+                 }
+             }
+          }
+          * 
+          * @param  {array}   extraItems 额外附加items
+          *     [{
+                     fieldName: 'id',
+                     title: 'ID',
+                     priority: 100,
+                     elementType: 'input',
+                     elementParam: {
+                         type: 'password'
+                     },
+                     validator: {
+                         required: true
+                     }          
+                 }]
+          * @return {array}              modify的fieldDefine
+          */
+      }, {
+          key: 'getModifyFieldDefine',
+          value: function getModifyFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.modifyFieldDefine) {
+                  return this.modifyFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleModify', extraItems, function (item, oneFieldDefine) {
+  
+                  // options
+                  if (typeof oneFieldDefine.moduleModify.options === "object") {
+                      item.elementType = oneFieldDefine.moduleModify.options.type;
+                      item.elementParam = oneFieldDefine.moduleModify.options.param || {};
+                  }
+  
+                  // validator
+                  if (typeof oneFieldDefine.validator === "object") {
+                      item.validator = oneFieldDefine.validator;
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.modifyFieldDefine = result;
   
               // 返回结果
               return result;
@@ -12618,7 +12685,6 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
                * elementParam：针对DOM元素的更多配置
                * 
                */
-  
               var items = [],
                   validatorOptions = {};
   
@@ -12661,13 +12727,9 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
                   if (item.validator) {
                       validatorOptions[fieldName] = item.validator;
                   }
-  
-                  // 设置vue的data字段及其初始值
-                  // this.$set(fieldName, this.initData[fieldName]);
               });
   
               this.items = items;
-  
               this.validatorOptions = validatorOptions;
           },
   
@@ -16047,50 +16109,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.modalCgi = '/admin/user/modify';
   
               this.modalInitData = $.extend({}, data);
-  
-              this.modalFieldDefine = [{
-                  fieldName: 'id',
-                  elementType: 'input',
-                  elementParam: {
-                      readonly: true
-                  }
-              }, {
-                  fieldName: 'name',
-                  elementType: 'input',
-                  elementParam: {
-                      readonly: true
-                  }
-              }, {
-                  fieldName: 'state',
-                  elementType: 'select2',
-                  elementParam: {
-                      options: [{
-                          title: '有效',
-                          value: '1'
-                      }, {
-                          title: '无效',
-                          value: '-1'
-                      }]
-                  }
-              }, {
-                  fieldName: 'birthday',
-                  elementType: 'date'
-              }];
-  
-              var config = {};
-  
-              config.state = {
-                  required: true
-              };
-  
-              config.birthday = {
-                  required: {
-                      rule: true,
-                      message: '生日不能为空！'
-                  }
-              };
-  
-              this.validatorOptions = config;
+              this.modalFieldDefine = Model.getModifyFieldDefine();
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
               this.modalTitle = '查看用户信息';

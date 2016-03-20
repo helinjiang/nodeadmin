@@ -12,6 +12,9 @@ class Model {
         // add的fieldDefine
         this.addFieldDefine = undefined;
 
+         // modify的fieldDefine
+        this.modifyFieldDefine = undefined;
+
         // detail的fieldDefine
         this.detailFieldDefine = undefined;
 
@@ -156,6 +159,69 @@ class Model {
 
         // 缓存数据
         this.addFieldDefine = result;
+
+        // 返回结果
+        return result;
+    }
+
+
+     /**
+     * 获得modify的fieldDefine。
+     *
+     * 依赖于各个字段的moduleModify值，该值可以为：
+     * 1. 如果为undefined，则其等价为{show:false}
+     * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+     * 3. 值为对象，其完整定义为： 
+     * moduleModify: {
+        show: true,
+        priority: 100,
+        options: {
+            type: 'input',
+            param: {
+                type: 'password'
+            }
+        }
+    }
+     * 
+     * @param  {array}   extraItems 额外附加items
+     *     [{
+                fieldName: 'id',
+                title: 'ID',
+                priority: 100,
+                elementType: 'input',
+                elementParam: {
+                    type: 'password'
+                },
+                validator: {
+                    required: true
+                }          
+            }]
+     * @return {array}              modify的fieldDefine
+     */
+    getModifyFieldDefine(extraItems) {
+        // 优先使用缓存
+        if (this.modifyFieldDefine) {
+            return this.modifyFieldDefine;
+        }
+
+        var result = this._getComputedFieldDefine('moduleModify', extraItems, function(item, oneFieldDefine) {
+
+            // options
+            if (typeof oneFieldDefine.moduleModify.options === "object") {
+                item.elementType = oneFieldDefine.moduleModify.options.type;
+                item.elementParam = oneFieldDefine.moduleModify.options.param || {};
+            }
+
+            // validator
+             if (typeof oneFieldDefine.validator=== "object") {
+                item.validator = oneFieldDefine.validator;
+            }
+
+            return item;
+        });
+
+        // 缓存数据
+        this.modifyFieldDefine = result;
 
         // 返回结果
         return result;

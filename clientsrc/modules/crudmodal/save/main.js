@@ -57,7 +57,6 @@ Vue.component('crud-modal-save', {
              * elementParam：针对DOM元素的更多配置
              * 
              */
-
             var items = [],
                 validatorOptions = {};
 
@@ -100,13 +99,9 @@ Vue.component('crud-modal-save', {
                 if (item.validator) {
                     validatorOptions[fieldName] = item.validator;
                 }
-
-                // 设置vue的data字段及其初始值
-                // this.$set(fieldName, this.initData[fieldName]);
             });
 
             this.items = items;
-
             this.validatorOptions = validatorOptions;
         },
 
