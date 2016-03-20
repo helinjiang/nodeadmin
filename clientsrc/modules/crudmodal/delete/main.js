@@ -25,7 +25,6 @@ Vue.component('crud-modal-delete', {
             type: Array,
             required: true
         },
-        param: Array,
         url: {
             type: String,
             required: true
@@ -47,16 +46,13 @@ Vue.component('crud-modal-delete', {
                     title: item.title,
                     value: this.initData[item.fieldName]
                 });
+
+                if (typeof item.deleteDepend === 'string') {
+                    requestParam[item.deleteDepend] = this.initData[item.fieldName];
+                }
             });
 
             this.items = items;
-
-            if (this.param) {
-                this.param.forEach(item => {
-                    requestParam[item.key] = this.initData[item.fieldName];
-                });
-            }
-
             this.requestParam = requestParam;
         },
         triggerSubmit: function(modalId) {

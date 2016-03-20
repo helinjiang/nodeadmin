@@ -48,8 +48,6 @@ module.exports = Vue.extend({
 
             this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getDeleteFieldDefine();
-
-            this.deleteParam = Model.getDeleteParam();
         },
     },
     ready: function() {

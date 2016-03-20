@@ -13,11 +13,10 @@ module.exports = {
             isShowDeleteModal: false,
 
             modalTitle: '',
+            modalCgi: '',
             modalInitData: {},
             modalFieldDefine: {},
-            modalCgi: '',
 
-            isAdd: true, 
             deleteParam: {},
         };
     },

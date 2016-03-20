@@ -306,36 +306,7 @@ class Model {
 
         // 返回结果
         return result;
-    }
-
-    /**
-     * 获得删除所需的参数
-     * @param {array} extraItems 额外的参数
-     *     [{
-                key: 'id',
-                fieldName: 'id'
-            }]
-     * @return {array}   删除所需要的参数
-     */
-    getDeleteParam(extraItems) {
-        var result = [];
-
-        this.getDeleteFieldDefine().forEach(item => {
-            if (typeof item.deleteDepend === 'string') {
-                result.push({
-                    key: item.deleteDepend,
-                    fieldName: item.fieldName
-                });
-            }
-        });
-
-        // 如果有额外参数配置，则合并之
-        if (extraItems && extraItems.length) {
-            result = result.concat(extraItems);
-        }
-
-        return result;
-    }
+    }   
 
     /**
      * 获得所有字段的字段名和名称键值对

@@ -10470,37 +10470,6 @@ define('common/scripts/crudmodel', function(require, exports, module) {
           }
   
           /**
-           * 获得删除所需的参数
-           * @param {array} extraItems 额外的参数
-           *     [{
-                      key: 'id',
-                      fieldName: 'id'
-                  }]
-           * @return {array}   删除所需要的参数
-           */
-      }, {
-          key: 'getDeleteParam',
-          value: function getDeleteParam(extraItems) {
-              var result = [];
-  
-              this.getDeleteFieldDefine().forEach(function (item) {
-                  if (typeof item.deleteDepend === 'string') {
-                      result.push({
-                          key: item.deleteDepend,
-                          fieldName: item.fieldName
-                      });
-                  }
-              });
-  
-              // 如果有额外参数配置，则合并之
-              if (extraItems && extraItems.length) {
-                  result = result.concat(extraItems);
-              }
-  
-              return result;
-          }
-  
-          /**
            * 获得所有字段的字段名和名称键值对
            * @return {object}   map
            */
@@ -12348,7 +12317,6 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
               type: Array,
               required: true
           },
-          param: Array,
           url: {
               type: String,
               required: true
@@ -12372,16 +12340,13 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
                       title: item.title,
                       value: _this.initData[item.fieldName]
                   });
+  
+                  if (typeof item.deleteDepend === 'string') {
+                      requestParam[item.deleteDepend] = _this.initData[item.fieldName];
+                  }
               });
   
               this.items = items;
-  
-              if (this.param) {
-                  this.param.forEach(function (item) {
-                      requestParam[item.key] = _this.initData[item.fieldName];
-                  });
-              }
-  
               this.requestParam = requestParam;
           },
           triggerSubmit: function triggerSubmit(modalId) {
@@ -14236,45 +14201,6 @@ define('common/scripts/model', function(require, exports, module) {
 
 });
 
-;/*!/common/scripts/names.js*/
-define('common/scripts/names', function(require, exports, module) {
-
-  // <datagrid-item name="id" title="ID"></datagrid-item>
-  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
-  // <datagrid-item name="pwd" hide></datagrid-item>
-  // <datagrid-item name="birthday" title="生日"></datagrid-item>
-  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
-  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
-  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
-  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
-  
-  'use strict';
-  
-  var common = {
-      'id': 'ID',
-      'name': '名字',
-      'createTime': '创建时间',
-      'updateTime': '更新时间',
-      'state': '状态',
-      'stateShow': '状态'
-  };
-  
-  /**
-   * /admin/user
-   */
-  var user = $.extend({}, common, {
-      'name': '用户名',
-      'pwd': '密码',
-      'birthday': '生日'
-  });
-  
-  module.exports = {
-      user: user
-  
-  };
-
-});
-
 ;/*!/components/inputtext/main.js*/
 define('components/inputtext/main', function(require, exports, module) {
 
@@ -14361,11 +14287,10 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
               isShowDeleteModal: false,
   
               modalTitle: '',
+              modalCgi: '',
               modalInitData: {},
               modalFieldDefine: {},
-              modalCgi: '',
   
-              isAdd: true,
               deleteParam: {}
           };
       },
@@ -16079,7 +16004,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n<crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :param=\"deleteParam\"\r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n<portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n<crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n<portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
@@ -16123,8 +16048,6 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   
               this.modalInitData = $.extend({}, data);
               this.modalFieldDefine = Model.getDeleteFieldDefine();
-  
-              this.deleteParam = Model.getDeleteParam();
           }
       },
       ready: function ready() {}
