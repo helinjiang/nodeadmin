@@ -18,10 +18,10 @@ Vue.component('crud-modal-detail', {
             required: true
         },
         /**
-         * 字段定义字典，key为字段名，value为其显示的中文名
+         * 字段定义数组
          */
         fieldDefine: {
-            type: Object,
+            type: Array,
             required: true
         },
         title: {
@@ -32,15 +32,13 @@ Vue.component('crud-modal-detail', {
     mixins: [mixinsBasicModal],
     methods: {
         beforeModal: function() {
+             var result = [];
 
-            var filedNameArr = Object.keys(this.fieldDefine),
-                result = [];
-
-            filedNameArr.map(key => {
+            this.fieldDefine.forEach(item => {
                 result.push({
-                    key: key,
-                    value: this.initData[key],
-                    title: this.fieldDefine[key]
+                    fieldName: item.name,
+                    title: item.title,
+                    value: this.initData[item.name]
                 });
             });
 

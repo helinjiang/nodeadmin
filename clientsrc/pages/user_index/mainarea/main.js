@@ -164,16 +164,8 @@ module.exports = Vue.extend({
         },
         beforeShowDetailPage: function(data) {
             this.modalTitle = '查看用户信息';
-
             this.modalInitData = $.extend({}, data);
-            this.modalFieldDefine = Model.getFieldTitleMap([
-                'id',
-                'name',
-                'birthday',
-                'stateShow',
-                'createTime',
-                'updateTime'
-            ]);
+            this.modalFieldDefine = Model.getDetailFieldDefine();
         },
         beforeShowDeletePage: function(data) {
             this.modalTitle = '删除用户信息';
