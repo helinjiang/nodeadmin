@@ -4,8 +4,6 @@ class Model extends BaseModel {
 
 }
 
-
-
 var fieldDefine = {};
 
 // ID
@@ -23,7 +21,12 @@ fieldDefine.id = {
         }
     },
     moduleDetail: true,
-    moduleDelete: true
+    moduleDelete: {
+        show: true,
+        options: {
+            deleteDepend: 'id'
+        }
+    }
 };
 
 // 用户名

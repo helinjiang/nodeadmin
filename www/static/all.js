@@ -10134,6 +10134,329 @@ define('common/scripts/app', function(require, exports, module) {
 
 });
 
+;/*!/common/scripts/crudmodel.js*/
+define('common/scripts/crudmodel', function(require, exports, module) {
+
+  'use strict';
+  
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+  
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  
+  var Model = (function () {
+      function Model(fieldDefine) {
+          _classCallCheck(this, Model);
+  
+          this.fieldDefine = fieldDefine || {};
+  
+          // map<fieldName, title>
+          this.fieldTitleMap = this._getAllFieldTitleMap();
+  
+          // datagrid的items
+          this.datagridItem = undefined;
+  
+          // detail的fieldDefine
+          this.detailFieldDefine = undefined;
+  
+          // delete的fieldDefine
+          this.deleteFieldDefine = undefined;
+      }
+  
+      /**
+       * 通过指定字段，返回对应的字段对象
+       * @param  {array}   arr 字段列表
+       * @return {object}       map
+       */
+  
+      _createClass(Model, [{
+          key: 'getFieldTitleMap',
+          value: function getFieldTitleMap(arr) {
+              var _this = this;
+  
+              if (!arr || !arr.length) {
+                  return this.fieldTitleMap;
+              }
+  
+              var map = {};
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this.fieldTitleMap[fieldName];
+              });
+  
+              return map;
+          }
+  
+          /**
+           * 获取指定的字段的title
+           * @param  {string}   fieldName 字段
+           * @return {string}        字段对应的titile
+           */
+      }, {
+          key: 'getTitle',
+          value: function getTitle(fieldName) {
+              return this.fieldTitleMap[fieldName] || fieldName;
+          }
+  
+          /**
+           * 获得datagrid的items。
+           *
+           * 依赖于各个字段的moduleDatagrid值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleDatagrid : {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           *     options: { // 额外的参数，用于datagrid上的配置，这里支持哪些配置请参考该组件的用法
+           *         css: 'namecss',
+           *         hide: false,
+           *         disableorder:fase
+           *     }
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      name: 'id',
+                      title: '操作',
+                      render: 'commonOperate | detail modify delete',
+                      disableorder: true,
+                      priority: 100
+                  }]
+           * @return {array}              datagrid的items
+           */
+      }, {
+          key: 'getDatagridItem',
+          value: function getDatagridItem(extraItems) {
+              // 优先使用缓存
+              if (this.datagridItem) {
+                  return this.datagridItem;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleDatagrid', extraItems, function (item, oneFieldDefine) {
+                  // datagrid只认name，而不认识fieldName
+                  item.name = item.fieldName;
+  
+                  // 额外的datagrid参数配置，来自oneFieldDefine.moduleDatagrid.options
+                  if (typeof oneFieldDefine.moduleDatagrid.options === "object") {
+                      $.extend(item, oneFieldDefine.moduleDatagrid.options);
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.datagridItem = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得detail的fieldDefine。
+           *
+           * 依赖于各个字段的moduleDetail值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleDetail : {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100
+                  }]
+           * @return {array}              detail的fieldDefine
+           */
+      }, {
+          key: 'getDetailFieldDefine',
+          value: function getDetailFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.detailFieldDefine) {
+                  return this.detailFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleDetail', extraItems);
+  
+              // 缓存数据
+              this.detailFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得delete的fieldDefine。
+           *
+           * 依赖于各个字段的moduleDetail值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleDelete: {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           *     options: {
+          *           deleteDepend: 'pid' // 删除记录时，需要依赖它，例如: pid=one.id
+          *       }
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100
+                  }]
+           * @return {array}              detail的fieldDefine
+           */
+      }, {
+          key: 'getDeleteFieldDefine',
+          value: function getDeleteFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.deleteFieldDefine) {
+                  return this.deleteFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleDelete', extraItems, function (item, oneFieldDefine) {
+  
+                  // 额外参数配置，来自oneFieldDefine.moduleDelete.options
+                  if (typeof oneFieldDefine.moduleDelete.options === "object") {
+                      $.extend(item, oneFieldDefine.moduleDelete.options);
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.deleteFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得删除所需的参数
+           * @param {array} extraItems 额外的参数
+           *     [{
+                      key: 'id',
+                      fieldName: 'id'
+                  }]
+           * @return {array}   删除所需要的参数
+           */
+      }, {
+          key: 'getDeleteParam',
+          value: function getDeleteParam(extraItems) {
+              var result = [];
+  
+              this.getDeleteFieldDefine().forEach(function (item) {
+                  if (typeof item.deleteDepend === 'string') {
+                      result.push({
+                          key: item.deleteDepend,
+                          fieldName: item.fieldName
+                      });
+                  }
+              });
+  
+              // 如果有额外参数配置，则合并之
+              if (extraItems && extraItems.length) {
+                  result = result.concat(extraItems);
+              }
+  
+              return result;
+          }
+  
+          /**
+           * 获得所有字段的字段名和名称键值对
+           * @return {object}   map
+           */
+      }, {
+          key: '_getAllFieldTitleMap',
+          value: function _getAllFieldTitleMap() {
+              var _this2 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  map = {};
+  
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this2.fieldDefine[fieldName].title || fieldName;
+              });
+  
+              return map;
+          }
+  
+          /**
+           * 获得计算之后的fieldDefine数组
+           * @param  {string}   targetField model中的字段目标属性，比如moduleDatagrid等
+           * @param  {array}   extraItems  额外的要合并的结果项数组
+           * @param  {function}   dealFn      处理每一个字段回调处理，返回处理结果
+           *                                  第一个参数是当前处理的item对象，
+           *                                  第二个参数是当前处理的字段定义对象
+           * @return {array}               计算之后的fieldDefine数组
+           */
+      }, {
+          key: '_getComputedFieldDefine',
+          value: function _getComputedFieldDefine(targetField, extraItems, dealFn) {
+              var _this3 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  result = [];
+  
+              arr.forEach(function (fieldName) {
+                  // 字段的定义对象
+                  var one = _this3.fieldDefine[fieldName];
+  
+                  // 如果设置了展现才展示，设置fieldName\title\priority
+                  if (typeof one[targetField] === 'object' && one[targetField].show || typeof one[targetField] === 'boolean' && one[targetField]) {
+  
+                      var item = {};
+                      item.fieldName = fieldName;
+                      item.title = _this3.getTitle(fieldName);
+  
+                      if (typeof one[targetField].priority === 'undefined') {
+                          item.priority = 100;
+                      } else {
+                          item.priority = parseInt(one[targetField].priority, 10) || 100;
+                      }
+  
+                      if (typeof dealFn === "function") {
+                          item = dealFn(item, one);
+                      }
+  
+                      result.push(item);
+                  }
+              });
+  
+              // 如果有额外参数配置，则合并之
+              if (extraItems && extraItems.length) {
+                  result = result.concat(extraItems);
+              }
+  
+              // 依据权重进行排序，权重值从小到大排列
+              result = result.sort(function (a, b) {
+                  if (!a.priority) {
+                      a.priority = 100;
+                  }
+  
+                  if (!b.priority) {
+                      b.priority = 100;
+                  }
+  
+                  return a.priority - b.priority;
+              });
+  
+              // 返回结果
+              return result;
+          }
+      }]);
+  
+      return Model;
+  })();
+  
+  module.exports = Model;
+
+});
+
 ;/*!/components/tipalert/main.js*/
 define('components/tipalert/main', function(require, exports, module) {
 
@@ -15416,287 +15739,6 @@ define('pages/test_index/main', function(require, exports, module) {
 
 });
 
-;/*!/common/scripts/crudmodel.js*/
-define('common/scripts/crudmodel', function(require, exports, module) {
-
-  'use strict';
-  
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-  
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-  
-  var Model = (function () {
-      function Model(fieldDefine) {
-          _classCallCheck(this, Model);
-  
-          this.fieldDefine = fieldDefine || {};
-  
-          // map<fieldName, title>
-          this.fieldTitleMap = this._getAllFieldTitleMap();
-  
-          // datagrid的items
-          this.datagridItem = undefined;
-  
-          // detail的fieldDefine
-          this.detailFieldDefine = undefined;
-  
-          // delete的fieldDefine
-          this.deleteFieldDefine = undefined;
-      }
-  
-      /**
-       * 通过指定字段，返回对应的字段对象
-       * @param  {array}   arr 字段列表
-       * @return {object}       map
-       */
-  
-      _createClass(Model, [{
-          key: 'getFieldTitleMap',
-          value: function getFieldTitleMap(arr) {
-              var _this = this;
-  
-              if (!arr || !arr.length) {
-                  return this.fieldTitleMap;
-              }
-  
-              var map = {};
-              arr.forEach(function (fieldName) {
-                  map[fieldName] = _this.fieldTitleMap[fieldName];
-              });
-  
-              return map;
-          }
-  
-          /**
-           * 获取指定的字段的title
-           * @param  {string}   fieldName 字段
-           * @return {string}        字段对应的titile
-           */
-      }, {
-          key: 'getTitle',
-          value: function getTitle(fieldName) {
-              return this.fieldTitleMap[fieldName] || fieldName;
-          }
-  
-          /**
-           * 获得datagrid的items。
-           *
-           * 依赖于各个字段的moduleDatagrid值，该值可以为：
-           * 1. 如果为undefined，则其等价为{show:false}
-           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
-           * 3. 值为对象，其完整定义为： 
-           * moduleDatagrid : {
-           *     show : true, // 如果要展示，则此值为true，否则可以不定义
-           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
-           *     options: { // 额外的参数，用于datagrid上的配置，这里支持哪些配置请参考该组件的用法
-           *         css: 'namecss',
-           *         hide: false,
-           *         disableorder:fase
-           *     }
-           * }
-           * 
-           * @param  {array}   extraItems 额外附加items
-           *     [{
-                      name: 'id',
-                      title: '操作',
-                      render: 'commonOperate | detail modify delete',
-                      disableorder: true,
-                      priority: 100
-                  }]
-           * @return {array}              datagrid的items
-           */
-      }, {
-          key: 'getDatagridItem',
-          value: function getDatagridItem(extraItems) {
-              // 优先使用缓存
-              if (this.datagridItem) {
-                  return this.datagridItem;
-              }
-  
-              var result = this._getComputedFieldDefine('moduleDatagrid', extraItems, function (item, oneFieldDefine) {
-                  // datagrid只认name，而不认识fieldName
-                  item.name = item.fieldName;
-  
-                  // 额外的datagrid参数配置，来自oneFieldDefine.moduleDatagrid.options
-                  if (typeof oneFieldDefine.moduleDatagrid.options === "object") {
-                      $.extend(item, oneFieldDefine.moduleDatagrid.options);
-                  }
-  
-                  return item;
-              });
-  
-              // 缓存数据
-              this.datagridItem = result;
-  
-              // 返回结果
-              return result;
-          }
-  
-          /**
-           * 获得detail的fieldDefine。
-           *
-           * 依赖于各个字段的moduleDetail值，该值可以为：
-           * 1. 如果为undefined，则其等价为{show:false}
-           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
-           * 3. 值为对象，其完整定义为： 
-           * moduleDetail : {
-           *     show : true, // 如果要展示，则此值为true，否则可以不定义
-           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
-           * }
-           * 
-           * @param  {array}   extraItems 额外附加items
-           *     [{
-                      fieldName: 'id',
-                      title: 'ID',
-                      priority: 100
-                  }]
-           * @return {array}              detail的fieldDefine
-           */
-      }, {
-          key: 'getDetailFieldDefine',
-          value: function getDetailFieldDefine(extraItems) {
-              // 优先使用缓存
-              if (this.detailFieldDefine) {
-                  return this.detailFieldDefine;
-              }
-  
-              var result = this._getComputedFieldDefine('moduleDetail', extraItems);
-  
-              // 缓存数据
-              this.detailFieldDefine = result;
-  
-              // 返回结果
-              return result;
-          }
-  
-          /**
-          * 获得delete的fieldDefine。
-          *
-          * 依赖于各个字段的moduleDetail值，该值可以为：
-          * 1. 如果为undefined，则其等价为{show:false}
-          * 2. 如果boolean值，则其等价为{show:true}或{show:false}
-          * 3. 值为对象，其完整定义为： 
-          * moduleDelete: {
-          *     show : true, // 如果要展示，则此值为true，否则可以不定义
-          *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
-          * }
-          * 
-          * @param  {array}   extraItems 额外附加items
-          *     [{
-                     fieldName: 'id',
-                     title: 'ID',
-                     priority: 100
-                 }]
-          * @return {array}              detail的fieldDefine
-          */
-      }, {
-          key: 'getDeleteFieldDefine',
-          value: function getDeleteFieldDefine(extraItems) {
-              // 优先使用缓存
-              if (this.deleteFieldDefine) {
-                  return this.deleteFieldDefine;
-              }
-  
-              var result = this._getComputedFieldDefine('moduleDelete', extraItems);
-  
-              // 缓存数据
-              this.deleteFieldDefine = result;
-  
-              // 返回结果
-              return result;
-          }
-  
-          /**
-           * 获得所有字段的字段名和名称键值对
-           * @return {object}   map
-           */
-      }, {
-          key: '_getAllFieldTitleMap',
-          value: function _getAllFieldTitleMap() {
-              var _this2 = this;
-  
-              var arr = Object.keys(this.fieldDefine),
-                  map = {};
-  
-              arr.forEach(function (fieldName) {
-                  map[fieldName] = _this2.fieldDefine[fieldName].title || fieldName;
-              });
-  
-              return map;
-          }
-  
-          /**
-           * 获得计算之后的fieldDefine数组
-           * @param  {string}   targetField model中的字段目标属性，比如moduleDatagrid等
-           * @param  {array}   extraItems  额外的要合并的结果项数组
-           * @param  {function}   dealFn      处理每一个字段回调处理，返回处理结果
-           *                                  第一个参数是当前处理的item对象，
-           *                                  第二个参数是当前处理的字段定义对象
-           * @return {array}               计算之后的fieldDefine数组
-           */
-      }, {
-          key: '_getComputedFieldDefine',
-          value: function _getComputedFieldDefine(targetField, extraItems, dealFn) {
-              var _this3 = this;
-  
-              var arr = Object.keys(this.fieldDefine),
-                  result = [];
-  
-              arr.forEach(function (fieldName) {
-                  // 字段的定义对象
-                  var one = _this3.fieldDefine[fieldName];
-  
-                  // 如果设置了展现才展示，设置fieldName\title\priority
-                  if (typeof one[targetField] === 'object' && one[targetField].show || typeof one[targetField] === 'boolean' && one[targetField]) {
-  
-                      var item = {};
-                      item.fieldName = fieldName;
-                      item.title = _this3.getTitle(fieldName);
-  
-                      if (typeof one[targetField].priority === 'undefined') {
-                          item.priority = 100;
-                      } else {
-                          item.priority = parseInt(one[targetField].priority, 10) || 100;
-                      }
-  
-                      if (typeof dealFn === "function") {
-                          item = dealFn(item, one);
-                      }
-  
-                      result.push(item);
-                  }
-              });
-  
-              // 如果有额外参数配置，则合并之
-              if (extraItems && extraItems.length) {
-                  result = result.concat(extraItems);
-              }
-  
-              // 依据权重进行排序，权重值从小到大排列
-              result = result.sort(function (a, b) {
-                  if (!a.priority) {
-                      a.priority = 100;
-                  }
-  
-                  if (!b.priority) {
-                      b.priority = 100;
-                  }
-  
-                  return a.priority - b.priority;
-              });
-  
-              // 返回结果
-              return result;
-          }
-      }]);
-  
-      return Model;
-  })();
-  
-  module.exports = Model;
-
-});
-
 ;/*!/pages/user_index/model.js*/
 define('pages/user_index/model', function(require, exports, module) {
 
@@ -15739,7 +15781,12 @@ define('pages/user_index/model', function(require, exports, module) {
           }
       },
       moduleDetail: true,
-      moduleDelete: true
+      moduleDelete: {
+          show: true,
+          options: {
+              deleteDepend: 'id'
+          }
+      }
   };
   
   // 用户名
@@ -16073,6 +16120,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
               this.modalTitle = '查看用户信息';
+  
               this.modalInitData = $.extend({}, data);
               this.modalFieldDefine = Model.getDetailFieldDefine();
           },
@@ -16083,10 +16131,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.modalInitData = $.extend({}, data);
               this.modalFieldDefine = Model.getDeleteFieldDefine();
   
-              this.deleteParam = [{
-                  key: 'id',
-                  fieldName: 'id'
-              }];
+              this.deleteParam = Model.getDeleteParam();
           }
       },
       ready: function ready() {}

@@ -164,6 +164,7 @@ module.exports = Vue.extend({
         },
         beforeShowDetailPage: function(data) {
             this.modalTitle = '查看用户信息';
+            
             this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getDetailFieldDefine();
         },
@@ -173,11 +174,8 @@ module.exports = Vue.extend({
 
             this.modalInitData = $.extend({}, data);
             this.modalFieldDefine = Model.getDeleteFieldDefine();
-            
-            this.deleteParam = [{
-                key: 'id',
-                fieldName: 'id'
-            }];
+
+            this.deleteParam = Model.getDeleteParam();
         },
     },
     ready: function() {

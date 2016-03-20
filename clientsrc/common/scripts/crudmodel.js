@@ -131,7 +131,7 @@ class Model {
         return result;
     }
 
-     /**
+    /**
      * 获得delete的fieldDefine。
      *
      * 依赖于各个字段的moduleDetail值，该值可以为：
@@ -141,6 +141,9 @@ class Model {
      * moduleDelete: {
      *     show : true, // 如果要展示，则此值为true，否则可以不定义
      *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+     *     options: {
+    *           deleteDepend: 'pid' // 删除记录时，需要依赖它，例如: pid=one.id
+    *       }
      * }
      * 
      * @param  {array}   extraItems 额外附加items
@@ -157,12 +160,49 @@ class Model {
             return this.deleteFieldDefine;
         }
 
-        var result = this._getComputedFieldDefine('moduleDelete', extraItems);
+        var result = this._getComputedFieldDefine('moduleDelete', extraItems, function(item, oneFieldDefine) {
+
+            // 额外参数配置，来自oneFieldDefine.moduleDelete.options
+            if (typeof oneFieldDefine.moduleDelete.options === "object") {
+                $.extend(item, oneFieldDefine.moduleDelete.options);
+            }
+
+            return item;
+        });
 
         // 缓存数据
         this.deleteFieldDefine = result;
 
         // 返回结果
+        return result;
+    }
+
+    /**
+     * 获得删除所需的参数
+     * @param {array} extraItems 额外的参数
+     *     [{
+                key: 'id',
+                fieldName: 'id'
+            }]
+     * @return {array}   删除所需要的参数
+     */
+    getDeleteParam(extraItems) {
+        var result = [];
+
+        this.getDeleteFieldDefine().forEach(item => {
+            if (typeof item.deleteDepend === 'string') {
+                result.push({
+                    key: item.deleteDepend,
+                    fieldName: item.fieldName
+                });
+            }
+        });
+
+        // 如果有额外参数配置，则合并之
+        if (extraItems && extraItems.length) {
+            result = result.concat(extraItems);
+        }
+
         return result;
     }
 
