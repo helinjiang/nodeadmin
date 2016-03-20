@@ -11797,17 +11797,17 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
           beforeModal: function beforeModal() {
               var _this = this;
   
-              var result = [];
+              var items = [];
   
               this.fieldDefine.forEach(function (item) {
-                  result.push({
+                  items.push({
                       fieldName: item.fieldName,
                       title: item.title,
                       value: _this.initData[item.fieldName]
                   });
               });
   
-              this.items = result;
+              this.items = items;
           }
       }
   });
@@ -11885,10 +11885,10 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 字段定义字典，key为字段名，value为其显示的中文名
+           * 字段定义数组
            */
           fieldDefine: {
-              type: Object,
+              type: Array,
               required: true
           },
           param: Array,
@@ -11909,19 +11909,18 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
               var items = [],
                   requestParam = {};
   
-              // TODO 此处的map用法错误
-              Object.keys(this.fieldDefine).map(function (key) {
+              this.fieldDefine.forEach(function (item) {
                   items.push({
-                      key: key,
-                      value: _this.initData[key],
-                      title: _this.fieldDefine[key]
+                      fieldName: item.fieldName,
+                      title: item.title,
+                      value: _this.initData[item.fieldName]
                   });
               });
   
               this.items = items;
   
               if (this.param) {
-                  this.param.map(function (item) {
+                  this.param.forEach(function (item) {
                       requestParam[item.key] = _this.initData[item.fieldName];
                   });
               }
@@ -15440,6 +15439,9 @@ define('common/scripts/crudmodel', function(require, exports, module) {
   
           // detail的fieldDefine
           this.detailFieldDefine = undefined;
+  
+          // delete的fieldDefine
+          this.deleteFieldDefine = undefined;
       }
   
       /**
@@ -15498,7 +15500,8 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                       name: 'id',
                       title: '操作',
                       render: 'commonOperate | detail modify delete',
-                      disableorder: true
+                      disableorder: true,
+                      priority: 100
                   }]
            * @return {array}              datagrid的items
            */
@@ -15544,7 +15547,8 @@ define('common/scripts/crudmodel', function(require, exports, module) {
            * @param  {array}   extraItems 额外附加items
            *     [{
                       fieldName: 'id',
-                      title: 'ID'
+                      title: 'ID',
+                      priority: 100
                   }]
            * @return {array}              detail的fieldDefine
            */
@@ -15560,6 +15564,43 @@ define('common/scripts/crudmodel', function(require, exports, module) {
   
               // 缓存数据
               this.detailFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+          * 获得delete的fieldDefine。
+          *
+          * 依赖于各个字段的moduleDetail值，该值可以为：
+          * 1. 如果为undefined，则其等价为{show:false}
+          * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+          * 3. 值为对象，其完整定义为： 
+          * moduleDelete: {
+          *     show : true, // 如果要展示，则此值为true，否则可以不定义
+          *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+          * }
+          * 
+          * @param  {array}   extraItems 额外附加items
+          *     [{
+                     fieldName: 'id',
+                     title: 'ID',
+                     priority: 100
+                 }]
+          * @return {array}              detail的fieldDefine
+          */
+      }, {
+          key: 'getDeleteFieldDefine',
+          value: function getDeleteFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.deleteFieldDefine) {
+                  return this.deleteFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleDelete', extraItems);
+  
+              // 缓存数据
+              this.deleteFieldDefine = result;
   
               // 返回结果
               return result;
@@ -15605,7 +15646,7 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                   // 字段的定义对象
                   var one = _this3.fieldDefine[fieldName];
   
-                  // 如果设置了展现在datagrid中才展示
+                  // 如果设置了展现才展示，设置fieldName\title\priority
                   if (typeof one[targetField] === 'object' && one[targetField].show || typeof one[targetField] === 'boolean' && one[targetField]) {
   
                       var item = {};
@@ -16040,7 +16081,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.modalCgi = '/admin/user/delete';
   
               this.modalInitData = $.extend({}, data);
-              this.modalFieldDefine = Model.getFieldTitleMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
+              this.modalFieldDefine = Model.getDeleteFieldDefine();
   
               this.deleteParam = [{
                   key: 'id',

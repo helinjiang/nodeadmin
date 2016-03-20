@@ -32,17 +32,17 @@ Vue.component('crud-modal-detail', {
     mixins: [mixinsBasicModal],
     methods: {
         beforeModal: function() {
-             var result = [];
+             var items = [];
 
             this.fieldDefine.forEach(item => {
-                result.push({
+                items.push({
                     fieldName: item.fieldName,
                     title: item.title,
                     value: this.initData[item.fieldName]
                 });
             });
 
-            this.items = result;
+            this.items = items;
         }
     }
 });

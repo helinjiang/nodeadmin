@@ -11,6 +11,9 @@ class Model {
 
         // detail的fieldDefine
         this.detailFieldDefine = undefined;
+
+        // delete的fieldDefine
+        this.deleteFieldDefine = undefined;
     }
 
     /**
@@ -63,7 +66,8 @@ class Model {
                 name: 'id',
                 title: '操作',
                 render: 'commonOperate | detail modify delete',
-                disableorder: true
+                disableorder: true,
+                priority: 100
             }]
      * @return {array}              datagrid的items
      */
@@ -107,7 +111,8 @@ class Model {
      * @param  {array}   extraItems 额外附加items
      *     [{
                 fieldName: 'id',
-                title: 'ID'
+                title: 'ID',
+                priority: 100
             }]
      * @return {array}              detail的fieldDefine
      */
@@ -121,6 +126,41 @@ class Model {
 
         // 缓存数据
         this.detailFieldDefine = result;
+
+        // 返回结果
+        return result;
+    }
+
+     /**
+     * 获得delete的fieldDefine。
+     *
+     * 依赖于各个字段的moduleDetail值，该值可以为：
+     * 1. 如果为undefined，则其等价为{show:false}
+     * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+     * 3. 值为对象，其完整定义为： 
+     * moduleDelete: {
+     *     show : true, // 如果要展示，则此值为true，否则可以不定义
+     *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+     * }
+     * 
+     * @param  {array}   extraItems 额外附加items
+     *     [{
+                fieldName: 'id',
+                title: 'ID',
+                priority: 100
+            }]
+     * @return {array}              detail的fieldDefine
+     */
+    getDeleteFieldDefine(extraItems) {
+        // 优先使用缓存
+        if (this.deleteFieldDefine) {
+            return this.deleteFieldDefine;
+        }
+
+        var result = this._getComputedFieldDefine('moduleDelete', extraItems);
+
+        // 缓存数据
+        this.deleteFieldDefine = result;
 
         // 返回结果
         return result;
@@ -160,7 +200,7 @@ class Model {
             // 字段的定义对象
             var one = this.fieldDefine[fieldName];
 
-            // 如果设置了展现在datagrid中才展示
+            // 如果设置了展现才展示，设置fieldName\title\priority
             if (typeof one[targetField] === 'object' && one[targetField].show || typeof one[targetField] === 'boolean' && one[targetField]) {
 
                 var item = {};

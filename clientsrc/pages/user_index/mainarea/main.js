@@ -172,14 +172,8 @@ module.exports = Vue.extend({
             this.modalCgi = '/admin/user/delete';
 
             this.modalInitData = $.extend({}, data);
-            this.modalFieldDefine = Model.getFieldTitleMap([
-                'id',
-                'name',
-                'stateShow',
-                'createTime',
-                'updateTime'
-            ]);
-
+            this.modalFieldDefine = Model.getDeleteFieldDefine();
+            
             this.deleteParam = [{
                 key: 'id',
                 fieldName: 'id'
