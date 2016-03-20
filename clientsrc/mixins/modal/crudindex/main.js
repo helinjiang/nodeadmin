@@ -3,25 +3,22 @@ module.exports = {
     template: '<div>EMPTY</div>',
     data: function() {
         return {
-            datagridUrl: '',
+            datagridCgi: '',
             datagridTitle: '',
             datagridItem: [],
+            datagridType: 'front', // 默认前端分页
+
             isShowSaveModal: false,
             isShowDetailModal: false,
             isShowDeleteModal: false,
-            initData: {},
-            fieldData: {},
-            isAdd: true,
-            saveUrl: '',
-            saveUrlType: 'front', // 默认前端分页
-            saveTitle: '',
-            saveField: {},
-            detailField: {},
-            detailTitle: '',
-            deleteField: {},
+
+            modalTitle: '',
+            modalInitData: {},
+            modalFieldDefine: {},
+            modalCgi: '',
+
+            isAdd: true, 
             deleteParam: {},
-            deleteUrl: '',
-            deleteTitle: ''
         };
     },
     methods: {
@@ -92,15 +89,11 @@ module.exports = {
             // 设置初始值
         },
         showAddPage: function() {
-            this.isAdd = true;
-
             this.beforeShowAddPage();
 
             this.isShowSaveModal = true;
         },
         showModifyPage: function(data) {
-            this.isAdd = false;
-
             this.beforeShowModifyPage(data);
 
             this.isShowSaveModal = true;

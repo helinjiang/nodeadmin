@@ -25,7 +25,7 @@ Vue.component('crud-modal-save', {
         /**
          * 字段定义数据，数组，每个字段用什么来展示
          */
-        fieldData: {
+        fieldDefine: {
             type: Array,
             required: true
         },
@@ -33,10 +33,10 @@ Vue.component('crud-modal-save', {
         /**
          * 字段定义字典，key为字段名，value为其显示的中文名
          */
-        filedTitleMap: {
-            type: Object,
-            required: true
-        },
+        // filedTitleMap: {
+        //     type: Object,
+        //     required: true
+        // },
 
         /**
          * 校验器规则
@@ -55,11 +55,6 @@ Vue.component('crud-modal-save', {
             type: String,
             required: true
         },
-
-        /**
-         * 当前是否为新增页面，因为新增和修改页面会不一样
-         */
-        isAdd: Boolean,
 
         /**
          * 标题
@@ -89,11 +84,12 @@ Vue.component('crud-modal-save', {
 
             var items = [];
 
-            this.fieldData.forEach(key => {
+            this.fieldDefine.forEach(key => {
                 var filedName = key.filedName;
 
                 // 设置字段显示名称
-                key.title = this.filedTitleMap[filedName];
+                // key.title = this.filedTitleMap[filedName];
+                key.title = filedName;
 
                 // 如果有初始值，则设置之
                 if (this.initData[filedName]) {

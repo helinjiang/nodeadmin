@@ -1,30 +1,46 @@
 <div class="index-main">
 
     <admin-main-toolbar>
-        <!--inline[mixins/modal/crudindex/btn-add.html]-->
+        <he-button 
+                type="success" 
+                icon="plus" 
+                @click="showAddPage">
+                    新增
+        </he-button> 
     </admin-main-toolbar>
     
 
-    <!--inline[mixins/modal/crudindex/detail.html]-->
+<crud-modal-detail v-if="isShowDetailModal" 
+            :title="modalTitle"
+            :init-data="modalInitData" 
+            :field-define="modalFieldDefine">
+</crud-modal-detail>
 
 <crud-modal-delete v-if="isShowDeleteModal" 
-            :init-data="initData" 
-            :field="deleteField" 
+            :title="modalTitle"
+            :init-data="modalInitData" 
+            :field-define="modalFieldDefine" 
             :param="deleteParam"
-            :url="deleteUrl"
-            :title="deleteTitle">
+            :url="modalCgi">
 </crud-modal-delete>
 
 <crud-modal-save v-if="isShowSaveModal" 
-            :init-data="initData"
-            :field-data="fieldData"
-            :filed-title-map="saveField" 
+            :title="modalTitle"
+            :init-data="modalInitData"
+            :field-define="modalFieldDefine" 
             :validator-options="validatorOptions"
-            :is-add="isAdd"
-            :title="saveTitle"
-            :url="saveUrl">
+            :url="modalCgi">
 </crud-modal-save>
     
-    <!--inline[mixins/modal/crudindex/datagrid.html]-->
+<portlet :title="datagridTitle" icon="globe">    
+    <datagrid 
+            :url="datagridCgi" 
+            :items="datagridItem"
+            :type="datagridType"
+            @click="operate" 
+            v-ref:datagrid>            
+    </datagrid>
+</portlet>   
+
 
 </div>

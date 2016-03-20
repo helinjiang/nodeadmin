@@ -21,7 +21,7 @@ Vue.component('crud-modal-delete', {
         /**
          * 字段定义字典，key为字段名，value为其显示的中文名
          */
-        field: {
+        fieldDefine: {
             type: Object,
             required: true
         },
@@ -42,11 +42,11 @@ Vue.component('crud-modal-delete', {
                 requestParam = {};
 
             // TODO 此处的map用法错误
-            Object.keys(this.field).map(key => {
+            Object.keys(this.fieldDefine).map(key => {
                 items.push({
                     key: key,
                     value: this.initData[key],
-                    title: this.field[key]
+                    title: this.fieldDefine[key]
                 });
             });
 

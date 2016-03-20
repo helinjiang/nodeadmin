@@ -20,7 +20,7 @@ Vue.component('crud-modal-detail', {
         /**
          * 字段定义字典，key为字段名，value为其显示的中文名
          */
-        field: {
+        fieldDefine: {
             type: Object,
             required: true
         },
@@ -33,14 +33,14 @@ Vue.component('crud-modal-detail', {
     methods: {
         beforeModal: function() {
 
-            var filedNameArr = Object.keys(this.field),
+            var filedNameArr = Object.keys(this.fieldDefine),
                 result = [];
 
             filedNameArr.map(key => {
                 result.push({
                     key: key,
                     value: this.initData[key],
-                    title: this.field[key]
+                    title: this.fieldDefine[key]
                 });
             });
 

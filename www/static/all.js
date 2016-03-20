@@ -12231,7 +12231,7 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
           /**
            * 字段定义字典，key为字段名，value为其显示的中文名
            */
-          field: {
+          fieldDefine: {
               type: Object,
               required: true
           },
@@ -12245,14 +12245,14 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
           beforeModal: function beforeModal() {
               var _this = this;
   
-              var filedNameArr = Object.keys(this.field),
+              var filedNameArr = Object.keys(this.fieldDefine),
                   result = [];
   
               filedNameArr.map(function (key) {
                   result.push({
                       key: key,
                       value: _this.initData[key],
-                      title: _this.field[key]
+                      title: _this.fieldDefine[key]
                   });
               });
   
@@ -12291,7 +12291,7 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
           /**
            * 字段定义字典，key为字段名，value为其显示的中文名
            */
-          field: {
+          fieldDefine: {
               type: Object,
               required: true
           },
@@ -12314,11 +12314,11 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
                   requestParam = {};
   
               // TODO 此处的map用法错误
-              Object.keys(this.field).map(function (key) {
+              Object.keys(this.fieldDefine).map(function (key) {
                   items.push({
                       key: key,
                       value: _this.initData[key],
-                      title: _this.field[key]
+                      title: _this.fieldDefine[key]
                   });
               });
   
@@ -12393,7 +12393,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           /**
            * 字段定义数据，数组，每个字段用什么来展示
            */
-          fieldData: {
+          fieldDefine: {
               type: Array,
               required: true
           },
@@ -12401,10 +12401,10 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           /**
            * 字段定义字典，key为字段名，value为其显示的中文名
            */
-          filedTitleMap: {
-              type: Object,
-              required: true
-          },
+          // filedTitleMap: {
+          //     type: Object,
+          //     required: true
+          // },
   
           /**
            * 校验器规则
@@ -12423,11 +12423,6 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
               type: String,
               required: true
           },
-  
-          /**
-           * 当前是否为新增页面，因为新增和修改页面会不一样
-           */
-          isAdd: Boolean,
   
           /**
            * 标题
@@ -12459,11 +12454,12 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
   
               var items = [];
   
-              this.fieldData.forEach(function (key) {
+              this.fieldDefine.forEach(function (key) {
                   var filedName = key.filedName;
   
                   // 设置字段显示名称
-                  key.title = _this.filedTitleMap[filedName];
+                  // key.title = this.filedTitleMap[filedName];
+                  key.title = filedName;
   
                   // 如果有初始值，则设置之
                   if (_this.initData[filedName]) {
@@ -14122,25 +14118,22 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
       template: '<div>EMPTY</div>',
       data: function data() {
           return {
-              datagridUrl: '',
+              datagridCgi: '',
               datagridTitle: '',
               datagridItem: [],
+              datagridType: 'front', // 默认前端分页
+  
               isShowSaveModal: false,
               isShowDetailModal: false,
               isShowDeleteModal: false,
-              initData: {},
-              fieldData: {},
+  
+              modalTitle: '',
+              modalInitData: {},
+              modalFieldDefine: {},
+              modalCgi: '',
+  
               isAdd: true,
-              saveUrl: '',
-              saveUrlType: 'front', // 默认前端分页
-              saveTitle: '',
-              saveField: {},
-              detailField: {},
-              detailTitle: '',
-              deleteField: {},
-              deleteParam: {},
-              deleteUrl: '',
-              deleteTitle: ''
+              deleteParam: {}
           };
       },
       methods: {
@@ -14211,15 +14204,11 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
               // 设置初始值
           },
           showAddPage: function showAddPage() {
-              this.isAdd = true;
-  
               this.beforeShowAddPage();
   
               this.isShowSaveModal = true;
           },
           showModifyPage: function showModifyPage(data) {
-              this.isAdd = false;
-  
               this.beforeShowModifyPage(data);
   
               this.isShowSaveModal = true;
@@ -15667,19 +15656,15 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var Model = require('pages/user_index/model');
-  var saveModal = require('pages/user_index/mainarea/savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :field-data=\"fieldData\"\r\n            :filed-title-map=\"saveField\" \r\n            :validator-options=\"validatorOptions\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
-      components: {
-          'saveModal': saveModal
-      },
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n                type=\"success\" \r\n                icon=\"plus\" \r\n                @click=\"showAddPage\">\r\n                    新增\r\n        </he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n<crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n<crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :param=\"deleteParam\"\r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n<crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :validator-options=\"validatorOptions\"\r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n<portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
               this.datagridTitle = '用户信息列表';
-              this.datagridUrl = '/admin/user/getdata';
+              this.datagridCgi = '/admin/user/getdata';
   
               this.datagridItem = Model.getDatagridItem(['id', 'name', 'pwd', 'birthday', 'createTime', 'updateTime', 'stateShow'], {
                   name: {
@@ -15696,15 +15681,15 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               }]);
           },
           beforeShowAddPage: function beforeShowAddPage() {
-              this.saveTitle = '新增用户信息';
-              this.saveUrl = '/admin/user/add';
+              this.modalTitle = '新增用户信息';
+              this.modalCgi = '/admin/user/add';
   
-              this.initData = {
+              this.modalInitData = {
                   birthday: '2016-03-01',
                   state: '1'
               };
   
-              this.fieldData = [{
+              this.modalFieldDefine = [{
                   filedName: 'name',
                   elementType: 'input'
               }, {
@@ -15778,12 +15763,12 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.validatorOptions = config;
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
-              this.saveTitle = '修改用户信息';
-              this.saveUrl = '/admin/user/modify';
+              this.modalTitle = '修改用户信息';
+              this.modalCgi = '/admin/user/modify';
   
-              this.initData = $.extend({}, data);
+              this.modalInitData = $.extend({}, data);
   
-              this.fieldData = [{
+              this.modalFieldDefine = [{
                   filedName: 'id',
                   elementType: 'input',
                   elementParam: {
@@ -15830,17 +15815,17 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.validatorOptions = config;
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
-              this.detailTitle = '查看用户信息';
+              this.modalTitle = '查看用户信息';
   
-              this.initData = $.extend({}, data);
-              this.detailField = Model.getNameMap(['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime']);
+              this.modalInitData = $.extend({}, data);
+              this.modalFieldDefine = Model.getNameMap(['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime']);
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
-              this.deleteTitle = '删除用户信息';
-              this.deleteUrl = '/admin/user/delete';
+              this.modalTitle = '删除用户信息';
+              this.modalCgi = '/admin/user/delete';
   
-              this.initData = $.extend({}, data);
-              this.deleteField = Model.getNameMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
+              this.modalInitData = $.extend({}, data);
+              this.modalFieldDefine = Model.getNameMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
   
               this.deleteParam = [{
                   key: 'id',
