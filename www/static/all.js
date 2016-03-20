@@ -15421,11 +15421,11 @@ define('pages/test_index/main', function(require, exports, module) {
 ;/*!/common/scripts/crudmodel.js*/
 define('common/scripts/crudmodel', function(require, exports, module) {
 
-  "use strict";
+  'use strict';
   
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
   
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
   
   var Model = (function () {
       function Model(fieldDefine) {
@@ -15444,7 +15444,7 @@ define('common/scripts/crudmodel', function(require, exports, module) {
        */
   
       _createClass(Model, [{
-          key: "getFieldTitleMap",
+          key: 'getFieldTitleMap',
           value: function getFieldTitleMap(arr) {
               var _this = this;
   
@@ -15466,14 +15466,18 @@ define('common/scripts/crudmodel', function(require, exports, module) {
            * @return {string}        字段对应的titile
            */
       }, {
-          key: "getTitle",
+          key: 'getTitle',
           value: function getTitle(fieldName) {
               return this.fieldTitleMap[fieldName] || fieldName;
           }
   
           /**
-           * 获得datagrid的items
+           * 获得datagrid的items。
            *
+           * 依赖于各个字段的moduleDatagrid值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
            * moduleDatagrid : {
            *     show : true, // 如果要展示，则此值为true，否则可以不定义moduleDatagrid
            *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
@@ -15490,7 +15494,7 @@ define('common/scripts/crudmodel', function(require, exports, module) {
            * @return {array}              datagrid的items
            */
       }, {
-          key: "getDatagridItem",
+          key: 'getDatagridItem',
           value: function getDatagridItem(extraItems) {
               var _this2 = this;
   
@@ -15502,14 +15506,19 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                   var one = _this2.fieldDefine[fieldName];
   
                   // 如果设置了展现在datagrid中才展示
-                  if (one.moduleDatagrid && one.moduleDatagrid.show) {
+                  if (typeof one.moduleDatagrid === 'objcet' && one.moduleDatagrid.show || typeof one.moduleDatagrid === 'boolean' && one.moduleDatagrid) {
                       var item = {};
                       item.name = fieldName;
                       item.title = _this2.getTitle(fieldName);
-                      item.priority = one.moduleDatagrid.priority || 100;
+  
+                      if (typeof one.moduleDatagrid.priority === 'undefined') {
+                          item.priority = 100;
+                      } else {
+                          item.priority = parseInt(one.moduleDatagrid.priority, 10) || 100;
+                      }
   
                       // 额外的datagrid-item参数配置来自one.moduleDatagrid.options
-                      if (one.moduleDatagrid.options) {
+                      if (typeof one.moduleDatagrid.options === "object") {
                           $.extend(item, one.moduleDatagrid.options);
                       }
   
@@ -15543,7 +15552,7 @@ define('common/scripts/crudmodel', function(require, exports, module) {
            * @return {object}   map
            */
       }, {
-          key: "_getAllFieldTitleMap",
+          key: '_getAllFieldTitleMap',
           value: function _getAllFieldTitleMap() {
               var _this3 = this;
   
@@ -15595,12 +15604,7 @@ define('pages/user_index/model', function(require, exports, module) {
   // ID
   fieldDefine.id = {
       title: 'ID',
-      moduleDatagrid: {
-          show: true
-      },
-      moduleAdd: {
-          show: false
-      },
+      moduleDatagrid: true,
       moduleModify: {
           show: true,
           options: {
@@ -15611,12 +15615,8 @@ define('pages/user_index/model', function(require, exports, module) {
               }
           }
       },
-      moduleDetail: {
-          show: true
-      },
-      moduleDelete: {
-          show: true
-      }
+      moduleDetail: true,
+      moduleDelete: true
   };
   
   // 用户名
@@ -15647,12 +15647,8 @@ define('pages/user_index/model', function(require, exports, module) {
               }
           }
       },
-      moduleDetail: {
-          show: true
-      },
-      moduleDelete: {
-          show: true
-      },
+      moduleDetail: true,
+      moduleDelete: true,
       validator: {
           required: {
               rule: true,
@@ -15739,9 +15735,7 @@ define('pages/user_index/model', function(require, exports, module) {
   // 生日
   fieldDefine.birthday = {
       title: '生日',
-      moduleDatagrid: {
-          show: true
-      },
+      moduleDatagrid: true,
       moduleAdd: {
           show: true,
           options: {
@@ -15755,12 +15749,8 @@ define('pages/user_index/model', function(require, exports, module) {
               type: 'date'
           }
       },
-      moduleDetail: {
-          show: true
-      },
-      moduleDelete: {
-          show: true
-      },
+      moduleDetail: true,
+      moduleDelete: true,
       validator: {
           required: {
               rule: true,
@@ -15772,49 +15762,31 @@ define('pages/user_index/model', function(require, exports, module) {
   // 创建时间
   fieldDefine.createTime = {
       title: '创建时间',
-      moduleDatagrid: {
-          show: true
-      },
-      moduleDetail: {
-          show: true
-      },
-      moduleDelete: {
-          show: true
-      }
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
   };
   
   // 更新时间
   fieldDefine.updateTime = {
       title: '更新时间',
-      moduleDatagrid: {
-          show: true
-      },
-      moduleDetail: {
-          show: true
-      },
-      moduleDelete: {
-          show: true
-      }
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
   };
   
   // 状态，对应的是state
   fieldDefine.stateShow = {
       title: '状态',
-      moduleDatagrid: {
-          show: true
-      },
+      moduleDatagrid: true,
       moduleAdd: {
           show: false
       },
       moduleModify: {
           show: false
       },
-      moduleDetail: {
-          show: true
-      },
-      moduleDelete: {
-          show: true
-      }
+      moduleDetail: true,
+      moduleDelete: true
   };
   
   module.exports = new Model(fieldDefine);

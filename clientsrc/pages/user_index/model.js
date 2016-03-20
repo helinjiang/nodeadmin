@@ -11,12 +11,7 @@ var fieldDefine = {};
 // ID
 fieldDefine.id = {
     title: 'ID',
-    moduleDatagrid: {
-        show: true
-    },
-    moduleAdd: {
-        show: false
-    },
+    moduleDatagrid: true,
     moduleModify: {
         show: true,
         options: {
@@ -27,12 +22,8 @@ fieldDefine.id = {
             }
         }
     },
-    moduleDetail: {
-        show: true
-    },
-    moduleDelete: {
-        show: true
-    }
+    moduleDetail: true,
+    moduleDelete: true
 };
 
 // 用户名
@@ -63,12 +54,8 @@ fieldDefine.name = {
             }
         }
     },
-    moduleDetail: {
-        show: true
-    },
-    moduleDelete: {
-        show: true
-    },
+    moduleDetail: true,
+    moduleDelete: true,
     validator: {
         required: {
             rule: true,
@@ -155,9 +142,7 @@ fieldDefine.state = {
 // 生日
 fieldDefine.birthday = {
     title: '生日',
-    moduleDatagrid: {
-        show: true
-    },
+    moduleDatagrid: true,
     moduleAdd: {
         show: true,
         options: {
@@ -171,12 +156,8 @@ fieldDefine.birthday = {
             type: 'date'
         }
     },
-    moduleDetail: {
-        show: true
-    },
-    moduleDelete: {
-        show: true
-    },
+    moduleDetail: true,
+    moduleDelete: true,
     validator: {
         required: {
             rule: true,
@@ -188,50 +169,32 @@ fieldDefine.birthday = {
 // 创建时间
 fieldDefine.createTime = {
     title: '创建时间',
-    moduleDatagrid: {
-        show: true
-    },   
-    moduleDetail: {
-        show: true
-    },
-    moduleDelete: {
-        show: true
-    }
+    moduleDatagrid: true,   
+    moduleDetail: true,
+    moduleDelete: true
 };
 
 // 更新时间
 fieldDefine.updateTime = {
     title: '更新时间',
-    moduleDatagrid: {
-        show: true
-    },   
-    moduleDetail: {
-        show: true
-    },
-    moduleDelete: {
-        show: true
-    }
+    moduleDatagrid: true,   
+    moduleDetail: true,
+    moduleDelete: true
 };
 
 
 // 状态，对应的是state
 fieldDefine.stateShow = {
     title: '状态',
-    moduleDatagrid: {
-        show: true
-    },
+    moduleDatagrid: true,
     moduleAdd: {
         show: false
     },
     moduleModify: {
         show: false
     },
-    moduleDetail: {
-        show: true
-    },
-    moduleDelete: {
-        show: true
-    }
+    moduleDetail: true,
+    moduleDelete: true
 };
 
 

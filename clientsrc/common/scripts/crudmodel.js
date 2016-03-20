@@ -36,8 +36,12 @@ class Model {
     }
 
     /**
-     * 获得datagrid的items
+     * 获得datagrid的items。
      *
+     * 依赖于各个字段的moduleDatagrid值，该值可以为：
+     * 1. 如果为undefined，则其等价为{show:false}
+     * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+     * 3. 值为对象，其完整定义为： 
      * moduleDatagrid : {
      *     show : true, // 如果要展示，则此值为true，否则可以不定义moduleDatagrid
      *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
@@ -62,14 +66,19 @@ class Model {
             var one = this.fieldDefine[fieldName];
 
             // 如果设置了展现在datagrid中才展示
-            if (one.moduleDatagrid && one.moduleDatagrid.show) {
+            if (typeof one.moduleDatagrid === 'objcet' && one.moduleDatagrid.show || typeof one.moduleDatagrid === 'boolean' && one.moduleDatagrid) {
                 var item = {};
                 item.name = fieldName;
                 item.title = this.getTitle(fieldName);
-                item.priority = one.moduleDatagrid.priority || 100;
+
+                if (typeof one.moduleDatagrid.priority === 'undefined') {
+                    item.priority = 100;
+                } else {
+                    item.priority = parseInt(one.moduleDatagrid.priority, 10) || 100;
+                }
 
                 // 额外的datagrid-item参数配置来自one.moduleDatagrid.options
-                if (one.moduleDatagrid.options) {
+                if (typeof one.moduleDatagrid.options === "object") {
                     $.extend(item, one.moduleDatagrid.options);
                 }
 
