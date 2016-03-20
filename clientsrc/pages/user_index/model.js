@@ -169,17 +169,13 @@ fieldDefine.birthday = {
 // 创建时间
 fieldDefine.createTime = {
     title: '创建时间',
-    moduleDatagrid: true,   
-    moduleDetail: true,
-    moduleDelete: true
+    moduleDatagrid: true
 };
 
 // 更新时间
 fieldDefine.updateTime = {
     title: '更新时间',
-    moduleDatagrid: true,   
-    moduleDetail: true,
-    moduleDelete: true
+    moduleDatagrid: true
 };
 
 

@@ -36,9 +36,9 @@ Vue.component('crud-modal-detail', {
 
             this.fieldDefine.forEach(item => {
                 result.push({
-                    fieldName: item.name,
+                    fieldName: item.fieldName,
                     title: item.title,
-                    value: this.initData[item.name]
+                    value: this.initData[item.fieldName]
                 });
             });
 

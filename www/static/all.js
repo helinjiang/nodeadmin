@@ -11801,9 +11801,9 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
   
               this.fieldDefine.forEach(function (item) {
                   result.push({
-                      fieldName: item.name,
+                      fieldName: item.fieldName,
                       title: item.title,
-                      value: _this.initData[item.name]
+                      value: _this.initData[item.fieldName]
                   });
               });
   
@@ -15494,63 +15494,32 @@ define('common/scripts/crudmodel', function(require, exports, module) {
            * }
            * 
            * @param  {array}   extraItems 额外附加items
+           *     [{
+                      name: 'id',
+                      title: '操作',
+                      render: 'commonOperate | detail modify delete',
+                      disableorder: true
+                  }]
            * @return {array}              datagrid的items
            */
       }, {
           key: 'getDatagridItem',
           value: function getDatagridItem(extraItems) {
-              var _this2 = this;
-  
               // 优先使用缓存
               if (this.datagridItem) {
                   return this.datagridItem;
               }
   
-              var arr = Object.keys(this.fieldDefine),
-                  result = [];
+              var result = this._getComputedFieldDefine('moduleDatagrid', extraItems, function (item, oneFieldDefine) {
+                  // datagrid只认name，而不认识fieldName
+                  item.name = item.fieldName;
   
-              arr.forEach(function (fieldName) {
-                  // 字段的定义对象
-                  var one = _this2.fieldDefine[fieldName];
-  
-                  // 如果设置了展现在datagrid中才展示
-                  if (typeof one.moduleDatagrid === 'object' && one.moduleDatagrid.show || typeof one.moduleDatagrid === 'boolean' && one.moduleDatagrid) {
-  
-                      var item = {};
-                      item.name = fieldName;
-                      item.title = _this2.getTitle(fieldName);
-  
-                      if (typeof one.moduleDatagrid.priority === 'undefined') {
-                          item.priority = 100;
-                      } else {
-                          item.priority = parseInt(one.moduleDatagrid.priority, 10) || 100;
-                      }
-  
-                      // 额外的datagrid-item参数配置来自one.moduleDatagrid.options
-                      if (typeof one.moduleDatagrid.options === "object") {
-                          $.extend(item, one.moduleDatagrid.options);
-                      }
-  
-                      result.push(item);
-                  }
-              });
-  
-              // 如果有额外的datagrid-item参数配置，则合并之
-              if (extraItems && extraItems.length) {
-                  result = result.concat(extraItems);
-              }
-  
-              // 依据权重进行排序，权重值从小到大排列
-              result = result.sort(function (a, b) {
-                  if (!a.priority) {
-                      a.priority = 100;
+                  // 额外的datagrid参数配置，来自oneFieldDefine.moduleDatagrid.options
+                  if (typeof oneFieldDefine.moduleDatagrid.options === "object") {
+                      $.extend(item, oneFieldDefine.moduleDatagrid.options);
                   }
   
-                  if (!b.priority) {
-                      b.priority = 100;
-                  }
-  
-                  return a.priority - b.priority;
+                  return item;
               });
   
               // 缓存数据
@@ -15573,17 +15542,61 @@ define('common/scripts/crudmodel', function(require, exports, module) {
            * }
            * 
            * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID'
+                  }]
            * @return {array}              detail的fieldDefine
            */
       }, {
           key: 'getDetailFieldDefine',
           value: function getDetailFieldDefine(extraItems) {
-              var _this3 = this;
-  
               // 优先使用缓存
               if (this.detailFieldDefine) {
                   return this.detailFieldDefine;
               }
+  
+              var result = this._getComputedFieldDefine('moduleDetail', extraItems);
+  
+              // 缓存数据
+              this.detailFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得所有字段的字段名和名称键值对
+           * @return {object}   map
+           */
+      }, {
+          key: '_getAllFieldTitleMap',
+          value: function _getAllFieldTitleMap() {
+              var _this2 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  map = {};
+  
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this2.fieldDefine[fieldName].title || fieldName;
+              });
+  
+              return map;
+          }
+  
+          /**
+           * 获得计算之后的fieldDefine数组
+           * @param  {string}   targetField model中的字段目标属性，比如moduleDatagrid等
+           * @param  {array}   extraItems  额外的要合并的结果项数组
+           * @param  {function}   dealFn      处理每一个字段回调处理，返回处理结果
+           *                                  第一个参数是当前处理的item对象，
+           *                                  第二个参数是当前处理的字段定义对象
+           * @return {array}               计算之后的fieldDefine数组
+           */
+      }, {
+          key: '_getComputedFieldDefine',
+          value: function _getComputedFieldDefine(targetField, extraItems, dealFn) {
+              var _this3 = this;
   
               var arr = Object.keys(this.fieldDefine),
                   result = [];
@@ -15593,22 +15606,27 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                   var one = _this3.fieldDefine[fieldName];
   
                   // 如果设置了展现在datagrid中才展示
-                  if (typeof one.moduleDetail === 'object' && one.moduleDetail.show || typeof one.moduleDetail === 'boolean' && one.moduleDetail) {
+                  if (typeof one[targetField] === 'object' && one[targetField].show || typeof one[targetField] === 'boolean' && one[targetField]) {
+  
                       var item = {};
-                      item.name = fieldName;
+                      item.fieldName = fieldName;
                       item.title = _this3.getTitle(fieldName);
   
-                      if (typeof one.moduleDetail.priority === 'undefined') {
+                      if (typeof one[targetField].priority === 'undefined') {
                           item.priority = 100;
                       } else {
-                          item.priority = parseInt(one.moduleDetail.priority, 10) || 100;
+                          item.priority = parseInt(one[targetField].priority, 10) || 100;
+                      }
+  
+                      if (typeof dealFn === "function") {
+                          item = dealFn(item, one);
                       }
   
                       result.push(item);
                   }
               });
   
-              // 如果有额外的datagrid-item参数配置，则合并之
+              // 如果有额外参数配置，则合并之
               if (extraItems && extraItems.length) {
                   result = result.concat(extraItems);
               }
@@ -15626,30 +15644,8 @@ define('common/scripts/crudmodel', function(require, exports, module) {
                   return a.priority - b.priority;
               });
   
-              // 缓存数据
-              this.detailFieldDefine = result;
-  
               // 返回结果
               return result;
-          }
-  
-          /**
-           * 获得所有字段的字段名和名称键值对
-           * @return {object}   map
-           */
-      }, {
-          key: '_getAllFieldTitleMap',
-          value: function _getAllFieldTitleMap() {
-              var _this4 = this;
-  
-              var arr = Object.keys(this.fieldDefine),
-                  map = {};
-  
-              arr.forEach(function (fieldName) {
-                  map[fieldName] = _this4.fieldDefine[fieldName].title || fieldName;
-              });
-  
-              return map;
           }
       }]);
   
@@ -15848,17 +15844,13 @@ define('pages/user_index/model', function(require, exports, module) {
   // 创建时间
   fieldDefine.createTime = {
       title: '创建时间',
-      moduleDatagrid: true,
-      moduleDetail: true,
-      moduleDelete: true
+      moduleDatagrid: true
   };
   
   // 更新时间
   fieldDefine.updateTime = {
       title: '更新时间',
-      moduleDatagrid: true,
-      moduleDetail: true,
-      moduleDelete: true
+      moduleDatagrid: true
   };
   
   // 状态，对应的是state
