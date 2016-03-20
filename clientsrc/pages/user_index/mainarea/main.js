@@ -11,22 +11,7 @@ module.exports = Vue.extend({
             this.datagridTitle = '用户信息列表';
             this.datagridCgi = '/admin/user/getdata';
 
-            this.datagridItem = Model.getDatagridItem([
-                'id',
-                'name',
-                'pwd',
-                'birthday',
-                'createTime',
-                'updateTime',
-                'stateShow'
-            ], {
-                name: {
-                    css: 'namecss'
-                },
-                pwd: {
-                    hide: true
-                }
-            }, [{
+            this.datagridItem = Model.getDatagridItem([{
                 name: 'id',
                 title: '操作',
                 render: 'commonOperate | detail modify delete',
@@ -68,7 +53,7 @@ module.exports = Vue.extend({
                 elementType: 'date'
             }];
 
-            this.saveField = Model.getNameMap([
+            this.saveField = Model.getFieldTitleMap([
                 'name',
                 'birthday',
                 'state',
@@ -155,7 +140,7 @@ module.exports = Vue.extend({
                 elementType: 'date'
             }];
 
-            this.saveField = Model.getNameMap([
+            this.saveField = Model.getFieldTitleMap([
                 'id',
                 'name',
                 'birthday',
@@ -181,7 +166,7 @@ module.exports = Vue.extend({
             this.modalTitle = '查看用户信息';
 
             this.modalInitData = $.extend({}, data);
-            this.modalFieldDefine = Model.getNameMap([
+            this.modalFieldDefine = Model.getFieldTitleMap([
                 'id',
                 'name',
                 'birthday',
@@ -195,7 +180,7 @@ module.exports = Vue.extend({
             this.modalCgi = '/admin/user/delete';
 
             this.modalInitData = $.extend({}, data);
-            this.modalFieldDefine = Model.getNameMap([
+            this.modalFieldDefine = Model.getFieldTitleMap([
                 'id',
                 'name',
                 'stateShow',

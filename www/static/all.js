@@ -10134,454 +10134,6 @@ define('common/scripts/app', function(require, exports, module) {
 
 });
 
-;/*!/common/scripts/validator.js*/
-define('common/scripts/validator', function(require, exports, module) {
-
-  /**
-   * http://jqueryvalidation.org/
-   * 基于 jquery.validate.js 修改  
-   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
-   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
-   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
-   * 也可以两者同时使用。
-   */
-  
-  // http://jqueryvalidation.org/category/plugin/
-  'use strict';
-  
-  var defaultOptions = {
-      errorElement: 'span', //default input error message container
-      errorClass: 'help-block', // default input error message class
-      focusInvalid: false, // do not focus the last invalid input
-      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
-  
-      /**
-       * hightlight error inputs  
-       * @param  {object}   element Dom元素input
-       */
-      highlight: function highlight(element) {
-          // set error class to the control group
-          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-      },
-  
-      /**
-       * revert the change done by hightlight
-       * @param  {object}   element Dom元素input
-       */
-      unhighlight: function unhighlight(element) {
-          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
-      },
-  
-      /**
-       * display error alert on form submit   
-       * @param  {[type]}   event     [description]
-       * @param  {[type]}   validator [description]
-       */
-      // invalidHandler: function(event, validator) {
-      // },
-  
-      success: function success(label) {
-          label.closest('.form-group').removeClass('has-error');
-          label.remove();
-      },
-  
-      /**
-       * render error placement for each input type
-       * @param  {object}   error   Dom元素
-       * @param  {object}   element [description]
-       */
-      errorPlacement: function errorPlacement(error, element) {
-          var errwrap = element.closest('.errwrap');
-          if (errwrap.length) {
-              error.appendTo(element.closest('.errwrap'));
-          } else {
-              // 默认，element为input元素
-              error.insertAfter(element);
-          }
-      },
-  
-      /**
-       * 提交操作
-       * @param  {object}   form Dom元素
-       * @author helinjiang
-       * @date   2016-02-28
-       */
-      submitHandler: function submitHandler(form) {
-          // 默认是提交表单，如果是ajax提交，则请覆盖之
-          form.submit();
-      }
-  };
-  
-  /**
-   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
-   * @param  {object}   jqForm       form的jQuery对象
-   * @param  {object}   rulesOptions 校验对象定义
-   * @param  {object}   validatorOptions     validator的配置参数
-   * @param  {object}   handler     自定义的一些处理方法
-   */
-  function check(jqForm, rulesOptions, validatorOptions, handler) {
-      if (!jqForm.length || typeof rulesOptions !== "object") {
-          return;
-      }
-  
-      if (typeof validatorOptions !== "object") {
-          validatorOptions = {};
-      }
-  
-      if (typeof handler !== "object") {
-          handler = {};
-      }
-  
-      // 从 rulesOptions 中获得 rules 和 messages
-      var rulesAndMessages = getRulesAndMessages(rulesOptions);
-  
-      // 获得options
-      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
-  
-      // 如果还有 handler，相对于钩子，则再追加操作。
-  
-      jqForm.validate(options);
-  }
-  
-  function getRulesAndMessages(rulesOptions) {
-      if ($.isEmptyObject(rulesOptions)) {
-          return {};
-      }
-  
-      // username: {
-      //     required: {
-      //         rule: true,
-      //         message: '用户名不能为空！'
-      //     },
-      //     minlength: {
-      //         rule: 2,
-      //         message: '最小长度为2'
-      //     },
-      //     maxlength: {
-      //         rule: 6,
-      //         message: '最大长度为6'
-      //     }
-      // }
-  
-      var options = {},
-          rules = {},
-          messages = {};
-  
-      for (var k in rulesOptions) {
-          // k=username
-          if (rulesOptions.hasOwnProperty(k)) {
-              var v = rulesOptions[k];
-              for (var vk in v) {
-                  // vk=required
-                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
-                  var vv = v[vk];
-  
-                  if (typeof vv === 'object') {
-                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
-                      // 校验器的传值 rule
-                      if (vv.rule) {
-                          if (!rules[k]) {
-                              rules[k] = {};
-                          }
-                          rules[k][vk] = vv.rule;
-                      }
-  
-                      // 校验器失败之后的提示 message
-                      if (vv.message) {
-                          if (!messages[k]) {
-                              messages[k] = {};
-                          }
-                          messages[k][vk] = vv.message;
-                      }
-                  } else {
-                      // 如果校验器对应的值不是对象，则将其当作 rule
-                      if (!rules[k]) {
-                          rules[k] = {};
-                      }
-                      rules[k][vk] = vv;
-                  }
-              }
-          }
-      }
-  
-      if (!$.isEmptyObject(rules)) {
-          options.rules = rules;
-      }
-  
-      if (!$.isEmptyObject(messages)) {
-          options.messages = messages;
-      }
-  
-      return options;
-  }
-  
-  /**
-   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
-   * @param  {object} jqForm form或者表单元素
-   * @param  {string} fieldName form中的某个表单元素的name属性值
-   * @return {boolean}          
-   */
-  function valid(jqForm, fieldName) {
-      if (!jqForm || !jqForm.length) {
-          return false;
-      }
-  
-      if (!fieldName) {
-          return jqForm.valid();
-      } else {
-          return $('[name="' + fieldName + '"]', jqForm).valid();
-      }
-  }
-  
-  module.exports = {
-      check: check,
-      valid: valid
-  };
-
-});
-
-;/*!/components/msg/main.js*/
-define('components/msg/main', function(require, exports, module) {
-
-  'use strict';
-  
-  toastr.options = {
-      "closeButton": true,
-      // "debug": true,
-      "positionClass": "toast-top-center",
-      "onclick": null,
-      "showDuration": "1000",
-      "hideDuration": "1000",
-      "timeOut": "5000",
-      "extendedTimeOut": "1000",
-      "showEasing": "swing",
-      "hideEasing": "linear",
-      "showMethod": "fadeIn",
-      "hideMethod": "fadeOut"
-  };
-  
-  function info(content) {
-      toastr.info(content, '信息');
-  }
-  
-  function success(content) {
-      toastr.success(content, '成功');
-  }
-  
-  function error(content) {
-      toastr.error(content, '错误');
-  }
-  
-  function warning(content) {
-      toastr.warning(content, '警告');
-  }
-  
-  module.exports = {
-      info: info,
-      success: success,
-      error: error,
-      warning: warning
-  };
-
-});
-
-;/*!/common/scripts/crud.js*/
-define('common/scripts/crud', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var Validator = require('common/scripts/validator');
-  var Msg = require('components/msg/main');
-  
-  /**
-   * 用于定义Vue组件的通用的一些设置
-   * @type {Object}
-   */
-  var commonOptions = {
-      template: '<div> EMPTY </div>',
-      data: function data() {
-          return {
-              jqForm: undefined
-          };
-      },
-      methods: {
-          /**
-           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
-           */
-          beforeShowModal: function beforeShowModal(data) {},
-  
-          getRulesOptions: function getRulesOptions() {
-              return {};
-          },
-  
-          /**
-           * 弹出对话框
-           */
-          showModal: function showModal(data) {
-              this.beforeShowModal(data);
-  
-              this.$children[0].show();
-          },
-  
-          /**
-           * 关闭对话框
-           */
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-  
-          /**
-           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-           */
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-  
-          /**
-           * 对话框确定按钮点击之后的回调函数
-           */
-          triggerSubmit: function triggerSubmit(modalId) {
-              if (this.jqForm) {
-                  this.jqForm.submit();
-              } else {
-                  console.error('this.jqForm is undefined');
-              }
-          },
-  
-          /**
-           * 表单校验
-           */
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              Validator.check(this.jqForm, this.getRulesOptions(), {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              self.dealSuccessRes(responseText, statusText);
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
-                              }
-                          }
-                      });
-                  }
-              });
-          },
-          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
-              console.log(responseText, statusText);
-  
-              if (statusText !== 'success' || responseText.errno !== 0) {
-                  // 提示失败
-                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-              } else {
-                  // 提示成功
-                  Msg.success('^_^ 处理成功！');
-  
-                  // 关闭对话框
-                  this.hideModal();
-  
-                  // 刷新列表
-                  this.reportSuccess(responseText.data);
-              }
-          }
-      },
-      events: {
-          /**
-           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
-           * 
-           * @param  {string} name   表单中某一表单元素的name属性值
-           * @param  {string} val    新值
-           * @param  {string} oldVal 旧值
-           * @return {boolean}        校验结果
-           */
-          valuechange: function valuechange(name, val, oldVal) {
-              return Validator.valid(this.jqForm, name);
-          },
-  
-          /**
-           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-           * 
-           * @param  {string} modalId   当前modal的id
-           */
-          confirm: function confirm(modalId) {
-              this.triggerSubmit(modalId);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
-          this.handleValidator();
-      }
-  };
-  
-  module.exports = {
-      extend: function extend(param) {
-          // TODO 此处合并还可以进一步优化
-  
-          var options = $.extend({}, commonOptions);
-  
-          // 如果没有参数或参数不是object，则返回默认值
-          if (typeof param !== 'object') {
-              return options;
-          }
-  
-          // template
-          if (typeof param.template === "string") {
-              options.template = param.template;
-          }
-  
-          // props
-          if (typeof param.props === "object") {
-              options.props = $.extend({}, param.props);
-          }
-  
-          // data       
-          if (typeof param.data === "object") {
-              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
-              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
-              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
-              // var newData = $.extend(options.data(), param.data);
-              // var newData = Object.assign(options.data(), param.data);
-              var newData = options.data(),
-                  keys = Object.keys(param.data);
-  
-              keys.forEach(function (key) {
-                  newData[key] = param.data[key];
-              });
-  
-              options.data = function () {
-                  return newData;
-              };
-          }
-  
-          // 'methods' 和 'events'
-          ['methods', 'events'].forEach(function (p) {
-              options[p] = $.extend({}, options[p] || {}, param[p] || {});
-          });
-  
-          // ready
-          if (typeof param.ready === 'function') {
-              options.ready = param.ready;
-          }
-  
-          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
-          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
-          // });
-  
-          return Vue.extend(options);
-      }
-  };
-
-});
-
 ;/*!/components/tipalert/main.js*/
 define('components/tipalert/main', function(require, exports, module) {
 
@@ -12263,6 +11815,51 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
 
 });
 
+;/*!/components/msg/main.js*/
+define('components/msg/main', function(require, exports, module) {
+
+  'use strict';
+  
+  toastr.options = {
+      "closeButton": true,
+      // "debug": true,
+      "positionClass": "toast-top-center",
+      "onclick": null,
+      "showDuration": "1000",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+  };
+  
+  function info(content) {
+      toastr.info(content, '信息');
+  }
+  
+  function success(content) {
+      toastr.success(content, '成功');
+  }
+  
+  function error(content) {
+      toastr.error(content, '错误');
+  }
+  
+  function warning(content) {
+      toastr.warning(content, '警告');
+  }
+  
+  module.exports = {
+      info: info,
+      success: success,
+      error: error,
+      warning: warning
+  };
+
+});
+
 ;/*!/modules/crudmodal/delete/main.js*/
 define('modules/crudmodal/delete/main', function(require, exports, module) {
 
@@ -12358,6 +11955,212 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
           }
       }
   });
+
+});
+
+;/*!/common/scripts/validator.js*/
+define('common/scripts/validator', function(require, exports, module) {
+
+  /**
+   * http://jqueryvalidation.org/
+   * 基于 jquery.validate.js 修改  
+   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
+   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
+   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
+   * 也可以两者同时使用。
+   */
+  
+  // http://jqueryvalidation.org/category/plugin/
+  'use strict';
+  
+  var defaultOptions = {
+      errorElement: 'span', //default input error message container
+      errorClass: 'help-block', // default input error message class
+      focusInvalid: false, // do not focus the last invalid input
+      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+  
+      /**
+       * hightlight error inputs  
+       * @param  {object}   element Dom元素input
+       */
+      highlight: function highlight(element) {
+          // set error class to the control group
+          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+      },
+  
+      /**
+       * revert the change done by hightlight
+       * @param  {object}   element Dom元素input
+       */
+      unhighlight: function unhighlight(element) {
+          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
+      },
+  
+      /**
+       * display error alert on form submit   
+       * @param  {[type]}   event     [description]
+       * @param  {[type]}   validator [description]
+       */
+      // invalidHandler: function(event, validator) {
+      // },
+  
+      success: function success(label) {
+          label.closest('.form-group').removeClass('has-error');
+          label.remove();
+      },
+  
+      /**
+       * render error placement for each input type
+       * @param  {object}   error   Dom元素
+       * @param  {object}   element [description]
+       */
+      errorPlacement: function errorPlacement(error, element) {
+          var errwrap = element.closest('.errwrap');
+          if (errwrap.length) {
+              error.appendTo(element.closest('.errwrap'));
+          } else {
+              // 默认，element为input元素
+              error.insertAfter(element);
+          }
+      },
+  
+      /**
+       * 提交操作
+       * @param  {object}   form Dom元素
+       * @author helinjiang
+       * @date   2016-02-28
+       */
+      submitHandler: function submitHandler(form) {
+          // 默认是提交表单，如果是ajax提交，则请覆盖之
+          form.submit();
+      }
+  };
+  
+  /**
+   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
+   * @param  {object}   jqForm       form的jQuery对象
+   * @param  {object}   rulesOptions 校验对象定义
+   * @param  {object}   validatorOptions     validator的配置参数
+   * @param  {object}   handler     自定义的一些处理方法
+   */
+  function check(jqForm, rulesOptions, validatorOptions, handler) {
+      if (!jqForm.length || typeof rulesOptions !== "object") {
+          return;
+      }
+  
+      if (typeof validatorOptions !== "object") {
+          validatorOptions = {};
+      }
+  
+      if (typeof handler !== "object") {
+          handler = {};
+      }
+  
+      // 从 rulesOptions 中获得 rules 和 messages
+      var rulesAndMessages = getRulesAndMessages(rulesOptions);
+  
+      // 获得options
+      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
+  
+      // 如果还有 handler，相对于钩子，则再追加操作。
+  
+      jqForm.validate(options);
+  }
+  
+  function getRulesAndMessages(rulesOptions) {
+      if ($.isEmptyObject(rulesOptions)) {
+          return {};
+      }
+  
+      // username: {
+      //     required: {
+      //         rule: true,
+      //         message: '用户名不能为空！'
+      //     },
+      //     minlength: {
+      //         rule: 2,
+      //         message: '最小长度为2'
+      //     },
+      //     maxlength: {
+      //         rule: 6,
+      //         message: '最大长度为6'
+      //     }
+      // }
+  
+      var options = {},
+          rules = {},
+          messages = {};
+  
+      for (var k in rulesOptions) {
+          // k=username
+          if (rulesOptions.hasOwnProperty(k)) {
+              var v = rulesOptions[k];
+              for (var vk in v) {
+                  // vk=required
+                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
+                  var vv = v[vk];
+  
+                  if (typeof vv === 'object') {
+                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
+                      // 校验器的传值 rule
+                      if (vv.rule) {
+                          if (!rules[k]) {
+                              rules[k] = {};
+                          }
+                          rules[k][vk] = vv.rule;
+                      }
+  
+                      // 校验器失败之后的提示 message
+                      if (vv.message) {
+                          if (!messages[k]) {
+                              messages[k] = {};
+                          }
+                          messages[k][vk] = vv.message;
+                      }
+                  } else {
+                      // 如果校验器对应的值不是对象，则将其当作 rule
+                      if (!rules[k]) {
+                          rules[k] = {};
+                      }
+                      rules[k][vk] = vv;
+                  }
+              }
+          }
+      }
+  
+      if (!$.isEmptyObject(rules)) {
+          options.rules = rules;
+      }
+  
+      if (!$.isEmptyObject(messages)) {
+          options.messages = messages;
+      }
+  
+      return options;
+  }
+  
+  /**
+   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
+   * @param  {object} jqForm form或者表单元素
+   * @param  {string} fieldName form中的某个表单元素的name属性值
+   * @return {boolean}          
+   */
+  function valid(jqForm, fieldName) {
+      if (!jqForm || !jqForm.length) {
+          return false;
+      }
+  
+      if (!fieldName) {
+          return jqForm.valid();
+      } else {
+          return $('[name="' + fieldName + '"]', jqForm).valid();
+      }
+  }
+  
+  module.exports = {
+      check: check,
+      valid: valid
+  };
 
 });
 
@@ -15615,6 +15418,153 @@ define('pages/test_index/main', function(require, exports, module) {
 
 });
 
+;/*!/common/scripts/crudmodel.js*/
+define('common/scripts/crudmodel', function(require, exports, module) {
+
+  "use strict";
+  
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+  
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  
+  var Model = (function () {
+      function Model(fieldDefine) {
+          _classCallCheck(this, Model);
+  
+          this.fieldDefine = fieldDefine || {};
+  
+          // map<fieldName, title>
+          this.fieldTitleMap = this._getAllFieldTitleMap();
+      }
+  
+      /**
+       * 通过指定字段，返回对应的字段对象
+       * @param  {array}   arr 字段列表
+       * @return {object}       map
+       */
+  
+      _createClass(Model, [{
+          key: "getFieldTitleMap",
+          value: function getFieldTitleMap(arr) {
+              var _this = this;
+  
+              if (!arr || !arr.length) {
+                  return this.fieldTitleMap;
+              }
+  
+              var map = {};
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this.fieldTitleMap[fieldName];
+              });
+  
+              return map;
+          }
+  
+          /**
+           * 获取指定的字段的title
+           * @param  {string}   fieldName 字段
+           * @return {string}        字段对应的titile
+           */
+      }, {
+          key: "getTitle",
+          value: function getTitle(fieldName) {
+              return this.fieldTitleMap[fieldName] || fieldName;
+          }
+  
+          /**
+           * 获得datagrid的items
+           *
+           * moduleDatagrid : {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义moduleDatagrid
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           *     options: { // 额外的参数，用于datagrid上的配置，这里支持哪些配置请参考该组件的用法
+           *         css: 'namecss',
+           *         hide: false,
+           *         disableorder:fase
+           *     }
+           *     
+           * 
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           * @return {array}              datagrid的items
+           */
+      }, {
+          key: "getDatagridItem",
+          value: function getDatagridItem(extraItems) {
+              var _this2 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  result = [];
+  
+              arr.forEach(function (fieldName) {
+                  // 字段的定义对象
+                  var one = _this2.fieldDefine[fieldName];
+  
+                  // 如果设置了展现在datagrid中才展示
+                  if (one.moduleDatagrid && one.moduleDatagrid.show) {
+                      var item = {};
+                      item.name = fieldName;
+                      item.title = _this2.getTitle(fieldName);
+                      item.priority = one.moduleDatagrid.priority || 100;
+  
+                      // 额外的datagrid-item参数配置来自one.moduleDatagrid.options
+                      if (one.moduleDatagrid.options) {
+                          $.extend(item, one.moduleDatagrid.options);
+                      }
+  
+                      result.push(item);
+                  }
+              });
+  
+              // 如果有额外的datagrid-item参数配置，则合并之
+              if (extraItems && extraItems.length) {
+                  result = result.concat(extraItems);
+              }
+  
+              // 依据权重进行排序，权重值从小到大排列
+              result = result.sort(function (a, b) {
+                  if (!a.priority) {
+                      a.priority = 100;
+                  }
+  
+                  if (!b.priority) {
+                      b.priority = 100;
+                  }
+  
+                  return a.priority - b.priority;
+              });
+  
+              return result;
+          }
+  
+          /**
+           * 获得所有字段的字段名和名称键值对
+           * @return {object}   map
+           */
+      }, {
+          key: "_getAllFieldTitleMap",
+          value: function _getAllFieldTitleMap() {
+              var _this3 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  map = {};
+  
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this3.fieldDefine[fieldName].title || fieldName;
+              });
+  
+              return map;
+          }
+      }]);
+  
+      return Model;
+  })();
+  
+  module.exports = Model;
+
+});
+
 ;/*!/pages/user_index/model.js*/
 define('pages/user_index/model', function(require, exports, module) {
 
@@ -15626,7 +15576,7 @@ define('pages/user_index/model', function(require, exports, module) {
   
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
   
-  var BaseModel = require('common/scripts/model');
+  var BaseModel = require('common/scripts/crudmodel');
   
   var Model = (function (_BaseModel) {
       _inherits(Model, _BaseModel);
@@ -15640,11 +15590,234 @@ define('pages/user_index/model', function(require, exports, module) {
       return Model;
   })(BaseModel);
   
-  module.exports = new Model(['id', 'createTime', 'updateTime', 'state', 'stateShow'], {
-      'name': '用户名',
-      'pwd': '密码',
-      'birthday': '生日'
-  });
+  var fieldDefine = {};
+  
+  // ID
+  fieldDefine.id = {
+      title: 'ID',
+      moduleDatagrid: {
+          show: true
+      },
+      moduleAdd: {
+          show: false
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  type: 'text',
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: {
+          show: true
+      },
+      moduleDelete: {
+          show: true
+      }
+  };
+  
+  // 用户名
+  fieldDefine.name = {
+      title: '用户名',
+      moduleDatagrid: {
+          show: true,
+          options: {
+              css: 'namecss'
+          }
+      },
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  type: 'text'
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  type: 'text',
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: {
+          show: true
+      },
+      moduleDelete: {
+          show: true
+      },
+      validator: {
+          required: {
+              rule: true,
+              message: '用户名不能为空！'
+          },
+          minlength: {
+              rule: 3,
+              message: '最小长度为3'
+          },
+          maxlength: {
+              rule: 64,
+              message: '最大长度为64'
+          }
+      }
+  };
+  
+  // 密码
+  fieldDefine.pwd = {
+      title: '密码',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  type: 'password'
+              }
+          }
+      },
+      validator: {
+          required: {
+              rule: true,
+              message: '密码不能为空！'
+          },
+          minlength: {
+              rule: 5,
+              message: '最小长度为5'
+          },
+          maxlength: {
+              rule: 32,
+              message: '最大长度为32'
+          }
+      }
+  };
+  
+  // 状态
+  fieldDefine.state = {
+      title: '状态',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }],
+                  value: '1'
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 生日
+  fieldDefine.birthday = {
+      title: '生日',
+      moduleDatagrid: {
+          show: true
+      },
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'date',
+              value: '2016-03-01'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'date'
+          }
+      },
+      moduleDetail: {
+          show: true
+      },
+      moduleDelete: {
+          show: true
+      },
+      validator: {
+          required: {
+              rule: true,
+              message: '生日不能为空！'
+          }
+      }
+  };
+  
+  // 创建时间
+  fieldDefine.createTime = {
+      title: '创建时间',
+      moduleDatagrid: {
+          show: true
+      },
+      moduleDetail: {
+          show: true
+      },
+      moduleDelete: {
+          show: true
+      }
+  };
+  
+  // 更新时间
+  fieldDefine.updateTime = {
+      title: '更新时间',
+      moduleDatagrid: {
+          show: true
+      },
+      moduleDetail: {
+          show: true
+      },
+      moduleDelete: {
+          show: true
+      }
+  };
+  
+  // 状态，对应的是state
+  fieldDefine.stateShow = {
+      title: '状态',
+      moduleDatagrid: {
+          show: true
+      },
+      moduleAdd: {
+          show: false
+      },
+      moduleModify: {
+          show: false
+      },
+      moduleDetail: {
+          show: true
+      },
+      moduleDelete: {
+          show: true
+      }
+  };
+  
+  module.exports = new Model(fieldDefine);
 
 });
 
@@ -15666,14 +15839,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.datagridTitle = '用户信息列表';
               this.datagridCgi = '/admin/user/getdata';
   
-              this.datagridItem = Model.getDatagridItem(['id', 'name', 'pwd', 'birthday', 'createTime', 'updateTime', 'stateShow'], {
-                  name: {
-                      css: 'namecss'
-                  },
-                  pwd: {
-                      hide: true
-                  }
-              }, [{
+              this.datagridItem = Model.getDatagridItem([{
                   name: 'id',
                   title: '操作',
                   render: 'commonOperate | detail modify delete',
@@ -15715,7 +15881,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
                   elementType: 'date'
               }];
   
-              this.saveField = Model.getNameMap(['name', 'birthday', 'state', 'pwd']);
+              this.saveField = Model.getFieldTitleMap(['name', 'birthday', 'state', 'pwd']);
   
               var config = {};
   
@@ -15797,7 +15963,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
                   elementType: 'date'
               }];
   
-              this.saveField = Model.getNameMap(['id', 'name', 'birthday', 'state']);
+              this.saveField = Model.getFieldTitleMap(['id', 'name', 'birthday', 'state']);
   
               var config = {};
   
@@ -15818,14 +15984,14 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               this.modalTitle = '查看用户信息';
   
               this.modalInitData = $.extend({}, data);
-              this.modalFieldDefine = Model.getNameMap(['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime']);
+              this.modalFieldDefine = Model.getFieldTitleMap(['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime']);
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
               this.modalTitle = '删除用户信息';
               this.modalCgi = '/admin/user/delete';
   
               this.modalInitData = $.extend({}, data);
-              this.modalFieldDefine = Model.getNameMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
+              this.modalFieldDefine = Model.getFieldTitleMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
   
               this.deleteParam = [{
                   key: 'id',
