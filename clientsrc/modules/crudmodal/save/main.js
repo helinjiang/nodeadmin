@@ -82,10 +82,10 @@ Vue.component('crud-modal-save', {
                     case 'select2':
                         if (!item.elementParam) {
                             item.elementParam = {
-                                options: []
+                                // options: []
                             }
                         } else if (!item.elementParam.options) {
-                            item.elementParam.options = [];
+                            // item.elementParam.options = [];
                         }
                         break;
                     default:
@@ -174,5 +174,10 @@ Vue.component('crud-modal-save', {
     },
     ready: function() {
         this.handleValidator();
+
+        // 通知 select2 初始化
+        setTimeout(() => {
+            this.$broadcast('initselect2');
+        }, 100);
     }
 });

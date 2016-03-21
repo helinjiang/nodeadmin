@@ -5,14 +5,31 @@
             <template v-for="item in items">
                 <he-form-item :title="item.title" horizontal>
 
-                    <input :type="item.elementParam.type" :name="item.fieldName" :value="item.value" :readonly="item.elementParam.readonly" v-if="item.elementType=='input'">
+                    <input :type="item.elementParam.type" 
+                                :name="item.fieldName" 
+                                :value="item.value" 
+                                :readonly="item.elementParam.readonly" 
+                                v-if="item.elementType=='input'">
 
-                    <date :name="item.fieldName" :value="item.value" v-if="item.elementType=='date'"></date>
+                    <date  :name="item.fieldName" 
+                                :value="item.value"
+                                 v-if="item.elementType=='date'"></date>
 
-                    <select2 :name="item.fieldName" :value="item.value" v-if="item.elementType=='select2'">
-                        <template v-for="select2Item in item.elementParam.options">
-                            <select2-option :title="select2Item.title":value="select2Item.value" ></select2-option>
+                    <select2  :name="item.fieldName" 
+                                    :value="item.value" 
+                                    :url="item.elementParam.url"
+                                    :convert="item.elementParam.convert"
+                                    :lazy="item.elementParam.lazy"
+                                    v-if="item.elementType=='select2'">
+
+                        <template  v-for="select2Item in item.elementParam.options" 
+                                            v-if="item.elementParam.options">
+
+                            <select2-option :title="select2Item.title" :value="select2Item.value" >
+                            </select2-option>
+
                         </template>
+
                     </select2>
 
                 </he-form-item>

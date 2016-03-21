@@ -12605,7 +12605,7 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
   var mixinsBasicModal = require('mixins/modal/basic/main');
   
   Vue.component('crud-modal-save', {
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" :name=\"item.fieldName\" :value=\"item.value\" :readonly=\"item.elementParam.readonly\" v-if=\"item.elementType=='input'\">\r\n\r\n                    <date :name=\"item.fieldName\" :value=\"item.value\" v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2 :name=\"item.fieldName\" :value=\"item.value\" v-if=\"item.elementType=='select2'\">\r\n                        <template v-for=\"select2Item in item.elementParam.options\">\r\n                            <select2-option :title=\"select2Item.title\":value=\"select2Item.value\" ></select2-option>\r\n                        </template>\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" \r\n                                :name=\"item.fieldName\" \r\n                                :value=\"item.value\" \r\n                                :readonly=\"item.elementParam.readonly\" \r\n                                v-if=\"item.elementType=='input'\">\r\n\r\n                    <date  :name=\"item.fieldName\" \r\n                                :value=\"item.value\"\r\n                                 v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2  :name=\"item.fieldName\" \r\n                                    :value=\"item.value\" \r\n                                    :url=\"item.elementParam.url\"\r\n                                    :convert=\"item.elementParam.convert\"\r\n                                    :lazy=\"item.elementParam.lazy\"\r\n                                    v-if=\"item.elementType=='select2'\">\r\n\r\n                        <template  v-for=\"select2Item in item.elementParam.options\" \r\n                                            v-if=\"item.elementParam.options\">\r\n\r\n                            <select2-option :title=\"select2Item.title\" :value=\"select2Item.value\" >\r\n                            </select2-option>\r\n\r\n                        </template>\r\n\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
       data: function data() {
           return {
               jqForm: undefined,
@@ -12685,11 +12685,11 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
                       case 'select2':
                           if (!item.elementParam) {
                               item.elementParam = {
-                                  options: []
+                                  // options: []
                               };
                           } else if (!item.elementParam.options) {
-                              item.elementParam.options = [];
-                          }
+                                  // item.elementParam.options = [];
+                              }
                           break;
                       default:
                           break;
@@ -12776,7 +12776,14 @@ define('modules/crudmodal/save/main', function(require, exports, module) {
           }
       },
       ready: function ready() {
+          var _this2 = this;
+  
           this.handleValidator();
+  
+          // 通知 select2 初始化
+          setTimeout(function () {
+              _this2.$broadcast('initselect2');
+          }, 100);
       }
   });
 
@@ -14435,7 +14442,7 @@ define('pages/car_index/model', function(require, exports, module) {
   
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
   
-  var BaseModel = require('common/scripts/model');
+  var BaseModel = require('common/scripts/crudmodel');
   
   var Model = (function (_BaseModel) {
       _inherits(Model, _BaseModel);
@@ -14449,10 +14456,251 @@ define('pages/car_index/model', function(require, exports, module) {
       return Model;
   })(BaseModel);
   
-  module.exports = new Model(['id', 'state', 'stateShow'], {
-      'user_name': '车主人',
-      'name': '汽车名字',
-      'buydate': '购买日期'
+  var fieldDefine = {};
+  
+  // ID
+  fieldDefine.id = {
+      title: 'ID',
+      moduleDatagrid: true,
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: {
+          show: true,
+          options: {
+              deleteDepend: 'id'
+          }
+      }
+  };
+  
+  // 汽车名字
+  fieldDefine.name = {
+      title: '汽车名字',
+      moduleDatagrid: {
+          show: true,
+          options: {
+              css: 'namecss'
+          }
+      },
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  // 车主人
+  fieldDefine.user_name = {
+      title: '车主人',
+      moduleDatagrid: true
+  };
+  
+  // 车主人
+  fieldDefine.ownerId = {
+      title: '车主人',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  lazy: true,
+                  convert: 'searchuser',
+                  url: '/admin/user/getdata'
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  lazy: true,
+                  convert: 'searchuser',
+                  url: '/admin/user/getdata'
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态
+  fieldDefine.state = {
+      title: '状态',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 购买日期
+  fieldDefine.buydate = {
+      title: '购买日期',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'date',
+              value: '2016-03-01'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'date'
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态，对应的是state
+  fieldDefine.stateShow = {
+      title: '状态',
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
+  };
+  
+  module.exports = new Model(fieldDefine);
+
+});
+
+;/*!/pages/car_index/mainarea/main.js*/
+define('pages/car_index/mainarea/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  
+  var Model = require('pages/car_index/model');
+  var mixinsIndexModal = require('mixins/modal/crudindex/main');
+  
+  module.exports = Vue.extend({
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n</div>\r\n",
+      mixins: [mixinsIndexModal],
+      methods: {
+          beforeShowDataGrid: function beforeShowDataGrid() {
+              this.datagridTitle = '汽车信息列表';
+              this.datagridCgi = '/admin/car/getdata';
+              this.datagridType = 'server';
+  
+              this.datagridItem = Model.getDatagridItem([{
+                  name: 'id',
+                  title: '操作',
+                  render: 'commonOperate | detail modify delete',
+                  disableorder: true
+              }]);
+          },
+          beforeShowAddPage: function beforeShowAddPage() {
+              this.modalTitle = '新增汽车信息';
+              this.modalCgi = '/admin/car/add';
+  
+              this.modalFieldDefine = Model.getAddFieldDefine();
+              console.log(this.modalFieldDefine);
+          },
+          beforeShowModifyPage: function beforeShowModifyPage(data) {
+              this.modalTitle = '修改汽车信息';
+              this.modalCgi = '/admin/car/modify';
+  
+              this.modalFieldDefine = Model.getModifyFieldDefine();
+          },
+          beforeShowDetailPage: function beforeShowDetailPage(data) {
+              this.modalTitle = '查看汽车信息';
+  
+              this.modalFieldDefine = Model.getDetailFieldDefine();
+          },
+          beforeShowDeletePage: function beforeShowDeletePage(data) {
+              this.modalTitle = '删除汽车信息';
+              this.modalCgi = '/admin/car/delete';
+  
+              this.modalFieldDefine = Model.getDeleteFieldDefine();
+          }
+      },
+      ready: function ready() {}
+  });
+
+});
+
+;/*!/pages/car_index/main.js*/
+define('pages/car_index/main', function(require, exports, module) {
+
+  'use strict';
+  
+  require('common/scripts/global');
+  
+  var Vue = require('common/lib/vue');
+  
+  var App = require('common/scripts/app');
+  var MainArea = require('pages/car_index/mainarea/main');
+  
+  window.app = new Vue({
+      el: '#app',
+      components: {
+          MainArea: MainArea
+      },
+      ready: function ready() {
+          $(function () {
+              App.init();
+          });
+      }
   });
 
 });
@@ -14524,106 +14772,6 @@ define('pages/car_index/mainarea/savemodal/main', function(require, exports, mod
 
 });
 
-;/*!/pages/car_index/mainarea/main.js*/
-define('pages/car_index/mainarea/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var Model = require('pages/car_index/model');
-  var saveModal = require('pages/car_index/mainarea/savemodal/main');
-  var mixinsIndexModal = require('mixins/modal/crudindex/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n\r\n</div>\r\n",
-      components: {
-          'saveModal': saveModal
-      },
-      mixins: [mixinsIndexModal],
-      methods: {
-          beforeShowDataGrid: function beforeShowDataGrid() {
-              this.datagridTitle = '汽车信息列表';
-              this.datagridUrl = '/admin/car/getdata';
-              this.saveUrlType = 'server';
-  
-              this.datagridItem = Model.getDatagridItem(['id', 'user_name', 'name', 'buydate', 'stateShow'], null, [{
-                  name: 'id',
-                  title: '操作',
-                  render: 'commonOperate | detail modify delete',
-                  disableorder: true
-              }]);
-          },
-          beforeShowAddPage: function beforeShowAddPage() {
-              this.saveTitle = '新增汽车信息';
-              this.saveUrl = '/admin/car/add';
-  
-              this.initData = {
-                  buydate: '2016-03-01',
-                  state: '1'
-              };
-          },
-          beforeShowModifyPage: function beforeShowModifyPage(data) {
-              this.saveTitle = '修改汽车信息';
-              this.saveUrl = '/admin/car/modify';
-  
-              this.initData = $.extend({}, data);
-          },
-          beforeShowDetailPage: function beforeShowDetailPage(data) {
-              this.detailTitle = '查看汽车信息';
-  
-              this.initData = $.extend({}, data);
-              this.detailField = Model.getNameMap(['id', 'user_name', 'name', 'buydate', 'stateShow']);
-          },
-          beforeShowDeletePage: function beforeShowDeletePage(data) {
-              this.deleteTitle = '删除汽车信息';
-              this.deleteUrl = '/admin/car/delete';
-  
-              this.initData = $.extend({}, data);
-              this.deleteField = Model.getNameMap(['id', 'user_name', 'name', 'buydate', 'stateShow']);
-  
-              this.deleteParam = [{
-                  key: 'id',
-                  fieldName: 'id'
-              }];
-          }
-      },
-      ready: function ready() {}
-  });
-
-});
-
-;/*!/pages/car_index/main.js*/
-define('pages/car_index/main', function(require, exports, module) {
-
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
-  'use strict';
-  
-  require('common/scripts/global');
-  
-  var Vue = require('common/lib/vue');
-  
-  var App = require('common/scripts/app');
-  
-  var MainArea = require('pages/car_index/mainarea/main');
-  
-  window.app = new Vue({
-      el: '#app',
-      components: {
-          MainArea: MainArea
-      },
-      ready: function ready() {
-          $(function () {
-              App.init();
-          });
-      }
-  });
-
-});
-
 ;/*!/pages/coding_index/model.js*/
 define('pages/coding_index/model', function(require, exports, module) {
 
@@ -14671,7 +14819,7 @@ define('pages/coding_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -14867,7 +15015,7 @@ define('pages/codingitem_index/modules/modify/main', function(require, exports, 
 
   'use strict';
   
-  var CommonCrud = require('common/crud');
+  var CommonCrud = require('common/scripts/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/codingitem/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -14921,7 +15069,7 @@ define('pages/codingitem_index/modules/delete/main', function(require, exports, 
 
   'use strict';
   
-  var CommonCrud = require('common/crud');
+  var CommonCrud = require('common/scripts/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -14976,9 +15124,9 @@ define('pages/codingitem_index/modules/detail/main', function(require, exports, 
 
   'use strict';
   
-  var CommonCrud = require('common/crud');
+  var CommonCrud = require('common/scripts/crud');
   
-  var Names = require('common/names');
+  var Names = require('common/scripts/names');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -15175,7 +15323,7 @@ define('pages/codingitem_index/modules/add2/main', function(require, exports, mo
 
   'use strict';
   
-  var CommonCrud = require('common/crud');
+  var CommonCrud = require('common/scripts/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器字段信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <div class=\"row\">\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"代码生成器\" required horizontal>\r\n                        <input type=\"text\" name=\"codingName\" readonly v-model=\"codingName\">\r\n                        <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"字段名称\" required horizontal>\r\n                        <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" horizontal>\r\n                        <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"英文名称\" required horizontal>\r\n                        <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                        <select2 name=\"type\" :value.sync=\"type\">\r\n                            <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                            <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                            <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                            <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                            <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                            <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" horizontal v-show=\"['varchar', 'char', 'int'].indexOf(type) > -1\">\r\n                        <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                        <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                            <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"选项\" col=\"3-9\" horizontal>\r\n                        <div class=\"checkbox-list\">\r\n                            <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                            <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                            <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                            <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                            <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                        </div>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                        <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" horizontal>\r\n                        <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"状态\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n            </div>           \r\n            \r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -15677,7 +15825,6 @@ define('pages/user_index/model', function(require, exports, module) {
           options: {
               type: 'input',
               param: {
-                  type: 'text',
                   readonly: true
               }
           }
@@ -15703,10 +15850,7 @@ define('pages/user_index/model', function(require, exports, module) {
       moduleAdd: {
           show: true,
           options: {
-              type: 'input',
-              param: {
-                  type: 'text'
-              }
+              type: 'input'
           }
       },
       moduleModify: {
@@ -15714,7 +15858,6 @@ define('pages/user_index/model', function(require, exports, module) {
           options: {
               type: 'input',
               param: {
-                  type: 'text',
                   readonly: true
               }
           }
@@ -15847,12 +15990,6 @@ define('pages/user_index/model', function(require, exports, module) {
   fieldDefine.stateShow = {
       title: '状态',
       moduleDatagrid: true,
-      moduleAdd: {
-          show: false
-      },
-      moduleModify: {
-          show: false
-      },
       moduleDetail: true,
       moduleDelete: true
   };
@@ -15872,7 +16009,7 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {

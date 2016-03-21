@@ -15,7 +15,6 @@ fieldDefine.id = {
         options: {
             type: 'input',
             param: {
-                type: 'text',
                 readonly: true
             }
         }
@@ -41,10 +40,7 @@ fieldDefine.name = {
     moduleAdd: {
         show: true,
         options: {
-            type: 'input',
-            param: {
-                type: 'text'
-            }
+            type: 'input'
         }
     },
     moduleModify: {
@@ -52,7 +48,6 @@ fieldDefine.name = {
         options: {
             type: 'input',
             param: {
-                type: 'text',
                 readonly: true
             }
         }
@@ -186,12 +181,6 @@ fieldDefine.updateTime = {
 fieldDefine.stateShow = {
     title: '状态',
     moduleDatagrid: true,
-    moduleAdd: {
-        show: false
-    },
-    moduleModify: {
-        show: false
-    },
     moduleDetail: true,
     moduleDelete: true
 };
