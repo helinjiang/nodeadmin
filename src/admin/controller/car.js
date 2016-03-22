@@ -1,8 +1,8 @@
 'use strict';
 
-import Base from './base.js';
+import BaseCrud from './basecrud.js';
 
-export default class extends Base {
+export default class extends BaseCrud {
     /**
      * index action
      * @return {Promise} []
@@ -21,10 +21,10 @@ export default class extends Base {
         // 获取参数
         let {
             // datatables的第几次渲染，从1递增，可用于在异步请求下，区分当前返回的数据是第几次请求返回的。
-            draw, 
+            draw,
 
             // 第几条数据开始
-            start, 
+            start,
 
             // 一次请求多少条记录
             length
@@ -53,20 +53,9 @@ export default class extends Base {
             .countSelect();
 
         // 为了最后的显示，进行数据处理
-        let data = result.data.map(item => {
-            // 转义时间
+        let data = this.convertToDatagrid(result.data, item => {
+            // 购买日期
             item.buydate = this.getCurDateStr(item.buydate);
-
-            // 为表格中的每一行增加id：DT_RowId，以便后续方便操作
-            item.DT_RowId = 'row_' + item.id;
-
-            if (item.state < 0) {
-                // 为表格中的无效数据增加样式：DT_RowClass，默认值有'active', 'success', 'warning', 'danger'，也可以自定义
-                item.DT_RowClass = 'warning';
-                item.stateShow = '无效';
-            } else {
-                item.stateShow = '有效';
-            }
 
             return item;
         });
@@ -99,10 +88,17 @@ export default class extends Base {
             buydate: buydate
         };
 
+        let model = this.model("car");
+
         // 参数校验，在logic中已完成
 
         // 保存
-        return this._save(record);
+        return this.saveToDB(model, record, {
+            keyId: 'id',
+            uniqueCheck: {
+                name: record.name
+            }
+        });
 
     }
 
@@ -126,10 +122,14 @@ export default class extends Base {
             buydate: buydate
         };
 
+        let model = this.model("car");
+
         // 参数校验，在logic中已完成
 
         // 保存
-        return this._save(record);
+        return this.saveToDB(model, record, {
+            keyId: 'id'
+        });
 
     }
 
@@ -148,90 +148,8 @@ export default class extends Base {
         // TODO 检查外键情况，查询是否有其他的数据表有用到该数据
 
         // 删除
-        let affectedRows = await model
-            .where({
-                id: id
-            })
-            .delete()
-            .catch(err => {
-                return this.fail(err.message || 'error')
-            });
-
-        // 处理返回结果
-        if (affectedRows) {
-            return this.success({
-                _type: 'delete',
-                affectedRows: affectedRows,
-                id: id
-            });
-        } else {
-            return this.fail('delete failed!', {
-                _type: 'delete',
-                id: id
-            });
-        }
+        return this.deleteFromDB(model, {
+            id: id
+        });
     }
-
-    /**
-     * 保存数据
-     */
-    async _save(record) {
-        let {
-            id, name
-        } = record;
-
-        let model = this.model('car');
-
-
-        if (!id) {
-            // 新增，同时保证 name 值不重复
-            let result = await model
-                .thenAdd(record, {
-                    name: name
-                })
-                .catch(err => {
-                    return this.fail(err.message || 'error');
-                });
-
-            // 处理返回结果
-            if (result.type === 'add') {
-
-                return this.success({
-                    _type: result.type,
-                    record
-                });
-            } else {
-                return this.fail('already exist same name!', {
-                    _type: result.type,
-                    record
-                });
-            }
-        } else {
-            // 修改
-            // TODO 修改的时候没考虑name重名情况
-            let affectedRows = await model
-                .where({
-                    id: id
-                })
-                .update(record)
-                .catch(err => {
-                    return this.fail(err.message || 'error');
-                });
-
-            // 处理返回结果
-            if (affectedRows) {
-                return this.success({
-                    _type: 'modify',
-                    affectedRows: affectedRows,
-                    record
-                });
-            } else {
-                return this.fail('modify failed!', {
-                    _type: 'modify',
-                    record
-                });
-            }
-        }
-    }
-
 }
