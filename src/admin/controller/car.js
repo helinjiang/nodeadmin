@@ -31,8 +31,7 @@ export default class extends BaseCrud {
         } = this.post();
 
         // 快速搜索框中的值
-        // TODO 还未实现
-        let searchValue = this.post('search[value]');
+        let searchValue = this.post('search[value]').trim();
 
         // 由于thinkjs中是以页为单位的，因此在此进行换算
         // https://thinkjs.org/zh-cn/doc/2.1/model_crud.html#toc-6ce
@@ -45,6 +44,9 @@ export default class extends BaseCrud {
                 table: "select id as user_id, name as user_name from think_user",
                 as: "u", // 表别名
                 on: ["ownerId", "user_id"] //ON 条件
+            })
+            .where({
+                'name|user_name': ['like', '%' + searchValue + '%']
             })
             .order({
                 'c.id': "DESC",
