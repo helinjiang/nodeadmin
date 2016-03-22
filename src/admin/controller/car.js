@@ -140,7 +140,7 @@ export default class extends BaseCrud {
      *
      * @return {object} JSON 格式数据
      */
-    async deleteAction() {
+    deleteAction() {
         // 获取参数
         let id = this.post('id');
         let model = this.model("car");

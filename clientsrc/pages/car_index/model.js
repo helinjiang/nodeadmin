@@ -32,12 +32,7 @@ fieldDefine.id = {
 // 汽车名字
 fieldDefine.name = {
     title: '汽车名字',
-    moduleDatagrid: {
-        show: true,
-        options: {
-            css: 'namecss'
-        }
-    },
+    moduleDatagrid: true,
     moduleAdd: {
         show: true,
         options: {
