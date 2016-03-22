@@ -71,22 +71,16 @@ Vue.component('crud-modal-save', {
                 // 补充一些默认值
                 switch (item.elementType) {
                     case 'input':
-                        if (!item.elementParam) {
-                            item.elementParam = {
-                                type: 'text'
-                            }
-                        } else if (!item.elementParam.type) {
-                            item.elementParam.type = 'text';
-                        }
+                        item.elementParam = $.extend({}, {
+                            type: 'text',
+                        }, item.elementParam || {});
                         break;
                     case 'select2':
-                        if (!item.elementParam) {
-                            item.elementParam = {
-                                // options: []
-                            }
-                        } else if (!item.elementParam.options) {
-                            // item.elementParam.options = [];
-                        }
+                        item.elementParam = $.extend({}, {
+                            url: '',
+                            convert: '',
+                            lazy: false
+                        }, item.elementParam || {});
                         break;
                     default:
                         break;
