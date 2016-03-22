@@ -88,6 +88,7 @@ module.exports = {
         showAddPage: function() {
             this.beforeShowAddPage();
 
+            this.modalInitData = {};
             this.isShowSaveModal = true;
         },
         showModifyPage: function(data) {

@@ -24,7 +24,6 @@ module.exports = Vue.extend({
             this.modalCgi = '/admin/car/add';
 
             this.modalFieldDefine = Model.getAddFieldDefine();
-            console.log(this.modalFieldDefine );
         },
         beforeShowModifyPage: function(data) {
             this.modalTitle = '修改汽车信息';
