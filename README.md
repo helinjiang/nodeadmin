@@ -1,7 +1,13 @@
-# nodeadmin
+# NodeAdmin
 基于Node.js实现的后台管理系统
 
 ### 简介
+
+NodeAdmin后台管理系统的技术架构为：前端页面使用了 [Vue.js](http://vuejs.org/)，后台框架使用了 [Think.js](https://thinkjs.org/)，数据库采用了 [MySQL](https://www.mysql.com/)，构建使用了 [FIS3](http://fis.baidu.com/fis3/index.html)，
+
+由于 Vue.js 不支持 IE8 及其以下版本，因此，建议使用 [Chrome](http://www.google.cn/chrome/browser/desktop/index.html) 浏览器进行体验。
+
+本系统仅作为研究技术之用，您可以自由的在此基础上进行修改和传播。但若要用在生产环境，请自行评估相应风险。
 
 本文涉及到 fi3 和 vuejs，用于演示用法。
 
@@ -15,7 +21,10 @@
 
 支持 `___`使得自动能够生成唯一的样式
 
+线上版本的vue.js
  
+构建，没办法按顺序合并
+
 ### DEMO使用
 
 #### 命令
