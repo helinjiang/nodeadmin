@@ -10134,451 +10134,439 @@ define('common/scripts/app', function(require, exports, module) {
 
 });
 
-;/*!/common/scripts/validator.js*/
-define('common/scripts/validator', function(require, exports, module) {
+;/*!/common/scripts/crudmodel.js*/
+define('common/scripts/crudmodel', function(require, exports, module) {
 
-  /**
-   * http://jqueryvalidation.org/
-   * 基于 jquery.validate.js 修改  
-   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
-   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
-   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
-   * 也可以两者同时使用。
-   */
-  
-  // http://jqueryvalidation.org/category/plugin/
   'use strict';
   
-  var defaultOptions = {
-      errorElement: 'span', //default input error message container
-      errorClass: 'help-block', // default input error message class
-      focusInvalid: false, // do not focus the last invalid input
-      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+  
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  
+  var Model = (function () {
+      function Model(fieldDefine) {
+          _classCallCheck(this, Model);
+  
+          this.fieldDefine = fieldDefine || {};
+  
+          // map<fieldName, title>
+          this.fieldTitleMap = this._getAllFieldTitleMap();
+  
+          // datagrid的items
+          this.datagridItem = undefined;
+  
+          // add的fieldDefine
+          this.addFieldDefine = undefined;
+  
+          // modify的fieldDefine
+          this.modifyFieldDefine = undefined;
+  
+          // detail的fieldDefine
+          this.detailFieldDefine = undefined;
+  
+          // delete的fieldDefine
+          this.deleteFieldDefine = undefined;
+      }
   
       /**
-       * hightlight error inputs  
-       * @param  {object}   element Dom元素input
+       * 通过指定字段，返回对应的字段对象
+       * @param  {array}   arr 字段列表
+       * @return {object}       map
        */
-      highlight: function highlight(element) {
-          // set error class to the control group
-          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-      },
   
-      /**
-       * revert the change done by hightlight
-       * @param  {object}   element Dom元素input
-       */
-      unhighlight: function unhighlight(element) {
-          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
-      },
+      _createClass(Model, [{
+          key: 'getFieldTitleMap',
+          value: function getFieldTitleMap(arr) {
+              var _this = this;
   
-      /**
-       * display error alert on form submit   
-       * @param  {[type]}   event     [description]
-       * @param  {[type]}   validator [description]
-       */
-      // invalidHandler: function(event, validator) {
-      // },
+              if (!arr || !arr.length) {
+                  return this.fieldTitleMap;
+              }
   
-      success: function success(label) {
-          label.closest('.form-group').removeClass('has-error');
-          label.remove();
-      },
+              var map = {};
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this.fieldTitleMap[fieldName];
+              });
   
-      /**
-       * render error placement for each input type
-       * @param  {object}   error   Dom元素
-       * @param  {object}   element [description]
-       */
-      errorPlacement: function errorPlacement(error, element) {
-          var errwrap = element.closest('.errwrap');
-          if (errwrap.length) {
-              error.appendTo(element.closest('.errwrap'));
-          } else {
-              // 默认，element为input元素
-              error.insertAfter(element);
+              return map;
           }
-      },
   
-      /**
-       * 提交操作
-       * @param  {object}   form Dom元素
-       * @author helinjiang
-       * @date   2016-02-28
-       */
-      submitHandler: function submitHandler(form) {
-          // 默认是提交表单，如果是ajax提交，则请覆盖之
-          form.submit();
-      }
-  };
+          /**
+           * 获取指定的字段的title
+           * @param  {string}   fieldName 字段
+           * @return {string}        字段对应的titile
+           */
+      }, {
+          key: 'getTitle',
+          value: function getTitle(fieldName) {
+              return this.fieldTitleMap[fieldName] || fieldName;
+          }
   
-  /**
-   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
-   * @param  {object}   jqForm       form的jQuery对象
-   * @param  {object}   rulesOptions 校验对象定义
-   * @param  {object}   validatorOptions     validator的配置参数
-   * @param  {object}   handler     自定义的一些处理方法
-   */
-  function check(jqForm, rulesOptions, validatorOptions, handler) {
-      if (!jqForm.length || typeof rulesOptions !== "object") {
-          return;
-      }
+          /**
+           * 获得datagrid的items。
+           *
+           * 依赖于各个字段的moduleDatagrid值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleDatagrid : {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           *     options: { // 额外的参数，用于datagrid上的配置，这里支持哪些配置请参考该组件的用法
+           *         css: 'namecss',
+           *         hide: false,
+           *         disableorder:fase
+           *     }
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      name: 'id',
+                      title: '操作',
+                      render: 'commonOperate | detail modify delete',
+                      disableorder: true,
+                      priority: 100
+                  }]
+           * @return {array}              datagrid的items
+           */
+      }, {
+          key: 'getDatagridItem',
+          value: function getDatagridItem(extraItems) {
+              // 优先使用缓存
+              if (this.datagridItem) {
+                  return this.datagridItem;
+              }
   
-      if (typeof validatorOptions !== "object") {
-          validatorOptions = {};
-      }
+              var result = this._getComputedFieldDefine('moduleDatagrid', extraItems, function (item, oneFieldDefine) {
+                  // datagrid只认name，而不认识fieldName
+                  item.name = item.fieldName;
   
-      if (typeof handler !== "object") {
-          handler = {};
-      }
+                  // 额外的datagrid参数配置，来自oneFieldDefine.moduleDatagrid.options
+                  if (typeof oneFieldDefine.moduleDatagrid.options === "object") {
+                      $.extend(item, oneFieldDefine.moduleDatagrid.options);
+                  }
   
-      // 从 rulesOptions 中获得 rules 和 messages
-      var rulesAndMessages = getRulesAndMessages(rulesOptions);
+                  return item;
+              });
   
-      // 获得options
-      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
+              // 缓存数据
+              this.datagridItem = result;
   
-      // 如果还有 handler，相对于钩子，则再追加操作。
+              // 返回结果
+              return result;
+          }
   
-      jqForm.validate(options);
-  }
-  
-  function getRulesAndMessages(rulesOptions) {
-      if ($.isEmptyObject(rulesOptions)) {
-          return {};
-      }
-  
-      // username: {
-      //     required: {
-      //         rule: true,
-      //         message: '用户名不能为空！'
-      //     },
-      //     minlength: {
-      //         rule: 2,
-      //         message: '最小长度为2'
-      //     },
-      //     maxlength: {
-      //         rule: 6,
-      //         message: '最大长度为6'
-      //     }
-      // }
-  
-      var options = {},
-          rules = {},
-          messages = {};
-  
-      for (var k in rulesOptions) {
-          // k=username
-          if (rulesOptions.hasOwnProperty(k)) {
-              var v = rulesOptions[k];
-              for (var vk in v) {
-                  // vk=required
-                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
-                  var vv = v[vk];
-  
-                  if (typeof vv === 'object') {
-                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
-                      // 校验器的传值 rule
-                      if (vv.rule) {
-                          if (!rules[k]) {
-                              rules[k] = {};
-                          }
-                          rules[k][vk] = vv.rule;
-                      }
-  
-                      // 校验器失败之后的提示 message
-                      if (vv.message) {
-                          if (!messages[k]) {
-                              messages[k] = {};
-                          }
-                          messages[k][vk] = vv.message;
-                      }
-                  } else {
-                      // 如果校验器对应的值不是对象，则将其当作 rule
-                      if (!rules[k]) {
-                          rules[k] = {};
-                      }
-                      rules[k][vk] = vv;
+          /**
+           * 获得add的fieldDefine。
+           *
+           * 依赖于各个字段的moduleAdd值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleAdd: {
+              show: true,
+              priority: 100,
+              options: {
+                  type: 'input',
+                  param: {
+                      type: 'password'
                   }
               }
           }
-      }
-  
-      if (!$.isEmptyObject(rules)) {
-          options.rules = rules;
-      }
-  
-      if (!$.isEmptyObject(messages)) {
-          options.messages = messages;
-      }
-  
-      return options;
-  }
-  
-  /**
-   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
-   * @param  {object} jqForm form或者表单元素
-   * @param  {string} fieldName form中的某个表单元素的name属性值
-   * @return {boolean}          
-   */
-  function valid(jqForm, fieldName) {
-      if (!jqForm || !jqForm.length) {
-          return false;
-      }
-  
-      if (!fieldName) {
-          return jqForm.valid();
-      } else {
-          return $('[name="' + fieldName + '"]', jqForm).valid();
-      }
-  }
-  
-  module.exports = {
-      check: check,
-      valid: valid
-  };
-
-});
-
-;/*!/components/msg/main.js*/
-define('components/msg/main', function(require, exports, module) {
-
-  'use strict';
-  
-  toastr.options = {
-      "closeButton": true,
-      // "debug": true,
-      "positionClass": "toast-top-center",
-      "onclick": null,
-      "showDuration": "1000",
-      "hideDuration": "1000",
-      "timeOut": "5000",
-      "extendedTimeOut": "1000",
-      "showEasing": "swing",
-      "hideEasing": "linear",
-      "showMethod": "fadeIn",
-      "hideMethod": "fadeOut"
-  };
-  
-  function info(content) {
-      toastr.info(content, '信息');
-  }
-  
-  function success(content) {
-      toastr.success(content, '成功');
-  }
-  
-  function error(content) {
-      toastr.error(content, '错误');
-  }
-  
-  function warning(content) {
-      toastr.warning(content, '警告');
-  }
-  
-  module.exports = {
-      info: info,
-      success: success,
-      error: error,
-      warning: warning
-  };
-
-});
-
-;/*!/common/scripts/crud.js*/
-define('common/scripts/crud', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var Validator = require('common/scripts/validator');
-  var Msg = require('components/msg/main');
-  
-  /**
-   * 用于定义Vue组件的通用的一些设置
-   * @type {Object}
-   */
-  var commonOptions = {
-      template: '<div> EMPTY </div>',
-      data: function data() {
-          return {
-              jqForm: undefined
-          };
-      },
-      methods: {
-          /**
-           * 弹出对话框之前执行，比如初始化对话框中的表单数据等
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100,
+                      elementType: 'input',
+                      elementParam: {
+                          type: 'password'
+                      },
+                      validator: {
+                          required: true
+                      }          
+                  }]
+           * @return {array}              add的fieldDefine
            */
-          beforeShowModal: function beforeShowModal(data) {},
-  
-          getRulesOptions: function getRulesOptions() {
-              return {};
-          },
-  
-          /**
-           * 弹出对话框
-           */
-          showModal: function showModal(data) {
-              this.beforeShowModal(data);
-  
-              this.$children[0].show();
-          },
-  
-          /**
-           * 关闭对话框
-           */
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-  
-          /**
-           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-           */
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-  
-          /**
-           * 对话框确定按钮点击之后的回调函数
-           */
-          triggerSubmit: function triggerSubmit(modalId) {
-              if (this.jqForm) {
-                  this.jqForm.submit();
-              } else {
-                  console.error('this.jqForm is undefined');
+      }, {
+          key: 'getAddFieldDefine',
+          value: function getAddFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.addFieldDefine) {
+                  return this.addFieldDefine;
               }
-          },
+  
+              var result = this._getComputedFieldDefine('moduleAdd', extraItems, function (item, oneFieldDefine) {
+  
+                  // options
+                  if (typeof oneFieldDefine.moduleAdd.options === "object") {
+                      item.elementType = oneFieldDefine.moduleAdd.options.type;
+                      item.elementParam = oneFieldDefine.moduleAdd.options.param || {};
+  
+                      // 此处是默认值，可能会被后面传递的实际数据覆盖
+                      if (oneFieldDefine.moduleAdd.options.value) {
+                          item.value = oneFieldDefine.moduleAdd.options.value;
+                      }
+                  }
+  
+                  // validator
+                  if (typeof oneFieldDefine.validator === "object") {
+                      item.validator = oneFieldDefine.validator;
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.addFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
   
           /**
-           * 表单校验
+           * 获得modify的fieldDefine。
+           *
+           * 依赖于各个字段的moduleModify值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleModify: {
+              show: true,
+              priority: 100,
+              options: {
+                  type: 'input',
+                  param: {
+                      type: 'password'
+                  }
+              }
+          }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100,
+                      elementType: 'input',
+                      elementParam: {
+                          type: 'password'
+                      },
+                      validator: {
+                          required: true
+                      }          
+                  }]
+           * @return {array}              modify的fieldDefine
            */
-          handleValidator: function handleValidator() {
-              var self = this;
+      }, {
+          key: 'getModifyFieldDefine',
+          value: function getModifyFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.modifyFieldDefine) {
+                  return this.modifyFieldDefine;
+              }
   
-              Validator.check(this.jqForm, this.getRulesOptions(), {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              self.dealSuccessRes(responseText, statusText);
-                          },
-                          error: function error(err) {
-                              console.error(err);
+              var result = this._getComputedFieldDefine('moduleModify', extraItems, function (item, oneFieldDefine) {
   
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
-                              }
-                          }
-                      });
+                  // options
+                  if (typeof oneFieldDefine.moduleModify.options === "object") {
+                      item.elementType = oneFieldDefine.moduleModify.options.type;
+                      item.elementParam = oneFieldDefine.moduleModify.options.param || {};
+  
+                      // 此处是默认值，可能会被后面传递的实际数据覆盖
+                      if (oneFieldDefine.moduleModify.options.value) {
+                          item.value = oneFieldDefine.moduleModify.options.value;
+                      }
+                  }
+  
+                  // validator
+                  if (typeof oneFieldDefine.validator === "object") {
+                      item.validator = oneFieldDefine.validator;
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.modifyFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得detail的fieldDefine。
+           *
+           * 依赖于各个字段的moduleDetail值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleDetail : {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100
+                  }]
+           * @return {array}              detail的fieldDefine
+           */
+      }, {
+          key: 'getDetailFieldDefine',
+          value: function getDetailFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.detailFieldDefine) {
+                  return this.detailFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleDetail', extraItems);
+  
+              // 缓存数据
+              this.detailFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得delete的fieldDefine。
+           *
+           * 依赖于各个字段的moduleDelete值，该值可以为：
+           * 1. 如果为undefined，则其等价为{show:false}
+           * 2. 如果boolean值，则其等价为{show:true}或{show:false}
+           * 3. 值为对象，其完整定义为： 
+           * moduleDelete: {
+           *     show : true, // 如果要展示，则此值为true，否则可以不定义
+           *     priority: 100,  // 优先级，在列表中的顺序，从小到大，不设置的话默认为100
+           *     options: {
+          *           deleteDepend: 'pid' // 删除记录时，需要依赖它，例如: pid=one.id
+          *       }
+           * }
+           * 
+           * @param  {array}   extraItems 额外附加items
+           *     [{
+                      fieldName: 'id',
+                      title: 'ID',
+                      priority: 100
+                  }]
+           * @return {array}              detail的fieldDefine
+           */
+      }, {
+          key: 'getDeleteFieldDefine',
+          value: function getDeleteFieldDefine(extraItems) {
+              // 优先使用缓存
+              if (this.deleteFieldDefine) {
+                  return this.deleteFieldDefine;
+              }
+  
+              var result = this._getComputedFieldDefine('moduleDelete', extraItems, function (item, oneFieldDefine) {
+  
+                  // 额外参数配置，来自oneFieldDefine.moduleDelete.options
+                  if (typeof oneFieldDefine.moduleDelete.options === "object") {
+                      $.extend(item, oneFieldDefine.moduleDelete.options);
+                  }
+  
+                  return item;
+              });
+  
+              // 缓存数据
+              this.deleteFieldDefine = result;
+  
+              // 返回结果
+              return result;
+          }
+  
+          /**
+           * 获得所有字段的字段名和名称键值对
+           * @return {object}   map
+           */
+      }, {
+          key: '_getAllFieldTitleMap',
+          value: function _getAllFieldTitleMap() {
+              var _this2 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  map = {};
+  
+              arr.forEach(function (fieldName) {
+                  map[fieldName] = _this2.fieldDefine[fieldName].title || fieldName;
+              });
+  
+              return map;
+          }
+  
+          /**
+           * 获得计算之后的fieldDefine数组
+           * @param  {string}   targetField model中的字段目标属性，比如moduleDatagrid等
+           * @param  {array}   extraItems  额外的要合并的结果项数组
+           * @param  {function}   dealFn      处理每一个字段回调处理，返回处理结果
+           *                                  第一个参数是当前处理的item对象，
+           *                                  第二个参数是当前处理的字段定义对象
+           * @return {array}               计算之后的fieldDefine数组
+           */
+      }, {
+          key: '_getComputedFieldDefine',
+          value: function _getComputedFieldDefine(targetField, extraItems, dealFn) {
+              var _this3 = this;
+  
+              var arr = Object.keys(this.fieldDefine),
+                  result = [];
+  
+              arr.forEach(function (fieldName) {
+                  // 字段的定义对象
+                  var one = _this3.fieldDefine[fieldName];
+  
+                  // 如果设置了展现才展示，设置fieldName\title\priority
+                  if (typeof one[targetField] === 'object' && one[targetField].show || typeof one[targetField] === 'boolean' && one[targetField]) {
+  
+                      var item = {};
+                      item.fieldName = fieldName;
+                      item.title = _this3.getTitle(fieldName);
+  
+                      if (typeof one[targetField].priority === 'undefined') {
+                          item.priority = 100;
+                      } else {
+                          item.priority = parseInt(one[targetField].priority, 10) || 100;
+                      }
+  
+                      if (typeof dealFn === "function") {
+                          item = dealFn(item, one);
+                      }
+  
+                      result.push(item);
                   }
               });
-          },
-          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
-              console.log(responseText, statusText);
   
-              if (statusText !== 'success' || responseText.errno !== 0) {
-                  // 提示失败
-                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-              } else {
-                  // 提示成功
-                  Msg.success('^_^ 处理成功！');
-  
-                  // 关闭对话框
-                  this.hideModal();
-  
-                  // 刷新列表
-                  this.reportSuccess(responseText.data);
+              // 如果有额外参数配置，则合并之
+              if (extraItems && extraItems.length) {
+                  result = result.concat(extraItems);
               }
-          }
-      },
-      events: {
-          /**
-           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
-           * 
-           * @param  {string} name   表单中某一表单元素的name属性值
-           * @param  {string} val    新值
-           * @param  {string} oldVal 旧值
-           * @return {boolean}        校验结果
-           */
-          valuechange: function valuechange(name, val, oldVal) {
-              return Validator.valid(this.jqForm, name);
-          },
   
-          /**
-           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-           * 
-           * @param  {string} modalId   当前modal的id
-           */
-          confirm: function confirm(modalId) {
-              this.triggerSubmit(modalId);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
+              // 依据权重进行排序，权重值从小到大排列
+              result = result.sort(function (a, b) {
+                  if (!a.priority) {
+                      a.priority = 100;
+                  }
   
-          this.handleValidator();
-      }
-  };
+                  if (!b.priority) {
+                      b.priority = 100;
+                  }
   
-  module.exports = {
-      extend: function extend(param) {
-          // TODO 此处合并还可以进一步优化
-  
-          var options = $.extend({}, commonOptions);
-  
-          // 如果没有参数或参数不是object，则返回默认值
-          if (typeof param !== 'object') {
-              return options;
-          }
-  
-          // template
-          if (typeof param.template === "string") {
-              options.template = param.template;
-          }
-  
-          // props
-          if (typeof param.props === "object") {
-              options.props = $.extend({}, param.props);
-          }
-  
-          // data       
-          if (typeof param.data === "object") {
-              // 注意，这里的data要和commonOptions中的合并，而不是覆盖
-              // 由于data中字段的值可能为undefined，使用$.extend时会导致被忽略掉，
-              // 直接使用ES6 的 Object.assign 可以，但当心兼容性
-              // var newData = $.extend(options.data(), param.data);
-              // var newData = Object.assign(options.data(), param.data);
-              var newData = options.data(),
-                  keys = Object.keys(param.data);
-  
-              keys.forEach(function (key) {
-                  newData[key] = param.data[key];
+                  return a.priority - b.priority;
               });
   
-              options.data = function () {
-                  return newData;
-              };
+              // 返回结果
+              return result;
           }
+      }]);
   
-          // 'methods' 和 'events'
-          ['methods', 'events'].forEach(function (p) {
-              options[p] = $.extend({}, options[p] || {}, param[p] || {});
-          });
+      return Model;
+  })();
   
-          // ready
-          if (typeof param.ready === 'function') {
-              options.ready = param.ready;
-          }
-  
-          // ['methods', 'filters', 'directives', 'data'].forEach(function(p) {
-          //     merge[p] = $.extend({}, commonOptions[p] || {}, o[p] || {});
-          // });
-  
-          return Vue.extend(options);
-      }
-  };
+  module.exports = Model;
 
 });
 
@@ -11610,118 +11598,119 @@ define('common/scripts/menudata', function(require, exports, module) {
               icon: 'pin',
               active: false
           }]
-      }, {
-          id: 'menuCoding',
-          name: '代码生成器',
-          url: '/admin/coding',
-          icon: 'doc',
-          active: false
-      }, {
-          id: 'menuTest',
-          name: '测试专用',
-          url: '/admin/test',
-          icon: 'bag',
-          active: false
-      }
-      // {
-      //     id:'2',
-      //     name: 'Page Layouts',
-      //     icon: 'home',
-      //     active: false,
-      //     children: [{
-      //         id:'21',
-      //         name: 'Sidebar Fixed Page',
-      //         url: 'layout_sidebar_fixed.html',
-      //         icon: 'anchor',
-      //         active: false,
-      //         badge: {
-      //             type: 'warning',
-      //             value: 'new'
-      //         }
-      //     }, {
-      //         id:'test',
-      //         name: 'Sidebar Closed Page',
-      //         url: 'test.html',
-      //         icon: 'anchor',
-      //         active: false,
-      //         badge: 'new'
-      //     }, {
-      //         id:'23',
-      //         name: 'Boxed Page',
-      //         url: 'layout_sidebar_fixed.html',
-      //         icon: 'pin',
-      //         active: false
-      //     }]
-      // }, {
-      //     id:'3',
-      //     name: '4 Level Menu',
-      //     icon: 'share',
-      //     active: false,
-      //     children: [{
-      //         id:'31',
-      //         name: 'Item 1',
-      //         icon: 'anchor',
-      //         active: false,
-      //         children: [{
-      //             id:'311',
-      //             name: ' Sample Link 1',
-      //             url: 'layout_sidebar_fixed.html',
-      //             icon: 'anchor',
-      //             active: false,
-      //             children: [{
-      //                 id:'3111',
-      //                 name: 'sub-4',
-      //                 url: 'layout_sidebar_fixed.html',
-      //                 icon: 'anchor',
-      //                 active: false
-      //             }, {
-      //                 id:'3112',
-      //                 name: 'sub-4',
-      //                 url: 'layout_sidebar_closed.html',
-      //                 icon: 'anchor',
-      //                 active: false
-      //             }, {
-      //                 id:'3113',
-      //                 name: 'sub-4',
-      //                 url: 'layout_sidebar_closed.html',
-      //                 icon: 'anchor',
-      //                 active: false
-      //             }]
-      //         }, {
-      //             id:'312',
-      //             name: ' Sample Link 2',
-      //             url: 'layout_sidebar_closed.html',
-      //             icon: 'anchor',
-      //             active: false
-      //         }, {
-      //             id:'313',
-      //             name: ' Sample Link 2',
-      //             url: 'layout_sidebar_closed.html',
-      //             icon: 'anchor',
-      //             active: false
-      //         }]
-      //     }, {
-      //         id:'32',
-      //         name: 'Item 2',
-      //         icon: 'anchor',
-      //         active: false
-      //     }, {
-      //         id:'33',
-      //         name: 'Item 3',
-      //         url: 'layout_sidebar_fixed.html',
-      //         icon: 'pin',
-      //         active: false
-      //     }]
-      // }, {
-      //     id:'4',
-      //     name: 'Login',
-      //     url: 'login.html',
-      //     icon: 'user',
-      //     active: false
-      // }
-      ]
+      }]
   };
   
+  // {
+  //     id: 'menuCoding',
+  //     name: '代码生成器',
+  //     url: '/admin/coding',
+  //     icon: 'doc',
+  //     active: false
+  // },
+  // {
+  //     id: 'menuTest',
+  //     name: '测试专用',
+  //     url: '/admin/test',
+  //     icon: 'bag',
+  //     active: false
+  // }
+  // {
+  //     id:'2',
+  //     name: 'Page Layouts',
+  //     icon: 'home',
+  //     active: false,
+  //     children: [{
+  //         id:'21',
+  //         name: 'Sidebar Fixed Page',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'anchor',
+  //         active: false,
+  //         badge: {
+  //             type: 'warning',
+  //             value: 'new'
+  //         }
+  //     }, {
+  //         id:'test',
+  //         name: 'Sidebar Closed Page',
+  //         url: 'test.html',
+  //         icon: 'anchor',
+  //         active: false,
+  //         badge: 'new'
+  //     }, {
+  //         id:'23',
+  //         name: 'Boxed Page',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'pin',
+  //         active: false
+  //     }]
+  // }, {
+  //     id:'3',
+  //     name: '4 Level Menu',
+  //     icon: 'share',
+  //     active: false,
+  //     children: [{
+  //         id:'31',
+  //         name: 'Item 1',
+  //         icon: 'anchor',
+  //         active: false,
+  //         children: [{
+  //             id:'311',
+  //             name: ' Sample Link 1',
+  //             url: 'layout_sidebar_fixed.html',
+  //             icon: 'anchor',
+  //             active: false,
+  //             children: [{
+  //                 id:'3111',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_fixed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }, {
+  //                 id:'3112',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_closed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }, {
+  //                 id:'3113',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_closed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }]
+  //         }, {
+  //             id:'312',
+  //             name: ' Sample Link 2',
+  //             url: 'layout_sidebar_closed.html',
+  //             icon: 'anchor',
+  //             active: false
+  //         }, {
+  //             id:'313',
+  //             name: ' Sample Link 2',
+  //             url: 'layout_sidebar_closed.html',
+  //             icon: 'anchor',
+  //             active: false
+  //         }]
+  //     }, {
+  //         id:'32',
+  //         name: 'Item 2',
+  //         icon: 'anchor',
+  //         active: false
+  //     }, {
+  //         id:'33',
+  //         name: 'Item 3',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'pin',
+  //         active: false
+  //     }]
+  // }, {
+  //     id:'4',
+  //     name: 'Login',
+  //     url: 'login.html',
+  //     icon: 'user',
+  //     active: false
+  // }
   module.exports = menus;
 
 });
@@ -12172,6 +12161,9 @@ define('mixins/modal/basic/main', function(require, exports, module) {
   
           /**
            * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+           *
+           * TODO 该方法似乎不适合放入在这里，因为它并不是对话框的基本行为
+           * 
            */
           reportSuccess: function reportSuccess(data) {
               this.$dispatch('savesuccess', data);
@@ -12226,10 +12218,10 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 字段定义字典，key为字段名，value为其显示的中文名
+           * 字段定义数组
            */
-          field: {
-              type: Object,
+          fieldDefine: {
+              type: Array,
               required: true
           },
           title: {
@@ -12242,21 +12234,65 @@ define('modules/crudmodal/detail/main', function(require, exports, module) {
           beforeModal: function beforeModal() {
               var _this = this;
   
-              var filedNameArr = Object.keys(this.field),
-                  result = [];
+              var items = [];
   
-              filedNameArr.map(function (key) {
-                  result.push({
-                      key: key,
-                      value: _this.initData[key],
-                      title: _this.field[key]
+              this.fieldDefine.forEach(function (item) {
+                  items.push({
+                      fieldName: item.fieldName,
+                      title: item.title,
+                      value: _this.initData[item.fieldName]
                   });
               });
   
-              this.items = result;
+              this.items = items;
           }
       }
   });
+
+});
+
+;/*!/components/msg/main.js*/
+define('components/msg/main', function(require, exports, module) {
+
+  'use strict';
+  
+  toastr.options = {
+      "closeButton": true,
+      // "debug": true,
+      "positionClass": "toast-top-center",
+      "onclick": null,
+      "showDuration": "1000",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+  };
+  
+  function info(content) {
+      toastr.info(content, '信息');
+  }
+  
+  function success(content) {
+      toastr.success(content, '成功');
+  }
+  
+  function error(content) {
+      toastr.error(content, '错误');
+  }
+  
+  function warning(content) {
+      toastr.warning(content, '警告');
+  }
+  
+  module.exports = {
+      info: info,
+      success: success,
+      error: error,
+      warning: warning
+  };
 
 });
 
@@ -12286,13 +12322,12 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
               required: true
           },
           /**
-           * 字段定义字典，key为字段名，value为其显示的中文名
+           * 字段定义数组
            */
-          field: {
-              type: Object,
+          fieldDefine: {
+              type: Array,
               required: true
           },
-          param: Array,
           url: {
               type: String,
               required: true
@@ -12310,22 +12345,19 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
               var items = [],
                   requestParam = {};
   
-              Object.keys(this.field).map(function (key) {
+              this.fieldDefine.forEach(function (item) {
                   items.push({
-                      key: key,
-                      value: _this.initData[key],
-                      title: _this.field[key]
+                      fieldName: item.fieldName,
+                      title: item.title,
+                      value: _this.initData[item.fieldName]
                   });
+  
+                  if (typeof item.deleteDepend === 'string') {
+                      requestParam[item.deleteDepend] = _this.initData[item.fieldName];
+                  }
               });
   
               this.items = items;
-  
-              if (this.param) {
-                  this.param.map(function (item) {
-                      requestParam[item.key] = _this.initData[item.fieldName];
-                  });
-              }
-  
               this.requestParam = requestParam;
           },
           triggerSubmit: function triggerSubmit(modalId) {
@@ -12352,6 +12384,401 @@ define('modules/crudmodal/delete/main', function(require, exports, module) {
                   this.reportSuccess(responseText.data);
               }
           }
+      }
+  });
+
+});
+
+;/*!/common/scripts/validator.js*/
+define('common/scripts/validator', function(require, exports, module) {
+
+  /**
+   * http://jqueryvalidation.org/
+   * 基于 jquery.validate.js 修改  
+   * TODO 校验放入到js中统一配置还是在标签中设置，这个需要再考虑
+   * 如果放在中js中，则统一配置好控制，此时的form组件就定义为轻量级的
+   * 如果放在标签内，则更灵活，而且还可以在无JS的情况下利用html5原生的校验能力
+   * 也可以两者同时使用。
+   */
+  
+  // http://jqueryvalidation.org/category/plugin/
+  'use strict';
+  
+  var defaultOptions = {
+      errorElement: 'span', //default input error message container
+      errorClass: 'help-block', // default input error message class
+      focusInvalid: false, // do not focus the last invalid input
+      ignore: ".ignore", //http://fanshuyao.iteye.com/blog/2243544，select2的校验问题
+  
+      /**
+       * hightlight error inputs  
+       * @param  {object}   element Dom元素input
+       */
+      highlight: function highlight(element) {
+          // set error class to the control group
+          $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+      },
+  
+      /**
+       * revert the change done by hightlight
+       * @param  {object}   element Dom元素input
+       */
+      unhighlight: function unhighlight(element) {
+          $(element).closest('.form-group').removeClass('has-error'); // set error class to the control group
+      },
+  
+      /**
+       * display error alert on form submit   
+       * @param  {[type]}   event     [description]
+       * @param  {[type]}   validator [description]
+       */
+      // invalidHandler: function(event, validator) {
+      // },
+  
+      success: function success(label) {
+          label.closest('.form-group').removeClass('has-error');
+          label.remove();
+      },
+  
+      /**
+       * render error placement for each input type
+       * @param  {object}   error   Dom元素
+       * @param  {object}   element [description]
+       */
+      errorPlacement: function errorPlacement(error, element) {
+          var errwrap = element.closest('.errwrap');
+          if (errwrap.length) {
+              error.appendTo(element.closest('.errwrap'));
+          } else {
+              // 默认，element为input元素
+              error.insertAfter(element);
+          }
+      },
+  
+      /**
+       * 提交操作
+       * @param  {object}   form Dom元素
+       * @author helinjiang
+       * @date   2016-02-28
+       */
+      submitHandler: function submitHandler(form) {
+          // 默认是提交表单，如果是ajax提交，则请覆盖之
+          form.submit();
+      }
+  };
+  
+  /**
+   * 校验form，支持rulesOptions集中配置，也支持在input中进行配置
+   * @param  {object}   jqForm       form的jQuery对象
+   * @param  {object}   rulesOptions 校验对象定义
+   * @param  {object}   validatorOptions     validator的配置参数
+   * @param  {object}   handler     自定义的一些处理方法
+   */
+  function check(jqForm, rulesOptions, validatorOptions, handler) {
+      if (!jqForm.length || typeof rulesOptions !== "object") {
+          return;
+      }
+  
+      if (typeof validatorOptions !== "object") {
+          validatorOptions = {};
+      }
+  
+      if (typeof handler !== "object") {
+          handler = {};
+      }
+  
+      // 从 rulesOptions 中获得 rules 和 messages
+      var rulesAndMessages = getRulesAndMessages(rulesOptions);
+  
+      // 获得options
+      var options = $.extend({}, defaultOptions, rulesAndMessages, validatorOptions);
+  
+      // 如果还有 handler，相对于钩子，则再追加操作。
+  
+      jqForm.validate(options);
+  }
+  
+  function getRulesAndMessages(rulesOptions) {
+      if ($.isEmptyObject(rulesOptions)) {
+          return {};
+      }
+  
+      // username: {
+      //     required: {
+      //         rule: true,
+      //         message: '用户名不能为空！'
+      //     },
+      //     minlength: {
+      //         rule: 2,
+      //         message: '最小长度为2'
+      //     },
+      //     maxlength: {
+      //         rule: 6,
+      //         message: '最大长度为6'
+      //     }
+      // }
+  
+      var options = {},
+          rules = {},
+          messages = {};
+  
+      for (var k in rulesOptions) {
+          // k=username
+          if (rulesOptions.hasOwnProperty(k)) {
+              var v = rulesOptions[k];
+              for (var vk in v) {
+                  // vk=required
+                  // 这里的vk是校验器的名字，vv是校验器的设置，为对象或者是字符串
+                  var vv = v[vk];
+  
+                  if (typeof vv === 'object') {
+                      // 如果校验器对应的值不是对象，则要解析其中的rule和message
+                      // 校验器的传值 rule
+                      if (vv.rule) {
+                          if (!rules[k]) {
+                              rules[k] = {};
+                          }
+                          rules[k][vk] = vv.rule;
+                      }
+  
+                      // 校验器失败之后的提示 message
+                      if (vv.message) {
+                          if (!messages[k]) {
+                              messages[k] = {};
+                          }
+                          messages[k][vk] = vv.message;
+                      }
+                  } else {
+                      // 如果校验器对应的值不是对象，则将其当作 rule
+                      if (!rules[k]) {
+                          rules[k] = {};
+                      }
+                      rules[k][vk] = vv;
+                  }
+              }
+          }
+      }
+  
+      if (!$.isEmptyObject(rules)) {
+          options.rules = rules;
+      }
+  
+      if (!$.isEmptyObject(messages)) {
+          options.messages = messages;
+      }
+  
+      return options;
+  }
+  
+  /**
+   * 校验并返回校验结果，如果传入了表单元素name，则只校验该name，否则全表单所有的元素都校验
+   * @param  {object} jqForm form或者表单元素
+   * @param  {string} fieldName form中的某个表单元素的name属性值
+   * @return {boolean}          
+   */
+  function valid(jqForm, fieldName) {
+      if (!jqForm || !jqForm.length) {
+          return false;
+      }
+  
+      if (!fieldName) {
+          return jqForm.valid();
+      } else {
+          return $('[name="' + fieldName + '"]', jqForm).valid();
+      }
+  }
+  
+  module.exports = {
+      check: check,
+      valid: valid
+  };
+
+});
+
+;/*!/modules/crudmodal/save/main.js*/
+define('modules/crudmodal/save/main', function(require, exports, module) {
+
+  'use strict';
+  
+  var Vue = require('common/lib/vue');
+  var Validator = require('common/scripts/validator');
+  var Msg = require('components/msg/main');
+  var mixinsBasicModal = require('mixins/modal/basic/main');
+  
+  Vue.component('crud-modal-save', {
+      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n\r\n            <template v-for=\"item in items\">\r\n                <he-form-item :title=\"item.title\" horizontal>\r\n\r\n                    <input :type=\"item.elementParam.type\" \r\n                                :name=\"item.fieldName\" \r\n                                :value=\"item.value\" \r\n                                :readonly=\"item.elementParam.readonly\" \r\n                                v-if=\"item.elementType=='input'\">\r\n\r\n                    <date  :name=\"item.fieldName\" \r\n                                :value=\"item.value\"\r\n                                 v-if=\"item.elementType=='date'\"></date>\r\n\r\n                    <select2  :name=\"item.fieldName\" \r\n                                    :value=\"item.value\" \r\n                                    :url=\"item.elementParam.url\"\r\n                                    :convert=\"item.elementParam.convert\"\r\n                                    :lazy=\"item.elementParam.lazy\"\r\n                                    v-if=\"item.elementType=='select2'\">\r\n\r\n                        <template  v-for=\"select2Item in item.elementParam.options\" \r\n                                            v-if=\"item.elementParam.options\">\r\n\r\n                            <select2-option :title=\"select2Item.title\" :value=\"select2Item.value\" >\r\n                            </select2-option>\r\n\r\n                        </template>\r\n\r\n                    </select2>\r\n\r\n                </he-form-item>\r\n            </template>        \r\n\r\n        </he-form>\r\n    </modal>\r\n</div>",
+      data: function data() {
+          return {
+              jqForm: undefined,
+              items: [],
+              validatorOptions: {}
+          };
+      },
+      props: {
+          /**
+           * 初始化的值，对象，用于设置模态框中表单初始值
+           */
+          initData: {
+              type: Object,
+              'default': function _default() {
+                  return {};
+              }
+          },
+  
+          /**
+           * 字段定义数据，数组，每个字段用什么来展示
+           */
+          fieldDefine: {
+              type: Array,
+              required: true
+          },
+  
+          /**
+           * save时保存到服务器的Url
+           */
+          url: {
+              type: String,
+              required: true
+          },
+  
+          /**
+           * 标题
+           */
+          title: String
+      },
+      mixins: [mixinsBasicModal],
+      methods: {
+          beforeModal: function beforeModal() {
+              var _this = this;
+  
+              // 在展示对话框之前，获取到form对象，以便后续处理
+              this.jqForm = $('form', this.$el);
+  
+              /**
+               *
+               * fieldName：字段名称
+               * elementType：DOM元素类型
+               * elementParam：针对DOM元素的更多配置
+               * 
+               */
+              var items = [],
+                  validatorOptions = {};
+  
+              this.fieldDefine.forEach(function (item) {
+                  var fieldName = item.fieldName;
+  
+                  // 如果有传递了值进来，则设置之，会覆盖model中配置的默认的value值
+                  if (_this.initData[fieldName]) {
+                      item.value = _this.initData[fieldName];
+                  }
+  
+                  // 补充一些默认值
+                  switch (item.elementType) {
+                      case 'input':
+                          item.elementParam = $.extend({}, {
+                              type: 'text'
+                          }, item.elementParam || {});
+                          break;
+                      case 'select2':
+                          item.elementParam = $.extend({}, {
+                              url: '',
+                              convert: '',
+                              lazy: false
+                          }, item.elementParam || {});
+                          break;
+                      default:
+                          break;
+  
+                  }
+  
+                  items.push(item);
+  
+                  // validator
+                  if (item.validator) {
+                      validatorOptions[fieldName] = item.validator;
+                  }
+              });
+  
+              this.items = items;
+              this.validatorOptions = validatorOptions;
+          },
+  
+          /**
+           * 对话框确定按钮点击之后的回调函数
+           */
+          triggerSubmit: function triggerSubmit(modalId) {
+              if (this.jqForm) {
+                  this.jqForm.submit();
+              } else {
+                  console.error('this.jqForm is undefined');
+              }
+          },
+  
+          /**
+           * 表单校验
+           */
+          handleValidator: function handleValidator() {
+              var self = this;
+  
+              Validator.check(this.jqForm, this.validatorOptions, {
+                  submitHandler: function submitHandler(form) {
+                      $(form).ajaxSubmit({
+                          success: function success(responseText, statusText) {
+                              self.dealSuccessRes(responseText, statusText);
+                          },
+                          error: function error(err) {
+                              console.error(err);
+  
+                              if (err.status === 500) {
+                                  Msg.error('内部错误，请联系管理员！');
+                              } else {
+                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
+                              }
+                          }
+                      });
+                  }
+              });
+          },
+          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
+              console.log(responseText, statusText);
+  
+              if (statusText !== 'success' || responseText.errno !== 0) {
+                  // 提示失败
+                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
+              } else {
+                  // 提示成功
+                  Msg.success('^_^ 处理成功！');
+  
+                  // 关闭对话框
+                  this.hideModal();
+  
+                  // 刷新列表
+                  this.reportSuccess(responseText.data);
+              }
+          }
+      },
+      events: {
+          /**
+           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
+           * 
+           * @param  {string} name   表单中某一表单元素的name属性值
+           * @param  {string} val    新值
+           * @param  {string} oldVal 旧值
+           * @return {boolean}        校验结果
+           */
+          valuechange: function valuechange(name, val, oldVal) {
+              return Validator.valid(this.jqForm, name);
+          }
+      },
+      ready: function ready() {
+          var _this2 = this;
+  
+          this.handleValidator();
+  
+          // 通知 select2 初始化
+          setTimeout(function () {
+              _this2.$broadcast('initselect2');
+          }, 100);
       }
   });
 
@@ -13659,6 +14086,7 @@ define('common/scripts/global', function(require, exports, module) {
   
   require('modules/crudmodal/detail/main');
   require('modules/crudmodal/delete/main');
+  require('modules/crudmodal/save/main');
   
   require('components/portlet/main');
   require('components/wizard/item/main');
@@ -13701,7 +14129,7 @@ define('common/scripts/model', function(require, exports, module) {
       }
   
       /**
-       * 通过filedNameArr，获得一个map，key为name，value为title
+       * 通过fieldNameArr，获得一个map，key为name，value为title
        */
   
       _createClass(Model, [{
@@ -13785,45 +14213,6 @@ define('common/scripts/model', function(require, exports, module) {
 
 });
 
-;/*!/common/scripts/names.js*/
-define('common/scripts/names', function(require, exports, module) {
-
-  // <datagrid-item name="id" title="ID"></datagrid-item>
-  // <datagrid-item name="name" title="用户名" css="namecss"></datagrid-item>
-  // <datagrid-item name="pwd" hide></datagrid-item>
-  // <datagrid-item name="birthday" title="生日"></datagrid-item>
-  // <datagrid-item name="createTime" title="创建时间"></datagrid-item>
-  // <datagrid-item name="updateTime" title="最后更新时间"></datagrid-item>
-  // <datagrid-item name="stateShow" title="状态"></datagrid-item>
-  // <datagrid-item name="id" title="操作" render="commonOperate | detail modify delete" disableorder></datagrid-item>
-  
-  'use strict';
-  
-  var common = {
-      'id': 'ID',
-      'name': '名字',
-      'createTime': '创建时间',
-      'updateTime': '更新时间',
-      'state': '状态',
-      'stateShow': '状态'
-  };
-  
-  /**
-   * /admin/user
-   */
-  var user = $.extend({}, common, {
-      'name': '用户名',
-      'pwd': '密码',
-      'birthday': '生日'
-  });
-  
-  module.exports = {
-      user: user
-  
-  };
-
-});
-
 ;/*!/components/inputtext/main.js*/
 define('components/inputtext/main', function(require, exports, module) {
 
@@ -13900,23 +14289,19 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
       template: '<div>EMPTY</div>',
       data: function data() {
           return {
-              datagridUrl: '',
-              datagridTitle: '',
-              datagridItem: [],
               isShowSaveModal: false,
               isShowDetailModal: false,
               isShowDeleteModal: false,
-              initData: {},
-              isAdd: true,
-              saveUrl: '',
-              saveUrlType: 'front', // 默认前端分页
-              saveTitle: '',
-              detailField: {},
-              detailTitle: '',
-              deleteField: {},
-              deleteParam: {},
-              deleteUrl: '',
-              deleteTitle: ''
+  
+              datagridCgi: '',
+              datagridTitle: '',
+              datagridItem: [],
+              datagridType: 'front', // 默认前端分页
+  
+              modalTitle: '',
+              modalCgi: '',
+              modalInitData: {},
+              modalFieldDefine: {}
           };
       },
       methods: {
@@ -13987,27 +14372,27 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
               // 设置初始值
           },
           showAddPage: function showAddPage() {
-              this.isAdd = true;
-  
               this.beforeShowAddPage();
   
+              this.modalInitData = {};
               this.isShowSaveModal = true;
           },
           showModifyPage: function showModifyPage(data) {
-              this.isAdd = false;
-  
               this.beforeShowModifyPage(data);
   
+              this.modalInitData = $.extend({}, data);
               this.isShowSaveModal = true;
           },
           showDetailPage: function showDetailPage(data) {
               this.beforeShowDetailPage(data);
   
+              this.modalInitData = $.extend({}, data);
               this.isShowDetailModal = true;
           },
           showDeletePage: function showDeletePage(data) {
               this.beforeShowDeletePage(data);
   
+              this.modalInitData = $.extend({}, data);
               this.isShowDeleteModal = true;
           },
           showDataGrid: function showDataGrid() {
@@ -14042,177 +14427,6 @@ define('mixins/modal/crudindex/main', function(require, exports, module) {
 
 });
 
-;/*!/mixins/modal/crudsave/main.js*/
-define('mixins/modal/crudsave/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Validator = require('common/scripts/validator');
-  var Msg = require('components/msg/main');
-  
-  // 定义一个混合对象
-  module.exports = {
-      template: '<div>EMPTY</div>',
-      data: function data() {
-          return {
-              jqForm: undefined
-          };
-      },
-      props: {
-          /**
-           * 初始化的值，对象，用于设置模态框中表单初始值
-           */
-          initData: Object,
-  
-          /**
-           * save时保存到服务器的Url
-           */
-          url: {
-              type: String,
-              required: true
-          },
-  
-          /**
-           * 当前是否为新增页面，因为新增和修改页面会不一样
-           */
-          isAdd: Boolean,
-  
-          /**
-           * 标题
-           */
-          title: String
-      },
-      methods: {
-          /**
-           * 返回校验器规则，建议覆盖
-           */
-          getRulesOptions: function getRulesOptions() {
-              return {};
-          },
-  
-          /**
-           * 弹出对话框
-           */
-          showModal: function showModal() {
-              if (!this.initData) {
-                  return;
-              }
-  
-              // 遍历所有的有name属性的表单，并将其设置到vue的data中
-              var self = this,
-                  jqFiledList = this.jqForm.find('[name]');
-  
-              jqFiledList.each(function () {
-                  var filedName = $(this).attr('name');
-  
-                  self.$set(filedName, self.initData[filedName]);
-              });
-  
-              // 弹出对话框
-              this.$children[0].show();
-          },
-  
-          /**
-           * 关闭对话框
-           */
-          hideModal: function hideModal() {
-              this.$children[0].hide();
-          },
-  
-          /**
-           * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-           */
-          reportSuccess: function reportSuccess(data) {
-              this.$dispatch('savesuccess', data);
-          },
-  
-          /**
-           * 对话框确定按钮点击之后的回调函数
-           */
-          triggerSubmit: function triggerSubmit(modalId) {
-              if (this.jqForm) {
-                  this.jqForm.submit();
-              } else {
-                  console.error('this.jqForm is undefined');
-              }
-          },
-  
-          /**
-           * 表单校验
-           */
-          handleValidator: function handleValidator() {
-              var self = this;
-  
-              Validator.check(this.jqForm, this.getRulesOptions(), {
-                  submitHandler: function submitHandler(form) {
-                      $(form).ajaxSubmit({
-                          success: function success(responseText, statusText) {
-                              self.dealSuccessRes(responseText, statusText);
-                          },
-                          error: function error(err) {
-                              console.error(err);
-  
-                              if (err.status === 500) {
-                                  Msg.error('内部错误，请联系管理员！');
-                              } else {
-                                  Msg.error('出错了~~！失败原因为：' + JSON.stringify(err));
-                              }
-                          }
-                      });
-                  }
-              });
-          },
-          dealSuccessRes: function dealSuccessRes(responseText, statusText) {
-              console.log(responseText, statusText);
-  
-              if (statusText !== 'success' || responseText.errno !== 0) {
-                  // 提示失败
-                  Msg.error('出错了~~！失败原因：' + JSON.stringify(responseText.errmsg));
-              } else {
-                  // 提示成功
-                  Msg.success('^_^ 处理成功！');
-  
-                  // 关闭对话框
-                  this.hideModal();
-  
-                  // 刷新列表
-                  this.reportSuccess(responseText.data);
-              }
-          }
-      },
-      events: {
-          /**
-           * 监听子组件中的 'valuechange' 事件，然后对其进行表单校验
-           * 
-           * @param  {string} name   表单中某一表单元素的name属性值
-           * @param  {string} val    新值
-           * @param  {string} oldVal 旧值
-           * @return {boolean}        校验结果
-           */
-          valuechange: function valuechange(name, val, oldVal) {
-              return Validator.valid(this.jqForm, name);
-          },
-  
-          /**
-           * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-           * 
-           * @param  {string} modalId   当前modal的id
-           */
-          confirm: function confirm(modalId) {
-              this.triggerSubmit(modalId);
-          }
-      },
-      ready: function ready() {
-          this.jqForm = $('form', this.$el);
-  
-          this.handleValidator();
-  
-          this.showModal();
-      }
-  };
-
-});
-
 ;/*!/pages/car_index/model.js*/
 define('pages/car_index/model', function(require, exports, module) {
 
@@ -14224,7 +14438,7 @@ define('pages/car_index/model', function(require, exports, module) {
   
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
   
-  var BaseModel = require('common/scripts/model');
+  var BaseModel = require('common/scripts/crudmodel');
   
   var Model = (function (_BaseModel) {
       _inherits(Model, _BaseModel);
@@ -14238,78 +14452,165 @@ define('pages/car_index/model', function(require, exports, module) {
       return Model;
   })(BaseModel);
   
-  module.exports = new Model(['id', 'state', 'stateShow'], {
-      'user_name': '车主人',
-      'name': '汽车名字',
-      'buydate': '购买日期'
-  });
-
-});
-
-;/*!/pages/car_index/mainarea/savemodal/main.js*/
-define('pages/car_index/mainarea/savemodal/main', function(require, exports, module) {
-
-  'use strict';
+  var fieldDefine = {};
   
-  var Vue = require('common/lib/vue');
-  
-  var mixinsSaveModal = require('mixins/modal/crudsave/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      mixins: [mixinsSaveModal],
-      methods: {
-          /**
-           * 校验器规则
-           * @return {object} 规则对象
-           */
-          getRulesOptions: function getRulesOptions() {
-              var config = {};
-  
-              config.state = {
-                  required: true
-              };
-  
-              config.buydate = {
-                  required: {
-                      rule: true,
-                      message: '购买日期不能为空！'
-                  }
-              };
-  
-              config.ownerId = {
-                  required: {
-                      rule: true,
-                      message: '车主人不能为空！'
-                  }
-              };
-  
-              if (this.isAdd) {
-                  config.name = {
-                      required: {
-                          rule: true,
-                          message: '汽车名字不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  };
+  // ID
+  fieldDefine.id = {
+      title: 'ID',
+      moduleDatagrid: true,
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
               }
-  
-              return config;
           }
-  
       },
-      ready: function ready() {
-          // 通知 select2 初始化
-          this.$broadcast('initselect2');
+      moduleDetail: true,
+      moduleDelete: {
+          show: true,
+          options: {
+              deleteDepend: 'id'
+          }
       }
-  });
+  };
+  
+  // 汽车名字
+  fieldDefine.name = {
+      title: '汽车名字',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  // 车主人
+  fieldDefine.user_name = {
+      title: '车主人',
+      moduleDatagrid: true
+  };
+  
+  // 车主人
+  fieldDefine.ownerId = {
+      title: '车主人',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  lazy: true,
+                  convert: 'searchuser',
+                  url: '/admin/user/getdata'
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  lazy: true,
+                  convert: 'searchuser',
+                  url: '/admin/user/getdata'
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态
+  fieldDefine.state = {
+      title: '状态',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 购买日期
+  fieldDefine.buydate = {
+      title: '购买日期',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'date',
+              value: '2016-03-01'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'date'
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态，对应的是state
+  fieldDefine.stateShow = {
+      title: '状态',
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
+  };
+  
+  module.exports = new Model(fieldDefine);
 
 });
 
@@ -14321,22 +14622,18 @@ define('pages/car_index/mainarea/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var Model = require('pages/car_index/model');
-  var saveModal = require('pages/car_index/mainarea/savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n\r\n</div>\r\n",
-      components: {
-          'saveModal': saveModal
-      },
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
               this.datagridTitle = '汽车信息列表';
-              this.datagridUrl = '/admin/car/getdata';
-              this.saveUrlType = 'server';
+              this.datagridCgi = '/admin/car/getdata';
+              this.datagridType = 'server';
   
-              this.datagridItem = Model.getDatagridItem(['id', 'user_name', 'name', 'buydate', 'stateShow'], null, [{
+              this.datagridItem = Model.getDatagridItem([{
                   name: 'id',
                   title: '操作',
                   render: 'commonOperate | detail modify delete',
@@ -14344,37 +14641,27 @@ define('pages/car_index/mainarea/main', function(require, exports, module) {
               }]);
           },
           beforeShowAddPage: function beforeShowAddPage() {
-              this.saveTitle = '新增汽车信息';
-              this.saveUrl = '/admin/car/add';
+              this.modalTitle = '新增汽车信息';
+              this.modalCgi = '/admin/car/add';
   
-              this.initData = {
-                  buydate: '2016-03-01',
-                  state: '1'
-              };
+              this.modalFieldDefine = Model.getAddFieldDefine();
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
-              this.saveTitle = '修改汽车信息';
-              this.saveUrl = '/admin/car/modify';
+              this.modalTitle = '修改汽车信息';
+              this.modalCgi = '/admin/car/modify';
   
-              this.initData = $.extend({}, data);
+              this.modalFieldDefine = Model.getModifyFieldDefine();
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
-              this.detailTitle = '查看汽车信息';
+              this.modalTitle = '查看汽车信息';
   
-              this.initData = $.extend({}, data);
-              this.detailField = Model.getNameMap(['id', 'user_name', 'name', 'buydate', 'stateShow']);
+              this.modalFieldDefine = Model.getDetailFieldDefine();
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
-              this.deleteTitle = '删除汽车信息';
-              this.deleteUrl = '/admin/car/delete';
+              this.modalTitle = '删除汽车信息';
+              this.modalCgi = '/admin/car/delete';
   
-              this.initData = $.extend({}, data);
-              this.deleteField = Model.getNameMap(['id', 'user_name', 'name', 'buydate', 'stateShow']);
-  
-              this.deleteParam = [{
-                  key: 'id',
-                  fieldName: 'id'
-              }];
+              this.modalFieldDefine = Model.getDeleteFieldDefine();
           }
       },
       ready: function ready() {}
@@ -14385,10 +14672,6 @@ define('pages/car_index/mainarea/main', function(require, exports, module) {
 ;/*!/pages/car_index/main.js*/
 define('pages/car_index/main', function(require, exports, module) {
 
-  /**
-   * Boot up the Vue instance and wire up the router.
-   */
-  
   'use strict';
   
   require('common/scripts/global');
@@ -14396,7 +14679,6 @@ define('pages/car_index/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var App = require('common/scripts/app');
-  
   var MainArea = require('pages/car_index/mainarea/main');
   
   window.app = new Vue({
@@ -14424,7 +14706,7 @@ define('pages/coding_index/model', function(require, exports, module) {
   
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
   
-  var BaseModel = require('common/scripts/model');
+  var BaseModel = require('common/scripts/crudmodel');
   
   var Model = (function (_BaseModel) {
       _inherits(Model, _BaseModel);
@@ -14445,67 +14727,175 @@ define('pages/coding_index/model', function(require, exports, module) {
       'menuId': '菜单ID',
       'breadcrumb': '面包屑导航'
   });
-
-});
-
-;/*!/pages/coding_index/mainarea/savemodal/main.js*/
-define('pages/coding_index/mainarea/savemodal/main', function(require, exports, module) {
-
-  'use strict';
   
-  var Vue = require('common/lib/vue');
+  var fieldDefine = {};
   
-  var mixinsSaveModal = require('mixins/modal/crudsave/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"数据库表名\" required horizontal>\r\n                <input type=\"text\" name=\"tableName\" v-model=\"tableName\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标名字\" required horizontal>\r\n                <input type=\"text\" name=\"targetName\" v-model=\"targetName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"目标描述\" horizontal>\r\n                <input type=\"text\" name=\"targetDesc\" v-model=\"targetDesc\">\r\n            </he-form-item>\r\n            <he-form-item title=\"菜单ID\" required horizontal>\r\n                <input type=\"text\" name=\"menuId\" v-model=\"menuId\">\r\n            </he-form-item>\r\n            <he-form-item title=\"面包屑导航\" required horizontal>\r\n                <input type=\"text\" name=\"breadcrumb\" v-model=\"breadcrumb\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      mixins: [mixinsSaveModal],
-      methods: {
-          /**
-           * 校验器规则
-           * @return {object} 规则对象
-           */
-          getRulesOptions: function getRulesOptions() {
-              var config = {};
-  
-              config.targetName = {
-                  required: true
-              };
-  
-              config.menuId = {
-                  required: true
-              };
-  
-              config.breadcrumb = {
-                  required: true
-              };
-  
-              config.state = {
-                  required: true
-              };
-  
-              if (this.isAdd) {
-                  config.tableName = {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  };
+  // ID
+  fieldDefine.id = {
+      title: 'ID',
+      moduleDatagrid: true,
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
               }
-  
-              return config;
           }
-  
+      },
+      moduleDetail: true,
+      moduleDelete: {
+          show: true,
+          options: {
+              deleteDepend: 'id'
+          }
       }
-  });
+  };
+  
+  // tableName
+  fieldDefine.tableName = {
+      title: '数据库表名',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  /**
+   * 管理系统的命名，要求为英文，例如think_coding对应的coding。
+   * 
+   * 主要用于以下场景：
+   * 1. 在程序中的处理，例如定义controller\model\logic等
+   * 2. url链接地址，例如/admin/coding/add等
+   * 3. 菜单的ID，例如menuCoding
+   * 4. 页面的独有class类，例如page-coding，以便用来特殊的样式控制等
+   * 
+   * @type {Object}
+   */
+  fieldDefine.managerName = {
+      title: 'key值',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  /**
+   * 管理系统的中文名称，例如think_coding对应的代码生成器。
+   * 
+   * 主要用于以下场景：
+   * 1. 标题等
+   * 2. 注释等
+   * 
+   * @type {Object}
+   */
+  fieldDefine.managerTitle = {
+      title: '中文命名',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态
+  fieldDefine.state = {
+      title: '状态',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态，对应的是state
+  fieldDefine.stateShow = {
+      title: '状态',
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
+  };
+  
+  module.exports = new Model(fieldDefine);
 
 });
 
@@ -14517,11 +14907,11 @@ define('pages/coding_index/mainarea/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var Model = require('pages/coding_index/model');
-  var saveModal = require('pages/coding_index/mainarea/savemodal/main');
+  var saveModal = require('./savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },
@@ -14717,7 +15107,7 @@ define('pages/codingitem_index/modules/modify/main', function(require, exports, 
 
   'use strict';
   
-  var CommonCrud = require('common/scripts/crud');
+  var CommonCrud = require('common/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"modifypage\">\r\n    <modal title=\"修改代码生成器信息\">\r\n        <he-form action=\"/admin/codingitem/modify\" horizontal noactions>\r\n            <he-form-item title=\"ID\" required horizontal>\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"代码生成器\" required horizontal>\r\n                <input type=\"text\" name=\"codingId\" v-model=\"codingId\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"字段名称\" required horizontal>\r\n                <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"中文名称\" horizontal>\r\n                <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"英文名称\" required horizontal>\r\n                <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" required horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -14771,7 +15161,7 @@ define('pages/codingitem_index/modules/delete/main', function(require, exports, 
 
   'use strict';
   
-  var CommonCrud = require('common/scripts/crud');
+  var CommonCrud = require('common/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"删除代码生成器信息\">\r\n        <div class=\"alert alert-warning alert-dismissable\">\r\n            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\"></button>\r\n            <strong>Warning!</strong> 请确定是否删除，一旦删除，数据将无法恢复！\r\n        </div>\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -14826,9 +15216,9 @@ define('pages/codingitem_index/modules/detail/main', function(require, exports, 
 
   'use strict';
   
-  var CommonCrud = require('common/scripts/crud');
+  var CommonCrud = require('common/crud');
   
-  var Names = require('common/scripts/names');
+  var Names = require('common/names');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"deletepage\">\r\n    <modal title=\"代码生成器信息详情\">\r\n        <table class=\"table table-bordered\">\r\n            <tr v-for=\"item in items\">\r\n                <th>{{ item.title}}</th>\r\n                <td>{{ item.value}}</td>\r\n            </tr>\r\n        </table>\r\n    </modal>\r\n</div>\r\n",
@@ -15025,7 +15415,7 @@ define('pages/codingitem_index/modules/add2/main', function(require, exports, mo
 
   'use strict';
   
-  var CommonCrud = require('common/scripts/crud');
+  var CommonCrud = require('common/crud');
   
   module.exports = CommonCrud.extend({
       template: "<div class=\"addpage\">\r\n    <button class=\"btn btn-success\" v-on:click=\"showModal\">\r\n        新增 <i class=\"fa fa-plus\"></i>\r\n    </button>\r\n    <modal title=\"新增代码生成器字段信息\" fullwidth longmodal>\r\n        <he-form action=\"/admin/codingitem/add\" horizontal noactions>\r\n            <div class=\"row\">\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"代码生成器\" required horizontal>\r\n                        <input type=\"text\" name=\"codingName\" readonly v-model=\"codingName\">\r\n                        <input type=\"hidden\" name=\"codingId\" v-model=\"codingId\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"字段名称\" required horizontal>\r\n                        <input type=\"text\" name=\"fieldName\" v-model=\"fieldName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"中文名称\" horizontal>\r\n                        <input type=\"text\" name=\"cnName\" v-model=\"cnName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"英文名称\" required horizontal>\r\n                        <input type=\"text\" name=\"dbName\" v-model=\"dbName\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"类型\" col=\"3-9\" required horizontal>\r\n                        <select2 name=\"type\" :value.sync=\"type\">\r\n                            <select2-option title=\"字符串 varchar\" value=\"varchar\"></select2-option>\r\n                            <select2-option title=\"字符串 char\" value=\"char\"></select2-option>\r\n                            <select2-option title=\"整型 int\" value=\"int\"></select2-option>\r\n                            <select2-option title=\"日期 date\" value=\"date\"></select2-option>\r\n                            <select2-option title=\"时间 datetime\" value=\"datetime\"></select2-option>\r\n                            <select2-option title=\"文本 text\" value=\"text\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"长度\" col=\"3-9\" horizontal v-show=\"['varchar', 'char', 'int'].indexOf(type) > -1\">\r\n                        <input type=\"text\" name=\"length\" v-model=\"length\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"默认值\" col=\"3-9\" horizontal>\r\n                        <input type=\"text\" name=\"defaultVal\" v-model=\"defaultVal\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"属性\" col=\"3-9\" horizontal>\r\n                        <select2 name=\"property\" allow-clear  :value.sync=\"property\">\r\n                            <select2-option title=\"UNSIGNED\" value=\"UNSIGINED\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n\r\n                <div class=\"col-md-6\">\r\n                    <he-form-item title=\"选项\" col=\"3-9\" horizontal>\r\n                        <div class=\"checkbox-list\">\r\n                            <he-checkbox name=\"isNotNull\" title=\"是否非空\" :checked.sync=\"isNotNull\"></he-checkbox>\r\n                            <he-checkbox name=\"isAutoIncrease\" title=\"是否自增\" :checked.sync=\"isAutoIncrease\"></he-checkbox>\r\n                            <he-checkbox name=\"isKey\" title=\"是否主键\" :checked.sync=\"isKey\"></he-checkbox>\r\n                            <he-checkbox name=\"isUnique\" title=\"是否唯一\" :checked.sync=\"isUnique\"></he-checkbox>\r\n                            <he-checkbox name=\"isForeignKey\" title=\"是否外键\" :checked.sync=\"isForeignKey\"></he-checkbox>\r\n                        </div>\r\n                    </he-form-item>\r\n                    <he-form-item title=\"外键配置\" col=\"3-9\" help=\"格式： tableName-key\" horizontal v-show=\"isForeignKey\">\r\n                        <input type=\"text\" name=\"foreignConfig\" v-model=\"foreignConfig\">\r\n                    </he-form-item>\r\n                    <he-form-item title=\"注释\" col=\"3-9\" horizontal>\r\n                        <textarea name=\"comment\" v-model=\"comment\" rows=\"3\"></textarea>\r\n                    </he-form-item>                    \r\n                    <he-form-item title=\"状态\" required horizontal>\r\n                        <select2 name=\"state\" :value.sync=\"state\">\r\n                            <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                            <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                        </select2>\r\n                    </he-form-item>\r\n                </div>\r\n            </div>           \r\n            \r\n        </he-form>\r\n    </modal>\r\n</div>\r\n",
@@ -15502,7 +15892,7 @@ define('pages/user_index/model', function(require, exports, module) {
   
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
   
-  var BaseModel = require('common/scripts/model');
+  var BaseModel = require('common/scripts/crudmodel');
   
   var Model = (function (_BaseModel) {
       _inherits(Model, _BaseModel);
@@ -15516,82 +15906,187 @@ define('pages/user_index/model', function(require, exports, module) {
       return Model;
   })(BaseModel);
   
-  module.exports = new Model(['id', 'createTime', 'updateTime', 'state', 'stateShow'], {
-      'name': '用户名',
-      'pwd': '密码',
-      'birthday': '生日'
-  });
-
-});
-
-;/*!/pages/user_index/mainarea/savemodal/main.js*/
-define('pages/user_index/mainarea/savemodal/main', function(require, exports, module) {
-
-  'use strict';
+  var fieldDefine = {};
   
-  var Vue = require('common/lib/vue');
-  
-  var mixinsSaveModal = require('mixins/modal/crudsave/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"用户名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"密码\" horizontal v-if=\"isAdd\">\r\n                <input type=\"password\" name=\"pwd\" v-model=\"pwd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"生日\" horizontal>\r\n                <date name=\"birthday\" :value.sync=\"birthday\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      mixins: [mixinsSaveModal],
-      methods: {
-          /**
-           * 校验器规则
-           * @return {object} 规则对象
-           */
-          getRulesOptions: function getRulesOptions() {
-              var config = {};
-  
-              config.state = {
-                  required: true
-              };
-  
-              config.birthday = {
-                  required: {
-                      rule: true,
-                      message: '生日不能为空！'
-                  }
-              };
-  
-              if (this.isAdd) {
-                  config.name = {
-                      required: {
-                          rule: true,
-                          message: '用户名不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  };
-  
-                  config.pwd = {
-                      required: {
-                          rule: true,
-                          message: '密码不能为空！'
-                      },
-                      minlength: {
-                          rule: 5,
-                          message: '最小长度为5'
-                      },
-                      maxlength: {
-                          rule: 32,
-                          message: '最大长度为32'
-                      }
-                  };
+  // ID
+  fieldDefine.id = {
+      title: 'ID',
+      moduleDatagrid: true,
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
               }
-  
-              return config;
           }
-  
+      },
+      moduleDetail: true,
+      moduleDelete: {
+          show: true,
+          options: {
+              deleteDepend: 'id'
+          }
       }
-  });
+  };
+  
+  // 用户名
+  fieldDefine.name = {
+      title: '用户名',
+      moduleDatagrid: {
+          show: true,
+          options: {
+              css: 'namecss'
+          }
+      },
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: {
+              rule: true,
+              message: '用户名不能为空！'
+          },
+          minlength: {
+              rule: 3,
+              message: '最小长度为3'
+          },
+          maxlength: {
+              rule: 64,
+              message: '最大长度为64'
+          }
+      }
+  };
+  
+  // 密码
+  fieldDefine.pwd = {
+      title: '密码',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  type: 'password'
+              }
+          }
+      },
+      validator: {
+          required: {
+              rule: true,
+              message: '密码不能为空！'
+          },
+          minlength: {
+              rule: 5,
+              message: '最小长度为5'
+          },
+          maxlength: {
+              rule: 32,
+              message: '最大长度为32'
+          }
+      }
+  };
+  
+  // 状态
+  fieldDefine.state = {
+      title: '状态',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 生日
+  fieldDefine.birthday = {
+      title: '生日',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'date',
+              value: '2016-03-01'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'date'
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: {
+              rule: true,
+              message: '生日不能为空！'
+          }
+      }
+  };
+  
+  // 创建时间
+  fieldDefine.createTime = {
+      title: '创建时间',
+      moduleDatagrid: true
+  };
+  
+  // 更新时间
+  fieldDefine.updateTime = {
+      title: '更新时间',
+      moduleDatagrid: true
+  };
+  
+  // 状态，对应的是state
+  fieldDefine.stateShow = {
+      title: '状态',
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
+  };
+  
+  module.exports = new Model(fieldDefine);
 
 });
 
@@ -15603,28 +16098,17 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
   var Vue = require('common/lib/vue');
   
   var Model = require('pages/user_index/model');
-  var saveModal = require('pages/user_index/mainarea/savemodal/main');
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"detailField\"\r\n            :title=\"detailTitle\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :init-data=\"initData\" \r\n            :field=\"deleteField\" \r\n            :param=\"deleteParam\"\r\n            :url=\"deleteUrl\"\r\n            :title=\"deleteTitle\">\r\n</crud-modal-delete>\r\n\r\n    <save-modal v-if=\"isShowSaveModal\" \r\n            :init-data=\"initData\"\r\n            :is-add=\"isAdd\"\r\n            :title=\"saveTitle\"\r\n            :url=\"saveUrl\">\r\n</save-modal>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridUrl\" \r\n            :items=\"datagridItem\"\r\n            :type=\"saveUrlType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
-      components: {
-          'saveModal': saveModal
-      },
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       mixins: [mixinsIndexModal],
       methods: {
           beforeShowDataGrid: function beforeShowDataGrid() {
               this.datagridTitle = '用户信息列表';
-              this.datagridUrl = '/admin/user/getdata';
+              this.datagridCgi = '/admin/user/getdata';
   
-              this.datagridItem = Model.getDatagridItem(['id', 'name', 'pwd', 'birthday', 'createTime', 'updateTime', 'stateShow'], {
-                  name: {
-                      css: 'namecss'
-                  },
-                  pwd: {
-                      hide: true
-                  }
-              }, [{
+              this.datagridItem = Model.getDatagridItem([{
                   name: 'id',
                   title: '操作',
                   render: 'commonOperate | detail modify delete',
@@ -15632,37 +16116,27 @@ define('pages/user_index/mainarea/main', function(require, exports, module) {
               }]);
           },
           beforeShowAddPage: function beforeShowAddPage() {
-              this.saveTitle = '新增用户信息';
-              this.saveUrl = '/admin/user/add';
+              this.modalTitle = '新增用户信息';
+              this.modalCgi = '/admin/user/add';
   
-              this.initData = {
-                  birthday: '2016-03-01',
-                  state: '1'
-              };
+              this.modalFieldDefine = Model.getAddFieldDefine();
           },
           beforeShowModifyPage: function beforeShowModifyPage(data) {
-              this.saveTitle = '修改用户信息';
-              this.saveUrl = '/admin/user/modify';
+              this.modalTitle = '修改用户信息';
+              this.modalCgi = '/admin/user/modify';
   
-              this.initData = $.extend({}, data);
+              this.modalFieldDefine = Model.getModifyFieldDefine();
           },
           beforeShowDetailPage: function beforeShowDetailPage(data) {
-              this.detailTitle = '查看用户信息';
+              this.modalTitle = '查看用户信息';
   
-              this.initData = $.extend({}, data);
-              this.detailField = Model.getNameMap(['id', 'name', 'birthday', 'stateShow', 'createTime', 'updateTime']);
+              this.modalFieldDefine = Model.getDetailFieldDefine();
           },
           beforeShowDeletePage: function beforeShowDeletePage(data) {
-              this.deleteTitle = '删除用户信息';
-              this.deleteUrl = '/admin/user/delete';
+              this.modalTitle = '删除用户信息';
+              this.modalCgi = '/admin/user/delete';
   
-              this.initData = $.extend({}, data);
-              this.deleteField = Model.getNameMap(['id', 'name', 'stateShow', 'createTime', 'updateTime']);
-  
-              this.deleteParam = [{
-                  key: 'id',
-                  fieldName: 'id'
-              }];
+              this.modalFieldDefine = Model.getDeleteFieldDefine();
           }
       },
       ready: function ready() {}

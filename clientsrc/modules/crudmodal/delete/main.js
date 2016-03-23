@@ -19,13 +19,12 @@ Vue.component('crud-modal-delete', {
             required: true
         },
         /**
-         * 字段定义字典，key为字段名，value为其显示的中文名
+         * 字段定义数组
          */
-        field: {
-            type: Object,
+        fieldDefine: {
+            type: Array,
             required: true
         },
-        param: Array,
         url: {
             type: String,
             required: true
@@ -41,22 +40,19 @@ Vue.component('crud-modal-delete', {
             var items = [],
                 requestParam = {};
 
-            Object.keys(this.field).map(key => {
+            this.fieldDefine.forEach(item => {
                 items.push({
-                    key: key,
-                    value: this.initData[key],
-                    title: this.field[key]
+                    fieldName: item.fieldName,
+                    title: item.title,
+                    value: this.initData[item.fieldName]
                 });
+
+                if (typeof item.deleteDepend === 'string') {
+                    requestParam[item.deleteDepend] = this.initData[item.fieldName];
+                }
             });
 
             this.items = items;
-
-            if (this.param) {
-                this.param.map(item => {
-                    requestParam[item.key] = this.initData[item.fieldName];
-                });
-            }
-
             this.requestParam = requestParam;
         },
         triggerSubmit: function(modalId) {

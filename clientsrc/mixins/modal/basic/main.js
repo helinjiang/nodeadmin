@@ -23,6 +23,9 @@ module.exports = {
 
         /**
          * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
+         *
+         * TODO 该方法似乎不适合放入在这里，因为它并不是对话框的基本行为
+         * 
          */
         reportSuccess: function(data) {
             this.$dispatch('savesuccess', data);

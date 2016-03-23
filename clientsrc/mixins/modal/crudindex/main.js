@@ -3,23 +3,19 @@ module.exports = {
     template: '<div>EMPTY</div>',
     data: function() {
         return {
-            datagridUrl: '',
-            datagridTitle: '',
-            datagridItem: [],
             isShowSaveModal: false,
             isShowDetailModal: false,
             isShowDeleteModal: false,
-            initData: {},
-            isAdd: true,
-            saveUrl: '',
-            saveUrlType: 'front', // 默认前端分页
-            saveTitle: '',
-            detailField: {},
-            detailTitle: '',
-            deleteField: {},
-            deleteParam: {},
-            deleteUrl: '',
-            deleteTitle: ''
+
+            datagridCgi: '',
+            datagridTitle: '',
+            datagridItem: [],
+            datagridType: 'front', // 默认前端分页
+
+            modalTitle: '',
+            modalCgi: '',
+            modalInitData: {},
+            modalFieldDefine: {}
         };
     },
     methods: {
@@ -90,27 +86,27 @@ module.exports = {
             // 设置初始值
         },
         showAddPage: function() {
-            this.isAdd = true;
-
             this.beforeShowAddPage();
 
+            this.modalInitData = {};
             this.isShowSaveModal = true;
         },
         showModifyPage: function(data) {
-            this.isAdd = false;
-
             this.beforeShowModifyPage(data);
 
+            this.modalInitData = $.extend({}, data);
             this.isShowSaveModal = true;
         },
         showDetailPage: function(data) {
             this.beforeShowDetailPage(data);
 
+            this.modalInitData = $.extend({}, data);
             this.isShowDetailModal = true;
         },
         showDeletePage: function(data) {
             this.beforeShowDeletePage(data);
 
+            this.modalInitData = $.extend({}, data);
             this.isShowDeleteModal = true;
         },
         showDataGrid: function() {

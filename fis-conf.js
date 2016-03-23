@@ -6,10 +6,6 @@ var modArr = [
 fis.project.setProjectRoot('clientsrc');
 fis.processCWD = fis.project.getProjectPath();
 
-// 如果是dist命令则先删除旧的输出文件夹里面的内容
-fis.project.currentMedia() === 'dist' && fis.util.del(fis.project.getProjectPath('../public'));
-
-
 // 指定别名
 fis.hook('commonjs', {
     packages: [{
@@ -80,46 +76,11 @@ fis.match('*.scss', {
     });
 
 
-// 如果采用Ques进行处理
-// fis.match('/pages/**.html', {
-//     isQPage: true
-// });
-// 
-
-//src/modules下面的所有js资源都是组件化资源
-// fis.match("src/modules/**", {
-//     isMod: true,
-//     release: '/static/$0'
-// });
-
-// fis.match("/common/modules/**", {
-//     useCache: false,
-//     release: '/static/$0'
-// });
-
-// fis.match("/component_modules/*.js", {
-//     isMod: true,
-//     useMap: true,
-//     release: '/static/$0'
-// });
-
-
-//component组件资源id支持简写
-// fis.match(/^\/components\/component\/(.*)$/i, {
-//     id : '$1'
-// });
-
-//page里的页面发布到根目录
-// fis.match("components/page/(*.html)",{
-//     release: '/$1',
-//     useCache : false
-// });
 //page里的页面发布到根目录
 fis.match("/pages/(*)/*(.html)", {
     release: '/$1$2',
     useCache: false
 });
-
 
 
 fis.match('::packager', {
@@ -139,7 +100,7 @@ fis.match('::packager', {
     .match('/{common,components,modules,pages}/**.{css,scss}', {
         packTo: '/static/all.css' //css打成一个包
     })
-    .match('/common/{css,plugins}/**.{css,scss}', { //TODO此处待改正
+    .match('/common/{css,plugins}/**.{css,scss}', { //TODO后期优化，要解决合并顺序的问题
         packTo: ''
     })
     .match('{common,mixins,components,modules,pages}/**.js', {
@@ -153,38 +114,7 @@ fis.match('::packager', {
     });
 
 
-//生产环境下CSS、JS压缩合并
-//使用方法 fis3 release prod
-// fis.media('prod')
-//     .match('**.js', {
-//         optimizer: fis.plugin('uglify-js')
-//     })
-//     .match('component_modules/*.js', {
-//         packTo: '/static/pkg/common.js'
-//     })
-//     .match('components/**/*.js', {
-//         packTo: '/static/pkg/app.js'
-//     })
-//     .match('**.css', {
-//         optimizer: fis.plugin('clean-css')
-//     });
-
-// 将所有的静态资源都放入到/static文件夹下，因为thinkjs的静态资源文件夹就是这个
-
-
-if (fis.project.currentMedia() === 'dev') {
-    fis.util.del(fis.project.getProjectPath('../dev'));
-    fis.util.del(fis.project.getProjectPath('../www/static'));
-}
-
-fis.media('dev')
-    .match("/common/(css/**)", {
-        release: 'static/$1',
-        deploy: fis.plugin('local-deliver', {
-            to: '../www'
-        })
-    })
-    .match("/common/(img/**)", {
+fis.match("/common/(img/**)", {
         release: 'static/$1',
         deploy: fis.plugin('local-deliver', {
             to: '../www'
@@ -211,4 +141,49 @@ fis.media('dev')
         deploy: fis.plugin('local-deliver', {
             to: '../view/admin'
         })
+    });
+// 将所有的静态资源都放入到/static文件夹下，因为thinkjs的静态资源文件夹就是这个
+
+
+if (fis.project.currentMedia() === 'dev' || fis.project.currentMedia() === 'dist') {
+    fis.util.del(fis.project.getProjectPath('../www/static'));
+}
+
+fis.media('dev')
+    .match("/common/(css/**)", {
+        release: 'static/$1',
+        deploy: fis.plugin('local-deliver', {
+            to: '../www'
+        })
+    });
+
+fis.media('dist')
+    .match("/common/(css/**)", {
+        release: 'static/$1',
+        deploy: fis.plugin('local-deliver', {
+            to: '../www'
+        })
+    })
+    .match('*.{css,scss}', {
+        useHash: true,
+        optimizer: fis.plugin('clean-css')
+    })
+    .match('/common/plugins/**.{css,scss}', {
+        useHash: false,
+        optimizer: null
+    })
+    .match('/common/{css,fonts}/**.{css,scss}', {
+        useHash: false
+    })
+    .match('*.js', {
+        useHash: true,
+        optimizer: fis.plugin('uglify-js')
+    })
+    .match('/common/plugins/**.js', {
+        useHash: false,
+        optimizer: null
+    })
+    .match('*.min.js', {
+        useHash: false,
+        optimizer: null
     });

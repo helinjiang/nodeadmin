@@ -1,36 +1,17 @@
 var Vue = require('lib/vue');
 
 var Model = require('../model');
-var saveModal = require('./savemodal/main');
 var mixinsIndexModal = require('mixins/modal/crudindex/main');
 
 module.exports = Vue.extend({
     template: __inline('main.html'),
-    components: {
-        'saveModal': saveModal,
-    },
     mixins: [mixinsIndexModal],
     methods: {
         beforeShowDataGrid: function() {
             this.datagridTitle = '用户信息列表';
-            this.datagridUrl = '/admin/user/getdata';
+            this.datagridCgi = '/admin/user/getdata';
 
-            this.datagridItem = Model.getDatagridItem([
-                'id',
-                'name',
-                'pwd',
-                'birthday',
-                'createTime',
-                'updateTime',
-                'stateShow'
-            ], {
-                name: {
-                    css: 'namecss'
-                },
-                pwd: {
-                    hide: true
-                }
-            }, [{
+            this.datagridItem = Model.getDatagridItem([{
                 name: 'id',
                 title: '操作',
                 render: 'commonOperate | detail modify delete',
@@ -38,50 +19,27 @@ module.exports = Vue.extend({
             }]);
         },
         beforeShowAddPage: function() {
-            this.saveTitle = '新增用户信息';
-            this.saveUrl = '/admin/user/add';
+            this.modalTitle = '新增用户信息';
+            this.modalCgi = '/admin/user/add';
 
-            this.initData = {
-                birthday: '2016-03-01',
-                state: '1',
-            };
+            this.modalFieldDefine = Model.getAddFieldDefine();
         },
         beforeShowModifyPage: function(data) {
-            this.saveTitle = '修改用户信息';
-            this.saveUrl = '/admin/user/modify';
+            this.modalTitle = '修改用户信息';
+            this.modalCgi = '/admin/user/modify';
 
-            this.initData = $.extend({}, data);
+            this.modalFieldDefine = Model.getModifyFieldDefine();
         },
         beforeShowDetailPage: function(data) {
-            this.detailTitle = '查看用户信息';
+            this.modalTitle = '查看用户信息';
 
-            this.initData = $.extend({}, data);
-            this.detailField = Model.getNameMap([
-                'id',
-                'name',
-                'birthday',
-                'stateShow',
-                'createTime',
-                'updateTime'
-            ]);
+            this.modalFieldDefine = Model.getDetailFieldDefine();
         },
         beforeShowDeletePage: function(data) {
-            this.deleteTitle = '删除用户信息';
-            this.deleteUrl = '/admin/user/delete';
+            this.modalTitle = '删除用户信息';
+            this.modalCgi = '/admin/user/delete';
 
-            this.initData = $.extend({}, data);
-            this.deleteField = Model.getNameMap([
-                'id',
-                'name',
-                'stateShow',
-                'createTime',
-                'updateTime'
-            ]);
-
-            this.deleteParam = [{
-                key: 'id',
-                fieldName: 'id'
-            }];
+            this.modalFieldDefine = Model.getDeleteFieldDefine();
         },
     },
     ready: function() {

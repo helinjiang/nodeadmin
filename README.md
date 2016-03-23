@@ -1,74 +1,60 @@
-# nodeadmin
+# NodeAdmin
 基于Node.js实现的后台管理系统
 
-### 简介
+## 简介
 
-本文涉及到 fi3 和 vuejs，用于演示用法。
+NodeAdmin后台管理系统的技术架构为：前端页面使用了 [Vue.js](http://vuejs.org/)，后台框架使用了 [Think.js](https://thinkjs.org/)，数据库采用了 [MySQL](https://www.mysql.com/)，构建使用了 [FIS3](http://fis.baidu.com/fis3/index.html)，
 
-所有的源代码都放入到 `src` 目录下，编译之后则放入到 `dist` (使用 `fis3 release -d dist` 命令)
+由于 Vue.js 不支持 IE8 及其以下版本，因此，建议使用 [Chrome](http://www.google.cn/chrome/browser/desktop/index.html) 浏览器进行体验。
 
-子组件名字必须包含一个中横线，否则无效，原因未知。例如 `<index-test1></index-test1>`，如果不包含中横线，则需要这样写才行： `<div v-component="indextest1"></div>`。 注意，这个是在0.11.10，更换到1.xx版本就没影响了
+本系统仅作为研究技术之用，您可以自由的在此基础上进行修改和传播。但若要用在生产环境，请自行评估相应风险。
 
-子组件中的data值必须定义为函数方式返回数据。超链接组件
 
-> 注意版本啊！！我就被坑过，看着1.x的api，却用着0.x的库，结果很多例子跑不通。
-
-支持 `___`使得自动能够生成唯一的样式
-
- 
-### DEMO使用
-
-#### 命令
+## 体验
+使用了 fis3 构建，因此需要安装 fis3 ，还要启动构建。
 
 ```bash
-#安装fis3
+# 安装fis3
 npm install -g fis3
 
-#安装模块化插件,fis3支持本地插件
+# 安装模块化插件,fis3支持本地插件
 npm install [-g] fis3-hook-module
 npm install [-g] fis3-postpackager-loader
 
-#编译预览
-fis3 release
-fis3 server start --type node
+# 开发场景下编译
+fis3 release -w dev
 
+# 发布场景下编译
+fis3 release dist
 ```
 
-### FIS3结合
+构建完成之后，再启动node服务。
 
-FIS基础的压缩、打包、md5、加cdn域名、csssprite、文件监听、自动刷新、本地调试等当然不在话下，以下主要描述与VueJS直接相关的一些结合。
+```bash
+# install dependencies
+npm install
 
-#### 目录结构
+# start server
+npm start
 
-开发目录结构如下所示：
-
+# deploy with pm2，生成环境时使用pm2启动服务
+pm2 startOrReload pm2.json
 ```
-project
-  ├─ component_modules   (社区模块)  
-  ├─ components    (工程模块)
-  │  ├─ directive  (指令)
-  │  │  └─ more
-  │  ├─ filter     (过滤器)
-  │  │  └─ more
-  │  ├─ component  (组件)
-  │  │  ├─ header
-  │  │  └─ footer
-  │  └─ page       (页面)
-  │     ├─ article
-  │     └─ home
-  ├─ static    (非业务相关资源)
-  │  ├─ css  
-  │  ├─ fonts  
-  │  ├─ images  
-  │  ├─ js
-  ├─ fis-conf.js    (fis编译配置)
-  ...
-```
-通过FIS您可以轻松定制自己的开发目录，灵活适配各种框架的目录特点，提升可维护性。同时能按照不同的部署要求添加一个或多个部署配置。
 
-#### 模板内嵌
+由于涉及到了 MySQL，因此还需要自行新建数据库，导入 `/db/nodeadmin.sql` 文件。同时，在 `/src/common/config/db.js` 中修改数据库配置。
 
-VueJS组件开发过程中可以通过`__inline`轻松将模板内容编译到js中，提升可维护性。
+本地启动之后的访问地址为： `http://127.0.0.1:8360/`
+
+## 代码实现
+### fis3
+本项目使用了 [FIS3](http://fis.baidu.com/fis3/index.html) 构建，通过FIS您可以轻松定制自己的开发目录，灵活适配各种框架的目录特点，提升可维护性。同时能按照不同的部署要求添加一个或多个部署配置，并且它提供的基础的压缩、打包、md5、加cdn域名、csssprite、文件监听、自动刷新、本地调试等功能，都非常好用。
+
+所有前端页面的源码位于 `clientsrc` 目录下，通过 fis3 构建，静态文件会构建到 `/www/static/` 目录下，而 page 的 html 文件则构建到了 `/view/admin/` 目录下了。
+
+但限于研究不足，本项目中的构建并不是最优的，只能够算将就可用。另外，fis3 合并css文件时，无法定义合并的顺序（至少我没找到方法），因此可以看到项目中的一部分css还未合并。
+
+### Vue.js
+本项目中的 vue 组件写法，依赖于 fis3 的构建，例如可以通过`__inline`轻松将模板内容编译到js中，提升可维护性。
 
 ```javascript
 module.exports = Vue.component("c-list", {
@@ -76,60 +62,56 @@ module.exports = Vue.component("c-list", {
 })
 ```
 
-#### 异构语言编译
-
-less、sass、jade等等异构语言的编译都有相应的支持，如本项目中sass的编译配置：
-
-```javascript
-//sass的编译
-fis.match('**/*.scss', {
-    rExt: '.css', // from .scss to .css
-    parser: fis.plugin('sass', {
-        //fis-parser-sass option
-    })
-});
+前端工程的目录结构为：
 ```
-您可以查看fis文档或在npm中搜索相应的插件。
+project
+  ├─ common   (公共部分)  
+  │  ├─ css  (样式)
+  │  ├─ fonts  (字体)
+  │  ├─ html  (公共的html片段)
+  │  ├─ img  (图片资源)
+  │  ├─ lib  (库资源)
+  │  ├─ mock  (打桩的数据)
+  │  ├─ plugins  (第三方插件，主要是jQuery插件)
+  │  └─ scripts  (公共的js脚本文件)
+  ├─ components    (公共组件)
+  │  └─ ...
+  ├─ mixins    (Vue.js的混入文件)
+  │  └─ ...
+  ├─ modules    (公共模块)
+  │  └─ ...
+  ├─ pages    (页面模块)
+  │  └─ ...
+  ...
+```
+components 和 modules 的区别在于，前者是公共组件，可以用在任何地方，比如 select2 组件，甚至可以采用 npm 来托管都可以；而后者是公共模块，是相对与本项目而言的公共模块，比如可能都公用的 header 等。
 
-#### 模块化开发
- 
- - 组件拆分
-   
-   组件拆分是模块化基本要素，VueJS本身就是推荐由组件来组织页面，如component中的各个组件。
+### thinkjs
+thinkjs 的源码都在 src 文件夹下。
 
- - 依赖分析
-   
-   资源中存在依赖关系，本项目使用了fis的modjs模块化方案，您可以像开发nodejs一样直接写require便能自动完成依赖分析和资源加载。
+在本项目中，开启了thinkjs的一个debug工具，叫做 [think-debug-toolbar](https://github.com/qgy18/think-debug-toolbar)，启用生成环境场景时，会自动对其进行关闭。
 
- - 静态资源表
-   
-   如果您想了解资源加载细节，推荐您了解FIS静态资源表机制，您可以看到生成的页面中已经有资源配置。更多细节请查看FIS官网文章。
+> coding 和 codingitem 两个模块是预备实现代码生成器功能的，但现在没有完成，您可以先暂时忽略掉。test 模块是为了测试用的，也请忽略掉。
+
+## 备注
+### 注意库的版本
+我曾遇到一个诡异的问题。在写 vue 组件时，我按照 api 文档写好了组件，然后调用： `<indextest1></indextest1>`，发现没效果，组件名必须要包含一个中横线，例如`<index-test1></index-test1>`，或者`<div v-component="indextest1"></div>`。这很不科学啊，文档中明明没这么要求的。折腾了个把小时，才突然发现，我当前使用的 vue 版本是 0.11.10 的，而看的 api 文档是 1.xx 的；等我将 vue.js 升级了，就没影响了。
+
+由于我们引入了不少的库，一定要确定好我们当前的库，避免出现这样的低级错误。
+
+### pm2
+我不知道是否是因为有bug，当运行 `pm2 startOrReload pm2.json` 来启动时，会出现很多的cmd控制台，而且关不掉。这里需要进一步研究下。
+
+
+## TODO
+1. 通过构建的方式，为每个组件自动产生一个唯一的样式，这样避免样式冲突。例如支持 `___` 替换。
+2. 在项目比较固化之后，如何能够自动生成代码，减少重复性工作
+3. 将 `mixins` 文件夹再包装一层，放置在 `vuejs` 目录下，因为 Vue.js 还包括公共的 filters\directive等
 
 
 
-### 相关链接
+
+## 参考
 
  - [fis-vuejs-seed](https://github.com/zhangtao07/fis-vuejs-seed)
 
-
-
-## thinkjs 的命令
-### install dependencies
-
-```
-npm install
-```
-
-### start server
-
-```
-npm start
-```
-
-### deploy with pm2
-
-use pm2 to deploy app on production envrioment.
-
-```
-pm2 startOrReload pm2.json
-```

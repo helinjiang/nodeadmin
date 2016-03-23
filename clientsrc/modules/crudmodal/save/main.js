@@ -1,19 +1,35 @@
+var Vue = require('lib/vue');
 var Validator = require('common/validator');
 var Msg = require('components/msg/main');
+var mixinsBasicModal = require('mixins/modal/basic/main');
 
-// 定义一个混合对象
-module.exports = {
-    template: '<div>EMPTY</div>',
+Vue.component('crud-modal-save', {
+    template: __inline('main.html'),
     data: function() {
         return {
-            jqForm: undefined
+            jqForm: undefined,
+            items: [],
+            validatorOptions: {}
         };
     },
     props: {
         /**
          * 初始化的值，对象，用于设置模态框中表单初始值
          */
-        initData: Object,
+        initData: {
+            type: Object,
+            'default': function() {
+                return {};
+            }
+        },
+
+        /**
+         * 字段定义数据，数组，每个字段用什么来展示
+         */
+        fieldDefine: {
+            type: Array,
+            required: true
+        },
 
         /**
          * save时保存到服务器的Url
@@ -24,57 +40,63 @@ module.exports = {
         },
 
         /**
-         * 当前是否为新增页面，因为新增和修改页面会不一样
-         */
-        isAdd: Boolean,
-
-        /**
          * 标题
          */
         title: String
     },
+    mixins: [mixinsBasicModal],
     methods: {
-        /**
-         * 返回校验器规则，建议覆盖
-         */
-        getRulesOptions: function() {
-            return {};
-        },
+        beforeModal: function() {
+            // 在展示对话框之前，获取到form对象，以便后续处理
+            this.jqForm = $('form', this.$el);
 
-        /**
-         * 弹出对话框
-         */
-        showModal: function() {
-            if (!this.initData) {
-                return;
-            }
+            /**
+             *
+             * fieldName：字段名称
+             * elementType：DOM元素类型
+             * elementParam：针对DOM元素的更多配置
+             * 
+             */
+            var items = [],
+                validatorOptions = {};
 
-            // 遍历所有的有name属性的表单，并将其设置到vue的data中
-            var self = this,
-                jqFiledList = this.jqForm.find('[name]');
+            this.fieldDefine.forEach(item => {
+                var fieldName = item.fieldName;
 
-            jqFiledList.each(function() {
-                var filedName = $(this).attr('name');
+                // 如果有传递了值进来，则设置之，会覆盖model中配置的默认的value值
+                if (this.initData[fieldName]) {
+                    item.value = this.initData[fieldName];
+                }
 
-                self.$set(filedName, self.initData[filedName]);
+                // 补充一些默认值
+                switch (item.elementType) {
+                    case 'input':
+                        item.elementParam = $.extend({}, {
+                            type: 'text',
+                        }, item.elementParam || {});
+                        break;
+                    case 'select2':
+                        item.elementParam = $.extend({}, {
+                            url: '',
+                            convert: '',
+                            lazy: false
+                        }, item.elementParam || {});
+                        break;
+                    default:
+                        break;
+
+                }
+
+                items.push(item);
+
+                // validator
+                if (item.validator) {
+                    validatorOptions[fieldName] = item.validator;
+                }
             });
 
-            // 弹出对话框
-            this.$children[0].show();
-        },
-
-        /**
-         * 关闭对话框
-         */
-        hideModal: function() {
-            this.$children[0].hide();
-        },
-
-        /**
-         * 提交表单且返回成功之后，向上冒泡事件，以便父组件能够进行下一步处理
-         */
-        reportSuccess: function(data) {
-            this.$dispatch('savesuccess', data);
+            this.items = items;
+            this.validatorOptions = validatorOptions;
         },
 
         /**
@@ -94,7 +116,7 @@ module.exports = {
         handleValidator: function() {
             var self = this;
 
-            Validator.check(this.jqForm, this.getRulesOptions(), {
+            Validator.check(this.jqForm, this.validatorOptions, {
                 submitHandler: function(form) {
                     $(form).ajaxSubmit({
                         success: function(responseText, statusText) {
@@ -143,21 +165,13 @@ module.exports = {
         valuechange: function(name, val, oldVal) {
             return Validator.valid(this.jqForm, name);
         },
-
-        /**
-         * 监听子组件modal中的 'confirm' 事件，在点击modal中的确认按钮之后，则会触发该事件
-         * 
-         * @param  {string} modalId   当前modal的id
-         */
-        confirm: function(modalId) {
-            this.triggerSubmit(modalId);
-        },
     },
     ready: function() {
-        this.jqForm = $('form', this.$el);
-
         this.handleValidator();
 
-        this.showModal();
+        // 通知 select2 初始化
+        setTimeout(() => {
+            this.$broadcast('initselect2');
+        }, 100);
     }
-};
+});

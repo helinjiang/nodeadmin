@@ -1,7 +1,6 @@
 <crud-modal-delete v-if="isShowDeleteModal" 
-            :init-data="initData" 
-            :field="deleteField" 
-            :param="deleteParam"
-            :url="deleteUrl"
-            :title="deleteTitle">
+            :title="modalTitle"
+            :init-data="modalInitData" 
+            :field-define="modalFieldDefine" 
+            :url="modalCgi">
 </crud-modal-delete>
