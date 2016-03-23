@@ -43,6 +43,7 @@ pm2 startOrReload pm2.json
 
 由于涉及到了 MySQL，因此还需要自行新建数据库，导入 `/db/nodeadmin.sql` 文件。同时，在 `/src/common/config/db.js` 中修改数据库配置。
 
+本地启动之后的访问地址为： `http://127.0.0.1:8360/`
 
 ## 代码实现
 ### fis3
@@ -87,6 +88,10 @@ components 和 modules 的区别在于，前者是公共组件，可以用在任
 
 ### thinkjs
 thinkjs 的源码都在 src 文件夹下。
+
+在本项目中，开启了thinkjs的一个debug工具，叫做 [think-debug-toolbar](https://github.com/qgy18/think-debug-toolbar)，生成环境下请关闭它，避免泄漏信息。
+
+> coding 和 codingitem 两个模块是预备实现代码生成器功能的，但现在没有完成，您可以先暂时忽略掉。test 模块是为了测试用的，也请忽略掉。
 
 ## 备注
 ### 注意库的版本

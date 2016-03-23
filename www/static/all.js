@@ -11598,118 +11598,119 @@ define('common/scripts/menudata', function(require, exports, module) {
               icon: 'pin',
               active: false
           }]
-      }, {
-          id: 'menuCoding',
-          name: '代码生成器',
-          url: '/admin/coding',
-          icon: 'doc',
-          active: false
-      }, {
-          id: 'menuTest',
-          name: '测试专用',
-          url: '/admin/test',
-          icon: 'bag',
-          active: false
-      }
-      // {
-      //     id:'2',
-      //     name: 'Page Layouts',
-      //     icon: 'home',
-      //     active: false,
-      //     children: [{
-      //         id:'21',
-      //         name: 'Sidebar Fixed Page',
-      //         url: 'layout_sidebar_fixed.html',
-      //         icon: 'anchor',
-      //         active: false,
-      //         badge: {
-      //             type: 'warning',
-      //             value: 'new'
-      //         }
-      //     }, {
-      //         id:'test',
-      //         name: 'Sidebar Closed Page',
-      //         url: 'test.html',
-      //         icon: 'anchor',
-      //         active: false,
-      //         badge: 'new'
-      //     }, {
-      //         id:'23',
-      //         name: 'Boxed Page',
-      //         url: 'layout_sidebar_fixed.html',
-      //         icon: 'pin',
-      //         active: false
-      //     }]
-      // }, {
-      //     id:'3',
-      //     name: '4 Level Menu',
-      //     icon: 'share',
-      //     active: false,
-      //     children: [{
-      //         id:'31',
-      //         name: 'Item 1',
-      //         icon: 'anchor',
-      //         active: false,
-      //         children: [{
-      //             id:'311',
-      //             name: ' Sample Link 1',
-      //             url: 'layout_sidebar_fixed.html',
-      //             icon: 'anchor',
-      //             active: false,
-      //             children: [{
-      //                 id:'3111',
-      //                 name: 'sub-4',
-      //                 url: 'layout_sidebar_fixed.html',
-      //                 icon: 'anchor',
-      //                 active: false
-      //             }, {
-      //                 id:'3112',
-      //                 name: 'sub-4',
-      //                 url: 'layout_sidebar_closed.html',
-      //                 icon: 'anchor',
-      //                 active: false
-      //             }, {
-      //                 id:'3113',
-      //                 name: 'sub-4',
-      //                 url: 'layout_sidebar_closed.html',
-      //                 icon: 'anchor',
-      //                 active: false
-      //             }]
-      //         }, {
-      //             id:'312',
-      //             name: ' Sample Link 2',
-      //             url: 'layout_sidebar_closed.html',
-      //             icon: 'anchor',
-      //             active: false
-      //         }, {
-      //             id:'313',
-      //             name: ' Sample Link 2',
-      //             url: 'layout_sidebar_closed.html',
-      //             icon: 'anchor',
-      //             active: false
-      //         }]
-      //     }, {
-      //         id:'32',
-      //         name: 'Item 2',
-      //         icon: 'anchor',
-      //         active: false
-      //     }, {
-      //         id:'33',
-      //         name: 'Item 3',
-      //         url: 'layout_sidebar_fixed.html',
-      //         icon: 'pin',
-      //         active: false
-      //     }]
-      // }, {
-      //     id:'4',
-      //     name: 'Login',
-      //     url: 'login.html',
-      //     icon: 'user',
-      //     active: false
-      // }
-      ]
+      }]
   };
   
+  // {
+  //     id: 'menuCoding',
+  //     name: '代码生成器',
+  //     url: '/admin/coding',
+  //     icon: 'doc',
+  //     active: false
+  // },
+  // {
+  //     id: 'menuTest',
+  //     name: '测试专用',
+  //     url: '/admin/test',
+  //     icon: 'bag',
+  //     active: false
+  // }
+  // {
+  //     id:'2',
+  //     name: 'Page Layouts',
+  //     icon: 'home',
+  //     active: false,
+  //     children: [{
+  //         id:'21',
+  //         name: 'Sidebar Fixed Page',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'anchor',
+  //         active: false,
+  //         badge: {
+  //             type: 'warning',
+  //             value: 'new'
+  //         }
+  //     }, {
+  //         id:'test',
+  //         name: 'Sidebar Closed Page',
+  //         url: 'test.html',
+  //         icon: 'anchor',
+  //         active: false,
+  //         badge: 'new'
+  //     }, {
+  //         id:'23',
+  //         name: 'Boxed Page',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'pin',
+  //         active: false
+  //     }]
+  // }, {
+  //     id:'3',
+  //     name: '4 Level Menu',
+  //     icon: 'share',
+  //     active: false,
+  //     children: [{
+  //         id:'31',
+  //         name: 'Item 1',
+  //         icon: 'anchor',
+  //         active: false,
+  //         children: [{
+  //             id:'311',
+  //             name: ' Sample Link 1',
+  //             url: 'layout_sidebar_fixed.html',
+  //             icon: 'anchor',
+  //             active: false,
+  //             children: [{
+  //                 id:'3111',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_fixed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }, {
+  //                 id:'3112',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_closed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }, {
+  //                 id:'3113',
+  //                 name: 'sub-4',
+  //                 url: 'layout_sidebar_closed.html',
+  //                 icon: 'anchor',
+  //                 active: false
+  //             }]
+  //         }, {
+  //             id:'312',
+  //             name: ' Sample Link 2',
+  //             url: 'layout_sidebar_closed.html',
+  //             icon: 'anchor',
+  //             active: false
+  //         }, {
+  //             id:'313',
+  //             name: ' Sample Link 2',
+  //             url: 'layout_sidebar_closed.html',
+  //             icon: 'anchor',
+  //             active: false
+  //         }]
+  //     }, {
+  //         id:'32',
+  //         name: 'Item 2',
+  //         icon: 'anchor',
+  //         active: false
+  //     }, {
+  //         id:'33',
+  //         name: 'Item 3',
+  //         url: 'layout_sidebar_fixed.html',
+  //         icon: 'pin',
+  //         active: false
+  //     }]
+  // }, {
+  //     id:'4',
+  //     name: 'Login',
+  //     url: 'login.html',
+  //     icon: 'user',
+  //     active: false
+  // }
   module.exports = menus;
 
 });
@@ -14478,12 +14479,7 @@ define('pages/car_index/model', function(require, exports, module) {
   // 汽车名字
   fieldDefine.name = {
       title: '汽车名字',
-      moduleDatagrid: {
-          show: true,
-          options: {
-              css: 'namecss'
-          }
-      },
+      moduleDatagrid: true,
       moduleAdd: {
           show: true,
           options: {
@@ -14699,73 +14695,6 @@ define('pages/car_index/main', function(require, exports, module) {
 
 });
 
-;/*!/pages/car_index/mainarea/savemodal/main.js*/
-define('pages/car_index/mainarea/savemodal/main', function(require, exports, module) {
-
-  'use strict';
-  
-  var Vue = require('common/lib/vue');
-  
-  var mixinsSaveModal = require('mixins/modal/crudsave/main');
-  
-  module.exports = Vue.extend({
-      template: "<div class=\"savemodal\">\r\n    <modal :title=\"title\">\r\n        <he-form :action=\"url\" horizontal noactions>\r\n            <he-form-item title=\"ID\" horizontal v-if=\"!isAdd\">\r\n                <input type=\"text\" name=\"id\" v-model=\"id\" readonly>\r\n            </he-form-item>\r\n            <he-form-item title=\"汽车名\" horizontal>\r\n                <input type=\"text\" name=\"name\" v-model=\"name\" :readonly=\"!isAdd\">\r\n            </he-form-item>\r\n            <he-form-item title=\"车主人\" horizontal>\r\n                <select2 name=\"ownerId\" :value.sync=\"ownerId\" url=\"/admin/user/getdata\" convert=\"searchuser\" lazy v-ref:user></select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"状态\" horizontal>\r\n                <select2 name=\"state\" :value.sync=\"state\">\r\n                    <select2-option title=\"有效\" value=\"1\"></select2-option>\r\n                    <select2-option title=\"无效\" value=\"-1\"></select2-option>\r\n                </select2>\r\n            </he-form-item>\r\n            <he-form-item title=\"购买日期\" horizontal>\r\n                <date name=\"buydate\" :value.sync=\"buydate\"></date>\r\n            </he-form-item>\r\n        </he-form>\r\n    </modal>\r\n</div>",
-      mixins: [mixinsSaveModal],
-      methods: {
-          /**
-           * 校验器规则
-           * @return {object} 规则对象
-           */
-          getRulesOptions: function getRulesOptions() {
-              var config = {};
-  
-              config.state = {
-                  required: true
-              };
-  
-              config.buydate = {
-                  required: {
-                      rule: true,
-                      message: '购买日期不能为空！'
-                  }
-              };
-  
-              config.ownerId = {
-                  required: {
-                      rule: true,
-                      message: '车主人不能为空！'
-                  }
-              };
-  
-              if (this.isAdd) {
-                  config.name = {
-                      required: {
-                          rule: true,
-                          message: '汽车名字不能为空！'
-                      },
-                      minlength: {
-                          rule: 3,
-                          message: '最小长度为3'
-                      },
-                      maxlength: {
-                          rule: 64,
-                          message: '最大长度为64'
-                      }
-                  };
-              }
-  
-              return config;
-          }
-  
-      },
-      ready: function ready() {
-          // 通知 select2 初始化
-          this.$broadcast('initselect2');
-      }
-  });
-
-});
-
 ;/*!/pages/coding_index/model.js*/
 define('pages/coding_index/model', function(require, exports, module) {
 
@@ -14777,7 +14706,7 @@ define('pages/coding_index/model', function(require, exports, module) {
   
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
   
-  var BaseModel = require('common/scripts/model');
+  var BaseModel = require('common/scripts/crudmodel');
   
   var Model = (function (_BaseModel) {
       _inherits(Model, _BaseModel);
@@ -14798,6 +14727,175 @@ define('pages/coding_index/model', function(require, exports, module) {
       'menuId': '菜单ID',
       'breadcrumb': '面包屑导航'
   });
+  
+  var fieldDefine = {};
+  
+  // ID
+  fieldDefine.id = {
+      title: 'ID',
+      moduleDatagrid: true,
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: {
+          show: true,
+          options: {
+              deleteDepend: 'id'
+          }
+      }
+  };
+  
+  // tableName
+  fieldDefine.tableName = {
+      title: '数据库表名',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  /**
+   * 管理系统的命名，要求为英文，例如think_coding对应的coding。
+   * 
+   * 主要用于以下场景：
+   * 1. 在程序中的处理，例如定义controller\model\logic等
+   * 2. url链接地址，例如/admin/coding/add等
+   * 3. 菜单的ID，例如menuCoding
+   * 4. 页面的独有class类，例如page-coding，以便用来特殊的样式控制等
+   * 
+   * @type {Object}
+   */
+  fieldDefine.managerName = {
+      title: 'key值',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  /**
+   * 管理系统的中文名称，例如think_coding对应的代码生成器。
+   * 
+   * 主要用于以下场景：
+   * 1. 标题等
+   * 2. 注释等
+   * 
+   * @type {Object}
+   */
+  fieldDefine.managerTitle = {
+      title: '中文命名',
+      moduleDatagrid: true,
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'input'
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'input',
+              param: {
+                  readonly: true
+              }
+          }
+      },
+      moduleDetail: true,
+      moduleDelete: true,
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态
+  fieldDefine.state = {
+      title: '状态',
+      moduleAdd: {
+          show: true,
+          options: {
+              type: 'select2',
+              value: '1',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      moduleModify: {
+          show: true,
+          options: {
+              type: 'select2',
+              param: {
+                  options: [{
+                      title: '有效',
+                      value: '1'
+                  }, {
+                      title: '无效',
+                      value: '-1'
+                  }]
+              }
+          }
+      },
+      validator: {
+          required: true
+      }
+  };
+  
+  // 状态，对应的是state
+  fieldDefine.stateShow = {
+      title: '状态',
+      moduleDatagrid: true,
+      moduleDetail: true,
+      moduleDelete: true
+  };
+  
+  module.exports = new Model(fieldDefine);
 
 });
 
@@ -14813,7 +14911,7 @@ define('pages/coding_index/mainarea/main', function(require, exports, module) {
   var mixinsIndexModal = require('mixins/modal/crudindex/main');
   
   module.exports = Vue.extend({
-      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
+      template: "<div class=\"index-main\">\r\n\r\n    <admin-main-toolbar>\r\n        <he-button \r\n        type=\"success\" \r\n        icon=\"plus\" \r\n        @click=\"showAddPage\">\r\n            新增\r\n</he-button> \r\n    </admin-main-toolbar>\r\n    \r\n\r\n    <crud-modal-detail v-if=\"isShowDetailModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\">\r\n</crud-modal-detail>\r\n\r\n\r\n    <crud-modal-delete v-if=\"isShowDeleteModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\" \r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-delete>\r\n\r\n\r\n    <crud-modal-save v-if=\"isShowSaveModal\" \r\n            :title=\"modalTitle\"\r\n            :init-data=\"modalInitData\"\r\n            :field-define=\"modalFieldDefine\" \r\n            :url=\"modalCgi\">\r\n</crud-modal-save>\r\n    \r\n\r\n    <portlet :title=\"datagridTitle\" icon=\"globe\">    \r\n    <datagrid \r\n            :url=\"datagridCgi\" \r\n            :items=\"datagridItem\"\r\n            :type=\"datagridType\"\r\n            @click=\"operate\" \r\n            v-ref:datagrid>            \r\n    </datagrid>\r\n</portlet>   \r\n\r\n\r\n</div>\r\n",
       components: {
           'saveModal': saveModal
       },

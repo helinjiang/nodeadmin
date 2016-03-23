@@ -28,20 +28,20 @@ var menus = {
                 active: false
             }]
         },
-        {
-            id: 'menuCoding',
-            name: '代码生成器',
-            url: '/admin/coding',
-            icon: 'doc',
-            active: false
-        },
-        {
-            id: 'menuTest',
-            name: '测试专用',
-            url: '/admin/test',
-            icon: 'bag',
-            active: false
-        }
+        // {
+        //     id: 'menuCoding',
+        //     name: '代码生成器',
+        //     url: '/admin/coding',
+        //     icon: 'doc',
+        //     active: false
+        // },
+        // {
+        //     id: 'menuTest',
+        //     name: '测试专用',
+        //     url: '/admin/test',
+        //     icon: 'bag',
+        //     active: false
+        // }
         // {
         //     id:'2',
         //     name: 'Page Layouts',
