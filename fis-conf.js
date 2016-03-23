@@ -167,12 +167,15 @@ fis.media('dist')
     .match('*.{css,scss}', {
         useHash: true,
         optimizer: fis.plugin('clean-css')
-    }).match('/common/plugins/**.{css,scss}', {
+    })
+    .match('/common/plugins/**.{css,scss}', {
         useHash: false,
         optimizer: null
-    }).match('/common/css/**.{css,scss}', {
+    })
+    .match('/common/{css,fonts}/**.{css,scss}', {
         useHash: false
-    }).match('*.js', {
+    })
+    .match('*.js', {
         useHash: true,
         optimizer: fis.plugin('uglify-js')
     })

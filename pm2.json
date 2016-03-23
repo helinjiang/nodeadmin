@@ -2,7 +2,7 @@
   "apps": [{
     "name": "nodeadmin",
     "script": "www/production.js",
-    "cwd": "D:\code\thinkjs/D:\code\thinkjs\thinkjsadmin",
+    "cwd": "D:/code/thinkjs/thinkjsadmin",
     "exec_mode": "cluster",
     "instances": 0,
     "max_memory_restart": "1G",
