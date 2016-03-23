@@ -1,6 +1,6 @@
 {
   "apps": [{
-    "name": "D:codethinkjsD:codethinkjsthinkjsadmin",
+    "name": "nodeadmin",
     "script": "www/production.js",
     "cwd": "D:\code\thinkjs/D:\code\thinkjs\thinkjsadmin",
     "exec_mode": "cluster",
