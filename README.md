@@ -89,7 +89,7 @@ components 和 modules 的区别在于，前者是公共组件，可以用在任
 ### thinkjs
 thinkjs 的源码都在 src 文件夹下。
 
-在本项目中，开启了thinkjs的一个debug工具，叫做 [think-debug-toolbar](https://github.com/qgy18/think-debug-toolbar)，生成环境下请关闭它，避免泄漏信息。
+在本项目中，开启了thinkjs的一个debug工具，叫做 [think-debug-toolbar](https://github.com/qgy18/think-debug-toolbar)，启用生成环境场景时，会自动对其进行关闭。
 
 > coding 和 codingitem 两个模块是预备实现代码生成器功能的，但现在没有完成，您可以先暂时忽略掉。test 模块是为了测试用的，也请忽略掉。
 
@@ -98,6 +98,9 @@ thinkjs 的源码都在 src 文件夹下。
 我曾遇到一个诡异的问题。在写 vue 组件时，我按照 api 文档写好了组件，然后调用： `<indextest1></indextest1>`，发现没效果，组件名必须要包含一个中横线，例如`<index-test1></index-test1>`，或者`<div v-component="indextest1"></div>`。这很不科学啊，文档中明明没这么要求的。折腾了个把小时，才突然发现，我当前使用的 vue 版本是 0.11.10 的，而看的 api 文档是 1.xx 的；等我将 vue.js 升级了，就没影响了。
 
 由于我们引入了不少的库，一定要确定好我们当前的库，避免出现这样的低级错误。
+
+### pm2
+我不知道是否是因为有bug，当运行 `pm2 startOrReload pm2.json` 来启动时，会出现很多的cmd控制台，而且关不掉。这里需要进一步研究下。
 
 
 ## TODO
